@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../achievement/presentation/providers/achievement_provider.dart';
 import '../providers/course_provider.dart';
+import '../../data/models/course_model.dart';
 
 class LessonScreen extends ConsumerWidget {
   final String lessonId;
@@ -151,12 +153,50 @@ class LessonScreen extends ConsumerWidget {
     String? effectiveQuizId,
   ) async {
     try {
-      // Tandai lesson selesai
-      await ref.read(courseDsProvider).completeLesson(lessonId);
+      final result = await ref.read(courseDsProvider).completeLesson(lessonId);
 
       // Refresh bubble di course detail
       if (courseId != null) {
         ref.invalidate(courseDetailProvider(courseId!));
+      }
+      // Invalidate XP provider to refresh XP display
+      try { ref.refresh(xpProvider); } catch (_) {}
+
+      if (!context.mounted) return;
+
+      // Show gamification feedback
+      if (!result.alreadyCompleted) {
+        final messages = <String>[];
+        messages.add('+${result.xpEarned} XP');
+        if (result.jewelsEarned > 0) {
+          messages.add('+${result.jewelsEarned} Jewel');
+        }
+        if (result.streak != null) {
+          messages.add('Streak: ${result.streak!.currentStreak} hari');
+        }
+        if (result.levelUp != null && result.levelUp!.leveledUp) {
+          messages.add('Level Up: ${result.levelUp!.newLevelName ?? ''}');
+        }
+        for (final badge in result.badgesAwarded) {
+          messages.add('Badge: ${badge.name}');
+        }
+
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => _GamificationDialog(
+              xpEarned: result.xpEarned,
+              jewelsEarned: result.jewelsEarned,
+              streak: result.streak,
+              levelUp: result.levelUp,
+              badges: result.badgesAwarded,
+              t: t,
+            ),
+          );
+          await Future.delayed(const Duration(seconds: 2));
+          if (context.mounted) Navigator.of(context).pop();
+        }
       }
 
       if (!context.mounted) return;
@@ -164,7 +204,7 @@ class LessonScreen extends ConsumerWidget {
       if (effectiveQuizId != null) {
         // Versi 1: langsung ke quiz tanpa kembali ke course detail
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Materi selesai! Sekarang kerjakan quiz 📝',
+          content: Text('Materi selesai! Sekarang kerjakan quiz',
               style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
           backgroundColor: t.success,
           behavior: SnackBarBehavior.floating,
@@ -179,14 +219,16 @@ class LessonScreen extends ConsumerWidget {
         }
       } else {
         // Versi 2 / tidak ada quiz: kembali ke peta belajar
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Materi selesai! +XP 🎉',
-              style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
-          backgroundColor: t.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        ));
+        if (!result.alreadyCompleted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Materi selesai!',
+                style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
+            backgroundColor: t.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          ));
+        }
         context.pop();
       }
     } catch (e) {
@@ -449,6 +491,147 @@ class _Dot extends StatelessWidget {
   Widget build(BuildContext context) => Container(
       width: 10, height: 10,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle));
+}
+
+// ── Gamification Dialog ───────────────────────────────────────────────────────
+
+class _GamificationDialog extends StatelessWidget {
+  final int xpEarned;
+  final int jewelsEarned;
+  final StreakInfo? streak;
+  final LevelUpInfo? levelUp;
+  final List<BadgeInfo> badges;
+  final BloomTheme t;
+
+  const _GamificationDialog({
+    required this.xpEarned,
+    required this.jewelsEarned,
+    this.streak,
+    this.levelUp,
+    this.badges = const [],
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+    backgroundColor: Colors.transparent,
+    child: Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: t.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🎉', style: TextStyle(fontSize: 56)),
+          const SizedBox(height: 12),
+          Text('Selesai!',
+              style: GoogleFonts.nunito(
+                  color: t.textPrimary, fontSize: 22,
+                  fontWeight: FontWeight.w900)),
+          const SizedBox(height: 20),
+
+          // XP
+          _RewardRow(t, '⭐', '+$xpEarned XP', t.accent),
+          if (jewelsEarned > 0)
+            _RewardRow(t, '💎', '+$jewelsEarned Jewel', const Color(0xFF4A90E2)),
+
+          // Streak
+          if (streak != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('🔥', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 6),
+                  Text('Streak ${streak!.currentStreak} hari',
+                      style: GoogleFonts.nunito(
+                          color: t.warning, fontSize: 14,
+                          fontWeight: FontWeight.w700)),
+                ],
+              ),
+            ),
+
+          // Level up
+          if (levelUp != null && levelUp!.leveledUp)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: t.accent.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🚀', style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 6),
+                    Text('Level Up: ${levelUp!.newLevelName ?? ''}',
+                        style: GoogleFonts.nunito(
+                            color: t.accent, fontSize: 14,
+                            fontWeight: FontWeight.w800)),
+                  ],
+                ),
+              ),
+            ),
+
+          // Badges
+          for (final badge in badges)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: t.info.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🏅', style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 6),
+                    Text('Badge: ${badge.name}',
+                        style: GoogleFonts.nunito(
+                            color: t.info, fontSize: 14,
+                            fontWeight: FontWeight.w700)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _RewardRow extends StatelessWidget {
+  final BloomTheme t;
+  final String emoji, label;
+  final Color color;
+  const _RewardRow(this.t, this.emoji, this.label, this.color);
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 20)),
+        const SizedBox(width: 8),
+        Text(label,
+            style: GoogleFonts.nunito(
+                color: color, fontSize: 18, fontWeight: FontWeight.w900)),
+      ],
+    ),
+  );
 }
 
 // ── Error ─────────────────────────────────────────────────────────────────────

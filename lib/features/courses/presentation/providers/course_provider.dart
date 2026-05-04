@@ -37,6 +37,10 @@ class QuizState {
   final bool isFinished;
   final QuizResultModel? result;
   final String? error;
+  final int? userQuizId;
+  final Map<String, SubmitAnswerResponse> answerResults;
+  final SubmitAnswerResponse? lastAnswerResult;
+  final bool isSubmittingAnswer;
 
   const QuizState({
     this.quiz,
@@ -46,6 +50,10 @@ class QuizState {
     this.isFinished   = false,
     this.result,
     this.error,
+    this.userQuizId,
+    this.answerResults = const {},
+    this.lastAnswerResult,
+    this.isSubmittingAnswer = false,
   });
 
   QuestionModel? get current =>
@@ -64,15 +72,24 @@ class QuizState {
     bool? isFinished,
     QuizResultModel? result,
     String? error,
+    int? userQuizId,
+    Map<String, SubmitAnswerResponse>? answerResults,
+    SubmitAnswerResponse? lastAnswerResult,
+    bool? isSubmittingAnswer,
     bool clearError = false,
+    bool clearLastAnswer = false,
   }) => QuizState(
-    quiz         : quiz          ?? this.quiz,
-    currentIndex : currentIndex  ?? this.currentIndex,
-    answers      : answers       ?? this.answers,
-    isSubmitting : isSubmitting  ?? this.isSubmitting,
-    isFinished   : isFinished    ?? this.isFinished,
-    result       : result        ?? this.result,
-    error        : clearError ? null : (error ?? this.error),
+    quiz              : quiz               ?? this.quiz,
+    currentIndex      : currentIndex       ?? this.currentIndex,
+    answers           : answers            ?? this.answers,
+    isSubmitting      : isSubmitting       ?? this.isSubmitting,
+    isFinished        : isFinished         ?? this.isFinished,
+    result            : result             ?? this.result,
+    error             : clearError ? null : (error ?? this.error),
+    userQuizId        : userQuizId         ?? this.userQuizId,
+    answerResults     : answerResults      ?? this.answerResults,
+    lastAnswerResult  : clearLastAnswer ? null : (lastAnswerResult ?? this.lastAnswerResult),
+    isSubmittingAnswer: isSubmittingAnswer ?? this.isSubmittingAnswer,
   );
 }
 
@@ -97,7 +114,11 @@ class QuizNotifier extends StateNotifier<QuizState> {
         return;
       }
 
-      state = state.copyWith(quiz: quiz, clearError: true);
+      state = state.copyWith(
+        quiz: quiz,
+        userQuizId: quiz.userQuizId,
+        clearError: true,
+      );
     } catch (e) {
       state = state.copyWith(
           error: e.toString().replaceAll('Exception: ', ''));
@@ -127,7 +148,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
     if (state.quiz == null) return;
     state = state.copyWith(isSubmitting: true);
     try {
-      final result = await _ds.submitQuiz(quizId, state.answers);
+      final result = await _ds.submitQuiz(quizId);
       state = state.copyWith(
           isSubmitting: false, isFinished: true, result: result);
     } catch (e) {
@@ -136,6 +157,44 @@ class QuizNotifier extends StateNotifier<QuizState> {
         error: e.toString().replaceAll('Exception: ', ''),
       );
     }
+  }
+
+  Future<SubmitAnswerResponse?> submitCurrentAnswer() async {
+    if (state.current == null || state.userQuizId == null) return null;
+
+    final questionId = state.current!.id;
+    final answer = state.answers[questionId];
+    if (answer == null) return null;
+
+    state = state.copyWith(isSubmittingAnswer: true);
+    try {
+      final result = await _ds.submitAnswer(
+        userQuizId: state.userQuizId!,
+        questionId: questionId,
+        submittedAnswer: answer,
+      );
+
+      // Simpan hasil
+      final updated = Map<String, SubmitAnswerResponse>.from(state.answerResults);
+      updated[questionId] = result;
+
+      state = state.copyWith(
+        answerResults: updated,
+        lastAnswerResult: result,
+        isSubmittingAnswer: false,
+      );
+      return result;
+    } catch (e) {
+      state = state.copyWith(
+        isSubmittingAnswer: false,
+        error: e.toString().replaceAll('Exception: ', ''),
+      );
+      return null;
+    }
+  }
+
+  void clearLastAnswerResult() {
+    state = state.copyWith(clearLastAnswer: true);
   }
 
   void reset() => state = const QuizState();

@@ -32,6 +32,7 @@ class Api {
   static String quizSubmit(String id)            => '/api/v1/quizzes/$id/submit';
   static String quizMyResult(String id)          => '/api/v1/quizzes/$id/my-result';
   static const quizzesByUnit = '/api/v1/quizzes';
+  static const submitAnswer                      = '/api/v1/user-questions/submit';
   
   // ── Leaderboard ───────────────────────────────────────────────────────
   static const leaderboard                       = '/api/v1/leaderboard';

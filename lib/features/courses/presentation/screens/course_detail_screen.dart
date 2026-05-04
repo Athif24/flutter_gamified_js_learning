@@ -63,6 +63,28 @@ class _Body extends StatelessWidget {
   int get _done  => course.units.fold(0, (s, u) =>
       s + u.lessons.where((l) => l.isCompleted).length);
   double get _pct => _total > 0 ? _done / _total : 0;
+  bool get _hasIncompleteLessons => course.units.any(
+      (u) => u.lessons.any((l) => !l.isCompleted));
+
+  void _navigateToNextLesson(BuildContext context) {
+    for (final unit in course.units) {
+      for (int i = 0; i < unit.lessons.length; i++) {
+        final lesson = unit.lessons[i];
+        if (!lesson.isCompleted) {
+          // Check if this lesson is unlocked (first lesson or previous is completed)
+          final isUnlocked = i == 0 || unit.lessons[i - 1].isCompleted;
+          if (isUnlocked) {
+            final quiz = unit.quizzes
+                .where((q) => q.lessonId == lesson.id)
+                .firstOrNull;
+            final quizParam = quiz != null ? '&quizId=${quiz.id}' : '';
+            context.push('/lesson/${lesson.id}?courseId=$courseId$quizParam');
+            return;
+          }
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +150,32 @@ class _Body extends StatelessWidget {
                         style: GoogleFonts.nunito(
                             color: t.accentText,
                             fontWeight: FontWeight.w800, fontSize: 12)),
+                  ),
+                ),
+              ),
+            if (course.isEnrolled && _hasIncompleteLessons)
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Bounceable(
+                  onTap: () => _navigateToNextLesson(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: t.warning,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.play_arrow_rounded,
+                            color: Colors.white, size: 16),
+                        const SizedBox(width: 4),
+                        Text('Lanjutkan',
+                            style: GoogleFonts.nunito(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800, fontSize: 12)),
+                      ],
+                    ),
                   ),
                 ),
               ),

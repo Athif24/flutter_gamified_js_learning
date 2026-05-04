@@ -67,13 +67,24 @@ class _AuthInterceptor extends Interceptor {
   @override
   Future<void> onRequest(RequestOptions o, RequestInterceptorHandler h) async {
     final token = await SecureStorage.getToken();
-    if (token != null) o.headers['Authorization'] = 'Bearer $token';
+    if (token != null) {
+      o.headers['Authorization'] = 'Bearer $token';
+      debugPrint('[API] ${o.method} ${o.path} - Token: ${token.substring(0, token.length > 20 ? 20 : token.length)}...');
+    } else {
+      debugPrint('[API] ${o.method} ${o.path} - NO TOKEN');
+    }
     h.next(o);
   }
 
   @override
   void onError(DioException e, ErrorInterceptorHandler h) {
-    if (e.response?.statusCode == 401) SecureStorage.clearAll();
+    debugPrint('[API] Error ${e.response?.statusCode} on ${e.requestOptions.path}: ${e.response?.data}');
+    // HANYA hapus token jika 401 (Unauthorized) - token invalid/expired
+    // JANGAN hapus token jika 403 (Forbidden) - hanya masalah permission
+    if (e.response?.statusCode == 401) {
+      debugPrint('[API] Unauthorized - clearing token');
+      SecureStorage.clearAll();
+    }
     h.next(e);
   }
 }

@@ -1,14 +1,19 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class CourseModel {
   final String id;
   final String title;
   final String? description;
   final String? thumbnail;
-  final int level;
   final int totalLessons;
   final int completedLessons;
   final bool isEnrolled;
+  final bool isPublished;
+  final double progress;
+  final bool isCompleted;
+  final String? lastAccessedLessonTitle;
+  final String? lastAccessedUnitTitle;
   final List<UnitModel> units;
 
   const CourseModel({
@@ -16,29 +21,56 @@ class CourseModel {
     required this.title,
     this.description,
     this.thumbnail,
-    required this.level,
     this.totalLessons    = 0,
     this.completedLessons = 0,
     this.isEnrolled      = false,
+    this.isPublished     = true,
+    this.progress        = 0.0,
+    this.isCompleted     = false,
+    this.lastAccessedLessonTitle,
+    this.lastAccessedUnitTitle,
     this.units           = const [],
   });
 
-  double get progress =>
-      totalLessons > 0 ? completedLessons / totalLessons : 0;
+  factory CourseModel.fromJson(Map<String, dynamic> j) {
+    final rawUnits = (j['units'] as List? ?? []);
+    int completedFromUnits = 0;
+    int totalFromUnits = 0;
+    for (final u in rawUnits) {
+      final lessons = (u as Map)['lessons'] as List? ?? [];
+      totalFromUnits += lessons.length;
+      for (final l in lessons) {
+        if ((l as Map)['is_completed'] == true || l['isCompleted'] == true) {
+          completedFromUnits++;
+        }
+      }
+    }
 
-  factory CourseModel.fromJson(Map<String, dynamic> j) => CourseModel(
-    id               : j['id']?.toString() ?? '',
-    title            : j['name'] ?? j['title'] ?? '',
-    description      : j['description'],
-    thumbnail        : j['thumbnail'] ?? j['imageUrl'],
-    level            : (j['level'] ?? j['difficulty'] ?? 1) as int,
-    totalLessons     : (j['total_lessons'] ?? j['totalLessons'] ?? j['lessonsCount'] ?? 0) as int,
-    completedLessons : (j['completed_lessons'] ?? j['completedLessons'] ?? j['completedCount'] ?? 0) as int,
-    isEnrolled       : j['is_enrolled'] ?? j['isEnrolled'] ?? j['enrolled'] ?? false,
-    units            : (j['units'] as List? ?? [])
-        .map((e) => UnitModel.fromJson(e as Map<String, dynamic>))
-        .toList(),
-  );
+    return CourseModel(
+      id               : j['id']?.toString() ?? '',
+      title            : j['name'] ?? j['title'] ?? '',
+      description      : j['description'],
+      thumbnail        : j['thumbnail'] ?? j['imageUrl'],
+      totalLessons     : (j['total_lessons'] ?? j['totalLessons'] ?? j['lessonsCount'] ?? totalFromUnits) as int,
+      completedLessons : (j['completed_lessons'] ?? j['completedLessons'] ?? j['completedCount'] ?? completedFromUnits) as int,
+      isEnrolled       : j['is_enrolled'] ?? j['isEnrolled'] ?? j['enrolled'] ?? false,
+      isPublished      : j['is_published'] ?? j['isPublished'] ?? true,
+      progress         : _parseDouble(j['progress']),
+      isCompleted      : j['is_completed'] ?? j['isCompleted'] ?? false,
+      lastAccessedLessonTitle: j['last_accessed_lesson_title'] ?? j['lastAccessedLessonTitle'],
+      lastAccessedUnitTitle: j['last_accessed_unit_title'] ?? j['lastAccessedUnitTitle'],
+      units            : rawUnits
+          .map((e) => UnitModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  static double _parseDouble(dynamic v) {
+    if (v == null) return 0.0;
+    if (v is double) return v;
+    if (v is int) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0.0;
+  }
 }
 
 class UnitModel {
@@ -136,6 +168,7 @@ class QuizDetailModel {
   final int timeLimit;
   final int passingScore;
   final List<QuestionModel> questions;
+  final int userQuizId;
 
   const QuizDetailModel({
     required this.id,
@@ -143,6 +176,7 @@ class QuizDetailModel {
     required this.timeLimit,
     this.passingScore = 100,
     required this.questions,
+    this.userQuizId = 0,
   });
 
   /// Parse dari response GET /quizzes/:id (tanpa questions)
@@ -164,6 +198,10 @@ class QuizDetailModel {
   factory QuizDetailModel.fromStartResponse(Map<String, dynamic> data) {
     final quizInfo  = data['quiz']  as Map<String, dynamic>? ?? {};
     final questions = data['questions'] as List? ?? [];
+    final userQuiz = data['userQuiz'] ?? data['user_quiz'] ?? {};
+    final userQuizId = int.tryParse(
+      (userQuiz is Map ? userQuiz['id'] : null)?.toString() ?? '0'
+    ) ?? 0;
 
     return QuizDetailModel(
       id           : quizInfo['id']?.toString() ?? '',
@@ -173,6 +211,7 @@ class QuizDetailModel {
       questions    : questions
           .map((e) => QuestionModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      userQuizId   : userQuizId,
     );
   }
 }
@@ -195,29 +234,80 @@ class QuestionModel {
   final String id;
   final String text;
   final String type;
+  final String? arrangeVariant;
   /// Options sebagai objek {id, text} — dipakai untuk submit jawaban dengan option id
   final List<QuizOption> optionObjects;
   final List<String> blocks;
   final int points;
+  /// Test cases untuk coding questions
+  final List<TestCaseModel> testCases;
+  /// Kunci jawaban (format bergantung tipe soal)
+  final dynamic answerKey;
 
   const QuestionModel({
     required this.id,
     required this.text,
     required this.type,
+    this.arrangeVariant,
     this.optionObjects = const [],
     this.blocks        = const [],
     this.points        = 10,
+    this.testCases     = const [],
+    this.answerKey,
   });
 
   /// Untuk kompatibilitas dengan UI yang butuh List<String>
   List<String> get options => optionObjects.map((o) => o.text).toList();
 
   factory QuestionModel.fromJson(Map<String, dynamic> j) {
-    // question bisa berupa nested object {text, image, codeSnippet} atau string langsung
+    // question bisa berupa nested object {text, image, codeSnippet, codeTemplate, blocks} atau string langsung
     final questionField = j['question'];
     final String questionText;
+    List<String> extractedBlocks = [];
+    
+    // Debug: Print what questionField contains
+    debugPrint('[QuestionModel] questionField type: ${questionField.runtimeType}');
+    debugPrint('[QuestionModel] questionField: $questionField');
+    debugPrint('[QuestionModel] j[blocks]: ${j['blocks']}');
+    
     if (questionField is Map) {
       questionText = questionField['text'] as String? ?? '';
+      
+      // Extract blocks from question object (for complete_word, arrange, etc.)
+      if (questionField['blocks'] != null) {
+        extractedBlocks = List<String>.from(questionField['blocks']);
+        debugPrint('[QuestionModel] Extracted blocks from question: $extractedBlocks');
+      } else {
+        // Fallback: Generate blocks from codeTemplate or text with {{N}} placeholders
+        final codeTemplate = questionField['codeTemplate'] as String?;
+        final text = questionField['text'] as String? ?? '';
+        final sourceText = codeTemplate ?? text;
+        
+        if (sourceText.contains('{{')) {
+          // Parse text with {{0}}, {{1}} placeholders
+          final regex = RegExp(r'\{\{(\d+)\}\}');
+          final parts = sourceText.split(regex);
+          
+          // parts will be: ["function ", "{{0}}", "( ", "{{1}}", " ) { ..."]
+          // We need to convert to blocks: ["function ", "___", "( ", "___", " ) { ..."]
+          extractedBlocks = [];
+          int lastEnd =0;
+          for (final match in regex.allMatches(sourceText)) {
+            // Add text before match as block
+            if (match.start > lastEnd) {
+              extractedBlocks.add(sourceText.substring(lastEnd, match.start));
+            }
+            // Add blank placeholder
+            extractedBlocks.add('___');
+            lastEnd = match.end;
+          }
+          // Add remaining text
+          if (lastEnd < sourceText.length) {
+            extractedBlocks.add(sourceText.substring(lastEnd));
+          }
+          debugPrint('[QuestionModel] Generated blocks from template: $extractedBlocks');
+        }
+      }
     } else {
       questionText = questionField as String? ?? j['text'] as String? ?? '';
     }
@@ -233,15 +323,134 @@ class QuestionModel {
       }
     }).toList();
 
+    // Parse test cases untuk coding questions
+    final rawTestCases = j['test_case'] as List? ?? [];
+    final testCases = rawTestCases.map((tc) {
+      if (tc is Map<String, dynamic>) {
+        return TestCaseModel.fromJson(tc);
+      }
+      return const TestCaseModel(input: '', expectedOutput: '', isHidden: false);
+    }).toList();
+
+    // Use blocks from question object, fallback to root level
+    final blocks = extractedBlocks.isNotEmpty 
+        ? extractedBlocks 
+        : List<String>.from(j['blocks'] ?? []);
+
     return QuestionModel(
       id           : j['id']?.toString() ?? '',
       text         : questionText,
       type         : j['type'] ?? 'choice',
+      arrangeVariant: j['arrange_variant'] as String?,
       optionObjects: parsedOptions,
-      blocks       : List<String>.from(j['blocks'] ?? []),
+      blocks       : blocks,
       points       : (j['score_weight'] ?? j['points'] ?? 10) as int,
+      testCases    : testCases,
+      answerKey    : j['answer_key'],
     );
   }
+}
+
+class TestCaseModel {
+  final String input;
+  final String expectedOutput;
+  final bool isHidden;
+
+  const TestCaseModel({
+    required this.input,
+    required this.expectedOutput,
+    this.isHidden = false,
+  });
+
+  factory TestCaseModel.fromJson(Map<String, dynamic> j) => TestCaseModel(
+    input          : j['input'] ?? '',
+    expectedOutput : j['expectedOutput'] ?? j['expected_output'] ?? '',
+    isHidden       : j['isHidden'] ?? j['is_hidden'] ?? false,
+  );
+}
+
+class LessonCompleteResponse {
+  final int xpEarned;
+  final int jewelsEarned;
+  final bool alreadyCompleted;
+  final StreakInfo? streak;
+  final LevelUpInfo? levelUp;
+  final List<BadgeInfo> badgesAwarded;
+
+  const LessonCompleteResponse({
+    required this.xpEarned,
+    required this.jewelsEarned,
+    required this.alreadyCompleted,
+    this.streak,
+    this.levelUp,
+    this.badgesAwarded = const [],
+  });
+
+  factory LessonCompleteResponse.fromJson(Map<String, dynamic> j) {
+    final d = j['data'] ?? j;
+    return LessonCompleteResponse(
+      xpEarned         : (d['xp_earned'] ?? d['xpEarned'] ?? 0) as int,
+      jewelsEarned     : (d['jewels_earned'] ?? d['jewelsEarned'] ?? 0) as int,
+      alreadyCompleted : d['already_completed'] ?? d['alreadyCompleted'] ?? false,
+      streak           : d['streak'] != null ? StreakInfo.fromJson(d['streak']) : null,
+      levelUp          : d['level_up'] != null ? LevelUpInfo.fromJson(d['level_up']) : null,
+      badgesAwarded    : (d['badges_awarded'] as List? ?? [])
+          .map((b) => BadgeInfo.fromJson(b as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class StreakInfo {
+  final int currentStreak;
+  final int longestStreak;
+  const StreakInfo({required this.currentStreak, required this.longestStreak});
+  factory StreakInfo.fromJson(Map<String, dynamic> j) => StreakInfo(
+    currentStreak: (j['current_streak'] ?? j['currentStreak'] ?? 0) as int,
+    longestStreak: (j['longest_streak'] ?? j['longestStreak'] ?? 0) as int,
+  );
+}
+
+class LevelUpInfo {
+  final bool leveledUp;
+  final String? previousLevelName;
+  final String? newLevelName;
+  final int jewelsAwarded;
+  const LevelUpInfo({
+    required this.leveledUp,
+    this.previousLevelName,
+    this.newLevelName,
+    this.jewelsAwarded = 0,
+  });
+  factory LevelUpInfo.fromJson(Map<String, dynamic> j) {
+    final prev = j['previous_level'] as Map<String, dynamic>?;
+    final next = j['new_level'] as Map<String, dynamic>?;
+    return LevelUpInfo(
+      leveledUp        : j['leveled_up'] ?? j['leveledUp'] ?? false,
+      previousLevelName: prev?['name'] as String?,
+      newLevelName     : next?['name'] as String?,
+      jewelsAwarded    : (j['jewels_awarded'] ?? j['jewelsAwarded'] ?? 0) as int,
+    );
+  }
+}
+
+class BadgeInfo {
+  final String id;
+  final String name;
+  final String? description;
+  final int jewelsEarned;
+  const BadgeInfo({
+    required this.id,
+    required this.name,
+    this.description,
+    this.jewelsEarned = 0,
+  });
+  factory BadgeInfo.fromJson(Map<String, dynamic> j) => BadgeInfo(
+    id          : j['id']?.toString() ?? '',
+    name        : j['name'] ?? '',
+    description : j['description'] as String?,
+    jewelsEarned: (j['jewels_earned'] ?? j['jewelsEarned'] ?? 0) as int,
+  );
 }
 
 // ── Quiz Result ───────────────────────────────────────────────────────────────
@@ -252,6 +461,11 @@ class QuizResultModel {
   final double percentage;
   final bool passed;
   final int xpEarned;
+  final int jewelsEarned;
+  final StreakInfo? streak;
+  final LevelUpInfo? levelUp;
+  final List<BadgeInfo> badgesAwarded;
+  final List<QuestionResultModel> questionResults;
 
   const QuizResultModel({
     required this.score,
@@ -259,16 +473,93 @@ class QuizResultModel {
     required this.percentage,
     required this.passed,
     required this.xpEarned,
+    this.jewelsEarned = 0,
+    this.streak,
+    this.levelUp,
+    this.badgesAwarded = const [],
+    this.questionResults = const [],
   });
 
   factory QuizResultModel.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return QuizResultModel(
-      score      : (d['score'] ?? d['total_score'] ?? 0) as int,
-      totalPoints: (d['total_points'] ?? d['totalPoints'] ?? 100) as int,
-      percentage : (d['percentage'] ?? d['score'] ?? 0).toDouble(),
-      passed     : d['passed'] ?? d['is_passed'] ?? d['isPassed'] ?? false,
-      xpEarned   : (d['xp_earned'] ?? d['xpEarned'] ?? d['xp'] ?? 0) as int,
+      score          : (d['score'] ?? d['total_score'] ?? 0) as int,
+      totalPoints    : (d['total_points'] ?? d['totalPoints'] ?? 100) as int,
+      percentage     : (d['percentage'] ?? d['percentage_score'] ?? d['score'] ?? 0).toDouble(),
+      passed         : d['passed'] ?? d['is_passed'] ?? d['isPassed'] ?? false,
+      xpEarned       : (d['xp_earned'] ?? d['xpEarned'] ?? d['xp'] ?? d['earned_xp'] ?? 0) as int,
+      jewelsEarned   : (d['jewels_earned'] ?? d['jewelsEarned'] ?? d['earned_jewels'] ?? 0) as int,
+      streak         : d['streak'] != null ? StreakInfo.fromJson(d['streak']) : null,
+      levelUp        : d['level_up'] != null ? LevelUpInfo.fromJson(d['level_up']) : null,
+      badgesAwarded  : (d['badges_awarded'] as List? ?? [])
+          .map((b) => BadgeInfo.fromJson(b as Map<String, dynamic>))
+          .toList(),
+      questionResults: (d['question_results'] as List? ?? [])
+          .map((q) => QuestionResultModel.fromJson(q as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class QuestionResultModel {
+  final String questionId;
+  final int score;
+  final int maxScore;
+  final bool isCorrect;
+  final dynamic userAnswer;
+  final dynamic correctAnswer;
+
+  const QuestionResultModel({
+    required this.questionId,
+    required this.score,
+    required this.maxScore,
+    required this.isCorrect,
+    this.userAnswer,
+    this.correctAnswer,
+  });
+
+  factory QuestionResultModel.fromJson(Map<String, dynamic> j) => QuestionResultModel(
+    questionId  : j['question_id']?.toString() ?? '',
+    score       : (j['score'] ?? 0) as int,
+    maxScore    : (j['max_score'] ?? 0) as int,
+    isCorrect   : j['is_correct'] ?? j['isCorrect'] ?? false,
+    userAnswer  : j['user_answer'],
+    correctAnswer: j['correct_answer'],
+  );
+}
+
+// ── Submit Answer Response ───────────────────────────────────────────────
+
+class SubmitAnswerResponse {
+  final String userQuestionId;
+  final int score;
+  final int maxScore;
+  final bool isCorrect;
+  final String? feedback;
+  final int? livesRemaining;
+  final dynamic correctAnswer;
+
+  const SubmitAnswerResponse({
+    required this.userQuestionId,
+    required this.score,
+    required this.maxScore,
+    required this.isCorrect,
+    this.feedback,
+    this.livesRemaining,
+    this.correctAnswer,
+  });
+
+  factory SubmitAnswerResponse.fromJson(Map<String, dynamic> j) {
+    final d = j['data'] ?? j;
+    final userQuestion = d['user_question'] ?? {};
+    return SubmitAnswerResponse(
+      userQuestionId: (userQuestion['id'] ?? '').toString(),
+      score: (d['score'] ?? 0) as int,
+      maxScore: (d['max_score'] ?? d['maxScore'] ?? 0) as int,
+      isCorrect: d['is_correct'] ?? d['isCorrect'] ?? false,
+      feedback: d['feedback'] as String?,
+      livesRemaining: d['lives_remaining'] ?? d['livesRemaining'],
+      correctAnswer: d['correct_answer'] ?? d['correctAnswer'],
     );
   }
 }
