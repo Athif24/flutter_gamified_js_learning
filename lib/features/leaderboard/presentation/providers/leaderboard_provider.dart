@@ -6,5 +6,5 @@ import '../../data/models/leaderboard_model.dart';
 final leaderboardDsProvider = Provider((ref) =>
     LeaderboardRemoteDatasource(ref.read(apiClientProvider)));
 
-final leaderboardProvider = FutureProvider<List<LeaderboardEntry>>(
+final leaderboardProvider = FutureProvider<LeaderboardResponse>(
     (ref) => ref.read(leaderboardDsProvider).getLeaderboard());

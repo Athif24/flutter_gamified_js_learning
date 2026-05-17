@@ -7,14 +7,10 @@ class LeaderboardRemoteDatasource {
   final ApiClient _api;
   LeaderboardRemoteDatasource(this._api);
 
-  Future<List<LeaderboardEntry>> getLeaderboard() async {
+  Future<LeaderboardResponse> getLeaderboard() async {
     try {
       final res  = await _api.get(Api.leaderboard);
-      final list = extractList(res.data);
-      return list.asMap().entries.map((e) =>
-          LeaderboardEntry.fromJson(
-              e.value as Map<String, dynamic>,
-              fallbackRank: e.key + 1)).toList();
+      return LeaderboardResponse.fromJson(res.data);
     } on DioException catch (e) {
       throw Exception(e.response?.data?['message'] ?? 'Gagal memuat leaderboard');
     }
