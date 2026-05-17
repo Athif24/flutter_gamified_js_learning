@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/store_model.dart';
@@ -28,10 +29,28 @@ class StoreRemoteDatasource {
   }
 
   Future<void> buyItem(String itemId) async {
+    debugPrint('[ACTION] Buy item: id=$itemId');
+    final id = int.tryParse(itemId) ?? 0;
     try {
-      await _api.post(Api.storeBuy, data: {'itemId': itemId});
+      await _api.post(Api.storeBuy, data: {'item_id': id, 'quantity': 1});
+      debugPrint('[ACTION] Buy item ✅ id=$itemId');
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal membeli item');
+      final msg = e.response?.data?['message'] ?? 'Gagal membeli item';
+      debugPrint('[ACTION] Buy item ❌ $msg');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> useItem(String itemId) async {
+    debugPrint('[ACTION] Use item: id=$itemId');
+    final id = int.tryParse(itemId) ?? 0;
+    try {
+      await _api.post(Api.storeUse, data: {'item_id': id});
+      debugPrint('[ACTION] Use item ✅ id=$itemId');
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Gagal menggunakan item';
+      debugPrint('[ACTION] Use item ❌ $msg');
+      throw Exception(msg);
     }
   }
 
