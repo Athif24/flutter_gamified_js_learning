@@ -62,6 +62,26 @@ dependencies:
   # Progress bar
   percent_indicator: ^4.2.3
 
+  # WebView for YouTube/iframe embeds
+  webview_flutter: ^4.10.0
+
+  # Video player for MP4 content
+  video_player: ^2.9.2
+
+  # URL launcher for links
+  url_launcher: ^6.3.1
+
+  # Asset picker for avatar upload (ganti image_picker)
+  wechat_assets_picker: ^9.1.0
+
+  # Crop image for avatar
+  crop_your_image: ^1.1.0
+
+  # Firebase
+  firebase_core: ^3.12.0
+  firebase_messaging: ^15.2.0
+  flutter_local_notifications: ^18.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "309205515700",
+    "project_id": "bloom-a0d40",
+    "storage_bucket": "bloom-a0d40.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:309205515700:android:29103549ed24b51f5ec6e1",
+        "android_client_info": {
+          "package_name": "com.example.flutter_gamified_js_learning"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXt-sozSsyWhONQNr5efWm47ZM2WVzpak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
