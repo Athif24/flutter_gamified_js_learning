@@ -8,78 +8,116 @@ class CourseRemoteDatasource {
   final ApiClient _api;
   CourseRemoteDatasource(this._api);
 
+  /// Normalizes progress from 0–100 (API) to 0.0–1.0 (internal scale).
+  static double _normalizeProgress(dynamic v) {
+    if (v is num) return v > 1 ? v / 100.0 : v.toDouble();
+    return 0.0;
+  }
+
   Future<List<CourseModel>> getCourses() async {
     try {
-      final res  = await _api.get(Api.courses);
+      final res = await _api.get(Api.courses);
       final list = extractList(res.data);
+      debugPrint('[ACTION] Get courses: ${list.length} items');
       return list.map((e) => CourseModel.fromJson(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
-      debugPrint('[Courses] Error ${e.response?.statusCode} on ${e.requestOptions.path}: ${e.response?.data}');
-      if (e.response?.statusCode == 403) {
-        throw Exception('Akses ditolak: Anda tidak memiliki izin untuk melihat daftar kursus. Silakan hubungi administrator.');
+      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat kursus');
+    }
+  }
+
+  Future<Map<String, dynamic>> getMyEnrollments() async {
+    try {
+      // user-courses returns 403; use auth/profile instead which has courses.details
+      final res = await _api.get(Api.authProfile);
+      final data = extractMap(res.data);
+      debugPrint('[DEBUG] getMyEnrollments profile data keys: ${data.keys}');
+      final coursesData = data['courses'] as Map? ?? {};
+      final details = coursesData['details'] as List? ?? [];
+      debugPrint('[DEBUG] getMyEnrollments courses.details (${details.length} items): $details');
+      final enrollmentMap = <String, dynamic>{};
+      for (final item in details) {
+        final m = item as Map;
+        final courseId = m['id']?.toString() ?? '';
+        if (courseId.isEmpty) {
+          debugPrint('[DEBUG] getMyEnrollments ⚠️ skipping item without ID: $m');
+          continue;
+        }
+        final rawProgress = m['progress'] ?? 0;
+        final progress = rawProgress is num
+            ? (rawProgress > 1 ? rawProgress / 100.0 : rawProgress.toDouble())
+            : 0.0;
+        enrollmentMap[courseId] = <String, dynamic>{
+          'progress': progress,
+          'is_completed': m['is_completed'] ?? m['isCompleted'] ?? false,
+          'name': m['name'] ?? '',
+        };
       }
-      throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memuat kursus');
+      debugPrint('[DEBUG] getMyEnrollments final map (${enrollmentMap.length} entries): $enrollmentMap');
+      return enrollmentMap;
+    } on DioException catch (e) {
+      debugPrint('[DEBUG] getMyEnrollments ❌ DioException: $e');
+      return <String, dynamic>{};
     }
   }
 
   Future<CourseModel> getCourseById(String id) async {
     try {
-      final res       = await _api.get(Api.courseById(id));
-      final courseMap = Map<String, dynamic>.from(extractMap(res.data));
-      final rawUnits  = courseMap['units'] as List? ?? [];
+      // Primary: call progress endpoint — returns course + units + lessons + status
+      final progressRes = await _api.get(Api.courseProgress(id));
+      final progressData = extractMap(progressRes.data);
+      final pd = progressData['data'] ?? progressData;
 
-      final unitsWithData = await Future.wait(
-        rawUnits.map((unit) async {
-          final unitMap = Map<String, dynamic>.from(unit as Map<String, dynamic>);
-          final unitId  = unitMap['id']?.toString() ?? '';
+      if (pd == null) throw Exception('Data tidak ditemukan');
 
-          // Fetch lessons
-          try {
-            final res = await _api.get(Api.lessonsByUnit(unitId)); 
-            final outer = res.data?['data'];
-            unitMap['lessons'] = (outer is Map ? outer['data'] : null) as List? ?? [];
-          } catch (_) {
-            unitMap['lessons'] = <dynamic>[];
-          }
+      final courseInfo = pd['course'] as Map? ?? {};
+      final unitsRaw = pd['units'] as List? ?? [];
 
-          // Fetch quizzes for this unit
-          try {
-            final res = await _api.get(Api.quizzes, query: {'unit_id': unitId});
-            final outer = res.data?['data'];
-            unitMap['quizzes'] = (outer is Map ? outer['data'] : null) as List? ?? [];
-          } catch (_) {
-            unitMap['quizzes'] = <dynamic>[];
-          }
+      // Build course map from progress response
+      final courseMap = <String, dynamic>{
+        'id': courseInfo['id']?.toString() ?? id,
+        'name': courseInfo['name'] ?? '',
+        'description': courseInfo['description'],
+        'thumbnail': courseInfo['thumbnail'],
+        'total_lessons': courseInfo['total_lessons'] ?? 0,
+        'is_published': courseInfo['is_published'] ?? true,
+        'progress': _normalizeProgress(pd['progress']),
+        'is_completed': pd['is_completed'] ?? false,
+        'is_enrolled': true,
+        'units': unitsRaw.map((u) {
+          final uMap = u as Map;
+          final isUnlocked = uMap['is_unlocked'] ?? true;
+          return <String, dynamic>{
+            'id': uMap['id']?.toString() ?? '',
+            'name': uMap['name'] ?? '',
+            'sequence': uMap['sequence'] ?? 0,
+            'order': uMap['sequence'] ?? 0,
+            'progress': uMap['progress'] ?? 0,
+            'is_completed': uMap['is_completed'] ?? false,
+            'is_unlocked': isUnlocked,
+            'lessons': (uMap['lessons'] as List? ?? []).map((l) {
+              final lMap = l as Map;
+              return <String, dynamic>{
+                'id': lMap['id']?.toString() ?? '',
+                'name': lMap['name'] ?? '',
+                'sequence': lMap['sequence'] ?? 0,
+                'order': lMap['sequence'] ?? 0,
+                'is_completed': lMap['is_completed'] ?? false,
+                'is_locked': !isUnlocked,
+              };
+            }).toList(),
+            'quizzes': <dynamic>[],
+          };
+        }).toList(),
+      };
 
-          return unitMap;
-        }),
-      );
-
-      courseMap['units'] = unitsWithData;
-
-      // Fetch progress to get is_enrolled, progress %, and last accessed info
-      try {
-        final progressRes = await _api.get(Api.courseProgress(id));
-        final progressData = extractMap(progressRes.data);
-        final pd = progressData['data'] ?? progressData;
-        // progress endpoint returns: { course, progress, is_completed, units: [...] }
-        if (pd != null) {
-          courseMap['is_enrolled'] = true;
-          courseMap['progress'] = pd['progress'] ?? 0;
-          courseMap['is_completed'] = pd['is_completed'] ?? false;
-
-          // Find last accessed lesson/unit from units
-          for (final u in (pd['units'] as List? ?? [])) {
-            for (final l in (u as Map)['lessons'] as List? ?? []) {
-              if ((l as Map)['is_completed'] == true) {
-                courseMap['last_accessed_lesson_title'] = l['name'];
-                courseMap['last_accessed_unit_title'] = u['name'];
-              }
-            }
+      // Find last accessed from completed lessons
+      for (final u in unitsRaw) {
+        for (final l in (u as Map)['lessons'] as List? ?? []) {
+          if ((l as Map)['is_completed'] == true) {
+            courseMap['last_accessed_lesson_title'] = l['name'];
+            courseMap['last_accessed_unit_title'] = u['name'];
           }
         }
-      } catch (_) {
-        // Not enrolled or error — is_enrolled stays false
       }
 
       return CourseModel.fromJson(courseMap);
@@ -98,10 +136,18 @@ class CourseRemoteDatasource {
   }
 
   Future<void> enrollCourse(String id) async {
+    debugPrint('[ACTION] Enroll course: id=$id');
     try {
       await _api.post(Api.courseEnroll(id));
+      debugPrint('[ACTION] Enroll course ✅ id=$id');
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal enroll kursus');
+      final msg = e.response?.data?['error'] ?? e.response?.data?['message'] ?? '';
+      debugPrint('[ACTION] Enroll course ❌ $msg');
+      if (msg.toLowerCase().contains('udah enroll') || msg.toLowerCase().contains('already')) {
+        debugPrint('[ACTION] Already enrolled — treating as success');
+        return;
+      }
+      throw Exception(msg);
     }
   }
 
@@ -114,54 +160,69 @@ class CourseRemoteDatasource {
     }
   }
 
-  Future<LessonCompleteResponse> completeLesson(String id) async {
+  Future<QuizRefModel?> getQuizByLessonId(String lessonId) async {
     try {
-      final res = await _api.post(Api.lessonComplete(id));
-      return LessonCompleteResponse.fromJson(res.data);
+      final res = await _api.get(Api.quizzes, query: {
+        'lesson_id': lessonId,
+        'device': 'mobile',
+      });
+      final list = extractList(res.data);
+      if (list.isEmpty) return null;
+      return QuizRefModel.fromJson(list[0] as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal menyelesaikan materi');
+      debugPrint('[DEBUG] getQuizByLessonId ⚠️ $lessonId — ${e.message}');
+      return null;
     }
   }
 
-  Future<QuizDetailModel> getQuizById(String id) async {
+  Future<LessonCompleteResponse> completeLesson(String id) async {
+    debugPrint('[ACTION] Complete lesson: id=$id');
+    try {
+      final res = await _api.post(Api.lessonComplete(id));
+      final resp = LessonCompleteResponse.fromJson(res.data);
+      debugPrint('[ACTION] Complete lesson ✅ xp=${resp.xpEarned} jewels=${resp.jewelsEarned}');
+      return resp;
+    } on DioException catch (e) {
+      final msg = e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal menyelesaikan materi';
+      debugPrint('[ACTION] Complete lesson ❌ $msg');
+      throw Exception(msg);
+    }
+  }
+
+  Future<QuizPreviewModel> getQuizById(String id) async {
     try {
       final res = await _api.get(Api.quizById(id));
-      return QuizDetailModel.fromJson(res.data);
+      return QuizPreviewModel.fromJson(res.data);
     } on DioException catch (e) {
       throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memuat kuis');
     }
   }
 
   Future<Map<String, dynamic>> startQuiz(String id) async {
+    debugPrint('[ACTION] Start quiz: id=$id');
     try {
       final res = await _api.post(Api.quizStart(id));
-      debugPrint('[startQuiz] Raw response: ${res.data}');
       final extracted = extractMap(res.data);
-      debugPrint('[startQuiz] Extracted map: $extracted');
-      // Log questions if available
-      if (extracted['data'] != null && extracted['data'] is Map) {
-        final data = extracted['data'] as Map;
-        if (data['questions'] != null && data['questions'] is List) {
-          final questions = data['questions'] as List;
-          debugPrint('[startQuiz] Questions count: ${questions.length}');
-          if (questions.isNotEmpty) {
-            debugPrint('[startQuiz] First question: ${questions[0]}');
-          }
-        }
-      }
+      debugPrint('[ACTION] Start quiz ✅ id=$id');
       return extracted;
     } on DioException catch (e) {
-      debugPrint('[startQuiz] Error: ${e.response?.data}');
-      throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memulai kuis');
+      final msg = e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memulai kuis';
+      debugPrint('[ACTION] Start quiz ❌ $msg');
+      throw Exception(msg);
     }
   }
 
   Future<QuizResultModel> submitQuiz(String id) async {
+    debugPrint('[ACTION] Submit quiz: id=$id');
     try {
-      final res = await _api.post(Api.quizSubmit(id));
-      return QuizResultModel.fromJson(res.data);
+      final res = await _api.post(Api.quizSubmit(id), data: {});
+      final result = QuizResultModel.fromJson(res.data);
+      debugPrint('[ACTION] Submit quiz ✅ score=${result.score}/${result.totalPoints} passed=${result.passed} xp=${result.xpEarned}');
+      return result;
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal submit kuis');
+      final msg = e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal submit kuis';
+      debugPrint('[ACTION] Submit quiz ❌ $msg');
+      throw Exception(msg);
     }
   }
 
@@ -171,6 +232,7 @@ class CourseRemoteDatasource {
     dynamic submittedAnswer,
     dynamic submittedCode,
   }) async {
+    debugPrint('[ACTION] Submit answer: quiz=$userQuizId question=$questionId');
     try {
       final data = {
         'user_quiz_id': userQuizId,
@@ -179,17 +241,20 @@ class CourseRemoteDatasource {
         if (submittedCode != null) 'submitted_code': submittedCode,
       };
       final res = await _api.post(Api.submitAnswer, data: data);
-      return SubmitAnswerResponse.fromJson(res.data);
+      final result = SubmitAnswerResponse.fromJson(res.data);
+      debugPrint('[ACTION] Submit answer ✅ correct=${result.isCorrect} score=${result.score}');
+      return result;
     } on DioException catch (e) {
-      debugPrint('[submitAnswer] Error: ${e.response?.data}');
-      throw Exception(e.response?.data?['error'] ?? 'Gagal submit jawaban');
+      final msg = e.response?.data?['error'] ?? 'Gagal submit jawaban';
+      debugPrint('[ACTION] Submit answer ❌ $msg');
+      throw Exception(msg);
     }
   }
 
-  Future<QuizResultModel> getMyQuizResult(String id) async {
+  Future<MyQuizResultResponse> getMyQuizResult(String id) async {
     try {
       final res = await _api.get(Api.quizMyResult(id));
-      return QuizResultModel.fromJson(res.data);
+      return MyQuizResultResponse.fromJson(res.data);
     } on DioException catch (e) {
       throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memuat hasil kuis');
     }

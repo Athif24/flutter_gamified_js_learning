@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../achievement/presentation/providers/achievement_provider.dart';
+import '../../../../shared/widgets/main_screen.dart';
 import '../providers/course_provider.dart';
+
 import '../../data/models/course_model.dart';
 
 class CourseListScreen extends ConsumerWidget {
@@ -15,352 +15,528 @@ class CourseListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<int>(navIndexProvider, (prev, next) {
+      if (prev != null && prev != 0 && next == 0) {
+        ref.invalidate(coursesProvider);
+        ref.invalidate(enrolledCoursesProvider);
+      }
+    });
+
     final t            = ref.watch(currentThemeProvider);
-    final auth         = ref.watch(authProvider);
     final coursesAsync = ref.watch(coursesProvider);
-    final xpAsync      = ref.watch(xpProvider);
-    final firstName    = (auth.user?.name ?? 'Mahasiswa').split(' ').first;
+    final enrolledAsync = ref.watch(enrolledCoursesProvider);
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ── Top stats bar ─────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
-                decoration: BoxDecoration(
-                  color: t.bgSurface,
-                  border: Border(bottom: BorderSide(color: t.border)),
+        child: RefreshIndicator(
+          onRefresh: () {
+            ref.invalidate(coursesProvider);
+            ref.invalidate(enrolledCoursesProvider);
+            return Future.value();
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // ── Header banner ─────────────────────────────────────────────
+              SliverToBoxAdapter(child: _HeaderBanner(
+                courseCount: coursesAsync.maybeWhen(
+                  data: (courses) => courses.length,
+                  orElse: () => 0,
                 ),
-                child: Row(children: [
-                  // Avatar
-                  Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: t.accent.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: t.accent.withOpacity(0.4)),
-                    ),
-                    child: Center(child: Text(
-                      firstName.isNotEmpty ? firstName[0].toUpperCase() : '?',
-                      style: GoogleFonts.nunito(
-                          color: t.accent, fontWeight: FontWeight.w900,
-                          fontSize: 14),
-                    )),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Hei, $firstName!',
-                            style: GoogleFonts.nunito(
-                                color: t.textPrimary,
-                                fontWeight: FontWeight.w800, fontSize: 14)),
-                        Text('Pilih kursus dan mulai belajar',
-                            style: GoogleFonts.nunito(
-                                color: t.textSecondary, fontSize: 11)),
-                      ],
-                    ),
-                  ),
-                  // XP chip
-                  xpAsync.maybeWhen(
-                    data: (xp) => _StatChip(t, '⭐', '${xp.totalXp} XP', t.accent),
-                    orElse: () => const SizedBox.shrink(),
-                  ),
-                ]).animate().fadeIn(),
-              ),
-            ),
+                t: t,
+              )),
 
-            // ── Hero banner ────────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: coursesAsync.maybeWhen(
-                data: (courses) => Container(
-                  margin: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [t.accent.withOpacity(0.2), t.info.withOpacity(0.1)],
-                      begin: Alignment.topLeft, end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: t.accent.withOpacity(0.3)),
-                  ),
-                  child: Row(children: [
-                    const Text('🚀', style: TextStyle(fontSize: 32)),
-                    const SizedBox(width: 14),
-                    Expanded(child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Pilih Kursusmu',
-                            style: GoogleFonts.nunito(
-                                color: t.textPrimary,
-                                fontWeight: FontWeight.w800, fontSize: 16)),
-                        Text('Mulai perjalanan belajarmu dan kuasai skill baru!',
-                            style: GoogleFonts.nunito(
-                                color: t.textSecondary, fontSize: 12)),
-                      ],
-                    )),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: t.accent,
-                        borderRadius: BorderRadius.circular(50),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+              // ── Courses list ───────────────────────────────────────────────
+              coursesAsync.when(
+                  loading: () => SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (_, i) => _SkeletonCard(t: t)
+                            .animate(onPlay: (c) => c.repeat())
+                            .shimmer(duration: 1200.ms,
+                                color: t.bgSurface3.withValues(alpha: 0.5)),
+                        childCount: 3,
                       ),
-                      child: Text('${courses.length} Kursus',
-                          style: GoogleFonts.nunito(
-                              color: t.accentText,
-                              fontWeight: FontWeight.w800, fontSize: 11)),
                     ),
-                  ]),
-                ).animate().fadeIn(delay: 100.ms),
-                orElse: () => const SizedBox.shrink(),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 18)),
-
-            // ── Courses list ───────────────────────────────────────────────
-            coursesAsync.when(
-              loading: () => SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (_, i) => _SkeletonCard(t: t)
-                        .animate(onPlay: (c) => c.repeat())
-                        .shimmer(duration: 1200.ms,
-                            color: t.bgSurface3.withOpacity(0.5)),
-                    childCount: 3,
                   ),
+                error: (e, _) => SliverFillRemaining(
+                  child: _ErrorView(t: t, message: e.toString(),
+                      onRetry: () => ref.refresh(coursesProvider)),
                 ),
+                data: (courses) {
+                  return enrolledAsync.when(
+                      loading: () => SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (_, i) => _SkeletonCard(t: t),
+                            childCount: 3,
+                          ),
+                        ),
+                      ),
+                    error: (_, __) => _buildCourseList(
+                      context, ref, courses, t,
+                    ),
+                    data: (enrollmentMap) => _buildCourseList(
+                      context, ref,
+                      getEnrichedCourses(courses, enrollmentMap),
+                      t,
+                    ),
+                  );
+                },
               ),
-              error: (e, _) => SliverFillRemaining(
-                child: _ErrorView(t: t, message: e.toString(),
-                    onRetry: () => ref.refresh(coursesProvider)),
-              ),
-              data: (courses) => SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (_, i) => _CourseCard(
-                      course: courses[i], index: i, t: t,
-                    ).animate().fadeIn(delay: (80 * i).ms)
-                     .slideY(begin: 0.08, end: 0),
-                    childCount: courses.length,
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseList(
+    BuildContext context,
+    WidgetRef ref,
+    List<CourseModel> courses,
+    BloomTheme t,
+  ) {
+    if (courses.isEmpty) {
+      return SliverFillRemaining(child: _EmptyState(t: t));
+    }
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (_, i) {
+            final course = courses[i];
+            return _CourseCard(
+              course: course,
+              index: i,
+              t: t,
+            ).animate().fadeIn(delay: (60 * i).ms)
+             .slideY(begin: 0.08, end: 0);
+          },
+          childCount: courses.length,
         ),
       ),
     );
   }
 }
 
-class _StatChip extends StatelessWidget {
+class _HeaderBanner extends StatelessWidget {
+  final int courseCount;
   final BloomTheme t;
-  final String emoji, label;
-  final Color color;
-  const _StatChip(this.t, this.emoji, this.label, this.color);
+  const _HeaderBanner({required this.courseCount, required this.t});
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
-      borderRadius: BorderRadius.circular(50),
-      border: Border.all(color: color.withOpacity(0.3)),
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: t.accent,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: t.border, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: t.border,
+              offset: const Offset(4, 4),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(23),
+          child: Stack(
+            children: [
+              // Decorative blur circles
+              Positioned(
+                right: -40, top: -40,
+                child: Container(
+                  width: 160, height: 160,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: t.accentText.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: -32, bottom: -32,
+                child: Container(
+                  width: 128, height: 128,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: t.accentDark.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.menu_book, size: 24, color: t.accentText),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text('Pilih Kursusmu',
+                              style: GoogleFonts.nunito(
+                                  color: t.accentText,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w900)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text('Mulai perjalanan belajarmu dan kuasai skill baru!',
+                        style: GoogleFonts.nunito(
+                            color: t.accentText.withValues(alpha: 0.8),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: t.accentText.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.auto_awesome, size: 16, color: t.accentText.withValues(alpha: 0.9)),
+                          const SizedBox(width: 6),
+                          Text('$courseCount Kursus Tersedia',
+                              style: GoogleFonts.nunito(
+                                  color: t.accentText.withValues(alpha: 0.9),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final BloomTheme t;
+  const _EmptyState({required this.t});
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 80),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: t.border.withValues(alpha: 0.2),
+            width: 2,
+          ),
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.menu_book, size: 64, color: t.textHint.withValues(alpha: 0.5)),
+          const SizedBox(height: 16),
+          Text('Belum ada kursus nih',
+              style: GoogleFonts.nunito(color: t.textPrimary.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w700, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text('Sabar ya, admin lagi nyiapin kursus kece buat kamu!',
+              style: GoogleFonts.nunito(color: t.textHint, fontSize: 13),
+              textAlign: TextAlign.center),
+        ]),
+      ),
     ),
-    child: Row(mainAxisSize: MainAxisSize.min, children: [
-      Text(emoji, style: const TextStyle(fontSize: 12)),
-      const SizedBox(width: 4),
-      Text(label, style: GoogleFonts.nunito(
-          color: color, fontWeight: FontWeight.w800, fontSize: 11)),
-    ]),
   );
 }
 
-class _CourseCard extends StatelessWidget {
+class _CourseCard extends ConsumerStatefulWidget {
   final CourseModel course;
   final int index;
   final BloomTheme t;
   const _CourseCard({required this.course, required this.index, required this.t});
 
-  static const _emojis    = ['📘','⚡','🔄','📦','🌐','🚀','🧩','💡'];
-  static const _gradPairs = [
-    [Color(0xFF4A90E2), Color(0xFF6B73E0)],
-    [Color(0xFF9B5DE5), Color(0xFFD45FD4)],
-    [Color(0xFF4ECDC4), Color(0xFF44CF87)],
-    [Color(0xFFFF9F43), Color(0xFFFF6B6B)],
-    [Color(0xFFFF6B9D), Color(0xFFFF9F43)],
-  ];
+  @override
+  ConsumerState<_CourseCard> createState() => _CourseCardState();
+}
 
-  String get _levelLabel => switch(course.level) {
-    1=>'Pemula', 2=>'Junior', 3=>'Mid Dev', 4=>'Senior', _=>'Expert',
-  };
+class _CourseCardState extends ConsumerState<_CourseCard> {
+  bool _isEnrolling = false;
+
+  Future<void> _enroll() async {
+    setState(() => _isEnrolling = true);
+    try {
+      await ref.read(courseDsProvider).enrollCourse(widget.course.id);
+      ref.invalidate(coursesProvider);
+      ref.invalidate(enrolledCoursesProvider);
+      if (mounted) context.push('/course/${widget.course.id}');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal enroll: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isEnrolling = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final emoji = _emojis[index % _emojis.length];
-    final grad  = _gradPairs[index % _gradPairs.length];
+    final course = widget.course;
+    final index = widget.index;
+    final t = widget.t;
+    final isEnrolled = course.isEnrolled;
+    final isCompleted = course.isCompleted;
+    final progress = course.progress > 0
+        ? course.progress
+        : (course.totalLessons > 0
+            ? course.completedLessons / course.totalLessons
+            : 0.0);
+    final progressPct = (progress * 100).toInt();
 
-    return Bounceable(
-      onTap: () => context.push('/course/${course.id}'),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: t.border),
-          boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16, offset: const Offset(0, 4),
-          )],
-        ),
-        child: Column(children: [
-          // Gradient header
-          Container(
-            height: 110,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: grad,
-                begin: Alignment.topLeft, end: Alignment.bottomRight,
-              ),
-              borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20)),
-            ),
-            child: Stack(children: [
-              // Dot pattern
-              Positioned.fill(child: CustomPaint(painter: _DotsPainter())),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Text(_levelLabel, style: GoogleFonts.nunito(
-                            color: Colors.white, fontSize: 10,
-                            fontWeight: FontWeight.w800)),
-                      ),
-                      const Spacer(),
-                      if (course.isEnrolled)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4CAF50).withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Text('Enrolled', style: GoogleFonts.nunito(
-                              color: Colors.white, fontSize: 10,
-                              fontWeight: FontWeight.w800)),
-                        ),
-                    ]),
-                    const Spacer(),
-                    Text(emoji, style: const TextStyle(fontSize: 30)),
-                  ],
-                ),
-              ),
-            ]),
+    // DaisyUI cycling header colors
+    final palettes = <(Color, Color)>[
+      (t.accent, t.accentText),
+      (t.success, t.accentText),
+      (t.warning, Colors.white),
+      (t.info, t.accentText),
+      (t.success, Colors.white),
+      (t.info, t.accentText),
+    ];
+    final (headerBg, headerFg) = palettes[index % palettes.length];
+
+    Widget card = Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: t.border, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: t.border,
+            offset: const Offset(4, 4),
+            blurRadius: 0,
           ),
-
-          // Info area
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Thumbnail / Gradient header
+          Container(
+            height: 144,
+            decoration: BoxDecoration(
+              color: headerBg,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(23)),
+              image: course.thumbnail != null
+                  ? DecorationImage(
+                      image: NetworkImage(course.thumbnail!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: Stack(
+              children: [
+                // Book icon
+                if (course.thumbnail == null)
+                  Center(
+                    child: Icon(Icons.menu_book, size: 56, color: headerFg.withValues(alpha: 0.8)),
+                  ),
+                // Status badges top-right
+                if (isCompleted)
+                  Positioned(
+                    right: 12, top: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: t.accent.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(50),
+                        border: Border.all(color: t.accent.withValues(alpha: 0.4)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check, size: 12, color: t.accent),
+                          const SizedBox(width: 4),
+                          Text('Selesai',
+                              style: GoogleFonts.nunito(
+                                  color: t.accent, fontSize: 10,
+                                  fontWeight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (isEnrolled && !isCompleted)
+                  Positioned(
+                    right: 12, top: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: t.accent.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(50),
+                        border: Border.all(color: t.accent.withValues(alpha: 0.4)),
+                      ),
+                      child: Text('Enrolled',
+                          style: GoogleFonts.nunito(
+                              color: t.accent, fontSize: 10,
+                              fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Body
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(course.title,
                     style: GoogleFonts.nunito(
-                        color: t.textPrimary, fontSize: 15,
+                        color: t.textPrimary, fontSize: 16,
                         fontWeight: FontWeight.w800),
                     maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 6),
-                Row(children: [
-                  Icon(Icons.layers_outlined, size: 13, color: t.textSecondary),
-                  const SizedBox(width: 4),
-                  Text('${course.units.length} Unit',
+                if (course.description != null && course.description!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(course.description!,
                       style: GoogleFonts.nunito(
-                          color: t.textSecondary, fontSize: 11)),
-                  const SizedBox(width: 12),
-                  Icon(Icons.menu_book_outlined, size: 13, color: t.textSecondary),
-                  const SizedBox(width: 4),
-                  Text('${course.totalLessons} Materi',
-                      style: GoogleFonts.nunito(
-                          color: t.textSecondary, fontSize: 11)),
-                ]),
-                if (course.isEnrolled && course.progress > 0) ...[
+                          color: t.textSecondary, fontSize: 12),
+                      maxLines: 2, overflow: TextOverflow.ellipsis),
+                ],
+                const SizedBox(height: 4),
+                Text('${course.totalLessons} lesson',
+                    style: GoogleFonts.nunito(
+                        color: t.textSecondary, fontSize: 12,
+                        fontWeight: FontWeight.w600)),
+                if (isEnrolled) ...[
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Progress', style: GoogleFonts.nunito(
-                          color: t.textSecondary, fontSize: 11)),
-                      Text('${(course.progress * 100).toInt()}%',
+                      Text('Progress',
                           style: GoogleFonts.nunito(
-                              color: t.accent, fontSize: 11,
-                              fontWeight: FontWeight.w800)),
+                              color: t.textSecondary, fontSize: 11)),
+                      Text('$progressPct%',
+                          style: GoogleFonts.nunito(
+                              color: t.textPrimary, fontSize: 11,
+                              fontWeight: FontWeight.w700)),
                     ],
                   ),
                   const SizedBox(height: 4),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: course.progress,
+                      value: progress.clamp(0.0, 1.0),
                       backgroundColor: t.bgSurface2,
                       valueColor: AlwaysStoppedAnimation(t.accent),
-                      minHeight: 6,
+                      minHeight: 10,
                     ),
                   ),
                 ],
                 const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 11),
-                  decoration: BoxDecoration(
-                    color: course.isEnrolled ? t.accent : t.bgSurface2,
-                    borderRadius: BorderRadius.circular(50),
-                    border: course.isEnrolled ? null : Border.all(color: t.border),
-                  ),
-                  child: Center(child: Text(
-                    course.isEnrolled ? 'Lanjutkan →' : 'Mulai Belajar →',
-                    style: GoogleFonts.nunito(
-                      color: course.isEnrolled ? t.accentText : t.textSecondary,
-                      fontWeight: FontWeight.w800, fontSize: 13,
+                // CTA
+                if (isEnrolled)
+                  Bounceable(
+                    onTap: () => context.push('/course/${course.id}'),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: t.border, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.border,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isCompleted)
+                              Icon(Icons.check, size: 16, color: t.success),
+                            Text(
+                              isCompleted ? ' Ulangi' : 'Lanjutkan',
+                              style: GoogleFonts.nunito(
+                                  color: t.textPrimary, fontSize: 13,
+                                  fontWeight: FontWeight.w800),
+                            ),
+                            if (!isCompleted) ...[
+                              const SizedBox(width: 4),
+                              Icon(Icons.arrow_forward, size: 16, color: t.textPrimary),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
-                  )),
-                ),
+                  ),
+                if (!isEnrolled)
+                  Bounceable(
+                    onTap: _isEnrolling ? null : _enroll,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: t.accent,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: t.border, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.border,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: _isEnrolling
+                            ? SizedBox(
+                                width: 18, height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: t.accentText,
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('Mulai',
+                                      style: GoogleFonts.nunito(
+                                          color: t.accentText, fontSize: 13,
+                                          fontWeight: FontWeight.w800)),
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.arrow_forward, size: 16, color: t.accentText),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
-        ]),
+        ],
       ),
     );
-  }
-}
 
-class _DotsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withOpacity(0.08);
-    for (double x = 0; x < size.width; x += 18) {
-      for (double y = 0; y < size.height; y += 18) {
-        canvas.drawCircle(Offset(x, y), 2, paint);
-      }
-    }
+    return card;
   }
-  @override bool shouldRepaint(_) => false;
 }
 
 class _SkeletonCard extends StatelessWidget {
@@ -368,10 +544,47 @@ class _SkeletonCard extends StatelessWidget {
   const _SkeletonCard({required this.t});
   @override
   Widget build(BuildContext context) => Container(
-      margin: const EdgeInsets.only(bottom: 16), height: 200,
-      decoration: BoxDecoration(
-          color: t.bgSurface, borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: t.border)));
+    margin: const EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: t.bgSurface,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: t.border.withValues(alpha: 0.2), width: 2),
+    ),
+    child: Column(
+      children: [
+        Container(
+          height: 144,
+          decoration: BoxDecoration(
+            color: t.bgSurface2,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(23)),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(height: 16, width: 200, decoration: BoxDecoration(
+                color: t.bgSurface2, borderRadius: BorderRadius.circular(4),
+              )),
+              const SizedBox(height: 8),
+              Container(height: 12, width: double.infinity, decoration: BoxDecoration(
+                color: t.bgSurface2, borderRadius: BorderRadius.circular(4),
+              )),
+              const SizedBox(height: 4),
+              Container(height: 12, width: 120, decoration: BoxDecoration(
+                color: t.bgSurface2, borderRadius: BorderRadius.circular(4),
+              )),
+              const SizedBox(height: 16),
+              Container(height: 36, width: double.infinity, decoration: BoxDecoration(
+                color: t.bgSurface2, borderRadius: BorderRadius.circular(16),
+              )),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ErrorView extends StatelessWidget {

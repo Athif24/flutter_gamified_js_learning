@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 
 class CourseModel {
   final String id;
@@ -31,6 +30,36 @@ class CourseModel {
     this.lastAccessedUnitTitle,
     this.units           = const [],
   });
+
+  CourseModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? thumbnail,
+    int? totalLessons,
+    int? completedLessons,
+    bool? isEnrolled,
+    bool? isPublished,
+    double? progress,
+    bool? isCompleted,
+    String? lastAccessedLessonTitle,
+    String? lastAccessedUnitTitle,
+    List<UnitModel>? units,
+  }) => CourseModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    thumbnail: thumbnail ?? this.thumbnail,
+    totalLessons: totalLessons ?? this.totalLessons,
+    completedLessons: completedLessons ?? this.completedLessons,
+    isEnrolled: isEnrolled ?? this.isEnrolled,
+    isPublished: isPublished ?? this.isPublished,
+    progress: progress ?? this.progress,
+    isCompleted: isCompleted ?? this.isCompleted,
+    lastAccessedLessonTitle: lastAccessedLessonTitle ?? this.lastAccessedLessonTitle,
+    lastAccessedUnitTitle: lastAccessedUnitTitle ?? this.lastAccessedUnitTitle,
+    units: units ?? this.units,
+  );
 
   factory CourseModel.fromJson(Map<String, dynamic> j) {
     final rawUnits = (j['units'] as List? ?? []);
@@ -67,8 +96,8 @@ class CourseModel {
 
   static double _parseDouble(dynamic v) {
     if (v == null) return 0.0;
-    if (v is double) return v;
-    if (v is int) return v.toDouble();
+    if (v is double) return v > 1 ? v / 100.0 : v;
+    if (v is int) return v > 1 ? v / 100.0 : v.toDouble();
     return double.tryParse(v.toString()) ?? 0.0;
   }
 }
@@ -160,7 +189,68 @@ class QuizRefModel {
   );
 }
 
-// ── Quiz Detail ───────────────────────────────────────────────────────────────
+// ── Quiz Preview (GET /quizzes/:id) ───────────────────────────────────────────
+
+class QuizPreviewModel {
+  final String id;
+  final String title;
+  final String difficulty;
+  final int totalQuestions;
+  final int passingScore;
+  final int xpReward;
+  final int jewelReward;
+  final int timeLimit;
+
+  const QuizPreviewModel({
+    required this.id,
+    required this.title,
+    required this.difficulty,
+    required this.totalQuestions,
+    required this.passingScore,
+    this.xpReward = 0,
+    this.jewelReward = 0,
+    this.timeLimit = 0,
+  });
+
+  factory QuizPreviewModel.fromJson(Map<String, dynamic> j) {
+    final d = j['data'] ?? j;
+    return QuizPreviewModel(
+      id            : d['id']?.toString() ?? '',
+      title         : d['title'] ?? d['name'] ?? 'Kuis',
+      difficulty    : d['difficulty'] ?? 'medium',
+      totalQuestions: (d['total_questions'] ?? d['totalQuestions'] ?? 0) as int,
+      passingScore  : (d['passing_score'] ?? d['passingScore'] ?? 100) as int,
+      xpReward      : (d['xp_reward'] ?? d['xpReward'] ?? 0) as int,
+      jewelReward   : (d['jewel_reward'] ?? d['jewelReward'] ?? 0) as int,
+      timeLimit     : (d['time_limit'] ?? d['timeLimit'] ?? 0) as int,
+    );
+  }
+}
+
+// ── My Quiz Result (GET /quizzes/:id/my-result) ───────────────────────────────
+
+class MyQuizResultResponse {
+  final bool attempted;
+  final int percentageScore;
+  final bool isPassed;
+
+  const MyQuizResultResponse({
+    required this.attempted,
+    this.percentageScore = 0,
+    this.isPassed = false,
+  });
+
+  factory MyQuizResultResponse.fromJson(Map<String, dynamic> j) {
+    final d = j['data'] ?? j;
+    return MyQuizResultResponse(
+      attempted      : d['attempted'] ?? false,
+      percentageScore: (d['percentage_score'] ?? 0) as int,
+      isPassed       : d['is_passed'] ?? d['isPassed'] ?? false,
+    );
+  }
+}
+
+// ── Quiz Detail (dari POST /quizzes/:id/start) ────────────────────────────────
 
 class QuizDetailModel {
   final String id;
@@ -243,6 +333,10 @@ class QuestionModel {
   final List<TestCaseModel> testCases;
   /// Kunci jawaban (format bergantung tipe soal)
   final dynamic answerKey;
+  /// Code snippet untuk coding questions (konteks soal)
+  final String? codeSnippet;
+  /// Code template / kerangka kode untuk coding questions
+  final String? codeTemplate;
 
   const QuestionModel({
     required this.id,
@@ -254,9 +348,11 @@ class QuestionModel {
     this.points        = 10,
     this.testCases     = const [],
     this.answerKey,
+    this.codeSnippet,
+    this.codeTemplate,
   });
 
-  /// Untuk kompatibilitas dengan UI yang butuh List<String>
+  /// Untuk kompatibilitas dengan UI yang butuh `List<String>`
   List<String> get options => optionObjects.map((o) => o.text).toList();
 
   factory QuestionModel.fromJson(Map<String, dynamic> j) {
@@ -265,18 +361,12 @@ class QuestionModel {
     final String questionText;
     List<String> extractedBlocks = [];
     
-    // Debug: Print what questionField contains
-    debugPrint('[QuestionModel] questionField type: ${questionField.runtimeType}');
-    debugPrint('[QuestionModel] questionField: $questionField');
-    debugPrint('[QuestionModel] j[blocks]: ${j['blocks']}');
-    
     if (questionField is Map) {
       questionText = questionField['text'] as String? ?? '';
       
       // Extract blocks from question object (for complete_word, arrange, etc.)
       if (questionField['blocks'] != null) {
         extractedBlocks = List<String>.from(questionField['blocks']);
-        debugPrint('[QuestionModel] Extracted blocks from question: $extractedBlocks');
       } else {
         // Fallback: Generate blocks from codeTemplate or text with {{N}} placeholders
         final codeTemplate = questionField['codeTemplate'] as String?;
@@ -284,9 +374,7 @@ class QuestionModel {
         final sourceText = codeTemplate ?? text;
         
         if (sourceText.contains('{{')) {
-          // Parse text with {{0}}, {{1}} placeholders
           final regex = RegExp(r'\{\{(\d+)\}\}');
-          final parts = sourceText.split(regex);
           
           // parts will be: ["function ", "{{0}}", "( ", "{{1}}", " ) { ..."]
           // We need to convert to blocks: ["function ", "___", "( ", "___", " ) { ..."]
@@ -305,7 +393,6 @@ class QuestionModel {
           if (lastEnd < sourceText.length) {
             extractedBlocks.add(sourceText.substring(lastEnd));
           }
-          debugPrint('[QuestionModel] Generated blocks from template: $extractedBlocks');
         }
       }
     } else {
@@ -337,6 +424,13 @@ class QuestionModel {
         ? extractedBlocks 
         : List<String>.from(j['blocks'] ?? []);
 
+    final codeSnippet = questionField is Map
+        ? questionField['codeSnippet'] as String?
+        : null;
+    final codeTemplate = questionField is Map
+        ? questionField['codeTemplate'] as String?
+        : null;
+
     return QuestionModel(
       id           : j['id']?.toString() ?? '',
       text         : questionText,
@@ -347,6 +441,8 @@ class QuestionModel {
       points       : (j['score_weight'] ?? j['points'] ?? 10) as int,
       testCases    : testCases,
       answerKey    : j['answer_key'],
+      codeSnippet  : codeSnippet,
+      codeTemplate : codeTemplate,
     );
   }
 }
@@ -462,6 +558,7 @@ class QuizResultModel {
   final bool passed;
   final int xpEarned;
   final int jewelsEarned;
+  final bool alreadyClaimed;
   final StreakInfo? streak;
   final LevelUpInfo? levelUp;
   final List<BadgeInfo> badgesAwarded;
@@ -474,6 +571,7 @@ class QuizResultModel {
     required this.passed,
     required this.xpEarned,
     this.jewelsEarned = 0,
+    this.alreadyClaimed = false,
     this.streak,
     this.levelUp,
     this.badgesAwarded = const [],
@@ -489,6 +587,7 @@ class QuizResultModel {
       passed         : d['passed'] ?? d['is_passed'] ?? d['isPassed'] ?? false,
       xpEarned       : (d['xp_earned'] ?? d['xpEarned'] ?? d['xp'] ?? d['earned_xp'] ?? 0) as int,
       jewelsEarned   : (d['jewels_earned'] ?? d['jewelsEarned'] ?? d['earned_jewels'] ?? 0) as int,
+      alreadyClaimed : d['already_claimed'] ?? d['alreadyClaimed'] ?? false,
       streak         : d['streak'] != null ? StreakInfo.fromJson(d['streak']) : null,
       levelUp        : d['level_up'] != null ? LevelUpInfo.fromJson(d['level_up']) : null,
       badgesAwarded  : (d['badges_awarded'] as List? ?? [])

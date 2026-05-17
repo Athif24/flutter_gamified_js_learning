@@ -1,15 +1,51 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/datasources/course_remote_datasource.dart';
 import '../../data/models/course_model.dart';
 
-// ── Datasource provider ───────────────────────────────────────────────────────
+// ── Datasource provider ───────────────────────────────────────────────
 final courseDsProvider = Provider((ref) =>
     CourseRemoteDatasource(ref.read(apiClientProvider)));
 
-// ── Course list ───────────────────────────────────────────────────────────────
+// ── Course list ───────────────────────────────────────────────────────
 final coursesProvider = FutureProvider<List<CourseModel>>(
     (ref) => ref.read(courseDsProvider).getCourses());
+
+// ── Enriched courses: merge enrollment data into course list ───────────
+List<CourseModel> getEnrichedCourses(
+  List<CourseModel> courses,
+  Map<String, dynamic>? enrolled,
+) {
+  if (enrolled == null || enrolled.isEmpty) {
+    debugPrint('[DEBUG] getEnrichedCourses — enrolled is null/empty, returning raw courses');
+    return courses;
+  }
+
+  final enriched = courses.map((course) {
+    final data = enrolled[course.id];
+    if (data != null) {
+      debugPrint('[DEBUG] getEnrichedCourses ✅ id=${course.id} "${course.title}" → enrolled, progress=${data['progress']}');
+      return course.copyWith(
+        isEnrolled: true,
+        progress: (data['progress'] ?? 0).toDouble(),
+        isCompleted: data['is_completed'] ?? false,
+      );
+    }
+    debugPrint('[DEBUG] getEnrichedCourses ❌ id=${course.id} "${course.title}" → NOT in enrollment map');
+    return course;
+  }).toList();
+
+  final enrolledCount = enriched.where((c) => c.isEnrolled).length;
+  debugPrint('[DEBUG] getEnrichedCourses — $enrolledCount/${enriched.length} courses enrolled');
+  return enriched;
+}
+
+// ── User's enrollment data (courseId -> {progress, isCompleted}) ─────
+final enrolledCoursesProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final ds = ref.read(courseDsProvider);
+  return ds.getMyEnrollments();
+});
 
 // ── Course detail ─────────────────────────────────────────────────────────────
 final courseDetailProvider =
@@ -21,10 +57,20 @@ final lessonDetailProvider =
     FutureProvider.family<LessonModel, String>(
         (ref, id) => ref.read(courseDsProvider).getLessonById(id));
 
-// ── Quiz detail ───────────────────────────────────────────────────────────────
-final quizDetailProvider =
-    FutureProvider.family<QuizDetailModel, String>(
+// ── Quiz per lesson (filtered by device=mobile) ───────────────────────────────
+final lessonQuizProvider =
+    FutureProvider.family<QuizRefModel?, String>(
+        (ref, lessonId) => ref.read(courseDsProvider).getQuizByLessonId(lessonId));
+
+// ── Quiz preview (GET /quizzes/:id) ───────────────────────────────────────────
+final quizPreviewProvider =
+    FutureProvider.family<QuizPreviewModel, String>(
         (ref, id) => ref.read(courseDsProvider).getQuizById(id));
+
+// ── My quiz result (GET /quizzes/:id/my-result) ──────────────────────────────
+final myQuizResultProvider =
+    FutureProvider.family<MyQuizResultResponse, String>(
+        (ref, id) => ref.read(courseDsProvider).getMyQuizResult(id));
 
 // ── Quiz state ────────────────────────────────────────────────────────────────
 
@@ -163,16 +209,23 @@ class QuizNotifier extends StateNotifier<QuizState> {
     if (state.current == null || state.userQuizId == null) return null;
 
     final questionId = state.current!.id;
+    final isCoding = state.current!.type == 'coding';
     final answer = state.answers[questionId];
     if (answer == null) return null;
 
     state = state.copyWith(isSubmittingAnswer: true);
     try {
-      final result = await _ds.submitAnswer(
-        userQuizId: state.userQuizId!,
-        questionId: questionId,
-        submittedAnswer: answer,
-      );
+      final result = isCoding
+          ? await _ds.submitAnswer(
+              userQuizId: state.userQuizId!,
+              questionId: questionId,
+              submittedCode: answer,
+            )
+          : await _ds.submitAnswer(
+              userQuizId: state.userQuizId!,
+              questionId: questionId,
+              submittedAnswer: answer,
+            );
 
       // Simpan hasil
       final updated = Map<String, SubmitAnswerResponse>.from(state.answerResults);
@@ -195,6 +248,14 @@ class QuizNotifier extends StateNotifier<QuizState> {
 
   void clearLastAnswerResult() {
     state = state.copyWith(clearLastAnswer: true);
+  }
+
+  /// Load quiz data directly from a started response (used by IntroScreen)
+  void loadFromData(QuizDetailModel quizData) {
+    state = const QuizState().copyWith(
+      quiz: quizData,
+      userQuizId: quizData.userQuizId,
+    );
   }
 
   void reset() => state = const QuizState();
