@@ -42,6 +42,7 @@ class ApiClient {
       headers        : {'Content-Type': 'application/json'},
     ));
     _dio.interceptors.add(_AuthInterceptor());
+    _dio.interceptors.add(_TimingInterceptor());
     _dio.interceptors.add(LogInterceptor(
       requestBody: true, responseBody: true,
       logPrint: (o) => debugPrint('[API] $o'),
@@ -60,7 +61,8 @@ class ApiClient {
   Future<Response> patch(String path, {dynamic data}) =>
       _dio.patch(path, data: data);
 
-  Future<Response> delete(String path) => _dio.delete(path);
+  Future<Response> delete(String path, {dynamic data}) =>
+      _dio.delete(path, data: data);
 }
 
 class _AuthInterceptor extends Interceptor {
@@ -69,23 +71,44 @@ class _AuthInterceptor extends Interceptor {
     final token = await SecureStorage.getToken();
     if (token != null) {
       o.headers['Authorization'] = 'Bearer $token';
-      debugPrint('[API] ${o.method} ${o.path} - Token: ${token.substring(0, token.length > 20 ? 20 : token.length)}...');
-    } else {
-      debugPrint('[API] ${o.method} ${o.path} - NO TOKEN');
     }
     h.next(o);
   }
 
   @override
   void onError(DioException e, ErrorInterceptorHandler h) {
-    debugPrint('[API] Error ${e.response?.statusCode} on ${e.requestOptions.path}: ${e.response?.data}');
-    // HANYA hapus token jika 401 (Unauthorized) - token invalid/expired
-    // JANGAN hapus token jika 403 (Forbidden) - hanya masalah permission
-    if (e.response?.statusCode == 401) {
-      debugPrint('[API] Unauthorized - clearing token');
+    final code = e.response?.statusCode;
+    final data = e.response?.data;
+    final path = e.requestOptions.path;
+    if (code == 401) {
+      debugPrint('[API] 401 on $path — clearing token');
       SecureStorage.clearAll();
+    } else if (code != null) {
+      debugPrint('[API] $code on $path: ${data is Map ? data['message'] ?? data : data}');
+    } else {
+      debugPrint('[API] 💥 $path — ${e.message}');
     }
     h.next(e);
+  }
+}
+
+class _TimingInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions o, RequestInterceptorHandler h) {
+    o.extra['startTime'] = DateTime.now().millisecondsSinceEpoch;
+    h.next(o);
+  }
+
+  @override
+  void onResponse(Response r, ResponseInterceptorHandler h) {
+    final start = r.requestOptions.extra['startTime'] as int?;
+    if (start != null) {
+      final ms = DateTime.now().millisecondsSinceEpoch - start;
+      final code = r.statusCode ?? 0;
+      final emoji = code >= 200 && code < 300 ? '✅' : '⚠️';
+      debugPrint('[API] $code ${r.requestOptions.path} (${ms}ms) $emoji');
+    }
+    h.next(r);
   }
 }
 

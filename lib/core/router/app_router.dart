@@ -6,12 +6,17 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/courses/presentation/screens/course_detail_screen.dart';
 import '../../features/courses/presentation/screens/lesson_screen.dart';
+import '../../features/courses/presentation/screens/quiz_intro_screen.dart';
 import '../../features/courses/presentation/screens/quiz_screen.dart';
 import '../../shared/widgets/main_screen.dart';
+import '../logging/navigation_logger.dart';
+
+final _navLogger = NavigationLogger();
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/login',
+    observers: [_navLogger],
     redirect: (context, state) async {
       final token    = await SecureStorage.getToken();
       final loggedIn = token != null;
@@ -32,25 +37,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/course/:courseId',
         builder: (_, s) => CourseDetailScreen(
           courseId: s.pathParameters['courseId']!,
-          // ── Ganti false → true untuk aktifkan Versi 2 (bubble quiz terpisah) ──
-          showQuizBubbles: false,
         ),
       ),
       GoRoute(
         path: '/lesson/:lessonId',
         builder: (_, s) => LessonScreen(
           lessonId : s.pathParameters['lessonId']!,
-          // courseId dipakai untuk refresh bubble setelah selesai
           courseId : s.uri.queryParameters['courseId'],
-          // quizId hanya ada di Versi 1 (null di Versi 2)
-          quizId   : s.uri.queryParameters['quizId'],
+        ),
+      ),
+      GoRoute(
+        path: '/quiz-intro/:quizId',
+        builder: (_, s) => QuizIntroScreen(
+          quizId   : s.pathParameters['quizId']!,
+          courseId : s.uri.queryParameters['courseId'],
         ),
       ),
       GoRoute(
         path: '/quiz/:quizId',
         builder: (_, s) => QuizScreen(
           quizId   : s.pathParameters['quizId']!,
-          // courseId dipakai untuk refresh bubble setelah submit quiz
           courseId : s.uri.queryParameters['courseId'],
         ),
       ),
