@@ -55,7 +55,7 @@ class _BottomNav extends ConsumerWidget {
         color: t.bgSurface,
         border: Border(top: BorderSide(color: t.border)),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.12),
+          color: Colors.black.withValues(alpha: 0.12),
           blurRadius: 16, offset: const Offset(0, -2),
         )],
       ),
@@ -82,7 +82,7 @@ class _BottomNav extends ConsumerWidget {
                             horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
                           color: sel
-                              ? t.accent.withOpacity(0.15)
+                              ? t.accent.withValues(alpha: 0.15)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(50),
                         ),

@@ -4,6 +4,10 @@ class AuthUser {
   final String email;
   final String? avatar;
   final String? role;
+  final int xpTotal;
+  final int jewels;
+  final int level;
+  final String levelTitle;
 
   const AuthUser({
     required this.id,
@@ -11,17 +15,27 @@ class AuthUser {
     required this.email,
     this.avatar,
     this.role,
+    this.xpTotal = 0,
+    this.jewels = 0,
+    this.level = 1,
+    this.levelTitle = 'Pemula',
   });
 
   factory AuthUser.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     final u = d['user'] ?? d;
+    final s = d['stats'] as Map<String, dynamic>?;
+    final lvl = s?['level'] as Map<String, dynamic>?;
     return AuthUser(
       id    : (u['id'] ?? '').toString(),
       name  : u['name'] ?? u['username'] ?? '',
       email : u['email'] ?? '',
       avatar: u['avatar'] ?? u['profilePicture'],
       role  : u['role']?.toString(),
+      xpTotal: (s?['xp_total'] ?? 0) as int,
+      jewels : (s?['jewels'] ?? 0) as int,
+      level  : (lvl?['id'] ?? 1) as int,
+      levelTitle: lvl?['name']?.toString() ?? 'Pemula',
     );
   }
 }

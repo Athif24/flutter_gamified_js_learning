@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/fcm_service.dart';
 import '../../../../core/storage/secure_storage.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/models/auth_model.dart';
@@ -24,7 +27,8 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRemoteDatasource _ds;
-  AuthNotifier(this._ds) : super(const AuthState()) { _restore(); }
+  final ApiClient _api;
+  AuthNotifier(this._ds, this._api) : super(const AuthState()) { _restore(); }
 
   Future<void> _restore() async {
     final token = await SecureStorage.getToken();
@@ -40,6 +44,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final r = await _ds.login(email, password);
       state = state.copyWith(user: r.user, isLoading: false);
+      _maybeRegisterToken();
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -55,6 +60,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final r = await _ds.register(name, email, password);
       state = state.copyWith(user: r.user, isLoading: false);
+      _maybeRegisterToken();
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -65,7 +71,34 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> _maybeRegisterToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final enabled = prefs.getBool('notifications_enabled') ?? true;
+      if (enabled) {
+        unawaited(FcmService.registerToken(_api));
+      }
+    } catch (_) {}
+  }
+
+  Future<String?> changePassword(String oldPassword, String newPassword) async {
+    try {
+      await _ds.changePassword(oldPassword, newPassword);
+      return null;
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
+    }
+  }
+
+  Future<void> refreshMe() async {
+    try {
+      final user = await _ds.getMe();
+      state = state.copyWith(user: user);
+    } catch (_) {}
+  }
+
   Future<void> logout() async {
+    await FcmService.unregisterToken(_api);
     await _ds.logout();
     state = const AuthState();
   }
@@ -75,4 +108,4 @@ final _authDsProvider = Provider((ref) =>
     AuthRemoteDatasource(ref.read(apiClientProvider)));
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
-    (ref) => AuthNotifier(ref.read(_authDsProvider)));
+    (ref) => AuthNotifier(ref.read(_authDsProvider), ref.read(apiClientProvider)));

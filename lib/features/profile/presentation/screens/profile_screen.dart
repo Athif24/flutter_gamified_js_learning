@@ -15,6 +15,7 @@ import '../../../../core/services/fcm_service.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../widgets/theme_picker_sheet.dart';
 import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../../data/models/profile_model.dart';
@@ -43,7 +44,7 @@ class ProfileScreen extends ConsumerWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
             child: profileAsync.when(
-              loading: () => _skeleton(t),
+              loading: () => LoadingCircle(t: t),
               error: (e, _) => _retryCard(t, () {
                 ref.invalidate(profileProvider);
               }),
@@ -2176,8 +2177,8 @@ Future<void> _showLogoutConfirm(
                           setState(() => isLoading = true);
                           await ref.read(authProvider.notifier).logout();
                           ref.read(navIndexProvider.notifier).state = 0;
-                          if (ctx.mounted) Navigator.of(ctx).pop();
                           if (context.mounted) context.go('/login');
+                          if (ctx.mounted) Navigator.of(ctx).pop();
                         },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2255,18 +2256,6 @@ String _formatNumber(int n) {
   return parts.join('.');
 }
 
-Widget _skeleton(BloomTheme t) => Column(
-  children: [
-    _Skeleton(t: t, height: 240),
-    const SizedBox(height: 16),
-    _Skeleton(t: t, height: 100),
-    const SizedBox(height: 16),
-    _Skeleton(t: t, height: 320),
-    const SizedBox(height: 16),
-    _Skeleton(t: t, height: 180),
-  ],
-);
-
 Widget _retryCard(BloomTheme t, VoidCallback onRetry) => Container(
   padding: const EdgeInsets.all(16),
   decoration: BoxDecoration(
@@ -2306,19 +2295,4 @@ Widget _retryCard(BloomTheme t, VoidCallback onRetry) => Container(
   ),
 );
 
-class _Skeleton extends StatelessWidget {
-  final BloomTheme t;
-  final double height;
-  const _Skeleton({required this.t, required this.height});
-  @override
-  Widget build(BuildContext context) =>
-      Container(
-            height: height,
-            decoration: BoxDecoration(
-              color: t.bgSurface2,
-              borderRadius: BorderRadius.circular(18),
-            ),
-          )
-          .animate(onPlay: (c) => c.repeat())
-          .shimmer(duration: 1200.ms, color: t.bgSurface3);
-}
+
