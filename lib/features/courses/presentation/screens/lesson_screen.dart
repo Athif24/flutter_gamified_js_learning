@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/celebration_screen.dart';
 import '../../../../shared/providers/gamification_providers.dart';
 import '../providers/course_provider.dart';
@@ -30,11 +31,13 @@ class LessonScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: lessonAsync.when(
-        loading: () => Center(child: CircularProgressIndicator(color: t.accent)),
+        loading: () => LoadingCircle(t: t),
         error: (e, _) => _ErrorBody(
             t: t, message: e.toString(),
             onRetry: () => ref.refresh(lessonDetailProvider(lessonId))),
-        data: (lesson) => Column(children: [
+        data: (lesson) {
+          debugPrint('[FULL CONTENT] ${lesson.content}');
+          return Column(children: [
           // ── AppBar ───────────────────────────────────────────────────
           SafeArea(
             bottom: false,
@@ -143,10 +146,12 @@ class LessonScreen extends ConsumerWidget {
               ),
             ),
           ),
-        ]),
+        ]);
+      },
       ),
     );
   }
+
 
   Future<void> _handleBottomButton(
     BuildContext context,

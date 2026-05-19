@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/achievement_provider.dart';
 import '../../data/models/achievement_model.dart';
@@ -62,7 +63,7 @@ class AchievementScreen extends ConsumerWidget {
 
               // ── Hero progress card ───────────────────────────────────
               xpAsync.when(
-                loading: () => _Skeleton(t: t, height: 160),
+                loading: () => LoadingCircle(t: t),
                 error: (e, _) => _RetryCard(t: t, label: 'Progress',
                     onRetry: () => ref.refresh(xpProvider)),
                 data: (xp) => _HeroCard(
@@ -78,7 +79,7 @@ class AchievementScreen extends ConsumerWidget {
 
               // ── Stats row ────────────────────────────────────────────
               xpAsync.when(
-                loading: () => _Skeleton(t: t, height: 100),
+                loading: () => LoadingCircle(t: t),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (xp) {
                   final s = streakAsync.valueOrNull;
@@ -140,10 +141,10 @@ class AchievementScreen extends ConsumerWidget {
 
               // ── Level Roadmap + Riwayat XP (two-column) ──────────────
               xpAsync.when(
-                loading: () => const SizedBox.shrink(),
+                loading: () => LoadingCircle(t: t),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (xp) => levelsAsync.when(
-                  loading: () => const SizedBox.shrink(),
+                  loading: () => LoadingCircle(t: t),
                   error: (_, __) => const SizedBox.shrink(),
                   data: (levels) => LayoutBuilder(
                     builder: (_, constraints) =>
@@ -543,7 +544,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
   Widget build(BuildContext context) {
     final t = widget.t;
     return widget.badgesAsync.when(
-      loading: () => _Skeleton(t: t, height: 150),
+      loading: () => LoadingCircle(t: t),
       error: (e, _) => const SizedBox.shrink(),
       data: (badges) {
         if (badges.isEmpty) {
@@ -887,19 +888,6 @@ class _FilterTab extends StatelessWidget {
 }
 
 // ── Skeleton & Retry ──────────────────────────────────────────────────────────
-
-class _Skeleton extends StatelessWidget {
-  final BloomTheme t;
-  final double height;
-  const _Skeleton({required this.t, required this.height});
-  @override
-  Widget build(BuildContext context) => Container(
-      height: height,
-      decoration: BoxDecoration(
-          color: t.bgSurface2, borderRadius: BorderRadius.circular(18)))
-      .animate(onPlay: (c) => c.repeat())
-      .shimmer(duration: 1200.ms, color: t.bgSurface3);
-}
 
 class _RetryCard extends StatelessWidget {
   final BloomTheme t;

@@ -72,6 +72,11 @@ final myQuizResultProvider =
     FutureProvider.family<MyQuizResultResponse, String>(
         (ref, id) => ref.read(courseDsProvider).getMyQuizResult(id));
 
+// ── Quiz attempt check (GET /quizzes/:id/attempt) ────────────────────────────
+final quizAttemptProvider =
+    FutureProvider.family<QuizAttemptModel, String>(
+        (ref, id) => ref.read(courseDsProvider).getQuizAttempt(id));
+
 // ── Quiz state ────────────────────────────────────────────────────────────────
 
 class QuizState {

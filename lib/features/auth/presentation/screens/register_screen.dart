@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/main_screen.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -33,7 +34,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
     final ok = await ref.read(authProvider.notifier)
         .register(_nameCtrl.text.trim(), _emailCtrl.text.trim(), _passCtrl.text);
-    if (ok && mounted) context.go('/home');
+    if (ok && mounted) {
+      ref.read(navIndexProvider.notifier).state = 0;
+      context.go('/home');
+    }
   }
 
   @override
@@ -44,9 +48,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: Stack(children: [
-        Positioned(top: -40, left: -40, child: _Blob(120, t.info.withOpacity(0.12))),
-        Positioned(top: 80, right: -20,  child: _Blob(80,  t.accent.withOpacity(0.15))),
-        Positioned(bottom: 60, right: -30, child: _Blob(100, t.accent.withOpacity(0.1))),
+        Positioned(top: -40, left: -40, child: _Blob(120, t.info.withValues(alpha: 0.12))),
+        Positioned(top: 80, right: -20,  child: _Blob(80,  t.accent.withValues(alpha: 0.15))),
+        Positioned(bottom: 60, right: -30, child: _Blob(100, t.accent.withValues(alpha: 0.1))),
 
         SafeArea(child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -86,7 +90,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: t.border),
                 boxShadow: [BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withValues(alpha: 0.12),
                   blurRadius: 24, offset: const Offset(0, 8),
                 )],
               ),
@@ -120,9 +124,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: t.error.withOpacity(0.1),
+                          color: t.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.error.withOpacity(0.3)),
+                          border: Border.all(color: t.error.withValues(alpha: 0.3)),
                         ),
                         child: Text(auth.error!,
                             style: GoogleFonts.nunito(
@@ -142,7 +146,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           color: t.accent,
                           borderRadius: BorderRadius.circular(50),
                           boxShadow: [BoxShadow(
-                            color: t.accent.withOpacity(0.4),
+                            color: t.accent.withValues(alpha: 0.4),
                             blurRadius: 14, offset: const Offset(0, 6),
                           )],
                         ),

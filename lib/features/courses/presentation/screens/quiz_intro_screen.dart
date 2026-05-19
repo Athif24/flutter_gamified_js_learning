@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../achievement/presentation/providers/achievement_provider.dart';
 import '../../../achievement/data/models/achievement_model.dart';
@@ -26,6 +27,9 @@ class QuizIntroScreen extends ConsumerWidget {
     final previewAsync = ref.watch(quizPreviewProvider(quizId));
     final myResultAsync = ref.watch(myQuizResultProvider(quizId));
     final livesAsync = ref.watch(livesProvider);
+    final attemptAsync = ref.watch(quizAttemptProvider(quizId));
+    final courseDetailAsync =
+        courseId != null ? ref.watch(courseDetailProvider(courseId!)) : null;
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
@@ -34,13 +38,15 @@ class QuizIntroScreen extends ConsumerWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(28),
             child: previewAsync.when(
-              loading: () => CircularProgressIndicator(color: t.accent),
+              loading: () => LoadingCircle(t: t),
               error: (e, _) => _ErrorState(t: t, message: e.toString(),
                   onRetry: () => ref.refresh(quizPreviewProvider(quizId))),
               data: (preview) => _IntroBody(
                 preview: preview,
                 myResult: myResultAsync.asData?.value,
+                attempt: attemptAsync.asData?.value,
                 lives: livesAsync.asData?.value,
+                course: courseDetailAsync?.asData?.value,
                 t: t,
                 ref: ref,
                 quizId: quizId,
@@ -54,10 +60,12 @@ class QuizIntroScreen extends ConsumerWidget {
   }
 }
 
-class _IntroBody extends StatelessWidget {
+class _IntroBody extends StatefulWidget {
   final QuizPreviewModel preview;
   final MyQuizResultResponse? myResult;
+  final QuizAttemptModel? attempt;
   final LivesModel? lives;
+  final CourseModel? course;
   final BloomTheme t;
   final WidgetRef ref;
   final String quizId;
@@ -66,49 +74,84 @@ class _IntroBody extends StatelessWidget {
   const _IntroBody({
     required this.preview,
     required this.myResult,
+    this.attempt,
     required this.lives,
+    this.course,
     required this.t,
     required this.ref,
     required this.quizId,
     required this.courseId,
   });
 
+  @override
+  State<_IntroBody> createState() => _IntroBodyState();
+}
+
+class _IntroBodyState extends State<_IntroBody> {
+  bool _isStarting = false;
+  bool _isRestarting = false;
+
   Color get _difficultyColor {
-    return switch (preview.difficulty) {
-      'easy' => t.success,
-      'hard' => t.error,
-      _ => t.warning,
+    return switch (widget.preview.difficulty) {
+      'easy' => widget.t.success,
+      'hard' => widget.t.error,
+      _ => widget.t.warning,
     };
   }
 
-  bool get _hasPreviousAttempt => myResult?.attempted ?? false;
-  int get _currentLives => lives?.current ?? 0;
-  int get _maxLives => lives?.max ?? 5;
+  bool get _isInProgress => widget.attempt?.inProgress ?? false;
+  int get _currentLives => widget.lives?.current ?? 0;
+  int get _maxLives => widget.lives?.max ?? 5;
   bool get _hasLives => _currentLives > 0;
+  bool get _isCourseCompleted => widget.course?.isCompleted ?? false;
 
-  Future<void> _handleStart(BuildContext context) async {
+  bool get _showThreeButtons =>
+      _isCourseCompleted &&
+      widget.myResult?.isPassed == false &&
+      (_isInProgress || widget.myResult?.attempted == true);
+
+  String get _mainButtonLabel {
+    if (widget.myResult?.attempted == true && !widget.myResult!.isPassed) {
+      return 'Coba Lagi';
+    }
+    return 'Mulai Quiz';
+  }
+
+  Future<void> _handleStart({bool force = false}) async {
+    if (!mounted) return;
+    setState(() => force ? _isRestarting = true : _isStarting = true);
     try {
-      final startData = await ref.read(courseDsProvider).startQuiz(quizId);
+      final startData = await widget.ref
+          .read(courseDsProvider)
+          .startQuiz(widget.quizId, force: force);
       final quizData = QuizDetailModel.fromStartResponse(startData);
-      ref.read(quizProvider.notifier).loadFromData(quizData);
-      if (context.mounted) {
-        context.pushReplacement('/quiz/$quizId${courseId != null ? '?courseId=$courseId' : ''}');
-      }
+      widget.ref.read(quizProvider.notifier).loadFromData(quizData);
+      if (!mounted) return;
+      context.pushReplacement(
+        '/quiz/${widget.quizId}${widget.courseId != null ? '?courseId=${widget.courseId}' : ''}',
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', ''),
-              style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
-          backgroundColor: t.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ));
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          e.toString().replaceAll('Exception: ', ''),
+          style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: widget.t.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ));
+    } finally {
+      if (mounted) setState(() => force ? _isRestarting = false : _isStarting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = widget.t;
+    final preview = widget.preview;
+    final myResult = widget.myResult;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -159,8 +202,10 @@ class _IntroBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 28),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          alignment: WrapAlignment.center,
           children: [
             Text('Nyawa: ',
                 style: GoogleFonts.nunito(
@@ -202,17 +247,17 @@ class _IntroBody extends StatelessWidget {
           ],
         ).animate().fadeIn(delay: 500.ms),
         const SizedBox(height: 24),
-        if (_hasPreviousAttempt)
+        if (myResult != null && myResult.attempted)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: myResult!.isPassed
+              color: myResult.isPassed
                   ? t.success.withValues(alpha: 0.1)
                   : t.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: myResult!.isPassed
+                color: myResult.isPassed
                     ? t.success.withValues(alpha: 0.4)
                     : t.error.withValues(alpha: 0.4),
               ),
@@ -224,9 +269,9 @@ class _IntroBody extends StatelessWidget {
                     style: GoogleFonts.nunito(
                         color: t.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                 Text(
-                  '${myResult!.percentageScore}% ${myResult!.isPassed ? '✓ Lulus' : '✗ Belum Lulus'}',
+                  '${myResult.percentageScore}% ${myResult.isPassed ? '✓ Lulus' : '✗ Belum Lulus'}',
                   style: GoogleFonts.nunito(
-                    color: myResult!.isPassed ? t.success : t.error,
+                    color: myResult.isPassed ? t.success : t.error,
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
                   ),
@@ -252,36 +297,143 @@ class _IntroBody extends StatelessWidget {
           ),
         ).animate().fadeIn(delay: 700.ms),
         const SizedBox(height: 32),
-        Row(
-          children: [
-            Expanded(
-              child: Game3DButton(
-                label: 'Kembali',
-                color: t.bgSurface2,
-                shadowColor: t.border,
-                textColor: t.textPrimary,
-                horizontalPadding: 16,
-                verticalPadding: 15,
-                onTap: () => context.pop(),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Game3DButton(
-                label: _hasPreviousAttempt ? 'Coba Lagi' : 'Mulai Quiz',
-                color: _hasLives ? t.accent : t.bgSurface3,
-                shadowColor: _hasLives ? darken(t.accent, 0.2) : t.border,
-                textColor: _hasLives ? t.accentText : t.textHint,
-                horizontalPadding: 16,
-                verticalPadding: 15,
-                onTap: _hasLives ? () => _handleStart(context) : null,
-              ),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 480;
+            if (_showThreeButtons) {
+              return _BuildButtons(
+                t: t,
+                axis: isWide ? Axis.horizontal : Axis.vertical,
+                buttons: [
+                  _ActionBtnData(
+                    label: 'Lanjutkan',
+                    color: t.accent,
+                    shadowColor: darken(t.accent, 0.2),
+                    textColor: t.accentText,
+                    isLoading: _isStarting,
+                    onTap: _hasLives ? () => _handleStart() : null,
+                  ),
+                  _ActionBtnData(
+                    label: 'Mulai Ulang',
+                    color: t.error.withAlpha(200),
+                    shadowColor: darken(t.error, 0.2),
+                    textColor: t.accentText,
+                    isLoading: _isRestarting,
+                    onTap: _hasLives ? () => _handleStart(force: true) : null,
+                  ),
+                  _ActionBtnData(
+                    label: 'Kembali',
+                    color: t.bgSurface2,
+                    shadowColor: t.border,
+                    textColor: t.textPrimary,
+                    onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
+                  ),
+                ],
+              );
+            }
+            return _BuildButtons(
+              t: t,
+              axis: isWide ? Axis.horizontal : Axis.vertical,
+              buttons: [
+                _ActionBtnData(
+                  label: 'Kembali',
+                  color: t.bgSurface2,
+                  shadowColor: t.border,
+                  textColor: t.textPrimary,
+                  onTap: _isStarting ? null : () => context.pop(),
+                ),
+                _ActionBtnData(
+                  label: _mainButtonLabel,
+                  color: _hasLives ? t.accent : t.bgSurface3,
+                  shadowColor: _hasLives ? darken(t.accent, 0.2) : t.border,
+                  textColor: _hasLives ? t.accentText : t.textHint,
+                  isLoading: _isStarting || _isRestarting,
+                  onTap: _hasLives ? () => _handleStart(force: _isInProgress) : null,
+                ),
+              ],
+            );
+          },
         ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.15),
         const SizedBox(height: 40),
       ],
     );
+  }
+}
+
+class _ActionBtnData {
+  final String label;
+  final Color color;
+  final Color shadowColor;
+  final Color textColor;
+  final bool isLoading;
+  final VoidCallback? onTap;
+
+  const _ActionBtnData({
+    required this.label,
+    required this.color,
+    required this.shadowColor,
+    required this.textColor,
+    this.isLoading = false,
+    this.onTap,
+  });
+}
+
+class _BuildButtons extends StatelessWidget {
+  final BloomTheme t;
+  final Axis axis;
+  final List<_ActionBtnData> buttons;
+
+  const _BuildButtons({
+    required this.t,
+    required this.axis,
+    required this.buttons,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final list = <Widget>[];
+    for (var i = 0; i < buttons.length; i++) {
+      final btn = buttons[i];
+      final noLives = btn.onTap == null && !btn.isLoading && btn.label != 'Kembali';
+
+      if (i > 0) {
+        list.add(SizedBox(width: axis == Axis.horizontal ? 12 : 0, height: axis == Axis.vertical ? 10 : 0));
+      }
+
+      final btnWidget = Game3DButton(
+        label: noLives ? null : btn.label,
+        color: btn.color,
+        shadowColor: btn.shadowColor,
+        textColor: btn.textColor,
+        horizontalPadding: 16,
+        verticalPadding: 15,
+        isLoading: btn.isLoading,
+        onTap: btn.onTap,
+        child: noLives
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_rounded, size: 14, color: t.textHint),
+                  const SizedBox(width: 6),
+                  Text('Nyawa Habis',
+                      style: GoogleFonts.nunito(
+                          color: t.textHint, fontWeight: FontWeight.w800, fontSize: 14)),
+                ],
+              )
+            : null,
+      );
+
+      list.add(
+        axis == Axis.horizontal
+            ? Expanded(child: btnWidget)
+            : btnWidget,
+      );
+    }
+
+    if (axis == Axis.horizontal) {
+      return Row(children: list);
+    }
+    return SizedBox(width: double.infinity, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: list));
   }
 }
 

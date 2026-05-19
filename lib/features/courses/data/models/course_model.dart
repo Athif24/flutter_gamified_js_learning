@@ -227,6 +227,24 @@ class QuizPreviewModel {
   }
 }
 
+// ── Quiz Attempt (GET /quizzes/:id/attempt) ───────────────────────────────────
+
+class QuizAttemptModel {
+  final bool inProgress;
+  final List<int> answeredQuestionIds;
+
+  const QuizAttemptModel({required this.inProgress, this.answeredQuestionIds = const []});
+
+  factory QuizAttemptModel.fromJson(Map<String, dynamic> j) {
+    final d = j['data'] ?? j;
+    return QuizAttemptModel(
+      inProgress: d['in_progress'] ?? false,
+      answeredQuestionIds: (d['answered_question_ids'] as List<dynamic>?)
+          ?.map((e) => e as int).toList() ?? [],
+    );
+  }
+}
+
 // ── My Quiz Result (GET /quizzes/:id/my-result) ───────────────────────────────
 
 class MyQuizResultResponse {

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../providers/course_provider.dart';
 
 import '../../data/models/course_model.dart';
@@ -51,17 +52,8 @@ class CourseListScreen extends ConsumerWidget {
 
               // ── Courses list ───────────────────────────────────────────────
               coursesAsync.when(
-                  loading: () => SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (_, i) => _SkeletonCard(t: t)
-                            .animate(onPlay: (c) => c.repeat())
-                            .shimmer(duration: 1200.ms,
-                                color: t.bgSurface3.withValues(alpha: 0.5)),
-                        childCount: 3,
-                      ),
-                    ),
+                  loading: () => SliverFillRemaining(
+                    child: LoadingCircle(t: t),
                   ),
                 error: (e, _) => SliverFillRemaining(
                   child: _ErrorView(t: t, message: e.toString(),
@@ -69,14 +61,8 @@ class CourseListScreen extends ConsumerWidget {
                 ),
                 data: (courses) {
                   return enrolledAsync.when(
-                      loading: () => SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (_, i) => _SkeletonCard(t: t),
-                            childCount: 3,
-                          ),
-                        ),
+                      loading: () => SliverFillRemaining(
+                        child: LoadingCircle(t: t),
                       ),
                     error: (_, __) => _buildCourseList(
                       context, ref, courses, t,
@@ -537,54 +523,6 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
 
     return card;
   }
-}
-
-class _SkeletonCard extends StatelessWidget {
-  final BloomTheme t;
-  const _SkeletonCard({required this.t});
-  @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 16),
-    decoration: BoxDecoration(
-      color: t.bgSurface,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: t.border.withValues(alpha: 0.2), width: 2),
-    ),
-    child: Column(
-      children: [
-        Container(
-          height: 144,
-          decoration: BoxDecoration(
-            color: t.bgSurface2,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(23)),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(height: 16, width: 200, decoration: BoxDecoration(
-                color: t.bgSurface2, borderRadius: BorderRadius.circular(4),
-              )),
-              const SizedBox(height: 8),
-              Container(height: 12, width: double.infinity, decoration: BoxDecoration(
-                color: t.bgSurface2, borderRadius: BorderRadius.circular(4),
-              )),
-              const SizedBox(height: 4),
-              Container(height: 12, width: 120, decoration: BoxDecoration(
-                color: t.bgSurface2, borderRadius: BorderRadius.circular(4),
-              )),
-              const SizedBox(height: 16),
-              Container(height: 36, width: double.infinity, decoration: BoxDecoration(
-                color: t.bgSurface2, borderRadius: BorderRadius.circular(16),
-              )),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class _ErrorView extends StatelessWidget {

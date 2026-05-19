@@ -115,6 +115,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             streak: result.streak,
             levelUp: result.levelUp,
             badges: result.badgesAwarded,
+            courseId: widget.courseId,
+            quizId: widget.quizId,
             onContinue: () => setState(() => _showCelebration = false),
           ),
         );

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/providers/gamification_providers.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../providers/store_provider.dart';
@@ -308,14 +309,7 @@ class _ShopTab extends ConsumerWidget {
     final balance = balanceAsync.maybeWhen(data: (j) => j.balance, orElse: () => 0);
 
     return itemsAsync.when(
-      loading: () => ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: 4,
-        itemBuilder: (_, i) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: _ShopSkeleton(t: t),
-        ),
-      ),
+      loading: () => LoadingCircle(t: t),
       error: (e, _) => _EmptyState(t: t,
           emoji: '🔧', title: 'Gagal memuat item',
           subtitle: e.toString().replaceAll('Exception: ', '')),
@@ -334,56 +328,6 @@ class _ShopTab extends ConsumerWidget {
             ),
     );
   }
-}
-
-class _ShopSkeleton extends StatelessWidget {
-  final BloomTheme t;
-  const _ShopSkeleton({required this.t});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: t.bgSurface,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: t.textPrimary.withValues(alpha: 0.25), width: 2),
-    ),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Container(width: 56, height: 56,
-          decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(12)),
-        ),
-        const Spacer(),
-        Container(width: 80, height: 22,
-          decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(6)),
-        ),
-      ]),
-      const SizedBox(height: 12),
-      Container(height: 14, width: 140,
-        decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(4)),
-      ),
-      const SizedBox(height: 8),
-      Container(height: 10, width: double.infinity,
-        decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(4)),
-      ),
-      const SizedBox(height: 6),
-      Container(height: 10, width: 100,
-        decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(4)),
-      ),
-      const SizedBox(height: 14),
-      const Divider(height: 1, color: Colors.transparent),
-      const SizedBox(height: 10),
-      Row(children: [
-        Container(width: 80, height: 24,
-          decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(50)),
-        ),
-        const Spacer(),
-        Container(width: 100, height: 32,
-          decoration: BoxDecoration(color: t.bgSurface2, borderRadius: BorderRadius.circular(50)),
-        ),
-      ]),
-    ]),
-  );
 }
 
 class _ShopCard extends ConsumerWidget {
@@ -613,12 +557,15 @@ class _BuyDialog extends ConsumerWidget {
         ),
         Bounceable(
           onTap: remaining < 0 ? null : () async {
-            Navigator.of(context).pop();
             try {
               await ref.read(storeDsProvider).buyItem(item.id);
               invalidateGamificationProviders(ref);
+              ref.invalidate(storeItemsProvider);
+              ref.invalidate(inventoryProvider);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.of(context).pop();
+                messenger.showSnackBar(SnackBar(
                   content: Text('Berhasil membeli ${item.name}!',
                       style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
                   backgroundColor: t.success,
@@ -628,7 +575,9 @@ class _BuyDialog extends ConsumerWidget {
               }
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.of(context).pop();
+                messenger.showSnackBar(SnackBar(
                   content: Text(e.toString().replaceAll('Exception: ', ''),
                       style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                   backgroundColor: t.error,
@@ -681,14 +630,7 @@ class _InventoryTab extends ConsumerWidget {
     final invAsync = ref.watch(inventoryProvider);
 
     return invAsync.when(
-      loading: () => ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: 3,
-        itemBuilder: (_, i) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: _ShopSkeleton(t: t),
-        ),
-      ),
+      loading: () => LoadingCircle(t: t),
       error: (_, __) => _EmptyState(t: t, emoji: '📦',
           title: 'Gagal memuat inventori', subtitle: ''),
       data: (items) => items.isEmpty
@@ -949,13 +891,15 @@ class _UseDialog extends ConsumerWidget {
         if (remaining >= 0)
           Bounceable(
             onTap: () async {
-              Navigator.of(context).pop();
               try {
                 await ref.read(storeDsProvider).useItem(invItem.itemId.toString());
                 ref.invalidate(inventoryProvider);
                 ref.invalidate(jewelBalanceProvider);
+                ref.invalidate(storeItemsProvider);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  final messenger = ScaffoldMessenger.of(context);
+                  Navigator.of(context).pop();
+                  messenger.showSnackBar(SnackBar(
                     content: Text('Berhasil menggunakan ${storeItem.name}!',
                         style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
                     backgroundColor: t.success,
@@ -965,7 +909,9 @@ class _UseDialog extends ConsumerWidget {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  final messenger = ScaffoldMessenger.of(context);
+                  Navigator.of(context).pop();
+                  messenger.showSnackBar(SnackBar(
                     content: Text(e.toString().replaceAll('Exception: ', ''),
                         style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                     backgroundColor: t.error,
@@ -1087,19 +1033,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
         // Table
         Expanded(
           child: histAsync.when(
-            loading: () => ListView.builder(
-              itemCount: 5,
-              itemBuilder: (_, i) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
+            loading: () => LoadingCircle(t: t),
             error: (_, __) => _EmptyState(t: t, emoji: '📜',
                 title: 'Belum ada riwayat', subtitle: ''),
             data: (list) {
@@ -1113,14 +1047,16 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                     title: 'Tidak ada transaksi', subtitle: '');
               }
               return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: t.textPrimary.withValues(alpha: 0.25)),
-                  ),
-                  child: DataTable(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: t.bgSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: t.textPrimary.withValues(alpha: 0.25)),
+                    ),
+                    child: DataTable(
                     headingRowColor: WidgetStatePropertyAll(t.bgSurface2),
                     columnSpacing: 24,
                     dataRowMinHeight: 44,
@@ -1181,7 +1117,8 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                     }).toList(),
                   ),
                 ),
-              );
+              ),
+            );
             },
           ),
         ),

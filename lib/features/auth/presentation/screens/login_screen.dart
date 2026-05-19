@@ -4,7 +4,10 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/main_screen.dart';
+import '../../../courses/presentation/providers/course_provider.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -28,7 +31,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     final ok = await ref.read(authProvider.notifier)
         .login(_emailCtrl.text.trim(), _passCtrl.text);
-    if (ok && mounted) context.go('/home');
+    if (ok && mounted) {
+      invalidateGamificationProviders(ref);
+      ref.invalidate(coursesProvider);
+      ref.invalidate(courseDetailProvider);
+      ref.invalidate(myQuizResultProvider);
+      ref.read(navIndexProvider.notifier).state = 0;
+      context.go('/home');
+    }
   }
 
   @override
@@ -41,11 +51,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Stack(children: [
         // Decorative blobs
         Positioned(top: -60, right: -60,
-            child: _Blob(200, t.accent.withOpacity(0.15))),
+            child: _Blob(200, t.accent.withValues(alpha: 0.15))),
         Positioned(top: 100, left: -40,
-            child: _Blob(120, t.info.withOpacity(0.1))),
+            child: _Blob(120, t.info.withValues(alpha: 0.1))),
         Positioned(bottom: 100, right: -40,
-            child: _Blob(150, t.accent.withOpacity(0.1))),
+            child: _Blob(150, t.accent.withValues(alpha: 0.1))),
 
         SafeArea(child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -59,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 decoration: BoxDecoration(
                   color: t.accent, shape: BoxShape.circle,
                   boxShadow: [BoxShadow(
-                    color: t.accent.withOpacity(0.4),
+                    color: t.accent.withValues(alpha: 0.4),
                     blurRadius: 20, offset: const Offset(0, 8),
                   )],
                 ),
@@ -98,7 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: t.border),
                 boxShadow: [BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withValues(alpha: 0.12),
                   blurRadius: 24, offset: const Offset(0, 8),
                 )],
               ),
@@ -148,9 +158,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: t.error.withOpacity(0.1),
+                          color: t.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.error.withOpacity(0.3)),
+                          border: Border.all(color: t.error.withValues(alpha: 0.3)),
                         ),
                         child: Text(auth.error!,
                             style: GoogleFonts.nunito(
@@ -170,7 +180,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: t.accent,
                           borderRadius: BorderRadius.circular(50),
                           boxShadow: [BoxShadow(
-                            color: t.accent.withOpacity(0.4),
+                            color: t.accent.withValues(alpha: 0.4),
                             blurRadius: 14, offset: const Offset(0, 6),
                           )],
                         ),

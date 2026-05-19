@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../providers/leaderboard_provider.dart';
 import '../../data/models/leaderboard_model.dart';
 
@@ -44,6 +45,33 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   String _searchQuery = '';
+  int _visibleCount = 10;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      final total = ref.read(leaderboardProvider)
+          .valueOrNull?.leaderboard.length ?? 0;
+      if (_visibleCount < total) {
+        setState(() {
+          _visibleCount = (_visibleCount + 10).clamp(0, total);
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +88,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       backgroundColor: t.bgPrimary,
       body: SafeArea(
         child: boardAsync.when(
-          loading: () => _buildSkeleton(t),
+          loading: () => LoadingCircle(t: t),
           error: (e, _) => _buildError(t, e),
           data: (res) => _buildContent(t, res),
         ),
@@ -79,6 +107,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         ? entries
         : entries.where((e) =>
             e.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    final paginated = _searchQuery.isEmpty
+        ? entries.take(_visibleCount).toList()
+        : filtered;
 
     return RefreshIndicator(
       onRefresh: () {
@@ -112,13 +143,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 
           // ── Search ────────────────────────────────────────────────────
           _SearchCard(t: t, onChanged: (v) =>
-              setState(() => _searchQuery = v))
+              setState(() { _searchQuery = v; _visibleCount = 10; }))
               .animate().fadeIn(delay: 250.ms),
 
           const SizedBox(height: 16),
 
           // ── Table ────────────────────────────────────────────────────
-          _LeaderboardTable(t: t, entries: filtered,
+          _LeaderboardTable(t: t, entries: paginated,
               currentUserRank: currentUserRank, topXp: topXp)
               .animate().fadeIn(delay: 300.ms),
 
@@ -129,29 +160,15 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             _FooterStats(t: t, total: entries.length,
                 topXp: topXp, myRank: currentUserRank)
                 .animate().fadeIn(delay: 350.ms),
+
+          if (_searchQuery.isEmpty && _visibleCount < entries.length)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Center(child: Text('Memuat lebih banyak...',
+                  style: GoogleFonts.nunito(color: t.textHint, fontSize: 12))),
+            ),
         ],
       ),
-    );
-  }
-
-  // ── Skeleton ─────────────────────────────────────────────────────────
-
-  Widget _buildSkeleton(BloomTheme t) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      children: [
-        _SkelBox(h: 160, t: t),
-        const SizedBox(height: 16),
-        _SkelBox(h: 120, t: t),
-        const SizedBox(height: 16),
-        _SkelBox(h: 200, t: t),
-        const SizedBox(height: 16),
-        _SkelBox(h: 60, t: t),
-        const SizedBox(height: 16),
-        _SkelBox(h: 350, t: t),
-        const SizedBox(height: 16),
-        _SkelBox(h: 80, t: t),
-      ],
     );
   }
 
@@ -190,24 +207,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       ],
     ));
   }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// SKELETON BOX
-// ════════════════════════════════════════════════════════════════════════════
-
-class _SkelBox extends StatelessWidget {
-  final double h;
-  final BloomTheme t;
-  const _SkelBox({required this.h, required this.t});
-  @override
-  Widget build(BuildContext context) => Container(
-    height: h,
-    decoration: BoxDecoration(
-      color: t.bgSurface2,
-      borderRadius: BorderRadius.circular(16),
-    ),
-  );
 }
 
 // ════════════════════════════════════════════════════════════════════════════

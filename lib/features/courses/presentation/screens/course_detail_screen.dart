@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 
@@ -97,8 +98,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: courseAsync.when(
-        loading: () =>
-            Center(child: CircularProgressIndicator(color: t.accent)),
+        loading: () => LoadingCircle(t: t),
         error: (e, _) => _ErrorBody(
             t: t,
             message: e.toString(),

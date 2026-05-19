@@ -198,10 +198,11 @@ class CourseRemoteDatasource {
     }
   }
 
-  Future<Map<String, dynamic>> startQuiz(String id) async {
-    debugPrint('[ACTION] Start quiz: id=$id');
+  Future<Map<String, dynamic>> startQuiz(String id, {bool force = false}) async {
+    debugPrint('[ACTION] Start quiz: id=$id force=$force');
     try {
-      final res = await _api.post(Api.quizStart(id));
+      final uri = '${Api.quizStart(id)}${force ? '?force=true' : ''}';
+      final res = await _api.post(uri);
       final extracted = extractMap(res.data);
       debugPrint('[ACTION] Start quiz ✅ id=$id');
       return extracted;
@@ -209,6 +210,15 @@ class CourseRemoteDatasource {
       final msg = e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memulai kuis';
       debugPrint('[ACTION] Start quiz ❌ $msg');
       throw Exception(msg);
+    }
+  }
+
+  Future<QuizAttemptModel> getQuizAttempt(String id) async {
+    try {
+      final res = await _api.get(Api.quizAttempt(id));
+      return QuizAttemptModel.fromJson(res.data);
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['error'] ?? e.response?.data?['message'] ?? 'Gagal memuat status kuis');
     }
   }
 
@@ -236,7 +246,7 @@ class CourseRemoteDatasource {
     try {
       final data = {
         'user_quiz_id': userQuizId,
-        'question_id': int.parse(questionId),
+        'question_id': int.tryParse(questionId) ?? questionId,
         if (submittedAnswer != null) 'submitted_answer': submittedAnswer,
         if (submittedCode != null) 'submitted_code': submittedCode,
       };
