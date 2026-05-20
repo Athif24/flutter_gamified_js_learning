@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../core/constants/app_strings.dart';
 
 class ProseMirrorRenderer extends StatelessWidget {
   final String content;
@@ -253,24 +255,20 @@ class ProseMirrorRenderer extends StatelessWidget {
               children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                src,
+              child: CachedNetworkImage(
+                imageUrl: src,
                 fit: BoxFit.contain,
                 width: double.infinity,
-                loadingBuilder: (_, child, progress) =>
-                    progress == null
-                        ? child
-                        : Container(
-                            height: 200,
-                            decoration: BoxDecoration(
-                              color: t.bgSurface2,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                                child: CircularProgressIndicator(
-                                    color: t.accent)),
-                          ),
-                errorBuilder: (_, __, ___) => Container(
+                placeholder: (_, __) => Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: t.bgSurface2,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                        child: CircularProgressIndicator(
+                            color: t.accent))),
+                errorWidget: (_, __, ___) => Container(
                   height: 150,
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
@@ -282,7 +280,7 @@ class ProseMirrorRenderer extends StatelessWidget {
                       Icon(Icons.broken_image_rounded,
                           color: t.textSecondary, size: 32),
                       const SizedBox(height: 6),
-                      Text('Gagal memuat gambar',
+                      Text(AppStrings.errLoadImage,
                           style: GoogleFonts.nunito(
                               color: t.textSecondary, fontSize: 12)),
                     ],
@@ -796,11 +794,10 @@ class _YoutubePlayer extends StatelessWidget {
           child: Stack(
             children: [
               if (thumbUrl != null)
-                Image.network(thumbUrl, width: double.infinity,
+                CachedNetworkImage(imageUrl: thumbUrl, width: double.infinity,
                     height: double.infinity, fit: BoxFit.cover,
-                    loadingBuilder: (_, child, progress) =>
-                        progress == null ? child : const SizedBox.shrink(),
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+                    placeholder: (_, __) => const SizedBox.shrink(),
+                    errorWidget: (_, __, ___) => const SizedBox.shrink()),
 
               Positioned.fill(
                 child: Container(color: Colors.black.withValues(alpha: 0.35)),

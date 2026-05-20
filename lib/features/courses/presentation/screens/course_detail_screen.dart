@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 
@@ -297,93 +299,113 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cycle colors like DaisyUI
+    final colors = [
+      (const Color(0xFF22C55E), const Color(0xFFFFFFFF)),
+      (const Color(0xFF3B82F6), const Color(0xFFFFFFFF)),
+      (const Color(0xFFF59E0B), const Color(0xFFFFFFFF)),
+      (const Color(0xFF06B6D4), const Color(0xFFFFFFFF)),
+    ];
+    final idx = course.id.hashCode % colors.length;
+    final (cBg, cFg) = colors[idx];
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: BoxDecoration(
-        color: t.accent,
+        color: cBg,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: t.border, width: 2),
         boxShadow: [
-          BoxShadow(
-            color: t.border,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          ),
+          BoxShadow(color: t.border, offset: const Offset(4, 4), blurRadius: 0),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(23),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Decorative blur circles
-            Positioned(
-              right: -40,
-              top: -40,
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: t.accentText.withValues(alpha: 0.1),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -32,
-              bottom: -32,
-              child: Container(
-                width: 128,
-                height: 128,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: t.accentDark.withValues(alpha: 0.1),
-                ),
-              ),
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Back pill
-                  Bounceable(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: t.accentText.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.transparent, width: 2),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.arrow_back_ios_rounded,
-                              color: t.accentText.withValues(alpha: 0.8), size: 12),
-                          const SizedBox(width: 4),
-                          Text('Semua Kursus',
-                              style: GoogleFonts.nunito(
-                                  color: t.accentText.withValues(alpha: 0.8),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700)),
+            // Thumbnail Hero
+            if (course.thumbnail != null)
+              Hero(
+                tag: 'course-thumb-${course.id}',
+                child: Container(
+                  height: 160,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(course.thumbnail!),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          cBg.withValues(alpha: 0.6),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // Title
-                  Text(course.title,
-                      style: GoogleFonts.nunito(
-                          color: t.accentText,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900)),
+                ),
+              ),
+            // Content
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, course.thumbnail != null ? 16 : 24, 24, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back pill
+                  Semantics(
+                    label: 'Kembali ke Semua Kursus',
+                    child: Bounceable(
+                      onTap: () => context.pop(),
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: cFg.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.transparent, width: 2),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.arrow_back_ios_rounded,
+                                color: cFg.withValues(alpha: 0.8), size: 12),
+                            const SizedBox(width: 4),
+                            Text('Semua Kursus',
+                                style: GoogleFonts.nunito(
+                                    color: cFg.withValues(alpha: 0.8),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Title Hero
+                  Hero(
+                    tag: 'course-title-${course.id}',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Text(course.title,
+                          style: GoogleFonts.nunito(
+                              color: cFg,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900)),
+                    ),
+                  ),
                   if (course.description != null &&
                       course.description!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(course.description!,
                         style: GoogleFonts.nunito(
-                            color: t.accentText.withValues(alpha: 0.8),
+                            color: cFg.withValues(alpha: 0.8),
                             fontSize: 13)),
                   ],
                   const SizedBox(height: 16),
@@ -392,19 +414,19 @@ class _HeaderCard extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _Pill(t.accentText, Icons.menu_book, '${course.totalLessons} Lesson'),
-                      _Pill(t.accentText, Icons.check, '$completedUnits/${course.units.length} Unit'),
-                      _Pill(t.accentText, Icons.flash_on, '$progressPct% Selesai'),
+                      _Pill(cFg, Icons.menu_book, '${course.totalLessons} Lesson'),
+                      _Pill(cFg, Icons.check, '$completedUnits/${course.units.length} Unit'),
+                      _Pill(cFg, Icons.flash_on, '$progressPct% Selesai'),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Progress bar (h-3 = 12px)
+                  // Progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: LinearProgressIndicator(
                       value: progress.clamp(0.0, 1.0),
-                      backgroundColor: t.accentText.withValues(alpha: 0.3),
-                      valueColor: AlwaysStoppedAnimation(t.accentText),
+                      backgroundColor: cFg.withValues(alpha: 0.3),
+                      valueColor: AlwaysStoppedAnimation(cFg),
                       minHeight: 12,
                     ),
                   ),
@@ -841,7 +863,7 @@ class _ErrorBody extends StatelessWidget {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Text('😢', style: TextStyle(fontSize: 48)),
             const SizedBox(height: 12),
-            Text('Gagal memuat kursus',
+            Text(AppStrings.errLoadCourseDetail,
                 style: GoogleFonts.nunito(
                     color: t.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -854,8 +876,16 @@ class _ErrorBody extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
                 decoration: BoxDecoration(
                     color: t.accent,
-                    borderRadius: BorderRadius.circular(50)),
-                child: Text('Coba Lagi',
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: t.border, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: t.border,
+                        offset: const Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ]),
+                child: Text(AppStrings.retry,
                     style: GoogleFonts.nunito(
                         fontWeight: FontWeight.w800, color: t.accentText)),
               ),

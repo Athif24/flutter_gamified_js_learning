@@ -8,6 +8,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/celebration_screen.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../data/models/course_model.dart';
 import '../providers/course_provider.dart';
 import 'quiz/question_card.dart';
@@ -70,7 +71,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 const Text('\u{1F622}', style: TextStyle(fontSize: 56)),
                 const SizedBox(height: 12),
                 Text(
-                  'Gagal memuat kuis',
+                  AppStrings.errLoadQuiz,
                   style: GoogleFonts.nunito(
                     color: t.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -339,6 +340,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 t: t,
                 isLast: quiz.isLast,
                 currentQuestion: quiz.current,
+                currentStreak: quiz.currentStreak,
+                livesRemaining: quiz.lastAnswerResult!.livesRemaining,
                 onLanjut: () {
                   ref.read(quizProvider.notifier).clearLastAnswerResult();
                   if (quiz.isLast) {

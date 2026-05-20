@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/error_helper.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/datasources/course_remote_datasource.dart';
 import '../../data/models/course_model.dart';
 
@@ -8,9 +9,13 @@ import '../../data/models/course_model.dart';
 final courseDsProvider = Provider((ref) =>
     CourseRemoteDatasource(ref.read(apiClientProvider)));
 
-// ── Course list ───────────────────────────────────────────────────────
+// ── Course list (guarded: only fetches when auth is ready) ───────────
 final coursesProvider = FutureProvider<List<CourseModel>>(
-    (ref) => ref.read(courseDsProvider).getCourses());
+    (ref) async {
+  final auth = ref.watch(authProvider);
+  if (!auth.isLoggedIn) return <CourseModel>[];
+  return ref.read(courseDsProvider).getCourses();
+});
 
 // ── Enriched courses: merge enrollment data into course list ───────────
 List<CourseModel> getEnrichedCourses(
@@ -18,31 +23,28 @@ List<CourseModel> getEnrichedCourses(
   Map<String, dynamic>? enrolled,
 ) {
   if (enrolled == null || enrolled.isEmpty) {
-    debugPrint('[DEBUG] getEnrichedCourses — enrolled is null/empty, returning raw courses');
     return courses;
   }
 
   final enriched = courses.map((course) {
     final data = enrolled[course.id];
     if (data != null) {
-      debugPrint('[DEBUG] getEnrichedCourses ✅ id=${course.id} "${course.title}" → enrolled, progress=${data['progress']}');
       return course.copyWith(
         isEnrolled: true,
         progress: (data['progress'] ?? 0).toDouble(),
         isCompleted: data['is_completed'] ?? false,
       );
     }
-    debugPrint('[DEBUG] getEnrichedCourses ❌ id=${course.id} "${course.title}" → NOT in enrollment map');
     return course;
   }).toList();
 
-  final enrolledCount = enriched.where((c) => c.isEnrolled).length;
-  debugPrint('[DEBUG] getEnrichedCourses — $enrolledCount/${enriched.length} courses enrolled');
   return enriched;
 }
 
 // ── User's enrollment data (courseId -> {progress, isCompleted}) ─────
 final enrolledCoursesProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final auth = ref.watch(authProvider);
+  if (!auth.isLoggedIn) return <String, dynamic>{};
   final ds = ref.read(courseDsProvider);
   return ds.getMyEnrollments();
 });
@@ -92,6 +94,7 @@ class QuizState {
   final Map<String, SubmitAnswerResponse> answerResults;
   final SubmitAnswerResponse? lastAnswerResult;
   final bool isSubmittingAnswer;
+  final int currentStreak;
 
   const QuizState({
     this.quiz,
@@ -105,6 +108,7 @@ class QuizState {
     this.answerResults = const {},
     this.lastAnswerResult,
     this.isSubmittingAnswer = false,
+    this.currentStreak = 0,
   });
 
   QuestionModel? get current =>
@@ -127,6 +131,7 @@ class QuizState {
     Map<String, SubmitAnswerResponse>? answerResults,
     SubmitAnswerResponse? lastAnswerResult,
     bool? isSubmittingAnswer,
+    int? currentStreak,
     bool clearError = false,
     bool clearLastAnswer = false,
   }) => QuizState(
@@ -141,6 +146,7 @@ class QuizState {
     answerResults     : answerResults      ?? this.answerResults,
     lastAnswerResult  : clearLastAnswer ? null : (lastAnswerResult ?? this.lastAnswerResult),
     isSubmittingAnswer: isSubmittingAnswer ?? this.isSubmittingAnswer,
+    currentStreak     : currentStreak      ?? this.currentStreak,
   );
 }
 
@@ -172,7 +178,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
       );
     } catch (e) {
       state = state.copyWith(
-          error: e.toString().replaceAll('Exception: ', ''));
+          error: sanitizeErrorMessage(e));
     }
   }
 
@@ -205,7 +211,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
     } catch (e) {
       state = state.copyWith(
         isSubmitting: false,
-        error: e.toString().replaceAll('Exception: ', ''),
+        error: sanitizeErrorMessage(e),
       );
     }
   }
@@ -236,16 +242,20 @@ class QuizNotifier extends StateNotifier<QuizState> {
       final updated = Map<String, SubmitAnswerResponse>.from(state.answerResults);
       updated[questionId] = result;
 
+      // Update streak
+      final newStreak = result.isCorrect ? state.currentStreak + 1 : 0;
+
       state = state.copyWith(
         answerResults: updated,
         lastAnswerResult: result,
         isSubmittingAnswer: false,
+        currentStreak: newStreak,
       );
       return result;
     } catch (e) {
       state = state.copyWith(
         isSubmittingAnswer: false,
-        error: e.toString().replaceAll('Exception: ', ''),
+        error: sanitizeErrorMessage(e),
       );
       return null;
     }
