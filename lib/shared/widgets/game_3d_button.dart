@@ -53,7 +53,7 @@ class _Game3DButtonState extends State<Game3DButton> {
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 80),
-        transform: Matrix4.translationValues(0, _pressed ? 4.0 : 0.0, 0),
+        transform: Matrix4.translationValues(0, _pressed ? 2.0 : 0.0, 0),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(
           horizontal: widget.horizontalPadding,
@@ -61,13 +61,17 @@ class _Game3DButtonState extends State<Game3DButton> {
         ),
         decoration: BoxDecoration(
           color: faceColor,
-          borderRadius: BorderRadius.circular(50),
-          border: Border(
-            bottom: BorderSide(
-              color: _pressed ? Colors.transparent : shadow,
-              width: _pressed ? 0 : 4,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _pressed ? Colors.transparent : shadow, width: 2),
+          boxShadow: _pressed
+              ? null
+              : [
+                  BoxShadow(
+                    color: shadow,
+                    offset: const Offset(2, 2),
+                    blurRadius: 0,
+                  ),
+                ],
         ),
         child: widget.isLoading
             ? SizedBox(
