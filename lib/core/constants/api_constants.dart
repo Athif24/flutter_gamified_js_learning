@@ -74,6 +74,12 @@ class Api {
   // ── User-Courses (Enrollments) ──────────────────────────────
   static const userCourses                       = '/api/v1/user-courses';
 
+  // ── Reward Pools (Mystery Box) ──────────────────────────────────
+  static const rewardPools                       = '/api/v1/reward-pools';
+  static String rewardPoolById(int id)           => '/api/v1/reward-pools/$id';
+  static String buyRewardPool(int id)            => '/api/v1/reward-pools/$id/buy';
+  static String openRewardPool(int id)           => '/api/v1/reward-pools/$id/open';
+
   // ── Notifications ─────────────────────────────────────────────
   static const registerFcmToken                  = '/api/v1/notifications/register';
   static const unregisterFcmToken                = '/api/v1/notifications/unregister';

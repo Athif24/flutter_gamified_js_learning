@@ -33,20 +33,33 @@ Map<String, dynamic> extractMap(dynamic body) {
 
 class ApiClient {
   late final Dio _dio;
+  late final _AuthInterceptor _authInterceptor;
 
   ApiClient() {
+    _authInterceptor = _AuthInterceptor();
     _dio = Dio(BaseOptions(
       baseUrl        : Api.base,
-      connectTimeout : const Duration(seconds: 15),
-      receiveTimeout : const Duration(seconds: 20),
+      connectTimeout : const Duration(seconds: 30),
+      receiveTimeout : const Duration(seconds: 45),
       headers        : {'Content-Type': 'application/json'},
     ));
-    _dio.interceptors.add(_AuthInterceptor());
+    _dio.interceptors.add(_authInterceptor);
     _dio.interceptors.add(_TimingInterceptor());
     _dio.interceptors.add(LogInterceptor(
       requestBody: true, responseBody: true,
       logPrint: (o) => debugPrint('[API] $o'),
     ));
+  }
+
+  /// Cache token in memory immediately after login (fixes race condition
+  /// where SecureStorage hasn't flushed to disk yet).
+  void cacheToken(String token) {
+    _authInterceptor.cachedToken = token;
+  }
+
+  /// Clear cached token on logout.
+  void clearCachedToken() {
+    _authInterceptor.cachedToken = null;
   }
 
   Future<Response> get(String path, {Map<String, dynamic>? query}) =>
@@ -66,9 +79,17 @@ class ApiClient {
 }
 
 class _AuthInterceptor extends Interceptor {
+  /// In-memory token cache. Set immediately after login to avoid race condition
+  /// with SecureStorage (encrypted shared prefs can take 1-3s to flush).
+  String? cachedToken;
+
   @override
   Future<void> onRequest(RequestOptions o, RequestInterceptorHandler h) async {
-    final token = await SecureStorage.getToken();
+    String? token = cachedToken;
+    if (token == null) {
+      token = await SecureStorage.getToken();
+      if (token != null) cachedToken = token;
+    }
     if (token != null) {
       o.headers['Authorization'] = 'Bearer $token';
     }
@@ -82,6 +103,7 @@ class _AuthInterceptor extends Interceptor {
     final path = e.requestOptions.path;
     if (code == 401) {
       debugPrint('[API] 401 on $path — clearing token');
+      cachedToken = null;
       SecureStorage.clearAll();
     } else if (code != null) {
       debugPrint('[API] $code on $path: ${data is Map ? data['message'] ?? data : data}');

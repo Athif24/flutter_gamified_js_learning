@@ -4,24 +4,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/services/fcm_service.dart';
 import '../../../../core/storage/secure_storage.dart';
+import '../../../../core/utils/error_helper.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/models/auth_model.dart';
 
 class AuthState {
   final AuthUser? user;
   final bool isLoading;
+  final bool isCheckingAuth;
   final String? error;
-  const AuthState({this.user, this.isLoading = false, this.error});
+  const AuthState({this.user, this.isLoading = false, this.isCheckingAuth = true, this.error});
 
   bool get isLoggedIn => user != null;
 
   AuthState copyWith({
-    AuthUser? user, bool? isLoading, String? error,
+    AuthUser? user, bool? isLoading, bool? isCheckingAuth, String? error,
     bool clearUser = false, bool clearError = false,
   }) => AuthState(
-    user     : clearUser  ? null  : (user      ?? this.user),
-    isLoading: isLoading  ?? this.isLoading,
-    error    : clearError ? null  : (error     ?? this.error),
+    user          : clearUser  ? null  : (user      ?? this.user),
+    isLoading     : isLoading  ?? this.isLoading,
+    isCheckingAuth: isCheckingAuth ?? this.isCheckingAuth,
+    error         : clearError ? null  : (error     ?? this.error),
   );
 }
 
@@ -32,24 +35,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _restore() async {
     final token = await SecureStorage.getToken();
-    if (token == null) return;
+    if (token == null) {
+      state = state.copyWith(isCheckingAuth: false, clearError: true);
+      return;
+    }
     try {
       final user = await _ds.getMe();
-      state = state.copyWith(user: user);
-    } catch (_) { await SecureStorage.clearAll(); }
+      state = state.copyWith(user: user, isCheckingAuth: false, clearError: true);
+    } catch (_) {
+      await SecureStorage.clearAll();
+      state = state.copyWith(isCheckingAuth: false, clearUser: true, clearError: true);
+    }
   }
 
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final r = await _ds.login(email, password);
+      // Cache token in memory immediately to avoid race condition
+      // where SecureStorage hasn't flushed to disk yet.
+      _api.cacheToken(r.token);
       state = state.copyWith(user: r.user, isLoading: false);
       _maybeRegisterToken();
       return true;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString().replaceAll('Exception: ', ''),
+        error: sanitizeErrorMessage(e),
       );
       return false;
     }
@@ -59,13 +71,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final r = await _ds.register(name, email, password);
+      // Cache token in memory immediately
+      _api.cacheToken(r.token);
       state = state.copyWith(user: r.user, isLoading: false);
       _maybeRegisterToken();
       return true;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString().replaceAll('Exception: ', ''),
+        error: sanitizeErrorMessage(e),
       );
       return false;
     }
@@ -86,7 +100,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _ds.changePassword(oldPassword, newPassword);
       return null;
     } catch (e) {
-      return e.toString().replaceAll('Exception: ', '');
+      return sanitizeErrorMessage(e);
     }
   }
 
@@ -100,7 +114,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await FcmService.unregisterToken(_api);
     await _ds.logout();
-    state = const AuthState();
+    _api.clearCachedToken();
+    state = const AuthState(isCheckingAuth: false);
   }
 }
 
