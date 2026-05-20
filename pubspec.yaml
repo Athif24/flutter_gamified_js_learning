@@ -77,6 +77,9 @@ dependencies:
   # Crop image for avatar
   crop_your_image: ^1.1.0
 
+  # Image caching
+  cached_network_image: ^3.3.1
+
   # Firebase
   firebase_core: ^3.12.0
   firebase_messaging: ^15.2.0
@@ -92,6 +95,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+
+  # Testing — mock without code generation
+  mocktail: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
