@@ -93,29 +93,36 @@ class ReviewDialog extends StatelessWidget {
                             color: qr.isCorrect ? t.success : t.error,
                             size: 18,
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(q.text,
-                                style: GoogleFonts.nunito(
-                                    color: t.textPrimary, fontSize: 13,
-                                    fontWeight: FontWeight.w700)),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Soal ${i + 1}',
+                            style: GoogleFonts.nunito(
+                              color: t.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      if (!qr.isCorrect) ...[
-                        Text('Jawabanmu: ${_findUserText(q, qr)}',
+                      const SizedBox(height: 6),
+                      Text(q.text,
+                          style: GoogleFonts.nunito(
+                              color: t.textPrimary, fontSize: 13,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Skor: ${qr.score}/${qr.maxScore}',
                             style: GoogleFonts.nunito(
-                                color: t.error, fontSize: 12)),
-                        const SizedBox(height: 4),
-                        Text('Benar: ${_findCorrectText(q, qr)}',
-                            style: GoogleFonts.nunito(
-                                color: t.success, fontSize: 12,
-                                fontWeight: FontWeight.w700)),
-                      ] else
-                        Text('Jawaban: ${_findUserText(q, qr)}',
-                            style: GoogleFonts.nunito(
-                                color: t.success, fontSize: 12)),
+                              color: qr.isCorrect ? t.success : t.error,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 );

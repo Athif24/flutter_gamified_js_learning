@@ -10,6 +10,8 @@ class QuizFeedbackPopup extends StatelessWidget {
   final BloomTheme t;
   final bool isLast;
   final QuestionModel? currentQuestion;
+  final int currentStreak;
+  final int? livesRemaining;
   final VoidCallback onLanjut;
 
   const QuizFeedbackPopup({
@@ -18,6 +20,8 @@ class QuizFeedbackPopup extends StatelessWidget {
     required this.t,
     required this.isLast,
     this.currentQuestion,
+    this.currentStreak = 0,
+    this.livesRemaining,
     required this.onLanjut,
   });
 
@@ -25,6 +29,47 @@ class QuizFeedbackPopup extends StatelessWidget {
   static const _correctBtn = Color(0xFF166534);
   static const _incorrectBg = Color(0xFF991b1b);
   static const _incorrectBtn = Color(0xFF7f1d1d);
+
+  String _getCorrectMessage(int streak) {
+    if (streak >= 10) {
+      final messages = [
+        'Phenomenal! You\'re unstoppable!',
+        'Perfect streak energy!',
+        'You\'re on fire!',
+        'Incredible performance!',
+      ];
+      return messages[streak % messages.length];
+    }
+    if (streak >= 5) {
+      final messages = [
+        '$streak in a row!',
+        'Keep it up!',
+        'Great momentum!',
+        'Amazing!',
+      ];
+      return messages[streak % messages.length];
+    }
+    if (streak >= 3) {
+      final messages = [
+        '$streak in a row!',
+        'Nice!',
+        'Excellent!',
+        'Perfect!',
+      ];
+      return messages[streak % messages.length];
+    }
+    return 'Jawaban Tepat!';
+  }
+
+  String _getWrongMessage() {
+    final messages = [
+      'Almost there!',
+      'Try again!',
+      'Keep learning!',
+      'Try it again!',
+    ];
+    return messages[DateTime.now().millisecond % messages.length];
+  }
 
   String _formatCorrectAnswer(dynamic correctAnswer) {
     if (correctAnswer == null) return '';
@@ -55,59 +100,84 @@ class QuizFeedbackPopup extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.2))),
+        border: Border(top: BorderSide(color: Colors.white.withAlpha(50))),
       ),
       child: SafeArea(
         top: false,
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Row(
-                children: [
-                  _buildAnimatedIcon(isCorrect),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          isCorrect ? 'Jawaban Tepat!' : 'Jawaban Salah',
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      _buildAnimatedIcon(isCorrect),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              isCorrect
+                                  ? _getCorrectMessage(currentStreak)
+                                  : _getWrongMessage(),
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            if (isCorrect)
+                              Text(
+                                'Kamu menjawab dengan benar',
+                                style: GoogleFonts.nunito(
+                                  fontSize: 12,
+                                  color: Colors.white.withAlpha(200),
+                                ),
+                              )
+                            else
+                              Text(
+                                _getWrongAnswerSubtext(),
+                                style: GoogleFonts.nunito(
+                                  fontSize: 12,
+                                  color: Colors.white.withAlpha(200),
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isCorrect
-                              ? 'Kamu menjawab dengan benar'
-                              : _getWrongAnswerSubtext(),
-                          style: GoogleFonts.nunito(
-                            fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Game3DButton(
+                  label: isLast ? 'SELESAI' : 'LANJUT',
+                  color: btnColor,
+                  shadowColor: darken(btnColor, 0.2),
+                  textColor: Colors.white,
+                  horizontalPadding: 28,
+                  verticalPadding: 13,
+                  onTap: onLanjut,
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Game3DButton(
-              label: isLast ? 'SELESAI' : 'LANJUT',
-              color: btnColor,
-              shadowColor: darken(btnColor, 0.2),
-              textColor: Colors.white,
-              horizontalPadding: 28,
-              verticalPadding: 13,
-              onTap: onLanjut,
-            ),
+
+            if (currentStreak >= 3) ...[
+              const SizedBox(height: 12),
+              _buildStreakBadge(),
+            ],
+
+            if (!isCorrect && livesRemaining != null) ...[
+              const SizedBox(height: 12),
+              _buildLivesIndicator(),
+            ],
           ],
         ),
       ),
@@ -119,7 +189,7 @@ class QuizFeedbackPopup extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: Colors.white.withAlpha(50),
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -136,5 +206,62 @@ class QuizFeedbackPopup extends StatelessWidget {
             curve: Curves.bounceOut,
           )
         : icon.animate().shakeX(duration: 300.ms);
+  }
+
+  Widget _buildStreakBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(20),
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: Colors.white.withAlpha(40)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🔥', style: TextStyle(fontSize: 16)),
+          const SizedBox(width: 6),
+          Text(
+            '$currentStreak in a row!',
+            style: GoogleFonts.nunito(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLivesIndicator() {
+    return Row(
+      children: [
+        Icon(
+          Icons.favorite,
+          color: result.livesRemaining == null ? Colors.white.withAlpha(100) : Colors.redAccent,
+          size: 16,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          'Nyawa tersisa: ',
+          style: GoogleFonts.nunito(
+            color: Colors.white.withAlpha(200),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        ...List.generate(
+          result.livesRemaining ?? 0,
+          (i) => Padding(
+            padding: const EdgeInsets.only(right: 2),
+            child: Text(
+              '❤️',
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

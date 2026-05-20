@@ -5,13 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
+import '../../../../core/utils/error_helper.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../achievement/presentation/providers/achievement_provider.dart';
 import '../../../achievement/data/models/achievement_model.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
+import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../shared/presentation/providers/fetch_state_providers.dart';
 
-class QuizIntroScreen extends ConsumerWidget {
+class QuizIntroScreen extends ConsumerStatefulWidget {
   final String quizId;
   final String? courseId;
 
@@ -22,39 +27,73 @@ class QuizIntroScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QuizIntroScreen> createState() => _QuizIntroScreenState();
+}
+
+class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRefreshMixin<QuizIntroScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
+  }
+
+  Future<void> _silentRefresh() async {
+    final fetchState = ref.read(quizIntroFetchProvider.notifier);
+    if (!fetchState.shouldRefresh) return;
+
+    silentFetch(
+      fetch: () async {
+        ref.invalidate(quizPreviewProvider(widget.quizId));
+        await ref.read(quizPreviewProvider(widget.quizId).future);
+      },
+      fetchState: fetchState,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
-    final previewAsync = ref.watch(quizPreviewProvider(quizId));
-    final myResultAsync = ref.watch(myQuizResultProvider(quizId));
+    final previewAsync = ref.watch(quizPreviewProvider(widget.quizId));
+    final myResultAsync = ref.watch(myQuizResultProvider(widget.quizId));
     final livesAsync = ref.watch(livesProvider);
-    final attemptAsync = ref.watch(quizAttemptProvider(quizId));
+    final attemptAsync = ref.watch(quizAttemptProvider(widget.quizId));
     final courseDetailAsync =
-        courseId != null ? ref.watch(courseDetailProvider(courseId!)) : null;
+        widget.courseId != null ? ref.watch(courseDetailProvider(widget.courseId!)) : null;
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(28),
-            child: previewAsync.when(
-              loading: () => LoadingCircle(t: t),
-              error: (e, _) => _ErrorState(t: t, message: e.toString(),
-                  onRetry: () => ref.refresh(quizPreviewProvider(quizId))),
-              data: (preview) => _IntroBody(
-                preview: preview,
-                myResult: myResultAsync.asData?.value,
-                attempt: attemptAsync.asData?.value,
-                lives: livesAsync.asData?.value,
-                course: courseDetailAsync?.asData?.value,
-                t: t,
-                ref: ref,
-                quizId: quizId,
-                courseId: courseId,
+      body: Column(
+        children: [
+          SlowLoadingIndicator(
+            visible: showSlowIndicator,
+            t: t,
+          ),
+          Expanded(
+            child: SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(28),
+                  child: previewAsync.when(
+                    loading: () => LoadingCircle(t: t),
+                    error: (e, _) => _ErrorState(t: t, message: e.toString(),
+                        onRetry: () => ref.refresh(quizPreviewProvider(widget.quizId))),
+                    data: (preview) => _IntroBody(
+                      preview: preview,
+                      myResult: myResultAsync.asData?.value,
+                      attempt: attemptAsync.asData?.value,
+                      lives: livesAsync.asData?.value,
+                      course: courseDetailAsync?.asData?.value,
+                      t: t,
+                      ref: ref,
+                      quizId: widget.quizId,
+                      courseId: widget.courseId,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -112,7 +151,7 @@ class _IntroBodyState extends State<_IntroBody> {
 
   String get _mainButtonLabel {
     if (widget.myResult?.attempted == true && !widget.myResult!.isPassed) {
-      return 'Coba Lagi';
+      return AppStrings.retry;
     }
     return 'Mulai Quiz';
   }
@@ -134,7 +173,7 @@ class _IntroBodyState extends State<_IntroBody> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-          e.toString().replaceAll('Exception: ', ''),
+          sanitizeErrorMessage(e),
           style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
         ),
         backgroundColor: widget.t.error,
@@ -299,41 +338,59 @@ class _IntroBodyState extends State<_IntroBody> {
         const SizedBox(height: 32),
         LayoutBuilder(
           builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 480;
             if (_showThreeButtons) {
-              return _BuildButtons(
-                t: t,
-                axis: isWide ? Axis.horizontal : Axis.vertical,
-                buttons: [
-                  _ActionBtnData(
-                    label: 'Lanjutkan',
-                    color: t.accent,
-                    shadowColor: darken(t.accent, 0.2),
-                    textColor: t.accentText,
-                    isLoading: _isStarting,
-                    onTap: _hasLives ? () => _handleStart() : null,
+              return Column(
+                children: [
+                  // Baris 1: Lanjutkan (full width)
+                  _BuildSingleButton(
+                    t: t,
+                    btn: _ActionBtnData(
+                      label: 'Lanjutkan',
+                      color: t.accent,
+                      shadowColor: darken(t.accent, 0.2),
+                      textColor: t.accentText,
+                      isLoading: _isStarting,
+                      onTap: _hasLives ? () => _handleStart() : null,
+                    ),
                   ),
-                  _ActionBtnData(
-                    label: 'Mulai Ulang',
-                    color: t.error.withAlpha(200),
-                    shadowColor: darken(t.error, 0.2),
-                    textColor: t.accentText,
-                    isLoading: _isRestarting,
-                    onTap: _hasLives ? () => _handleStart(force: true) : null,
-                  ),
-                  _ActionBtnData(
-                    label: 'Kembali',
-                    color: t.bgSurface2,
-                    shadowColor: t.border,
-                    textColor: t.textPrimary,
-                    onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
+                  const SizedBox(height: 12),
+                  // Baris 2: Mulai Ulang + Kembali (equal width)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _BuildSingleButton(
+                          t: t,
+                          btn: _ActionBtnData(
+                            label: 'Mulai Ulang',
+                            color: t.error.withAlpha(200),
+                            shadowColor: darken(t.error, 0.2),
+                            textColor: t.accentText,
+                            isLoading: _isRestarting,
+                            onTap: _hasLives ? () => _handleStart(force: true) : null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _BuildSingleButton(
+                          t: t,
+                          btn: _ActionBtnData(
+                            label: 'Kembali',
+                            color: t.bgSurface2,
+                            shadowColor: t.border,
+                            textColor: t.textPrimary,
+                            onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               );
             }
             return _BuildButtons(
               t: t,
-              axis: isWide ? Axis.horizontal : Axis.vertical,
+              axis: Axis.horizontal,
               buttons: [
                 _ActionBtnData(
                   label: 'Kembali',
@@ -376,6 +433,44 @@ class _ActionBtnData {
     this.isLoading = false,
     this.onTap,
   });
+}
+
+class _BuildSingleButton extends StatelessWidget {
+  final BloomTheme t;
+  final _ActionBtnData btn;
+
+  const _BuildSingleButton({
+    required this.t,
+    required this.btn,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final noLives = btn.onTap == null && !btn.isLoading && btn.label != 'Kembali';
+
+    return Game3DButton(
+      label: noLives ? null : btn.label,
+      color: btn.color,
+      shadowColor: btn.shadowColor,
+      textColor: btn.textColor,
+      horizontalPadding: 16,
+      verticalPadding: 15,
+      isLoading: btn.isLoading,
+      onTap: btn.onTap,
+      child: noLives
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.lock_rounded, size: 14, color: t.textHint),
+                const SizedBox(width: 6),
+                Text('Nyawa Habis',
+                    style: GoogleFonts.nunito(
+                        color: t.textHint, fontWeight: FontWeight.w800, fontSize: 14)),
+              ],
+            )
+          : null,
+    );
+  }
 }
 
 class _BuildButtons extends StatelessWidget {
@@ -482,7 +577,7 @@ class _ErrorState extends StatelessWidget {
       children: [
         const Icon(Icons.cloud_off_rounded, size: 56),
         const SizedBox(height: 12),
-        Text('Gagal memuat kuis',
+        Text(AppStrings.errLoadQuiz,
             style: GoogleFonts.nunito(
                 color: t.textPrimary, fontWeight: FontWeight.w700, fontSize: 16)),
         const SizedBox(height: 8),
@@ -491,7 +586,7 @@ class _ErrorState extends StatelessWidget {
             textAlign: TextAlign.center),
         const SizedBox(height: 22),
         Game3DButton(
-          label: 'Coba Lagi',
+          label: AppStrings.retry,
           color: t.accent,
           shadowColor: darken(t.accent, 0.2),
           textColor: t.accentText,
