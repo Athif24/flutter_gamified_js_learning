@@ -1,5 +1,4 @@
-import 'dart:ui' show ImageFilter;
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
@@ -8,6 +7,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/leaderboard_provider.dart';
 import '../../data/models/leaderboard_model.dart';
 
@@ -43,34 +46,31 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
   ConsumerState<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
 
-class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
+class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with SilentRefreshMixin<LeaderboardScreen> {
   String _searchQuery = '';
-  int _visibleCount = 10;
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 300) {
-      final total = ref.read(leaderboardProvider)
-          .valueOrNull?.leaderboard.length ?? 0;
-      if (_visibleCount < total) {
-        setState(() {
-          _visibleCount = (_visibleCount + 10).clamp(0, total);
-        });
-      }
-    }
+  Future<void> _silentRefresh() async {
+    final fetchState = ref.read(leaderboardFetchProvider.notifier);
+    if (!fetchState.shouldRefresh) return;
+
+    silentFetch(
+      fetch: () async {
+        ref.invalidate(leaderboardProvider);
+        await ref.read(leaderboardProvider.future);
+      },
+      fetchState: fetchState,
+    );
   }
 
   @override
@@ -78,6 +78,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     ref.listen<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 2 && next == 2) {
         ref.invalidate(leaderboardProvider);
+        _silentRefresh();
       }
     });
 
@@ -86,12 +87,22 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: SafeArea(
-        child: boardAsync.when(
-          loading: () => LoadingCircle(t: t),
-          error: (e, _) => _buildError(t, e),
-          data: (res) => _buildContent(t, res),
-        ),
+      body: Column(
+        children: [
+          SlowLoadingIndicator(
+            visible: showSlowIndicator,
+            t: t,
+          ),
+          Expanded(
+            child: SafeArea(
+              child: boardAsync.when(
+                loading: () => LoadingCircle(t: t),
+                error: (e, _) => _buildError(t, e),
+                data: (res) => _buildContent(t, res),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -107,14 +118,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         ? entries
         : entries.where((e) =>
             e.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
-    final paginated = _searchQuery.isEmpty
-        ? entries.take(_visibleCount).toList()
-        : filtered;
 
     return RefreshIndicator(
-      onRefresh: () {
+      onRefresh: () async {
         ref.invalidate(leaderboardProvider);
-        return Future<void>.value();
+        await _silentRefresh();
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
@@ -142,14 +150,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             const SizedBox(height: 16),
 
           // ── Search ────────────────────────────────────────────────────
-          _SearchCard(t: t, onChanged: (v) =>
-              setState(() { _searchQuery = v; _visibleCount = 10; }))
+          _SearchCard(t: t, onChanged: (v) => setState(() => _searchQuery = v))
               .animate().fadeIn(delay: 250.ms),
 
           const SizedBox(height: 16),
 
           // ── Table ────────────────────────────────────────────────────
-          _LeaderboardTable(t: t, entries: paginated,
+          _LeaderboardTable(t: t, entries: filtered,
               currentUserRank: currentUserRank, topXp: topXp)
               .animate().fadeIn(delay: 300.ms),
 
@@ -160,13 +167,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             _FooterStats(t: t, total: entries.length,
                 topXp: topXp, myRank: currentUserRank)
                 .animate().fadeIn(delay: 350.ms),
-
-          if (_searchQuery.isEmpty && _visibleCount < entries.length)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Center(child: Text('Memuat lebih banyak...',
-                  style: GoogleFonts.nunito(color: t.textHint, fontSize: 12))),
-            ),
         ],
       ),
     );
@@ -189,17 +189,32 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           child: Row(children: [
             Icon(Icons.error_outline_rounded, color: t.error, size: 24),
             const SizedBox(width: 12),
-            Expanded(child: Text('Gagal memuat leaderboard. Silakan coba lagi.',
+            Expanded(child: Text(AppStrings.errLoadLeaderboardDetail,
                 style: GoogleFonts.nunito(color: t.textPrimary, fontSize: 13))),
             const SizedBox(width: 8),
-            Bounceable(
-              onTap: () => ref.invalidate(leaderboardProvider),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: t.bgSurface, borderRadius: BorderRadius.circular(50)),
-                child: Text('Coba Lagi', style: GoogleFonts.nunito(
-                    color: t.accent, fontWeight: FontWeight.w800, fontSize: 12)),
+            Semantics(
+              label: 'Coba lagi',
+              child: Bounceable(
+                onTap: () => ref.invalidate(leaderboardProvider),
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: t.bgSurface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: t.border, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: t.border,
+                        offset: const Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Text(AppStrings.retry, style: GoogleFonts.nunito(
+                      color: t.accent, fontWeight: FontWeight.w800, fontSize: 12)),
+                ),
               ),
             ),
           ]),
@@ -222,60 +237,31 @@ class _HeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [t.accent.withValues(alpha: 0.25), t.info.withValues(alpha: 0.12)],
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-        ),
+        color: t.accent,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: t.textPrimary.withValues(alpha: 0.25), width: 2),
+        border: Border.all(color: t.border, width: 2),
         boxShadow: [
           BoxShadow(color: t.border, offset: const Offset(4, 4), blurRadius: 0),
         ],
       ),
-      child: Stack(children: [
-        Positioned(right: -48, top: -48,
-          child: Container(width: 192, height: 192,
-            decoration: BoxDecoration(
-              color: t.bgSurface.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
-            ),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-              child: const SizedBox.expand(),
-            ),
-          ),
-        ),
-        Positioned(left: -32, bottom: -32,
-          child: Container(width: 128, height: 128,
-            decoration: BoxDecoration(
-              color: t.textHint.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
-            ),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-              child: const SizedBox.expand(),
-            ),
-          ),
-        ),
-        Column(children: [
-          Row(children: [
-            const Text('🏆', style: TextStyle(fontSize: 28)),
-            const SizedBox(width: 10),
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Leaderboard', style: GoogleFonts.nunito(
-                    color: t.accentText, fontSize: 24,
-                    fontWeight: FontWeight.w900)),
-                const SizedBox(height: 4),
-                Text('Lihat peringkat Anda dan kompetisi dengan pemain lain',
-                    style: GoogleFonts.nunito(
-                        color: t.accentText.withValues(alpha: 0.8), fontSize: 14)),
-              ],
-            )),
-          ]),
+      child: Column(children: [
+        Row(children: [
+          const Text('🏆', style: TextStyle(fontSize: 28)),
+          const SizedBox(width: 10),
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Leaderboard', style: GoogleFonts.nunito(
+                  color: t.accentText, fontSize: 24,
+                  fontWeight: FontWeight.w900)),
+              const SizedBox(height: 4),
+              Text('Lihat peringkat Anda dan kompetisi dengan pemain lain',
+                  style: GoogleFonts.nunito(
+                      color: t.accentText.withValues(alpha: 0.8), fontSize: 14)),
+            ],
+          )),
         ]),
       ]),
     );
@@ -465,9 +451,12 @@ class _PodiumUser extends StatelessWidget {
         child: entry.avatar != null && entry.avatar!.isNotEmpty
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.network(entry.avatar!, width: rank == 1 ? 50 : 38,
+                child: CachedNetworkImage(imageUrl: entry.avatar!, width: rank == 1 ? 50 : 38,
                     height: rank == 1 ? 50 : 38, fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Text(_initial(),
+                    placeholder: (_, __) => Text(_initial(),
+                        style: GoogleFonts.nunito(color: _color,
+                            fontWeight: FontWeight.w900, fontSize: rank == 1 ? 20 : 16)),
+                    errorWidget: (_, __, ___) => Text(_initial(),
                         style: GoogleFonts.nunito(color: _color,
                             fontWeight: FontWeight.w900, fontSize: rank == 1 ? 20 : 16))))
             : Text(_initial(),
@@ -601,10 +590,13 @@ class _LeaderboardTable extends StatelessWidget {
                 color: t.textHint, fontSize: 15)),
           )
         else
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowColor: WidgetStatePropertyAll(t.bgSurface2),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 650),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: DataTable(
+                  headingRowColor: WidgetStatePropertyAll(t.bgSurface2),
               columnSpacing: 20,
               dataRowMinHeight: 48,
               dataRowMaxHeight: 60,
@@ -641,9 +633,14 @@ class _LeaderboardTable extends StatelessWidget {
                           child: e.avatar != null && e.avatar!.isNotEmpty
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(7),
-                                  child: Image.network(e.avatar!, width: 28,
+                                  child: CachedNetworkImage(imageUrl: e.avatar!, width: 28,
                                       height: 28, fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Text(
+                                      placeholder: (_, __) => Text(
+                                          e.name.isNotEmpty ? e.name[0].toUpperCase() : '?',
+                                          style: GoogleFonts.nunito(
+                                              color: t.textHint, fontWeight: FontWeight.w800,
+                                              fontSize: 12)),
+                                      errorWidget: (_, __, ___) => Text(
                                           e.name.isNotEmpty ? e.name[0].toUpperCase() : '?',
                                           style: GoogleFonts.nunito(
                                               color: t.textHint, fontWeight: FontWeight.w800,
@@ -694,6 +691,8 @@ class _LeaderboardTable extends StatelessWidget {
                   ],
                 );
               }).toList(),
+                ),
+              ),
             ),
           ),
       ]),

@@ -110,6 +110,7 @@ const itemTypeLabels = <String, String>{
   'streak_freeze': 'Streak Freeze',
   'power_up': 'Power Up',
   'cosmetic': 'Cosmetic',
+  'mystery_box': 'Mystery Box',
 };
 
 const itemTypeDescriptions = <String, String>{
@@ -118,6 +119,7 @@ const itemTypeDescriptions = <String, String>{
   'streak_freeze': 'Bekukan streak agar tidak hangus',
   'power_up': 'Power-up untuk membantu belajar',
   'cosmetic': 'Item kosmetik untuk tampilan',
+  'mystery_box': 'Box misterius dengan hadiah acak',
 };
 
 const jewelSourceLabels = <String, String>{
@@ -128,4 +130,5 @@ const jewelSourceLabels = <String, String>{
   'event': 'Event',
   'store': 'Store',
   'admin': 'Admin',
+  'mystery_box': 'Mystery Box',
 };

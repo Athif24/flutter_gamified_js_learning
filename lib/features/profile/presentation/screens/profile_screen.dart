@@ -13,22 +13,55 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/services/cloudinary_service.dart';
 import '../../../../core/services/fcm_service.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/providers/gamification_providers.dart';
+import '../../../courses/presentation/providers/course_provider.dart';
+import '../../../store/presentation/providers/store_provider.dart';
+import '../../../store/presentation/providers/reward_pool_provider.dart';
 import '../widgets/theme_picker_sheet.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../../data/models/profile_model.dart';
 import '../widgets/crop_screen.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> with SilentRefreshMixin<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
+  }
+
+  Future<void> _silentRefresh() async {
+    final fetchState = ref.read(profileFetchProvider.notifier);
+    if (!fetchState.shouldRefresh) return;
+
+    silentFetch(
+      fetch: () async {
+        ref.invalidate(profileProvider);
+        await ref.read(profileProvider.future);
+      },
+      fetchState: fetchState,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.listen<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 4 && next == 4) {
         ref.invalidate(profileProvider);
+        _silentRefresh();
       }
     });
 
@@ -37,33 +70,46 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => ref.refresh(profileProvider.future).then((_) {}),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-            child: profileAsync.when(
-              loading: () => LoadingCircle(t: t),
-              error: (e, _) => _retryCard(t, () {
-                ref.invalidate(profileProvider);
-              }),
-              data: (p) => Column(
-                children: [
-                  _ProfileHeroCard(t: t, profile: p, ref: ref),
-                  const SizedBox(height: 16),
-                  _ProfileStatsGrid(t: t, profile: p),
-                  const SizedBox(height: 16),
-                  _LearningSummary(t: t, profile: p),
-                  const SizedBox(height: 16),
-                  _RecentActivity(t: t, entries: p.recentXp),
-                  const SizedBox(height: 16),
-                  _AccountSection(t: t, email: p.email),
-                ],
+      body: Column(
+        children: [
+          SlowLoadingIndicator(
+            visible: showSlowIndicator,
+            t: t,
+          ),
+          Expanded(
+            child: SafeArea(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(profileProvider);
+                  await _silentRefresh();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                  child: profileAsync.when(
+                    loading: () => LoadingCircle(t: t),
+                    error: (e, _) => _retryCard(t, () {
+                      ref.invalidate(profileProvider);
+                    }),
+                    data: (p) => Column(
+                      children: [
+                        _ProfileHeroCard(t: t, profile: p, ref: ref),
+                        const SizedBox(height: 16),
+                        _ProfileStatsGrid(t: t, profile: p),
+                        const SizedBox(height: 16),
+                        _LearningSummary(t: t, profile: p),
+                        const SizedBox(height: 16),
+                        _RecentActivity(t: t, entries: p.recentXp),
+                        const SizedBox(height: 16),
+                        _AccountSection(t: t, email: p.email),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -92,19 +138,9 @@ class _ProfileHeroCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                t.accent.withValues(alpha: 0.25),
-                t.accentDark.withValues(alpha: 0.12),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: t.accent,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: t.textPrimary.withValues(alpha: 0.2),
-              width: 2,
-            ),
+            border: Border.all(color: t.border, width: 2),
             boxShadow: [
               BoxShadow(
                 color: t.border,
@@ -228,25 +264,25 @@ class _ProfileHeroCard extends StatelessWidget {
                     horizontal: 16,
                     vertical: 8,
                   ),
-                  decoration: BoxDecoration(
-                    color: t.bgSurface.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: t.border, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: t.border,
-                        offset: const Offset(2, 2),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.edit_outlined, color: t.accentText, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Edit Profile',
+                    decoration: BoxDecoration(
+                      color: t.bgSurface.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: t.border, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: t.border,
+                          offset: const Offset(2, 2),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.edit_outlined, color: t.accentText, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Edit Profile',
                         style: GoogleFonts.nunito(
                           color: t.accentText,
                           fontSize: 14,
@@ -306,7 +342,14 @@ class _ProfileHeroCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: t.bgSurface.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: t.border, width: 1.5),
+                border: Border.all(color: t.border, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: t.border,
+                    offset: const Offset(2, 2),
+                    blurRadius: 0,
+                  ),
+                ],
               ),
               child: Center(
                 child: Text('🎨', style: TextStyle(fontSize: 18)),
@@ -900,7 +943,15 @@ class _RecentActivity extends StatelessWidget {
           if (entries.isEmpty)
             _emptyActivity(t)
           else
-            ...entries.map((e) => _buildEntry(t, e)),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 290),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: entries.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (ctx, i) => _buildEntry(t, entries[i]),
+              ),
+            ),
         ],
       ),
     ).animate().fadeIn(delay: 200.ms);
@@ -1212,30 +1263,30 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                   onTap: () => _showChangePassword(context, ref, t),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.accent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: t.border, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: t.border,
-                          offset: const Offset(2, 2),
-                          blurRadius: 0,
+                  decoration: BoxDecoration(
+                    color: t.accent,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: t.border, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: t.border,
+                        offset: const Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.lock_rounded,
+                          color: t.accentText,
+                          size: 16,
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.lock_rounded,
-                            color: t.accentText,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Ubah Password',
+                        const SizedBox(width: 6),
+                        Text(
+                          'Ubah Password',
                             style: GoogleFonts.nunito(
                               color: t.accentText,
                               fontSize: 14,
@@ -1251,13 +1302,16 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                child: Bounceable(
-                  onTap: () => _showLogoutConfirm(context, ref, t),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Semantics(
+                  label: 'Keluar dari aplikasi',
+                  child: Bounceable(
+                    onTap: () => _showLogoutConfirm(context, ref, t),
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 48),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
                       color: t.error.withAlpha(20),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: t.error.withAlpha(76),
                         width: 2,
@@ -1278,13 +1332,14 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                           const SizedBox(width: 6),
                           Text(
                             'Keluar',
-                            style: GoogleFonts.nunito(
-                              color: t.error,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
+                              style: GoogleFonts.nunito(
+                                color: t.error,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1454,23 +1509,23 @@ Future<void> _showEditProfile(
                               requestType: RequestType.image,
                             ),
                           );
-                          final asset = result?.firstOrNull;
-                          if (asset != null) {
-                            final file = await asset.file;
-                            if (file != null) {
-                              final cropped = await Navigator.of(ctx).push<File>(
-                                MaterialPageRoute(
-                                  builder: (_) => CropScreen(
-                                    imageFile: file,
-                                    t: t,
-                                  ),
-                                ),
-                              );
-                              if (cropped != null) {
-                                setState(() => avatarFile = cropped);
-                              }
-                            }
-                          }
+                           final asset = result?.firstOrNull;
+                           if (asset != null) {
+                             final file = await asset.file;
+                             if (file != null && ctx.mounted) {
+                               final cropped = await Navigator.of(ctx).push<File>(
+                                 MaterialPageRoute(
+                                   builder: (_) => CropScreen(
+                                     imageFile: file,
+                                     t: t,
+                                   ),
+                                 ),
+                               );
+                               if (cropped != null) {
+                                 setState(() => avatarFile = cropped);
+                               }
+                             }
+                           }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -1478,12 +1533,16 @@ Future<void> _showEditProfile(
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white.withAlpha(179),
-                              width: 1.5,
-                            ),
+                            color: t.bgSurface.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: t.border, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: t.border,
+                                offset: const Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1491,7 +1550,7 @@ Future<void> _showEditProfile(
                               Icon(
                                 Icons.upload_rounded,
                                 size: 14,
-                                color: Colors.white,
+                                color: t.accentText,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -1499,8 +1558,8 @@ Future<void> _showEditProfile(
                                     ? 'Ganti Foto Ah'
                                     : 'Upload Foto Kece',
                                 style: GoogleFonts.nunito(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                                  color: t.accentText,
+                                  fontWeight: FontWeight.w800,
                                   fontSize: 13,
                                 ),
                               ),
@@ -1602,174 +1661,155 @@ Future<void> _showEditProfile(
                   },
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: Bounceable(
-                    onTap: isLoading
-                        ? null
-                        : () async {
-                            if (!formKey.currentState!.validate()) return;
-                            setState(() => isLoading = true);
-                            try {
-                              String? uploadedUrl;
-                              if (avatarFile != null) {
-                                uploadedUrl =
-                                    await CloudinaryService.uploadImage(
-                                      avatarFile!.path,
-                                    );
-                              }
-                              final updateData = <String, dynamic>{
-                                'name': nameController.text.trim(),
-                                'email': emailController.text.trim(),
-                              };
-                              if (avatarFile != null) {
-                                updateData['avatar'] = uploadedUrl!;
-                              } else if (avatarUrl == null &&
-                                  profile.avatar != null) {
-                                updateData['avatar'] = '';
-                              }
-                              await ref
-                                  .read(profileDsProvider)
-                                  .updateProfile(updateData);
-                              ref.invalidate(profileProvider);
-                              ref.read(authProvider.notifier).refreshMe();
-                              if (ctx.mounted) Navigator.of(ctx).pop();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Profil berhasil diperbarui',
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              setState(() => isLoading = false);
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      e.toString().replaceAll(
-                                        'Exception: ',
-                                        '',
-                                      ),
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: t.accent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: t.border, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.border,
-                            offset: const Offset(2, 2),
-                            blurRadius: 0,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Bounceable(
+                      onTap: () => Navigator.of(ctx).pop(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: t.border, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.border,
+                              offset: const Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.nunito(
+                            color: t.textSecondary,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
                           ),
-                        ],
+                        ),
                       ),
-                      child: Center(
+                    ),
+                    const SizedBox(width: 12),
+                    Bounceable(
+                      onTap: isLoading
+                          ? null
+                          : () async {
+                              if (!formKey.currentState!.validate()) return;
+                              setState(() => isLoading = true);
+                              try {
+                                String? uploadedUrl;
+                                if (avatarFile != null) {
+                                  uploadedUrl =
+                                      await CloudinaryService.uploadImage(
+                                        avatarFile!.path,
+                                      );
+                                }
+                                final updateData = <String, dynamic>{
+                                  'name': nameController.text.trim(),
+                                  'email': emailController.text.trim(),
+                                };
+                                if (avatarFile != null) {
+                                  updateData['avatar'] = uploadedUrl!;
+                                } else if (avatarUrl == null &&
+                                    profile.avatar != null) {
+                                  updateData['avatar'] = '';
+                                }
+                                await ref
+                                    .read(profileDsProvider)
+                                    .updateProfile(updateData);
+                                ref.invalidate(profileProvider);
+                                ref.read(authProvider.notifier).refreshMe();
+                                if (ctx.mounted) Navigator.of(ctx).pop();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Profil berhasil diperbarui',
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.green,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                setState(() => isLoading = false);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        e.toString().replaceAll(
+                                          'Exception: ',
+                                          '',
+                                        ),
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: t.accent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: t.border, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.border,
+                              offset: const Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
                         child: isLoading
                             ? Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 16,
-                                    height: 16,
+                                    width: 14,
+                                    height: 14,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: t.accentText,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 6),
                                   Text(
                                     'Menyimpan...',
                                     style: GoogleFonts.nunito(
                                       color: t.accentText,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 14,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ],
                               )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.check_rounded, color: t.accentText, size: 16),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Simpan',
-                                    style: GoogleFonts.nunito(
-                                      color: t.accentText,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
+                            : Text(
+                                'Simpan',
+                                style: GoogleFonts.nunito(
+                                  color: t.accentText,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                ),
                               ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: Bounceable(
-                    onTap: () => Navigator.of(ctx).pop(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: t.border, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.border,
-                            offset: const Offset(2, 2),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.close_rounded, color: t.textSecondary, size: 16),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Batal',
-                              style: GoogleFonts.nunito(
-                                color: t.textSecondary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ],
               ),
@@ -1941,35 +1981,85 @@ Future<void> _showChangePassword(
                   },
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: Bounceable(
-                    onTap: isLoading
-                        ? null
-                        : () async {
-                            if (!formKey.currentState!.validate()) return;
-                            setState(() => isLoading = true);
-                            try {
-                              final error = await ref
-                                  .read(authProvider.notifier)
-                                  .changePassword(
-                                    currentPwController.text,
-                                    newPwController.text,
-                                  );
-                              if (error != null) {
-                                setState(() => isLoading = false);
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        error,
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w600,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Bounceable(
+                      onTap: () => Navigator.of(ctx).pop(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: t.border, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.border,
+                              offset: const Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.nunito(
+                            color: t.textSecondary,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Bounceable(
+                      onTap: isLoading
+                          ? null
+                          : () async {
+                              if (!formKey.currentState!.validate()) return;
+                              setState(() => isLoading = true);
+                              try {
+                                final error = await ref
+                                    .read(authProvider.notifier)
+                                    .changePassword(
+                                      currentPwController.text,
+                                      newPwController.text,
+                                    );
+                                if (error != null) {
+                                  setState(() => isLoading = false);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          error,
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
-                                      backgroundColor: Colors.red,
+                                    );
+                                  }
+                                  return;
+                                }
+                                if (ctx.mounted) Navigator.of(ctx).pop();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Password berhasil diubah!',
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.green,
                                       behavior: SnackBarBehavior.floating,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
@@ -1979,127 +2069,58 @@ Future<void> _showChangePassword(
                                     ),
                                   );
                                 }
-                                return;
+                              } catch (_) {
+                                setState(() => isLoading = false);
                               }
-                              if (ctx.mounted) Navigator.of(ctx).pop();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Password berhasil diubah!',
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        12,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            } catch (_) {
-                              setState(() => isLoading = false);
-                            }
-                          },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: t.accent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: t.border, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.border,
-                            offset: const Offset(2, 2),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Center(
+                            },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: t.accent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: t.border, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.border,
+                              offset: const Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
                         child: isLoading
                             ? Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 16,
-                                    height: 16,
+                                    width: 14,
+                                    height: 14,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: t.accentText,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 6),
                                   Text(
                                     'Menyimpan...',
                                     style: GoogleFonts.nunito(
                                       color: t.accentText,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 14,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ],
                               )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.check_rounded, color: t.accentText, size: 16),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Simpan',
-                                    style: GoogleFonts.nunito(
-                                      color: t.accentText,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
+                            : Text(
+                                'Simpan',
+                                style: GoogleFonts.nunito(
+                                  color: t.accentText,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                ),
                               ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: Bounceable(
-                    onTap: () => Navigator.of(ctx).pop(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: t.border, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.border,
-                            offset: const Offset(2, 2),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.close_rounded, color: t.textSecondary, size: 16),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Batal',
-                              style: GoogleFonts.nunito(
-                                color: t.textSecondary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ],
               ),
@@ -2168,73 +2189,105 @@ Future<void> _showLogoutConfirm(
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: Bounceable(
-                  onTap: isLoading
-                      ? null
-                      : () async {
-                          setState(() => isLoading = true);
-                          await ref.read(authProvider.notifier).logout();
-                          ref.read(navIndexProvider.notifier).state = 0;
-                          if (context.mounted) context.go('/login');
-                          if (ctx.mounted) Navigator.of(ctx).pop();
-                        },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.error.withAlpha(200),
-                      borderRadius: BorderRadius.circular(24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Bounceable(
+                    onTap: () => Navigator.of(ctx).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.border, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.border,
+                            offset: const Offset(2, 2),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Batal',
+                        style: GoogleFonts.nunito(
+                          color: t.textSecondary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
-                    child: Center(
+                  ),
+                  const SizedBox(width: 12),
+                  Bounceable(
+                    onTap: isLoading
+                        ? null
+                        : () async {
+                            setState(() => isLoading = true);
+                            await ref.read(authProvider.notifier).logout();
+
+                            // Invalidate ALL providers to clear cached data
+                            invalidateGamificationProviders(ref);
+                            ref.invalidate(coursesProvider);
+                            ref.invalidate(courseDetailProvider);
+                            ref.invalidate(storeItemsProvider);
+                            ref.invalidate(inventoryProvider);
+                            ref.invalidate(rewardPoolsProvider);
+                            ref.read(navIndexProvider.notifier).state = 0;
+
+                            // Pop dialog, then navigate
+                            // GoRouter redirect uses authProvider (instant) — no delay needed
+                            if (ctx.mounted) Navigator.of(ctx).pop();
+                            if (context.mounted) context.go('/login');
+                          },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: t.error.withAlpha(200),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.border, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.border,
+                            offset: const Offset(2, 2),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
                       child: isLoading
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Keluar...',
+                                  style: GoogleFonts.nunito(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             )
                           : Text(
                               'Keluar',
                               style: GoogleFonts.nunito(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 14,
+                                fontSize: 13,
                               ),
                             ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: Bounceable(
-                  onTap: () => Navigator.of(ctx).pop(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.white.withAlpha(179),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Batal',
-                        style: GoogleFonts.nunito(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                ],
               ),
             ],
           ),
@@ -2269,7 +2322,7 @@ Widget _retryCard(BloomTheme t, VoidCallback onRetry) => Container(
       const SizedBox(width: 10),
       Expanded(
         child: Text(
-          'Gagal memuat profil',
+          AppStrings.errLoadProfile,
           style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 12),
         ),
       ),
@@ -2279,7 +2332,15 @@ Widget _retryCard(BloomTheme t, VoidCallback onRetry) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: t.accent,
-            borderRadius: BorderRadius.circular(50),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: t.border, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: t.border,
+                offset: const Offset(2, 2),
+                blurRadius: 0,
+              ),
+            ],
           ),
           child: Text(
             'Retry',

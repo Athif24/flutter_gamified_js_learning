@@ -1,4 +1,5 @@
 import 'dart:ui' show ImageFilter;
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,6 +9,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/achievement_provider.dart';
 import '../../data/models/achievement_model.dart';
@@ -15,11 +20,40 @@ import '../../data/models/achievement_model.dart';
 import '../widgets/level_roadmap.dart';
 import '../widgets/xp_history_list.dart';
 
-class AchievementScreen extends ConsumerWidget {
+class AchievementScreen extends ConsumerStatefulWidget {
   const AchievementScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AchievementScreen> createState() => _AchievementScreenState();
+}
+
+class _AchievementScreenState extends ConsumerState<AchievementScreen> with SilentRefreshMixin<AchievementScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
+  }
+
+  Future<void> _silentRefresh() async {
+    final fetchState = ref.read(achievementFetchProvider.notifier);
+    if (!fetchState.shouldRefresh) return;
+
+    silentFetch(
+      fetch: () async {
+        ref.invalidate(xpProvider);
+        ref.invalidate(streakProvider);
+        ref.invalidate(mergedBadgesProvider);
+        ref.invalidate(livesProvider);
+        ref.invalidate(levelsProvider);
+        ref.invalidate(xpHistoryProvider);
+        await ref.read(xpProvider.future);
+      },
+      fetchState: fetchState,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.listen<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 1 && next == 1) {
         ref.invalidate(xpProvider);
@@ -28,6 +62,7 @@ class AchievementScreen extends ConsumerWidget {
         ref.invalidate(livesProvider);
         ref.invalidate(levelsProvider);
         ref.invalidate(xpHistoryProvider);
+        _silentRefresh();
       }
     });
 
@@ -43,23 +78,30 @@ class AchievementScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () {
-            final _ = ref.refresh(xpProvider);
-            final _ = ref.refresh(streakProvider);
-            final _ = ref.refresh(mergedBadgesProvider);
-            final _ = ref.refresh(livesProvider);
-            final _ = ref.refresh(levelsProvider);
-            final _ = ref.refresh(xpHistoryProvider);
-            return Future<void>.value();
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: Column(
+        children: [
+          SlowLoadingIndicator(
+            visible: showSlowIndicator,
+            t: t,
+          ),
+          Expanded(
+            child: SafeArea(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(xpProvider);
+                  ref.invalidate(streakProvider);
+                  ref.invalidate(mergedBadgesProvider);
+                  ref.invalidate(livesProvider);
+                  ref.invalidate(levelsProvider);
+                  ref.invalidate(xpHistoryProvider);
+                  await _silentRefresh();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
               // ── Hero progress card ───────────────────────────────────
               xpAsync.when(
@@ -187,7 +229,10 @@ class AchievementScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -212,12 +257,9 @@ class _HeroCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [t.accent.withValues(alpha: 0.25), t.accentDark.withValues(alpha: 0.12)],
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
-          ),
+          color: t.accent,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: t.textPrimary.withValues(alpha: 0.2), width: 2),
+          border: Border.all(color: t.border, width: 2),
           boxShadow: [BoxShadow(color: t.border, offset: const Offset(4, 4), blurRadius: 0)],
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -346,35 +388,6 @@ class _HeroCard extends StatelessWidget {
             ],
           ),
         ]),
-      ),
-      Positioned(
-        right: -48, top: -48,
-        child: ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(width: 224, height: 224,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: t.bgSurface.withValues(alpha: 0.08),
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        left: -32, bottom: -32,
-        child: ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-          child: Container(width: 128, height: 128,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: t.textHint.withValues(alpha: 0.08),
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        right: 24, top: 24,
-        child: Icon(Icons.star_rounded, size: 128,
-            color: t.textPrimary.withValues(alpha: 0.08)),
       ),
     ],
   );
@@ -709,16 +722,22 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: t.border, width: 2),
             ),
-            child: Center(
-              child: b.icon.startsWith('http')
-                  ? Image.network(b.icon, width: 36, height: 36,
+            child: Semantics(
+              label: '${b.name} - ${earned ? "Sudah didapat" : "Belum didapat"}',
+              child: Center(
+                child: b.icon.startsWith('http')
+                  ? CachedNetworkImage(imageUrl: b.icon, width: 36, height: 36,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) =>
+                      placeholder: (_, __) =>
+                          Icon(Icons.emoji_events_rounded, size: 24,
+                              color: earned ? t.warning : t.textHint),
+                      errorWidget: (_, __, ___) =>
                           Icon(Icons.emoji_events_rounded, size: 24,
                               color: earned ? t.warning : t.textHint))
-                  : Text(b.icon, style: const TextStyle(fontSize: 24)),
+                   : Text(b.icon, style: const TextStyle(fontSize: 24)),
+              ),
             ),
-          ),
+            ),
           const SizedBox(height: 12),
           Text(b.name,
               style: GoogleFonts.nunito(
@@ -904,16 +923,30 @@ class _RetryCard extends StatelessWidget {
     child: Row(children: [
       Icon(Icons.error_outline_rounded, color: t.error, size: 20),
       const SizedBox(width: 10),
-      Expanded(child: Text('Gagal memuat $label',
+      Expanded(child: Text(AppStrings.errLoadAchievementDetail,
           style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 12))),
-      Bounceable(onTap: onRetry, child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-            color: t.accent, borderRadius: BorderRadius.circular(50)),
-        child: Text('Retry', style: GoogleFonts.nunito(
-            color: t.accentText, fontSize: 11,
-            fontWeight: FontWeight.w800)),
-      )),
+      Semantics(
+        label: 'Coba lagi',
+        child: Bounceable(onTap: onRetry, child: Container(
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+              color: t.accent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: t.border, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: t.border,
+                  offset: const Offset(2, 2),
+                  blurRadius: 0,
+                ),
+              ]),
+          child: Text(AppStrings.retryLabel, style: GoogleFonts.nunito(
+              color: t.accentText, fontSize: 11,
+              fontWeight: FontWeight.w800)),
+        )),
+      ),
     ]),
   );
 }
