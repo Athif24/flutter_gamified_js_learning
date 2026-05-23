@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,8 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../achievement/presentation/providers/achievement_provider.dart';
@@ -44,7 +48,12 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
     silentFetch(
       fetch: () async {
         ref.invalidate(quizPreviewProvider(widget.quizId));
-        await ref.read(quizPreviewProvider(widget.quizId).future);
+        ref.invalidate(myQuizResultProvider(widget.quizId));
+        ref.invalidate(quizAttemptProvider(widget.quizId));
+        ref.invalidate(livesProvider);
+        if (widget.courseId != null) {
+          ref.invalidate(courseDetailProvider(widget.courseId!));
+        }
       },
       fetchState: fetchState,
     );
@@ -71,22 +80,33 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
           Expanded(
             child: SafeArea(
               child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(28),
-                  child: previewAsync.when(
-                    loading: () => LoadingCircle(t: t),
-                    error: (e, _) => _ErrorState(t: t, message: e.toString(),
-                        onRetry: () => ref.refresh(quizPreviewProvider(widget.quizId))),
-                    data: (preview) => _IntroBody(
-                      preview: preview,
-                      myResult: myResultAsync.asData?.value,
-                      attempt: attemptAsync.asData?.value,
-                      lives: livesAsync.asData?.value,
-                      course: courseDetailAsync?.asData?.value,
-                      t: t,
-                      ref: ref,
-                      quizId: widget.quizId,
-                      courseId: widget.courseId,
+                child: RefreshIndicator(
+                  onRefresh: _silentRefresh,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(28),
+                    child: previewAsync.when(
+                      loading: () => LoadingCircle(t: t),
+                      error: (e, _) => ErrorBody(
+                        t: t,
+                        title: AppStrings.errLoadQuiz,
+                        message: sanitizeErrorMessage(e),
+                        onRetry: () {
+                          setShowSlowIndicator(true);
+                          _silentRefresh();
+                        },
+                      ),
+                      data: (preview) => _IntroBody(
+                        preview: preview,
+                        myResult: myResultAsync.asData?.value,
+                        attempt: attemptAsync.asData?.value,
+                        lives: livesAsync.asData?.value,
+                        course: courseDetailAsync?.asData?.value,
+                        t: t,
+                        ref: ref,
+                        quizId: widget.quizId,
+                        courseId: widget.courseId,
+                      ),
                     ),
                   ),
                 ),
@@ -129,6 +149,50 @@ class _IntroBody extends StatefulWidget {
 class _IntroBodyState extends State<_IntroBody> {
   bool _isStarting = false;
   bool _isRestarting = false;
+  int? _countdownSeconds;
+  Timer? _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCountdown();
+  }
+
+  @override
+  void didUpdateWidget(_IntroBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldMinutes = oldWidget.lives?.minutesUntilNextLife;
+    final newMinutes = widget.lives?.minutesUntilNextLife;
+    if (oldMinutes != newMinutes) {
+      _initCountdown();
+    }
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  void _initCountdown() {
+    _countdownTimer?.cancel();
+    final minutes = widget.lives?.minutesUntilNextLife;
+    if (minutes != null && minutes > 0) {
+      _countdownSeconds = minutes * 60;
+      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        setState(() {
+          if (_countdownSeconds != null && _countdownSeconds! > 0) {
+            _countdownSeconds = _countdownSeconds! - 1;
+          } else {
+            _countdownTimer?.cancel();
+          }
+        });
+      });
+    } else {
+      _countdownSeconds = null;
+    }
+  }
 
   Color get _difficultyColor {
     return switch (widget.preview.difficulty) {
@@ -154,6 +218,12 @@ class _IntroBodyState extends State<_IntroBody> {
       return AppStrings.retry;
     }
     return 'Mulai Quiz';
+  }
+
+  String _formatCountdown(int totalSeconds) {
+    final m = totalSeconds ~/ 60;
+    final s = totalSeconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   Future<void> _handleStart({bool force = false}) async {
@@ -201,10 +271,10 @@ class _IntroBodyState extends State<_IntroBody> {
               width: 80, height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: t.accent, width: 4),
-                color: t.accent.withValues(alpha: 0.1),
+                border: Border.all(color: t.primary, width: 4),
+                color: t.primary.withValues(alpha: 0.1),
               ),
-              child: Icon(Icons.quiz_rounded, color: t.accent, size: 40),
+              child: Icon(Icons.quiz_rounded, color: t.primary, size: 40),
             ).animate().scale(
               begin: const Offset(0, 0),
               end: const Offset(1, 1),
@@ -248,7 +318,7 @@ class _IntroBodyState extends State<_IntroBody> {
           children: [
             Text('Nyawa: ',
                 style: GoogleFonts.nunito(
-                    color: t.textSecondary, fontSize: 12, fontWeight: FontWeight.w700)),
+                    color: t.mutedText, fontSize: 12, fontWeight: FontWeight.w700)),
             ...List.generate(_maxLives, (i) {
               final filled = i < _currentLives;
               return Padding(
@@ -269,6 +339,38 @@ class _IntroBodyState extends State<_IntroBody> {
                 color: _currentLives > 0 ? t.success : t.error,
               ),
             ),
+            if (!_hasLives) ...[
+              if (_countdownSeconds != null && _countdownSeconds! > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    'Nyawa berikutnya dalam ${_formatCountdown(_countdownSeconds!)}',
+                    style: GoogleFonts.nunito(
+                      color: t.mutedText,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: GestureDetector(
+                  onTap: () {
+                    widget.ref.read(navIndexProvider.notifier).state = 3;
+                    context.go('/home');
+                  },
+                  child: Text(
+                    'Beli Nyawa di Store',
+                    style: GoogleFonts.nunito(
+                      color: t.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ).animate().fadeIn(delay: 400.ms),
         const SizedBox(height: 20),
@@ -306,7 +408,7 @@ class _IntroBodyState extends State<_IntroBody> {
               children: [
                 Text('Nilai terakhirmu',
                     style: GoogleFonts.nunito(
-                        color: t.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                        color: t.mutedText, fontSize: 13, fontWeight: FontWeight.w600)),
                 Text(
                   '${myResult.percentageScore}% ${myResult.isPassed ? '✓ Lulus' : '✗ Belum Lulus'}',
                   style: GoogleFonts.nunito(
@@ -322,7 +424,7 @@ class _IntroBodyState extends State<_IntroBody> {
         Text(
           'Nilai minimum kelulusan: ',
           style: GoogleFonts.nunito(
-            color: t.textSecondary,
+            color: t.mutedText,
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -338,23 +440,21 @@ class _IntroBodyState extends State<_IntroBody> {
         const SizedBox(height: 32),
         LayoutBuilder(
           builder: (context, constraints) {
-            if (_showThreeButtons) {
+            if (_isInProgress) {
               return Column(
                 children: [
-                  // Baris 1: Lanjutkan (full width)
                   _BuildSingleButton(
                     t: t,
                     btn: _ActionBtnData(
                       label: 'Lanjutkan',
-                      color: t.accent,
-                      shadowColor: darken(t.accent, 0.2),
-                      textColor: t.accentText,
+                      color: t.primary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.primaryContent,
                       isLoading: _isStarting,
                       onTap: _hasLives ? () => _handleStart() : null,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Baris 2: Mulai Ulang + Kembali (equal width)
                   Row(
                     children: [
                       Expanded(
@@ -363,8 +463,8 @@ class _IntroBodyState extends State<_IntroBody> {
                           btn: _ActionBtnData(
                             label: 'Mulai Ulang',
                             color: t.error.withAlpha(200),
-                            shadowColor: darken(t.error, 0.2),
-                            textColor: t.accentText,
+                            shadowColor: t.textPrimary,
+                            textColor: t.primaryContent,
                             isLoading: _isRestarting,
                             onTap: _hasLives ? () => _handleStart(force: true) : null,
                           ),
@@ -377,7 +477,55 @@ class _IntroBodyState extends State<_IntroBody> {
                           btn: _ActionBtnData(
                             label: 'Kembali',
                             color: t.bgSurface2,
-                            shadowColor: t.border,
+                            shadowColor: t.textPrimary,
+                            textColor: t.textPrimary,
+                            onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+            if (_showThreeButtons) {
+              return Column(
+                children: [
+                  _BuildSingleButton(
+                    t: t,
+                    btn: _ActionBtnData(
+                      label: 'Lanjutkan',
+                      color: t.primary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.primaryContent,
+                      isLoading: _isStarting,
+                      onTap: _hasLives ? () => _handleStart() : null,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _BuildSingleButton(
+                          t: t,
+                          btn: _ActionBtnData(
+                            label: 'Mulai Ulang',
+                            color: t.error.withAlpha(200),
+                            shadowColor: t.textPrimary,
+                            textColor: t.primaryContent,
+                            isLoading: _isRestarting,
+                            onTap: _hasLives ? () => _handleStart(force: true) : null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _BuildSingleButton(
+                          t: t,
+                          btn: _ActionBtnData(
+                            label: 'Kembali',
+                            color: t.bgSurface2,
+                            shadowColor: t.textPrimary,
                             textColor: t.textPrimary,
                             onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
                           ),
@@ -395,15 +543,15 @@ class _IntroBodyState extends State<_IntroBody> {
                 _ActionBtnData(
                   label: 'Kembali',
                   color: t.bgSurface2,
-                  shadowColor: t.border,
+                  shadowColor: t.textPrimary,
                   textColor: t.textPrimary,
                   onTap: _isStarting ? null : () => context.pop(),
                 ),
                 _ActionBtnData(
                   label: _mainButtonLabel,
-                  color: _hasLives ? t.accent : t.bgSurface3,
-                  shadowColor: _hasLives ? darken(t.accent, 0.2) : t.border,
-                  textColor: _hasLives ? t.accentText : t.textHint,
+                  color: _hasLives ? t.primary : t.bgSurface3,
+                  shadowColor: t.textPrimary,
+                  textColor: _hasLives ? t.primaryContent : t.mutedText,
                   isLoading: _isStarting || _isRestarting,
                   onTap: _hasLives ? () => _handleStart(force: _isInProgress) : null,
                 ),
@@ -448,7 +596,10 @@ class _BuildSingleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final noLives = btn.onTap == null && !btn.isLoading && btn.label != 'Kembali';
 
-    return Game3DButton(
+    return Semantics(
+      button: true,
+      label: btn.label,
+      child: Game3DButton(
       label: noLives ? null : btn.label,
       color: btn.color,
       shadowColor: btn.shadowColor,
@@ -461,14 +612,15 @@ class _BuildSingleButton extends StatelessWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.lock_rounded, size: 14, color: t.textHint),
+                Icon(Icons.lock_rounded, size: 14, color: t.mutedText),
                 const SizedBox(width: 6),
                 Text('Nyawa Habis',
                     style: GoogleFonts.nunito(
-                        color: t.textHint, fontWeight: FontWeight.w800, fontSize: 14)),
+                        color: t.mutedText, fontWeight: FontWeight.w800, fontSize: 14)),
               ],
             )
           : null,
+    ),
     );
   }
 }
@@ -508,11 +660,11 @@ class _BuildButtons extends StatelessWidget {
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.lock_rounded, size: 14, color: t.textHint),
+                  Icon(Icons.lock_rounded, size: 14, color: t.mutedText),
                   const SizedBox(width: 6),
                   Text('Nyawa Habis',
                       style: GoogleFonts.nunito(
-                          color: t.textHint, fontWeight: FontWeight.w800, fontSize: 14)),
+                          color: t.mutedText, fontWeight: FontWeight.w800, fontSize: 14)),
                 ],
               )
             : null,
@@ -520,8 +672,8 @@ class _BuildButtons extends StatelessWidget {
 
       list.add(
         axis == Axis.horizontal
-            ? Expanded(child: btnWidget)
-            : btnWidget,
+            ? Expanded(child: Semantics(button: true, label: btn.label, child: btnWidget))
+            : Semantics(button: true, label: btn.label, child: btnWidget),
       );
     }
 
@@ -563,36 +715,4 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-class _ErrorState extends StatelessWidget {
-  final BloomTheme t;
-  final String message;
-  final VoidCallback onRetry;
 
-  const _ErrorState({required this.t, required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(Icons.cloud_off_rounded, size: 56),
-        const SizedBox(height: 12),
-        Text(AppStrings.errLoadQuiz,
-            style: GoogleFonts.nunito(
-                color: t.textPrimary, fontWeight: FontWeight.w700, fontSize: 16)),
-        const SizedBox(height: 8),
-        Text(message,
-            style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 12),
-            textAlign: TextAlign.center),
-        const SizedBox(height: 22),
-        Game3DButton(
-          label: AppStrings.retry,
-          color: t.accent,
-          shadowColor: darken(t.accent, 0.2),
-          textColor: t.accentText,
-          onTap: onRetry,
-        ),
-      ],
-    );
-  }
-}
