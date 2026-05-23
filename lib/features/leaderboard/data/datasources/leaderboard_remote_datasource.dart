@@ -7,12 +7,19 @@ class LeaderboardRemoteDatasource {
   final ApiClient _api;
   LeaderboardRemoteDatasource(this._api);
 
-  Future<LeaderboardResponse> getLeaderboard() async {
+  Future<LeaderboardResponse> getLeaderboard({
+    int page = 1,
+    int pageSize = 50,
+  }) async {
     try {
-      final res  = await _api.get('${Api.leaderboard}?page_size=100');
+      final res = await _api.get(
+        '${Api.leaderboard}?page=$page&page_size=$pageSize',
+      );
       return LeaderboardResponse.fromJson(res.data);
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat leaderboard');
+      throw Exception(
+        e.response?.data?['message'] ?? 'Gagal memuat leaderboard',
+      );
     }
   }
 }
