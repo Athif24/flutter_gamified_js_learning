@@ -77,20 +77,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           children: [
             SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
-              child: RefreshIndicator(
+              child: profileAsync.when(
+                loading: () => ProfileSkeleton(t: t),
+                error: (e, _) => _buildError(t),
+                data: (p) => RefreshIndicator(
                 onRefresh: () async {
-                  ref.invalidate(profileProvider);
                   await _silentRefresh();
                 },
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-                  child: profileAsync.when(
-                    loading: () => ProfileSkeleton(t: t),
-                    error: (e, _) => _retryCard(t, () {
-                      ref.invalidate(profileProvider);
-                    }),
-                    data: (p) => Column(
+                  child: Column(
                       children: [
                         _ProfileHeroCard(t: t, profile: p, ref: ref),
                         const SizedBox(height: 16),
@@ -135,6 +132,81 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildError(BloomTheme t) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: t.error.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: t.error.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline_rounded, color: t.error, size: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    AppStrings.errLoadProfile,
+                    style: GoogleFonts.nunito(
+                      color: t.textPrimary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Semantics(
+                  label: 'Coba lagi',
+                  child: Bounceable(
+                    onTap: () {
+                      setShowSlowIndicator(true);
+                      _silentRefresh();
+                    },
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        AppStrings.retry,
+                        style: GoogleFonts.nunito(
+                          color: t.primary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2514,56 +2586,4 @@ Future<void> _showLogoutConfirm(
   );
 }
 
-Widget _retryCard(BloomTheme t, VoidCallback onRetry) => Container(
-  padding: const EdgeInsets.all(16),
-  decoration: BoxDecoration(
-    color: t.bgSurface2,
-    borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: t.textPrimary, width: 2),
-    boxShadow: [
-      BoxShadow(
-        color: t.textPrimary,
-        offset: const Offset(3, 3),
-        blurRadius: 0,
-      ),
-    ],
-  ),
-  child: Row(
-    children: [
-      Icon(Icons.error_outline_rounded, color: t.error, size: 20),
-      const SizedBox(width: 10),
-      Expanded(
-        child: Text(
-          AppStrings.errLoadProfile,
-          style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 12),
-        ),
-      ),
-      Bounceable(
-        onTap: onRetry,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: t.primary,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: t.textPrimary, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: t.textPrimary,
-                offset: const Offset(2, 2),
-                blurRadius: 0,
-              ),
-            ],
-          ),
-          child: Text(
-            'Retry',
-            style: GoogleFonts.nunito(
-              color: t.primaryContent,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-);
+

@@ -128,7 +128,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     return RefreshIndicator(
       onRefresh: () async {
         ref.read(leaderboardPageProvider.notifier).state = 1;
-        ref.invalidate(leaderboardProvider);
         await _silentRefresh();
       },
       child: ListView(
@@ -227,7 +226,10 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
                 Semantics(
                   label: 'Coba lagi',
                   child: Bounceable(
-                    onTap: () => ref.invalidate(leaderboardProvider),
+                    onTap: () {
+                      setShowSlowIndicator(true);
+                      _silentRefresh();
+                    },
                     child: Container(
                       constraints: const BoxConstraints(
                         minWidth: 48,
