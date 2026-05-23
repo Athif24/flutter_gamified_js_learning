@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:video_player/video_player.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../core/constants/app_strings.dart';
+import 'iframe_widget.dart';
+import 'video_node_widget.dart';
+import 'youtube_player_widget.dart';
 
 class ProseMirrorRenderer extends StatelessWidget {
   final String content;
@@ -19,7 +21,7 @@ class ProseMirrorRenderer extends StatelessWidget {
     try {
       doc = jsonDecode(content) as Map<String, dynamic>;
     } catch (e) {
-      debugPrint('[ProseMirrorRenderer] jsonDecode failed: $e');
+      if (!kReleaseMode) debugPrint('[ProseMirrorRenderer] jsonDecode failed: $e');
       return Text(content, style: GoogleFonts.nunito(
           color: t.textPrimary, fontSize: 14, height: 1.7));
     }
@@ -31,7 +33,7 @@ class ProseMirrorRenderer extends StatelessWidget {
           children.add(_buildNode(n));
         }
       } catch (e) {
-        debugPrint('[ProseMirrorRenderer] _buildNode error: $e');
+        if (!kReleaseMode) debugPrint('[ProseMirrorRenderer] _buildNode error: $e');
       }
     }
     return Column(
@@ -86,7 +88,7 @@ class ProseMirrorRenderer extends StatelessWidget {
                           margin: const EdgeInsets.only(top: 7, right: 10),
                           width: 6, height: 6,
                           decoration: BoxDecoration(
-                              color: t.accent, shape: BoxShape.circle),
+                              color: t.primary, shape: BoxShape.circle),
                         ),
                         Expanded(
                           child: child['type'] == 'paragraph'
@@ -130,11 +132,11 @@ class ProseMirrorRenderer extends StatelessWidget {
                           margin: const EdgeInsets.only(top: 2, right: 10),
                           width: 22, height: 22,
                           decoration: BoxDecoration(
-                              color: t.accent.withValues(alpha: 0.15),
+                              color: t.primary.withValues(alpha: 0.15),
                               shape: BoxShape.circle),
                           child: Center(child: Text('${e.key + 1}',
                               style: GoogleFonts.nunito(
-                                  color: t.accent, fontSize: 11,
+                                  color: t.primary, fontSize: 11,
                                   fontWeight: FontWeight.w800))),
                         ),
                         Expanded(
@@ -183,7 +185,7 @@ class ProseMirrorRenderer extends StatelessWidget {
                             checked
                                 ? Icons.check_box_rounded
                                 : Icons.check_box_outline_blank_rounded,
-                            color: checked ? t.accent : t.textSecondary,
+                            color: checked ? t.primary : t.mutedText,
                             size: 22,
                           ),
                         ),
@@ -228,14 +230,14 @@ class ProseMirrorRenderer extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
           decoration: BoxDecoration(
-            color: t.accent.withValues(alpha: 0.06),
+            color: t.primary.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(8),
-            border: Border(left: BorderSide(color: t.accent, width: 3)),
+            border: Border(left: BorderSide(color: t.primary, width: 3)),
           ),
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.nunito(
-                  color: t.textSecondary, fontSize: 14,
+                  color: t.mutedText, fontSize: 14,
                   fontStyle: FontStyle.italic, height: 1.6),
               children: content.isNotEmpty
                   ? _buildSpans((content[0] as Map)['content'] as List? ?? [])
@@ -267,7 +269,7 @@ class ProseMirrorRenderer extends StatelessWidget {
                     ),
                     child: Center(
                         child: CircularProgressIndicator(
-                            color: t.accent))),
+                            color: t.primary))),
                 errorWidget: (_, __, ___) => Container(
                   height: 150,
                   decoration: BoxDecoration(
@@ -278,11 +280,11 @@ class ProseMirrorRenderer extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.broken_image_rounded,
-                          color: t.textSecondary, size: 32),
+                          color: t.mutedText, size: 32),
                       const SizedBox(height: 6),
                       Text(AppStrings.errLoadImage,
                           style: GoogleFonts.nunito(
-                              color: t.textSecondary, fontSize: 12)),
+                              color: t.mutedText, fontSize: 12)),
                     ],
                   )),
                 ),
@@ -292,7 +294,7 @@ class ProseMirrorRenderer extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(alt, style: GoogleFonts.nunito(
-                    color: t.textSecondary, fontSize: 12,
+                    color: t.mutedText, fontSize: 12,
                     fontStyle: FontStyle.italic)),
               ),
           ]),
@@ -308,11 +310,11 @@ class ProseMirrorRenderer extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: isYoutube
-                ? _YoutubePlayer(src: src, t: t,
+                ? YoutubePlayerWidget(src: src, t: t,
                     title: attrs['title'] as String?)
                 : SizedBox(
                     height: (attrs['height'] as num?)?.toDouble() ?? 200,
-                    child: _IframeWidget(src: src),
+                    child: IframeWidget(src: src),
                   ),
           ),
         );
@@ -327,9 +329,9 @@ class ProseMirrorRenderer extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: isYoutube
-                ? _YoutubePlayer(src: src, t: t,
+                ? YoutubePlayerWidget(src: src, t: t,
                     title: attrs['title'] as String?)
-                : _VideoNode(src: src, t: t),
+                : VideoNodeWidget(src: src, t: t),
           ),
         );
 
@@ -390,7 +392,7 @@ class ProseMirrorRenderer extends StatelessWidget {
           'warning' => const Color(0xFFFFA726),
           'error'   => const Color(0xFFEF5350),
           'success' => const Color(0xFF66BB6A),
-          _         => t.accent,
+          _         => t.primary,
         };
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -455,12 +457,12 @@ class ProseMirrorRenderer extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
             decoration: BoxDecoration(
-              color: t.accent.withValues(alpha: 0.12),
+              color: t.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: t.accent.withValues(alpha: 0.2)),
+              border: Border.all(color: t.primary.withValues(alpha: 0.2)),
             ),
             child: Text(text, style: GoogleFonts.firaCode(
-                color: t.accent, fontSize: 12)),
+                color: t.primary, fontSize: 12)),
           ),
         ));
       } else {
@@ -483,9 +485,13 @@ class ProseMirrorRenderer extends StatelessWidget {
           spans.add(WidgetSpan(
             baseline: TextBaseline.alphabetic,
             alignment: PlaceholderAlignment.baseline,
-            child: GestureDetector(
-              onTap: () => launchUrl(Uri.parse(linkHref!)),
-              child: Text(text, style: style),
+            child: Semantics(
+              link: true,
+              label: 'Buka tautan $linkHref',
+              child: GestureDetector(
+                onTap: () => launchUrl(Uri.parse(linkHref!)),
+                child: Text(text, style: style),
+              ),
             ),
           ));
         } else {
@@ -574,136 +580,6 @@ class ProseMirrorRenderer extends StatelessWidget {
   }
 }
 
-// ── Iframe Widget (YouTube dll) ───────────────────────────────────────────────
-
-class _IframeWidget extends StatefulWidget {
-  final String src;
-  const _IframeWidget({required this.src});
-
-  @override
-  State<_IframeWidget> createState() => _IframeWidgetState();
-}
-
-class _IframeWidgetState extends State<_IframeWidget> {
-  late final WebViewController _controller;
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageFinished: (_) {
-          if (mounted) setState(() => _loading = false);
-        },
-      ))
-      ..loadRequest(Uri.parse(widget.src));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: [
-      WebViewWidget(controller: _controller),
-      if (_loading)
-        const Center(child: CircularProgressIndicator()),
-    ]);
-  }
-}
-
-// ── Video Player Node ─────────────────────────────────────────────────────────
-
-class _VideoNode extends StatefulWidget {
-  final String src;
-  final BloomTheme t;
-  const _VideoNode({required this.src, required this.t});
-
-  @override
-  State<_VideoNode> createState() => _VideoNodeState();
-}
-
-class _VideoNodeState extends State<_VideoNode> {
-  VideoPlayerController? _controller;
-  bool _initialized = false;
-  bool _playing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.src))
-      ..initialize().then((_) {
-        if (mounted) setState(() => _initialized = true);
-      });
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_initialized) {
-      return Container(
-        decoration: BoxDecoration(
-          color: widget.t.bgSurface2,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Center(
-            child: CircularProgressIndicator(color: widget.t.accent),
-          ),
-        ),
-      );
-    }
-
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          AspectRatio(
-            aspectRatio: _controller!.value.aspectRatio,
-            child: VideoPlayer(_controller!),
-          ),
-          GestureDetector(
-            onTap: () {
-              setState(() => _playing = !_playing);
-              _playing ? _controller!.play() : _controller!.pause();
-            },
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _playing
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-                color: Colors.white,
-                size: 32,
-              ),
-            ),
-          ),
-        ],
-      ),
-      VideoProgressIndicator(
-        _controller!,
-        allowScrubbing: true,
-        padding: const EdgeInsets.all(8),
-        colors: VideoProgressColors(
-          playedColor: widget.t.accent,
-          bufferedColor: widget.t.accent.withValues(alpha: 0.3),
-          backgroundColor: widget.t.bgSurface2,
-        ),
-      ),
-    ]);
-  }
-}
-
 // ── Code Block ────────────────────────────────────────────────────────────────
 
 class CodeBlock extends StatelessWidget {
@@ -718,14 +594,14 @@ class CodeBlock extends StatelessWidget {
     decoration: BoxDecoration(
       color: const Color(0xFF1A1D23),
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: t.accent.withValues(alpha: 0.2)),
+      border: Border.all(color: t.primary.withValues(alpha: 0.2)),
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
         child: Row(children: [
           _Dot(t.error), const SizedBox(width: 5),
-          _Dot(t.accent), const SizedBox(width: 5),
+          _Dot(t.primary), const SizedBox(width: 5),
           _Dot(t.success),
           const Spacer(),
           Text(language.toUpperCase(), style: GoogleFonts.firaCode(
@@ -747,132 +623,6 @@ class CodeBlock extends StatelessWidget {
       ),
     ]),
   );
-}
-
-// ── YouTube URL Helper ─────────────────────────────────────────────────────────
-
-String? _extractYoutubeId(String url) {
-  final uri = Uri.parse(url);
-  if (uri.host.contains('youtu.be')) {
-    return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
-  }
-  if (uri.host.contains('youtube.com')) {
-    return uri.queryParameters['v']
-        ?? (uri.pathSegments.length > 1 && uri.pathSegments[0] == 'embed'
-            ? uri.pathSegments[1]
-            : null);
-  }
-  return null;
-}
-
-// ── YouTube Player (thumbnail → url_launcher) ──────────────────────────────────
-
-class _YoutubePlayer extends StatelessWidget {
-  final String src;
-  final BloomTheme t;
-  final String? title;
-  const _YoutubePlayer({required this.src, required this.t, this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    final videoId = _extractYoutubeId(src);
-    final thumbUrl = videoId != null
-        ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
-        : null;
-
-    return GestureDetector(
-      onTap: () => launchUrl(Uri.parse(src),
-          mode: LaunchMode.externalApplication),
-      child: Container(
-        decoration: BoxDecoration(
-          color: t.bgSurface2,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            children: [
-              if (thumbUrl != null)
-                CachedNetworkImage(imageUrl: thumbUrl, width: double.infinity,
-                    height: double.infinity, fit: BoxFit.cover,
-                    placeholder: (_, __) => const SizedBox.shrink(),
-                    errorWidget: (_, __, ___) => const SizedBox.shrink()),
-
-              Positioned.fill(
-                child: Container(color: Colors.black.withValues(alpha: 0.35)),
-              ),
-
-              Positioned(
-                top: 8, left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.play_circle_fill_rounded,
-                        color: Color(0xFFFF0000), size: 16),
-                    const SizedBox(width: 4),
-                    Text('YouTube',
-                        style: GoogleFonts.nunito(
-                            color: Colors.white, fontSize: 11,
-                            fontWeight: FontWeight.w700)),
-                  ]),
-                ),
-              ),
-
-              Center(
-                child: Container(
-                  width: 64, height: 64,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF5C518),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.play_arrow_rounded,
-                      color: Color(0xFF1A1A1A), size: 38),
-                ),
-              ),
-
-              Positioned(
-                left: 0, right: 0, bottom: 0,
-                child: Container(
-                  height: 72,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.75),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(title ?? 'Tonton Video',
-                          style: GoogleFonts.nunito(
-                              color: Colors.white, fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: 2),
-                      Text('Ketuk untuk menonton di YouTube',
-                          style: GoogleFonts.nunito(
-                              color: Colors.white70, fontSize: 10)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 // ── Dot Helper ────────────────────────────────────────────────────────────────
