@@ -89,13 +89,13 @@ class _BottomNav extends ConsumerWidget {
                         child: Icon(
                           sel ? activeI : inactiveI,
                           size: 22,
-                          color: sel ? t.accent : t.textHint,
+                          color: sel ? t.accent : t.mutedText,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(label, style: GoogleFonts.nunito(
                         fontSize: 9, fontWeight: FontWeight.w700,
-                        color: sel ? t.accent : t.textHint,
+                        color: sel ? t.accent : t.mutedText,
                       )),
                     ],
                   ),
