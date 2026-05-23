@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../shared/widgets/celebration_screen.dart';
 import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
@@ -31,6 +32,8 @@ class LessonScreen extends ConsumerStatefulWidget {
 }
 
 class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshMixin<LessonScreen> {
+  bool _isProcessing = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +48,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
       fetch: () async {
         ref.invalidate(lessonDetailProvider(widget.lessonId));
         ref.invalidate(lessonQuizProvider(widget.lessonId));
-        await ref.read(lessonDetailProvider(widget.lessonId).future);
       },
       fetchState: fetchState,
     );
@@ -71,20 +73,33 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
             child: lessonAsync.when(
               loading: () => const SizedBox.shrink(),
               error: (_, __) => const SizedBox.shrink(),
-              data: (lesson) => Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                child: Row(children: [
-                  Bounceable(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      width: 38, height: 38,
-                      decoration: BoxDecoration(
-                          color: t.bgSurface2, shape: BoxShape.circle,
-                          border: Border.all(color: t.border)),
-                      child: Icon(Icons.arrow_back_ios_rounded,
-                          color: t.textPrimary, size: 15),
+              data: (lesson) => Semantics(
+                label: '${lesson.title}, ${lesson.type}',
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                  child: Row(children: [
+                    Semantics(
+                      button: true,
+                      label: 'Kembali',
+                      child: Bounceable(
+                        onTap: () => context.pop(),
+                        child: Container(
+                          width: 38, height: 38,
+                          decoration: BoxDecoration(
+                              color: t.bgSurface2, shape: BoxShape.circle,
+                              border: Border.all(color: t.textPrimary, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: t.textPrimary,
+                                  offset: const Offset(3, 3),
+                                  blurRadius: 0,
+                                ),
+                              ]),
+                          child: Icon(Icons.arrow_back_ios_rounded,
+                              color: t.textPrimary, size: 15),
+                        ),
+                      ),
                     ),
-                  ),
                   const SizedBox(width: 12),
                   Expanded(child: Text(lesson.title,
                       style: GoogleFonts.nunito(
@@ -94,44 +109,57 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: t.accent.withValues(alpha: 0.12),
+                      color: t.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(50),
-                      border: Border.all(color: t.accent.withValues(alpha: 0.3)),
+                      border: Border.all(color: t.textPrimary, width: 2),
                     ),
                     child: Text(lesson.type.toUpperCase(),
                         style: GoogleFonts.nunito(
-                            color: t.accent, fontSize: 10,
+                            color: t.primary, fontSize: 10,
                             fontWeight: FontWeight.w800)),
                   ),
                 ]),
               ),
             ),
           ),
-          Expanded(
-            child: lessonAsync.when(
+        ),
+        Expanded(
+          child: lessonAsync.when(
               loading: () => LoadingCircle(t: t),
-              error: (e, _) => _ErrorBody(
-                  t: t, message: e.toString(),
-                  onRetry: () => ref.refresh(lessonDetailProvider(widget.lessonId))),
+              error: (e, _) => ErrorBody(
+                  t: t,
+                  title: AppStrings.errLoadLesson,
+                  message: sanitizeErrorMessage(e),
+                  onRetry: () {
+                    setShowSlowIndicator(true);
+                    ref.invalidate(lessonDetailProvider(widget.lessonId));
+                    ref.invalidate(lessonQuizProvider(widget.lessonId));
+                  }),
               data: (lesson) {
-                debugPrint('[FULL CONTENT] ${lesson.content}');
                 return Column(children: [
                   // ── Content ──────────────────────────────────────────────────
                   Expanded(
-                    child: LayoutBuilder(
-                      builder: (_, constraints) => SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                              minHeight: constraints.maxHeight),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (lesson.content != null)
-                                ProseMirrorRenderer(content: lesson.content!, t: t)
-                                    .animate().fadeIn(delay: 100.ms),
-                              const SizedBox(height: 32),
-                            ],
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        ref.invalidate(lessonDetailProvider(widget.lessonId));
+                        ref.invalidate(lessonQuizProvider(widget.lessonId));
+                      },
+                      child: LayoutBuilder(
+                        builder: (_, constraints) => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                minHeight: constraints.maxHeight),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (lesson.content != null)
+                                  ProseMirrorRenderer(content: lesson.content!, t: t)
+                                      .animate().fadeIn(delay: 100.ms),
+                                const SizedBox(height: 32),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -143,45 +171,68 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
                     decoration: BoxDecoration(
                       color: t.bgSurface,
-                      border: Border(top: BorderSide(color: t.border)),
+                      border: Border(top: BorderSide(color: t.textPrimary, width: 2)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: t.textPrimary,
+                          offset: const Offset(0, -3),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
                     child: SafeArea(
                       top: false,
-                      child: Bounceable(
-                        onTap: () => _handleBottomButton(
-                            context, ref, t, effectiveQuizId),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          decoration: BoxDecoration(
-                            color: t.accent,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: t.border, width: 2),
-                            boxShadow: [BoxShadow(
-                              color: t.border,
-                              offset: const Offset(2, 2),
-                              blurRadius: 0,
-                            )],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                effectiveQuizId != null
-                                    ? Icons.quiz_rounded
-                                    : Icons.check_rounded,
-                                color: t.accentText, size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                effectiveQuizId != null
-                                    ? 'Kerjakan Quiz →'
-                                    : AppStrings.markComplete,
-                                style: GoogleFonts.nunito(
-                                    fontWeight: FontWeight.w800, fontSize: 15,
-                                    color: t.accentText),
-                              ),
-                            ],
+                      child: Semantics(
+                        button: true,
+                        label: effectiveQuizId != null
+                            ? 'Kerjakan Quiz'
+                            : AppStrings.markComplete,
+                        child: Bounceable(
+                          onTap: _isProcessing ? null : () => _handleBottomButton(
+                              context, ref, t, effectiveQuizId),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              color: t.primary,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: t.textPrimary, width: 2),
+                              boxShadow: [BoxShadow(
+                                color: t.textPrimary,
+                                offset: const Offset(3, 3),
+                                blurRadius: 0,
+                              )],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (_isProcessing)
+                                  SizedBox(
+                                    width: 18, height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: t.primaryContent,
+                                    ),
+                                  )
+                                else ...[
+                                  Icon(
+                                    effectiveQuizId != null
+                                        ? Icons.quiz_rounded
+                                        : Icons.check_rounded,
+                                    color: t.primaryContent, size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    effectiveQuizId != null
+                                        ? 'Kerjakan Quiz →'
+                                        : AppStrings.markComplete,
+                                    style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w800, fontSize: 15,
+                                        color: t.primaryContent),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -203,18 +254,21 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
     BloomTheme t,
     String? effectiveQuizId,
   ) async {
-    if (effectiveQuizId != null) {
-      invalidateGamificationProviders(
-        ref,
-        courseId: widget.courseId,
-      );
-      if (context.mounted) {
-        context.push('/quiz-intro/$effectiveQuizId?courseId=${widget.courseId ?? ''}');
-      }
-      return;
-    }
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
 
     try {
+      if (effectiveQuizId != null) {
+        invalidateGamificationProviders(
+          ref,
+          courseId: widget.courseId,
+        );
+        if (context.mounted) {
+          context.push('/quiz-intro/$effectiveQuizId?courseId=${widget.courseId ?? ''}');
+        }
+        return;
+      }
+
       final result = await ref.read(courseDsProvider).completeLesson(widget.lessonId);
 
       invalidateGamificationProviders(
@@ -227,12 +281,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
       if (!result.alreadyCompleted && context.mounted) {
         await Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => CelebrationScreen(
+            builder: (ctx) => CelebrationScreen(
               xpEarned: result.xpEarned,
               jewelsEarned: result.jewelsEarned,
               streak: result.streak,
               levelUp: result.levelUp,
               badges: result.badgesAwarded,
+              onContinue: () => Navigator.of(ctx).pop(),
             ),
             fullscreenDialog: true,
           ),
@@ -241,6 +296,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
 
       if (context.mounted) {
         context.pop();
+        if (widget.courseId != null) {
+          ref.invalidate(courseDetailProvider(widget.courseId!));
+        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -252,37 +310,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ));
       }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 }
 
-// ── Error ─────────────────────────────────────────────────────────────────────
-
-class _ErrorBody extends StatelessWidget {
-  final BloomTheme t;
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorBody({required this.t, required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) => Center(child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      const Text('😢', style: TextStyle(fontSize: 48)),
-      const SizedBox(height: 12),
-      Text(AppStrings.errLoadLesson, style: GoogleFonts.nunito(
-          color: t.textPrimary, fontWeight: FontWeight.w700)),
-      const SizedBox(height: 20),
-      Bounceable(
-        onTap: onRetry,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
-          decoration: BoxDecoration(
-              color: t.accent, borderRadius: BorderRadius.circular(50)),
-          child: Text(AppStrings.retry, style: GoogleFonts.nunito(
-              fontWeight: FontWeight.w800, color: t.accentText)),
-        ),
-      ),
-    ],
-  ));
-}
