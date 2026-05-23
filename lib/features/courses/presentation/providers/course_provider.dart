@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/device_utils.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/datasources/course_remote_datasource.dart';
@@ -7,7 +8,7 @@ import '../../data/models/course_model.dart';
 
 // ── Datasource provider ───────────────────────────────────────────────
 final courseDsProvider = Provider((ref) =>
-    CourseRemoteDatasource(ref.read(apiClientProvider)));
+    CourseRemoteDatasource(ref.read(apiClientProvider), deviceType: detectDeviceType()));
 
 // ── Course list (guarded: only fetches when auth is ready) ───────────
 final coursesProvider = FutureProvider<List<CourseModel>>(
@@ -202,7 +203,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
   }
 
   Future<void> submit(String quizId) async {
-    if (state.quiz == null) return;
+    if (state.quiz == null || state.isSubmitting || state.isSubmittingAnswer) return;
     state = state.copyWith(isSubmitting: true);
     try {
       final result = await _ds.submitQuiz(quizId);
@@ -217,7 +218,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
   }
 
   Future<SubmitAnswerResponse?> submitCurrentAnswer() async {
-    if (state.current == null || state.userQuizId == null) return null;
+    if (state.current == null || state.userQuizId == null || state.isSubmitting || state.isSubmittingAnswer) return null;
 
     final questionId = state.current!.id;
     final isCoding = state.current!.type == 'coding';
@@ -267,9 +268,13 @@ class QuizNotifier extends StateNotifier<QuizState> {
 
   /// Load quiz data directly from a started response (used by IntroScreen)
   void loadFromData(QuizDetailModel quizData) {
+    final startIndex = quizData.answeredQuestionIds.isNotEmpty
+        ? quizData.answeredQuestionIds.length
+        : 0;
     state = const QuizState().copyWith(
       quiz: quizData,
       userQuizId: quizData.userQuizId,
+      currentIndex: startIndex,
     );
   }
 

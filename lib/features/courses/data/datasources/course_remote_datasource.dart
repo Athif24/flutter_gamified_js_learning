@@ -5,7 +5,9 @@ import '../models/course_model.dart';
 
 class CourseRemoteDatasource {
   final ApiClient _api;
-  CourseRemoteDatasource(this._api);
+  final String deviceType;
+
+  CourseRemoteDatasource(this._api, {this.deviceType = 'mobile'});
 
   /// Normalizes progress from 0–100 (API) to 0.0–1.0 (internal scale).
   static double _normalizeProgress(dynamic v) {
@@ -153,7 +155,7 @@ class CourseRemoteDatasource {
     try {
       final res = await _api.get(Api.quizzes, query: {
         'lesson_id': lessonId,
-        'device': 'mobile',
+        'device': deviceType,
       });
       final list = extractList(res.data);
       if (list.isEmpty) return null;

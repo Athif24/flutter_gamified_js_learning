@@ -9,26 +9,26 @@ void invalidateGamificationProviders(
   WidgetRef ref, {
   String? courseId,
   String? quizId,
+  Set<String> skip = const {},
 }) {
-  ref.invalidate(xpProvider);
-  ref.invalidate(streakProvider);
-  ref.invalidate(userBadgesProvider);
-  ref.invalidate(learningReportProvider);
-  ref.invalidate(livesProvider);
-  ref.invalidate(profileProvider);
-  ref.invalidate(jewelBalanceProvider);
-  ref.invalidate(jewelHistoryProvider);
-  ref.invalidate(leaderboardProvider);
-  ref.invalidate(xpHistoryProvider);
-  ref.invalidate(levelsProvider);
-  ref.invalidate(eventsProvider);
-  ref.invalidate(enrolledCoursesProvider);
-  if (courseId != null) {
+  if (!skip.contains('xp')) ref.invalidate(xpProvider);
+  if (!skip.contains('streak')) ref.invalidate(streakProvider);
+  if (!skip.contains('badges')) ref.invalidate(userBadgesProvider);
+  if (!skip.contains('lives')) ref.invalidate(livesProvider);
+  if (!skip.contains('profile')) ref.invalidate(profileProvider);
+  if (!skip.contains('jewel')) ref.invalidate(jewelBalanceProvider);
+  if (!skip.contains('jewelHistory')) ref.invalidate(jewelHistoryProvider);
+  if (!skip.contains('leaderboard')) ref.invalidate(leaderboardProvider);
+  if (!skip.contains('xpHistory')) ref.invalidate(xpHistoryProvider);
+  if (!skip.contains('levels')) ref.invalidate(levelsProvider);
+  if (!skip.contains('events')) ref.invalidate(eventsProvider);
+  if (!skip.contains('enrolledCourses')) ref.invalidate(enrolledCoursesProvider);
+  if (courseId != null && !skip.contains('courseDetail')) {
     ref.invalidate(courseDetailProvider(courseId));
   }
   if (quizId != null) {
-    ref.invalidate(myQuizResultProvider(quizId));
-    ref.invalidate(quizPreviewProvider(quizId));
-    ref.invalidate(quizAttemptProvider(quizId));
+    if (!skip.contains('myQuizResult')) ref.invalidate(myQuizResultProvider(quizId));
+    if (!skip.contains('quizPreview')) ref.invalidate(quizPreviewProvider(quizId));
+    if (!skip.contains('quizAttempt')) ref.invalidate(quizAttemptProvider(quizId));
   }
 }
