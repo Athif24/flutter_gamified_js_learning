@@ -3,17 +3,14 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../data/models/achievement_model.dart';
 
 class LevelRoadmap extends ConsumerWidget {
   final List<LevelModel> levels;
   final int xpTotal;
 
-  const LevelRoadmap({
-    super.key,
-    required this.levels,
-    required this.xpTotal,
-  });
+  const LevelRoadmap({super.key, required this.levels, required this.xpTotal});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +18,9 @@ class LevelRoadmap extends ConsumerWidget {
     final sorted = List<LevelModel>.from(levels)
       ..sort((a, b) => a.requiredXp.compareTo(b.requiredXp));
 
-    final currentLevelIdx = sorted.lastIndexWhere((l) => l.requiredXp <= xpTotal);
+    final currentLevelIdx = sorted.lastIndexWhere(
+      (l) => l.requiredXp <= xpTotal,
+    );
 
     return Container(
       width: double.infinity,
@@ -29,24 +28,41 @@ class LevelRoadmap extends ConsumerWidget {
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: t.border, width: 2),
-        boxShadow: [BoxShadow(color: t.border, offset: const Offset(4, 4), blurRadius: 0)],
+        border: Border.all(color: t.textPrimary, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: t.textPrimary,
+            offset: const Offset(3, 3),
+            blurRadius: 0,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            Icon(Icons.map_rounded, color: t.accent, size: 20),
-            const SizedBox(width: 8),
-            Text('Peta Level', style: GoogleFonts.nunito(
-                color: t.textPrimary, fontSize: 16,
-                fontWeight: FontWeight.w800)),
-            const Spacer(),
-            Text('${currentLevelIdx + 1} / ${sorted.length} level',
+          Row(
+            children: [
+              Icon(Icons.map_rounded, color: t.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Peta Level',
                 style: GoogleFonts.nunito(
-                    color: t.textSecondary, fontSize: 14,
-                    fontWeight: FontWeight.w700)),
-          ]),
+                  color: t.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${currentLevelIdx + 1} / ${sorted.length} level',
+                style: GoogleFonts.nunito(
+                  color: t.mutedText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
           Stack(
             children: [
@@ -60,7 +76,9 @@ class LevelRoadmap extends ConsumerWidget {
                 children: sorted.asMap().entries.map((entry) {
                   final i = entry.key;
                   final level = entry.value;
-                  final nextLevel = i + 1 < sorted.length ? sorted[i + 1] : null;
+                  final nextLevel = i + 1 < sorted.length
+                      ? sorted[i + 1]
+                      : null;
                   final isPassed = i < currentLevelIdx;
                   final isCurrent = i == currentLevelIdx;
                   final isLocked = i > currentLevelIdx;
@@ -75,28 +93,32 @@ class LevelRoadmap extends ConsumerWidget {
 
                   final outerCard = Container(
                     margin: EdgeInsets.only(
-                        bottom: i < sorted.length - 1 ? 12 : 0),
+                      bottom: i < sorted.length - 1 ? 12 : 0,
+                    ),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isCurrent
-                          ? t.accent.withAlpha(12)
+                          ? t.primary.withAlpha(12)
                           : isPassed
-                              ? t.success.withAlpha(12)
-                              : t.bgSurface2.withAlpha(76),
+                          ? t.success.withAlpha(12)
+                          : t.bgSurface2.withAlpha(76),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isCurrent
-                            ? t.accent
+                            ? t.primary
                             : isPassed
-                                ? t.success.withAlpha(102)
-                                : t.border.withAlpha(25),
+                            ? t.success.withAlpha(102)
+                            : t.border.withAlpha(25),
                         width: 2,
                       ),
                       boxShadow: isCurrent
-                          ? [BoxShadow(
-                              color: t.accent.withAlpha(76),
-                              offset: const Offset(3, 3),
-                              blurRadius: 0)]
+                          ? [
+                              BoxShadow(
+                                color: t.primary.withAlpha(76),
+                                offset: const Offset(3, 3),
+                                blurRadius: 0,
+                              ),
+                            ]
                           : null,
                     ),
                     child: IntrinsicHeight(
@@ -105,39 +127,50 @@ class LevelRoadmap extends ConsumerWidget {
                         children: [
                           SizedBox(
                             width: 28,
-                            child: Column(children: [
-                              const SizedBox(height: 2),
-                              Container(
-                                width: 28,
-                                height: 28,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isPassed
-                                      ? t.success
-                                      : isCurrent
-                                          ? t.accent
-                                          : t.bgSurface2,
-                                  border: Border.all(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 2),
+                                Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
                                     color: isPassed
                                         ? t.success
                                         : isCurrent
-                                            ? t.accent
-                                            : t.border.withAlpha(50),
-                                    width: 2,
+                                        ? t.primary
+                                        : t.bgSurface2,
+                                    border: Border.all(
+                                      color: isPassed
+                                          ? t.success
+                                          : isCurrent
+                                          ? t.primary
+                                          : t.border.withAlpha(50),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: isPassed
+                                        ? Icon(
+                                            Icons.check_rounded,
+                                            color: t.primaryContent,
+                                            size: 16,
+                                          )
+                                        : isCurrent
+                                        ? Icon(
+                                            Icons.star_rounded,
+                                            color: t.primaryContent,
+                                            size: 14,
+                                          )
+                                        : Icon(
+                                            Icons.lock_rounded,
+                                            color: t.mutedText.withAlpha(100),
+                                            size: 14,
+                                          ),
                                   ),
                                 ),
-                                child: Center(
-                                    child: isPassed
-                                        ? Icon(Icons.check_rounded,
-                                            color: t.accentText, size: 16)
-                                        : isCurrent
-                                            ? Icon(Icons.star_rounded,
-                                                color: t.accentText, size: 14)
-                                            : Icon(Icons.lock_rounded,
-                                                color: t.textHint.withAlpha(100), size: 14),
-                                ),
-                              ),
-                            ]),
+                              ],
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -145,83 +178,121 @@ class LevelRoadmap extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Wrap(
-                                  spacing: 8, runSpacing: 4,
+                                  spacing: 8,
+                                  runSpacing: 4,
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    Row(mainAxisSize: MainAxisSize.min, children: [
-                                      ConstrainedBox(
-                                        constraints: const BoxConstraints(maxWidth: 140),
-                                        child: Text(level.name,
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ConstrainedBox(
+                                          constraints: const BoxConstraints(
+                                            maxWidth: 140,
+                                          ),
+                                          child: Text(
+                                            level.name,
                                             style: GoogleFonts.nunito(
-                                                color: isCurrent
-                                                    ? t.accent
-                                                    : isPassed
-                                                        ? t.success
-                                                        : t.textSecondary.withAlpha(127),
-                                                fontWeight: FontWeight.w800,
-                                                fontSize: 14),
-                                            overflow: TextOverflow.ellipsis),
-                                      ),
-                                      if (isCurrent) ...[
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: t.accent.withAlpha(25),
-                                            borderRadius: BorderRadius.circular(50),
-                                            border: Border.all(
-                                                color: t.accent.withAlpha(100)),
+                                              color: isCurrent
+                                                  ? t.primary
+                                                  : isPassed
+                                                  ? t.success
+                                                  : t.mutedText.withAlpha(127),
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 14,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          child: Text('SEKARANG',
-                                              style: GoogleFonts.nunito(
-                                                  color: t.accent,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w900,
-                                                  letterSpacing: 0.5)),
                                         ),
-                                      ],
-                                      if (isPassed) ...[
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: t.success.withAlpha(25),
-                                            borderRadius: BorderRadius.circular(50),
-                                            border: Border.all(
-                                                color: t.success.withAlpha(100)),
+                                        if (isCurrent) ...[
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: t.primary.withAlpha(25),
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              border: Border.all(
+                                                color: t.primary.withAlpha(100),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'SEKARANG',
+                                              style: GoogleFonts.nunito(
+                                                color: t.primary,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
                                           ),
-                                          child: Text('SELESAI',
+                                        ],
+                                        if (isPassed) ...[
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: t.success.withAlpha(25),
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              border: Border.all(
+                                                color: t.success.withAlpha(100),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'SELESAI',
                                               style: GoogleFonts.nunito(
-                                                  color: t.success,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w900,
-                                                  letterSpacing: 0.5)),
-                                        ),
+                                                color: t.success,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ],
-                                    ]),
-                                    Row(mainAxisSize: MainAxisSize.min, children: [
-                                      Icon(Icons.bolt_rounded,
-                                          color: t.warning, size: 14),
-                                      const SizedBox(width: 4),
-                                      Text('${_formatNumber(level.requiredXp)} XP',
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.bolt_rounded,
+                                          color: t.warning,
+                                          size: 14,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${formatNumber(level.requiredXp)} XP',
                                           style: GoogleFonts.nunito(
-                                              color: t.textSecondary,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w700)),
-                                      if (level.rewardJewels > 0) ...[
-                                        const SizedBox(width: 8),
-                                        Text('+${level.rewardJewels}',
+                                            color: t.mutedText,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        if (level.rewardJewels > 0) ...[
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            '+${level.rewardJewels}',
                                             style: GoogleFonts.nunito(
-                                                color: t.info,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w700)),
-                                        const SizedBox(width: 2),
-                                        Icon(Icons.diamond_rounded,
-                                            color: t.info, size: 14),
+                                              color: t.info,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Icon(
+                                            Icons.diamond_rounded,
+                                            color: t.info,
+                                            size: 14,
+                                          ),
+                                        ],
                                       ],
-                                    ]),
+                                    ),
                                   ],
                                 ),
                                 if (isCurrent && nextLevel != null) ...[
@@ -229,7 +300,8 @@ class LevelRoadmap extends ConsumerWidget {
                                   Container(
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                          color: t.border.withAlpha(50)),
+                                        color: t.border.withAlpha(50),
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: ClipRRect(
@@ -237,8 +309,9 @@ class LevelRoadmap extends ConsumerWidget {
                                       child: LinearProgressIndicator(
                                         value: pct,
                                         backgroundColor: t.bgSurface3,
-                                        valueColor:
-                                            AlwaysStoppedAnimation(t.accent),
+                                        valueColor: AlwaysStoppedAnimation(
+                                          t.primary,
+                                        ),
                                         minHeight: 8,
                                       ),
                                     ),
@@ -247,9 +320,10 @@ class LevelRoadmap extends ConsumerWidget {
                                   Text(
                                     '${xpInLevel.clamp(0, 999999)} / $xpNeeded XP dalam level ini',
                                     style: GoogleFonts.nunito(
-                                        color: t.textSecondary,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500),
+                                      color: t.mutedText,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ],
@@ -258,8 +332,7 @@ class LevelRoadmap extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ).animate().fadeIn(
-                      delay: Duration(milliseconds: 60 * i));
+                  ).animate().fadeIn(delay: Duration(milliseconds: 60 * i));
 
                   if (isLocked) return Opacity(opacity: 0.6, child: outerCard);
                   return outerCard;
@@ -271,14 +344,4 @@ class LevelRoadmap extends ConsumerWidget {
       ),
     );
   }
-}
-
-String _formatNumber(int n) {
-  if (n < 1000) return '$n';
-  final s = n.toString();
-  final parts = <String>[];
-  for (int i = s.length; i > 0; i -= 3) {
-    parts.insert(0, s.substring(i > 3 ? i - 3 : 0, i));
-  }
-  return parts.join('.');
 }

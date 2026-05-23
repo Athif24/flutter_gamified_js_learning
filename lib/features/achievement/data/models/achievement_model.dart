@@ -24,16 +24,6 @@ class XpModel {
         ? (xpInThisLevel / xpNeededForLevel).clamp(0.0, 1.0)
         : 1.0;
   }
-
-  factory XpModel.fromJson(Map<String, dynamic> j) {
-    final d = j['data'] ?? j;
-    return XpModel(
-      totalXp      : (d['totalXp'] ?? d['xp'] ?? d['amount'] ?? 0) as int,
-      level        : (d['level'] ?? 1) as int,
-      levelTitle   : d['levelTitle'] ?? d['level_title'] ?? 'Pemula',
-      xpToNextLevel: (d['xpToNextLevel'] ?? d['nextLevelXp'] ?? 500) as int,
-    );
-  }
 }
 
 class StreakModel {
@@ -52,20 +42,26 @@ class StreakModel {
   factory StreakModel.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return StreakModel(
-      currentStreak   : (d['current_streak'] ?? d['currentStreak'] ?? d['streak'] ?? 0) as int,
-      longestStreak   : (d['longest_streak'] ?? d['longestStreak'] ?? d['bestStreak'] ?? 0) as int,
-      lastActivityDate: d['last_activity_date']?.toString() ?? d['lastActivityDate']?.toString(),
-      freezeActive    : d['freeze_active'] ?? d['freezeActive'] ?? false,
+      currentStreak:
+          (d['current_streak'] ?? d['currentStreak'] ?? d['streak'] ?? 0)
+              as int,
+      longestStreak:
+          (d['longest_streak'] ?? d['longestStreak'] ?? d['bestStreak'] ?? 0)
+              as int,
+      lastActivityDate:
+          d['last_activity_date']?.toString() ??
+          d['lastActivityDate']?.toString(),
+      freezeActive: d['freeze_active'] ?? d['freezeActive'] ?? false,
     );
   }
 }
 
 class BadgeModel {
   final String id;
+  final String? badgeId;
   final String name;
   final String? description;
   final String icon;
-  final String rarity;
   final bool isEarned;
   final String? earnedAt;
   final int? requiredValue;
@@ -75,10 +71,10 @@ class BadgeModel {
 
   const BadgeModel({
     required this.id,
+    this.badgeId,
     required this.name,
     this.description,
     required this.icon,
-    required this.rarity,
     required this.isEarned,
     this.earnedAt,
     this.requiredValue,
@@ -91,17 +87,21 @@ class BadgeModel {
     final outer = j;
     final badge = j['badge'] ?? j;
     return BadgeModel(
-      id             : (badge['id'] ?? j['id'] ?? '').toString(),
-      name           : badge['name'] ?? j['name'] ?? '',
-      description    : _parseDesc(badge['description'] ?? j['description']),
-      icon           : badge['icon'] ?? badge['imageUrl'] ?? j['icon'] ?? '🏅',
-      rarity         : (badge['rarity'] ?? j['rarity'] ?? 'bronze').toString().toLowerCase(),
-      isEarned       : outer['isEarned'] ?? outer['earned'] ?? outer['badge'] != null ?? false,
-      earnedAt       : outer['earned_at']?.toString() ?? outer['earnedAt']?.toString(),
-      requiredValue  : badge['requiredValue'] as int?,
-      conditionType  : badge['condition_type']?.toString(),
-      conditionValue : badge['condition_value']?.toString(),
-      rewardJewels   : (badge['reward_jewels'] ?? 0) as int,
+      id: (badge['id'] ?? j['id'] ?? '').toString(),
+      badgeId: j['badge_id']?.toString(),
+      name: badge['name'] ?? j['name'] ?? '',
+      description: _parseDesc(badge['description'] ?? j['description']),
+      icon: badge['icon'] ?? badge['imageUrl'] ?? j['icon'] ?? '🏅',
+      isEarned:
+          outer['isEarned'] ??
+          outer['earned'] ??
+          outer['badge'] != null ??
+          false,
+      earnedAt: outer['earned_at']?.toString() ?? outer['earnedAt']?.toString(),
+      requiredValue: badge['requiredValue'] as int?,
+      conditionType: badge['condition_type']?.toString(),
+      conditionValue: badge['condition_value']?.toString(),
+      rewardJewels: (badge['reward_jewels'] ?? 0) as int,
     );
   }
 }
@@ -124,11 +124,14 @@ class XpHistoryEntry {
   factory XpHistoryEntry.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return XpHistoryEntry(
-      id        : d['id']?.toString() ?? '',
-      earnedXp  : (d['xp_earned'] ?? d['earned_xp'] ?? d['earnedXp'] ?? d['xp'] ?? 0) as int,
+      id: d['id']?.toString() ?? '',
+      earnedXp:
+          (d['xp_earned'] ?? d['earned_xp'] ?? d['earnedXp'] ?? d['xp'] ?? 0)
+              as int,
       sourceType: d['source_type'] ?? d['sourceType'] ?? 'lesson',
-      sourceId  : d['source_id']?.toString(),
-      createdAt : d['created_at']?.toString() ?? d['createdAt']?.toString() ?? '',
+      sourceId: d['source_id']?.toString(),
+      createdAt:
+          d['created_at']?.toString() ?? d['createdAt']?.toString() ?? '',
     );
   }
 }
@@ -151,11 +154,11 @@ class LevelModel {
   factory LevelModel.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return LevelModel(
-      id          : d['id']?.toString() ?? '',
-      name        : d['name'] ?? '',
-      requiredXp  : (d['required_xp'] ?? d['requiredXp'] ?? 0) as int,
+      id: d['id']?.toString() ?? '',
+      name: d['name'] ?? '',
+      requiredXp: (d['required_xp'] ?? d['requiredXp'] ?? 0) as int,
       rewardJewels: (d['reward_jewels'] ?? d['rewardJewels'] ?? 0) as int,
-      description : d['description'] as String?,
+      description: d['description'] as String?,
     );
   }
 }
@@ -176,9 +179,9 @@ class LivesModel {
   factory LivesModel.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return LivesModel(
-      current           : (d['current'] ?? d['lives'] ?? 0) as int,
-      max               : (d['max'] ?? d['maxLives'] ?? 5) as int,
-      lastLifeUpdate    : d['lastLifeUpdate'] != null
+      current: (d['current'] ?? d['lives'] ?? 0) as int,
+      max: (d['max'] ?? d['maxLives'] ?? 5) as int,
+      lastLifeUpdate: d['lastLifeUpdate'] != null
           ? DateTime.tryParse(d['lastLifeUpdate'].toString())
           : null,
       regenTimeRemaining: d['regenTimeRemaining'] as int?,
@@ -209,12 +212,14 @@ class LearningReportModel {
   factory LearningReportModel.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return LearningReportModel(
-      quizAttempts    : (d['quizAttempts']    ?? d['totalQuizAttempts'] ?? 0) as int,
-      quizPassed      : (d['quizPassed']      ?? d['totalQuizPassed']   ?? 0) as int,
-      averageScore    : (d['averageScore']    ?? d['avgScore']          ?? 0).toDouble(),
-      bestScore       : (d['bestScore']       ?? d['highestScore']      ?? 0).toDouble(),
-      lessonsCompleted: (d['lessonsCompleted']?? d['totalLessons']      ?? 0) as int,
-      coursesCompleted: (d['coursesCompleted']?? d['totalCourses']      ?? 0) as int,
+      quizAttempts: (d['quizAttempts'] ?? d['totalQuizAttempts'] ?? 0) as int,
+      quizPassed: (d['quizPassed'] ?? d['totalQuizPassed'] ?? 0) as int,
+      averageScore: (d['averageScore'] ?? d['avgScore'] ?? 0).toDouble(),
+      bestScore: (d['bestScore'] ?? d['highestScore'] ?? 0).toDouble(),
+      lessonsCompleted:
+          (d['lessonsCompleted'] ?? d['totalLessons'] ?? 0) as int,
+      coursesCompleted:
+          (d['coursesCompleted'] ?? d['totalCourses'] ?? 0) as int,
     );
   }
 }
