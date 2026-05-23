@@ -7,15 +7,15 @@ import '../../../data/models/course_model.dart';
 
 class ChoiceQuestion extends StatelessWidget {
   static const _labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-  static const _colors = [
-    Color(0xFF4A90E2),
-    Color(0xFF9B5DE5),
-    Color(0xFF4ECDC4),
-    Color(0xFFFF9F43),
-    Color(0xFFFF6B9D),
-    Color(0xFF6B73E0),
-    Color(0xFF44CF87),
-    Color(0xFFFF6B6B),
+  List<Color> get _colors => [
+    t.primary,
+    t.secondary,
+    t.info,
+    t.warning,
+    t.success,
+    t.accent,
+    t.info,
+    t.warning,
   ];
 
   final List<QuizOption> options;
@@ -38,11 +38,14 @@ class ChoiceQuestion extends StatelessWidget {
       final opt = e.value;
       final isSel = selectedId == opt.id;
       final label = idx < _labels.length ? _labels[idx] : '${idx + 1}';
-      final color = idx < _colors.length ? _colors[idx] : t.accent;
+      final color = idx < _colors.length ? _colors[idx] : t.primary;
 
-      return Bounceable(
-        onTap: () => onSelect(opt.id),
-        child: AnimatedContainer(
+      return Semantics(
+        button: true,
+        label: 'Pilih ${opt.text}',
+        child: Bounceable(
+          onTap: () => onSelect(opt.id),
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -50,16 +53,22 @@ class ChoiceQuestion extends StatelessWidget {
             color: isSel ? color.withValues(alpha: 0.12) : t.bgSurface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSel ? color : t.border,
-              width: isSel ? 2.5 : 1,
+              color: isSel ? color : t.textPrimary,
+              width: 2,
             ),
             boxShadow: isSel ? [
               BoxShadow(
-                color: color.withValues(alpha: 0.15),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: color.withValues(alpha: 0.4),
+                offset: const Offset(0, 4),
+                blurRadius: 0,
               ),
-            ] : null,
+            ] : [
+              BoxShadow(
+                color: t.textPrimary,
+                offset: const Offset(3, 3),
+                blurRadius: 0,
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -71,9 +80,16 @@ class ChoiceQuestion extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: isSel ? color : color.withValues(alpha: 0.1),
                   border: Border.all(
-                    color: isSel ? color : color.withValues(alpha: 0.3),
+                    color: t.textPrimary,
                     width: 2,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: t.textPrimary,
+                      offset: const Offset(3, 3),
+                      blurRadius: 0,
+                    ),
+                  ],
                 ),
                 child: Center(
                   child: Text(
@@ -102,7 +118,7 @@ class ChoiceQuestion extends StatelessWidget {
             ],
           ),
         ),
-      ).animate(key: ValueKey(e.key)).fadeIn(delay: (50 * e.key).ms);
+      )).animate(key: ValueKey(e.key)).fadeIn(delay: (50 * e.key).ms);
     }).toList(),
   );
 }

@@ -21,15 +21,15 @@ class QuestionCard extends StatelessWidget {
   ({String label, IconData icon, Color accent, bool darkBg}) get _style {
     switch (type) {
       case 'choice':
-        return (label: '\u{2611}\u{FE0F} Pilihan Ganda', icon: Icons.check_box_rounded, accent: const Color(0xFF4ECDC4), darkBg: false);
+        return (label: '\u{2611}\u{FE0F} Pilihan Ganda', icon: Icons.check_box_rounded, accent: t.info, darkBg: false);
       case 'arrange':
-        return (label: '\u{1F4DD} ${_arrangeLabel(arrangeVariant)}', icon: Icons.sort_rounded, accent: const Color(0xFFFF9F43), darkBg: false);
+        return (label: '\u{1F4DD} ${_arrangeLabel(arrangeVariant)}', icon: Icons.sort_rounded, accent: t.warning, darkBg: false);
       case 'coding':
-        return (label: '\u{1F4BB} Coding', icon: Icons.code_rounded, accent: const Color(0xFF4ECDC4), darkBg: true);
+        return (label: '\u{1F4BB} Coding', icon: Icons.code_rounded, accent: t.info, darkBg: true);
       case 'essay':
-        return (label: '\u{270F}\u{FE0F} Essay', icon: Icons.edit_note_rounded, accent: const Color(0xFF9B5DE5), darkBg: false);
+        return (label: '\u{270F}\u{FE0F} Essay', icon: Icons.edit_note_rounded, accent: t.secondary, darkBg: false);
       default:
-        return (label: type, icon: Icons.question_mark_rounded, accent: const Color(0xFF4ECDC4), darkBg: false);
+        return (label: type, icon: Icons.question_mark_rounded, accent: t.info, darkBg: false);
     }
   }
 
@@ -49,7 +49,7 @@ class QuestionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: style.darkBg ? const Color(0xFF1A1D23) : t.bgSurface,
+        color: style.darkBg ? t.bgSurface2 : t.bgSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: style.accent.withValues(alpha: 0.3)),
       ),
@@ -82,7 +82,7 @@ class QuestionCard extends StatelessWidget {
           Text(
             text,
             style: GoogleFonts.nunito(
-              color: style.darkBg ? const Color(0xFF4ECDC4) : t.textPrimary,
+              color: style.darkBg ? t.info : t.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w700,
               height: 1.5,
@@ -94,14 +94,14 @@ class QuestionCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1D23),
+                color: t.bgSurface2,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: style.accent.withValues(alpha: 0.2)),
               ),
               child: Text(
                 codeSnippet!,
                 style: GoogleFonts.jetBrainsMono(
-                  color: const Color(0xFF4ECDC4),
+                  color: t.info,
                   fontSize: 13,
                   height: 1.6,
                 ),

@@ -76,7 +76,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
           decoration: InputDecoration(
             hintText: 'Tulis jawaban essay di sini...\n\nContoh: var dapat di-reassign dan di-redeclare, sedangkan let hanya bisa di-reassign...',
             hintStyle: GoogleFonts.nunito(
-              color: widget.t.textHint,
+              color: widget.t.mutedText,
               fontSize: 13,
               height: 1.6,
             ),
@@ -93,7 +93,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
           style: GoogleFonts.nunito(
             color: _charCount > _maxChars * 0.9
                 ? widget.t.error
-                : widget.t.textHint,
+                : widget.t.mutedText,
             fontSize: 11,
           ),
         ),

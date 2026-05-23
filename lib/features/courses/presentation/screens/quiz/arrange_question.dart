@@ -191,27 +191,31 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
             children: widget.options
                 .where((opt) => !_usedOptionIds.contains(opt.id))
                 .map((opt) {
-              return Bounceable(
-                onTap: () => _onChipTap(opt.id),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4ECDC4).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: const Color(0xFF4ECDC4).withValues(alpha: 0.4),
+              return Semantics(
+                button: true,
+                label: 'Pilih ${opt.text}',
+                child: Bounceable(
+                  onTap: () => _onChipTap(opt.id),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
                     ),
-                  ),
-                  child: Text(
-                    opt.text,
-                    style: GoogleFonts.firaCode(
-                      color: const Color(0xFF4ECDC4),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4ECDC4).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFF4ECDC4).withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Text(
+                      opt.text,
+                      style: GoogleFonts.firaCode(
+                        color: const Color(0xFF4ECDC4),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -251,18 +255,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
     if (widget.blocks.isEmpty) {
       final text = widget.questionText;
       if (text.isEmpty) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.red),
-          ),
-          child: Text(
-            'DEBUG: blocks kosong! Periksa data dari backend.',
-            style: GoogleFonts.nunito(color: Colors.red, fontSize: 12),
-          ),
-        );
+        return const SizedBox.shrink();
       }
       return Text(
         text,
@@ -289,35 +282,39 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
             : '';
 
         widgets.add(
-          Bounceable(
-            onTap: () => _onBlankTap(capturedBlankIndex),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: isFilled
-                    ? const Color(0xFF4ECDC4).withValues(alpha: 0.2)
-                    : Colors.transparent,
-                border: Border.all(
-                  color: isFilled
-                      ? const Color(0xFF4ECDC4)
-                      : Colors.white.withValues(alpha: 0.3),
-                  style: BorderStyle.solid,
+          Semantics(
+            button: true,
+            label: isFilled ? filledText : 'Isi jawaban',
+            child: Bounceable(
+              onTap: () => _onBlankTap(capturedBlankIndex),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                isFilled ? filledText : '___',
-                style: GoogleFonts.firaCode(
+                decoration: BoxDecoration(
                   color: isFilled
-                      ? const Color(0xFF4ECDC4)
-                      : Colors.white.withValues(alpha: 0.3),
-                  fontSize: 13,
-                  fontWeight:
-                      isFilled ? FontWeight.w600 : FontWeight.w400,
+                      ? const Color(0xFF4ECDC4).withValues(alpha: 0.2)
+                      : Colors.transparent,
+                  border: Border.all(
+                    color: isFilled
+                        ? const Color(0xFF4ECDC4)
+                        : Colors.white.withValues(alpha: 0.3),
+                    style: BorderStyle.solid,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  isFilled ? filledText : '___',
+                  style: GoogleFonts.firaCode(
+                    color: isFilled
+                        ? const Color(0xFF4ECDC4)
+                        : Colors.white.withValues(alpha: 0.3),
+                    fontSize: 13,
+                    fontWeight:
+                        isFilled ? FontWeight.w600 : FontWeight.w400,
+                  ),
                 ),
               ),
             ),
@@ -465,7 +462,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
           style: GoogleFonts.nunito(
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: widget.t.textHint,
+            color: widget.t.mutedText,
           ),
         ),
         const SizedBox(height: 8),
@@ -495,7 +492,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               style: GoogleFonts.nunito(
                 fontSize: 12,
                 fontStyle: FontStyle.italic,
-                color: widget.t.textHint.withValues(alpha: 0.7),
+                color: widget.t.mutedText.withValues(alpha: 0.7),
               ),
             )
           : Wrap(
@@ -510,26 +507,30 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   }
 
   Widget _buildPlacedWordChip(QuizOption word, int index) {
-    return Bounceable(
-      onTap: () => _removeAt(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: widget.t.accent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              word.text,
-              style: GoogleFonts.nunito(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+    return Semantics(
+      button: true,
+      label: 'Hapus ${word.text}',
+      child: Bounceable(
+        onTap: () => _removeAt(index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: widget.t.primary,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                word.text,
+                style: GoogleFonts.nunito(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -541,27 +542,31 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       runSpacing: 8,
       children: _options.map((opt) {
         final used = _isOptionUsed(opt);
-        return Bounceable(
-          onTap: used ? null : () => _addToken(opt),
-          child: AnimatedOpacity(
-            opacity: used ? 0.2 : 1.0,
-            duration: const Duration(milliseconds: 150),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: widget.t.bgSurface2,
-                border: Border.all(
-                  color: widget.t.border.withValues(alpha: 0.6),
-                  width: 1.5,
+        return Semantics(
+          button: true,
+          label: used ? 'Sudah dipilih' : 'Pilih ${opt.text}',
+          child: Bounceable(
+            onTap: used ? null : () => _addToken(opt),
+            child: AnimatedOpacity(
+              opacity: used ? 0.2 : 1.0,
+              duration: const Duration(milliseconds: 150),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                decoration: BoxDecoration(
+                  color: widget.t.bgSurface2,
+                  border: Border.all(
+                    color: widget.t.border.withValues(alpha: 0.6),
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                opt.text,
-                style: GoogleFonts.nunito(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: used ? widget.t.textHint : widget.t.textPrimary,
+                child: Text(
+                  opt.text,
+                  style: GoogleFonts.nunito(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: used ? widget.t.mutedText : widget.t.textPrimary,
+                  ),
                 ),
               ),
             ),
@@ -670,14 +675,18 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              child: Bounceable(
-                onTap: () => _removeAt(index),
-                child: Text(
-                  option.text,
-                  style: GoogleFonts.firaCode(
-                    fontSize: 12,
-                    color: const Color(0xFFE6EDF3),
-                    height: 1.6,
+              child: Semantics(
+                button: true,
+                label: 'Hapus ${option.text}',
+                child: Bounceable(
+                  onTap: () => _removeAt(index),
+                  child: Text(
+                    option.text,
+                    style: GoogleFonts.firaCode(
+                      fontSize: 12,
+                      color: const Color(0xFFE6EDF3),
+                      height: 1.6,
+                    ),
                   ),
                 ),
               ),
@@ -714,24 +723,28 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   }
 
   Widget _buildTokenChip(QuizOption token, int index) {
-    return Bounceable(
-      onTap: () => _removeAt(index),
-      child: Container(
-        height: 26,
-        margin: const EdgeInsets.only(right: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        decoration: BoxDecoration(
-          color: const Color(0xFF21262D),
-          border: Border.all(color: const Color(0xFF30363D)),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            token.text,
-            style: GoogleFonts.firaCode(
-              fontSize: 12,
-              color: _getSyntaxColor(token.text),
+    return Semantics(
+      button: true,
+      label: 'Hapus ${token.text}',
+      child: Bounceable(
+        onTap: () => _removeAt(index),
+        child: Container(
+          height: 26,
+          margin: const EdgeInsets.only(right: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF21262D),
+            border: Border.all(color: const Color(0xFF30363D)),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              token.text,
+              style: GoogleFonts.firaCode(
+                fontSize: 12,
+                color: _getSyntaxColor(token.text),
+              ),
             ),
           ),
         ),
@@ -745,23 +758,27 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       runSpacing: 7,
       children: _options.map((opt) {
         final used = _isOptionUsed(opt);
-        return Bounceable(
-          onTap: used ? null : () => _addToken(opt),
-          child: AnimatedOpacity(
-            opacity: used ? 0.25 : 1.0,
-            duration: const Duration(milliseconds: 150),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFF161B22),
-                border: Border.all(color: const Color(0xFF30363D)),
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: Text(
-                opt.text,
-                style: GoogleFonts.firaCode(
-                  fontSize: 12,
-                  color: used ? const Color(0xFF8B949E) : _getSyntaxColor(opt.text),
+        return Semantics(
+          button: true,
+          label: used ? 'Sudah dipakai' : 'Pilih ${opt.text}',
+          child: Bounceable(
+            onTap: used ? null : () => _addToken(opt),
+            child: AnimatedOpacity(
+              opacity: used ? 0.25 : 1.0,
+              duration: const Duration(milliseconds: 150),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161B22),
+                  border: Border.all(color: const Color(0xFF30363D)),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Text(
+                  opt.text,
+                  style: GoogleFonts.firaCode(
+                    fontSize: 12,
+                    color: used ? const Color(0xFF8B949E) : _getSyntaxColor(opt.text),
+                  ),
                 ),
               ),
             ),
@@ -853,35 +870,39 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
           Text(
             'Drag Block',
             style: GoogleFonts.nunito(
-              color: widget.t.textSecondary,
+              color: widget.t.mutedText,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
           const Spacer(),
-          Bounceable(
-            onTap: _shuffle,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: widget.t.border),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.shuffle_rounded, color: widget.t.accent, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Acak Ulang',
-                    style: GoogleFonts.nunito(
-                      color: widget.t.accent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+          Semantics(
+            button: true,
+            label: 'Acak ulang jawaban',
+            child: Bounceable(
+              onTap: _shuffle,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: widget.t.bgSurface2,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: widget.t.border),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.shuffle_rounded, color: widget.t.primary, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Acak Ulang',
+                      style: GoogleFonts.nunito(
+                        color: widget.t.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

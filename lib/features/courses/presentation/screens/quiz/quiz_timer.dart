@@ -100,7 +100,7 @@ class _QuizTimerState extends State<QuizTimer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final color = _isWarning ? widget.t.error : widget.t.accent;
+    final color = _isWarning ? widget.t.error : widget.t.primary;
     return _pulseController.isAnimating
         ? ScaleTransition(
             scale: Tween<double>(begin: 1.0, end: 1.15).animate(

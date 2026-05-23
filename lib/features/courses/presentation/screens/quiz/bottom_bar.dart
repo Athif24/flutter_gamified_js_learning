@@ -27,11 +27,14 @@ class BottomBar extends ConsumerWidget {
         top: false,
         child: Row(
           children: [
-            Game3DButton(
-              label: 'LEWATI',
+            Semantics(
+              button: true,
+              label: 'Lewati',
+              child: Game3DButton(
+                label: 'LEWATI',
               color: t.bgSurface2,
-              shadowColor: t.border,
-              textColor: t.textSecondary,
+              shadowColor: t.textPrimary,
+              textColor: t.mutedText,
               horizontalPadding: 20,
               verticalPadding: 12,
               onTap: popupShowing || quiz.isSubmitting || quiz.isSubmittingAnswer
@@ -47,19 +50,24 @@ class BottomBar extends ConsumerWidget {
                       }
                     },
             ),
+            ),
             const SizedBox(width: 12),
             const Spacer(),
-            Game3DButton(
-              label: isLast ? 'SELESAI' : 'PERIKSA',
-              color: hasAns ? t.accent : const Color(0xFFE5E5E5),
-              shadowColor: hasAns ? darken(t.accent, 0.2) : const Color(0xFFC0C0C0),
-              textColor: hasAns ? t.accentText : const Color(0xFFB0B0B0),
+            Semantics(
+              button: true,
+              label: isLast ? 'Selesai' : 'Periksa',
+              child: Game3DButton(
+                label: isLast ? 'SELESAI' : 'PERIKSA',
+              color: hasAns ? t.primary : t.bgSurface3,
+              shadowColor: t.textPrimary,
+              textColor: hasAns ? t.primaryContent : t.mutedText,
               isLoading: quiz.isSubmitting || quiz.isSubmittingAnswer,
               onTap: (hasAns && !quiz.isSubmitting && !quiz.isSubmittingAnswer && !popupShowing)
                   ? () async {
                       await ref.read(quizProvider.notifier).submitCurrentAnswer();
                     }
                   : null,
+            ),
             ),
           ],
         ),

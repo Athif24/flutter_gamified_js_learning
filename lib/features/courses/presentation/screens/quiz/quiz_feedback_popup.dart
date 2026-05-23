@@ -12,6 +12,7 @@ class QuizFeedbackPopup extends StatelessWidget {
   final QuestionModel? currentQuestion;
   final int currentStreak;
   final int? livesRemaining;
+  final int? previousLivesRemaining;
   final VoidCallback onLanjut;
 
   const QuizFeedbackPopup({
@@ -22,39 +23,40 @@ class QuizFeedbackPopup extends StatelessWidget {
     this.currentQuestion,
     this.currentStreak = 0,
     this.livesRemaining,
+    this.previousLivesRemaining,
     required this.onLanjut,
   });
 
-  static const _correctBg = Color(0xFF15803d);
-  static const _correctBtn = Color(0xFF166534);
-  static const _incorrectBg = Color(0xFF991b1b);
-  static const _incorrectBtn = Color(0xFF7f1d1d);
+  Color get _correctBg => t.success.withValues(alpha: 0.15);
+  Color get _correctBtn => t.success;
+  Color get _incorrectBg => t.error.withValues(alpha: 0.15);
+  Color get _incorrectBtn => t.error;
 
   String _getCorrectMessage(int streak) {
     if (streak >= 10) {
       final messages = [
-        'Phenomenal! You\'re unstoppable!',
-        'Perfect streak energy!',
-        'You\'re on fire!',
-        'Incredible performance!',
+        'Luar biasa! Kamu tidak terhentikan!',
+        'Rekor beruntun sempurna!',
+        'Luar biasa!',
+        'Penampilan yang hebat!',
       ];
       return messages[streak % messages.length];
     }
     if (streak >= 5) {
       final messages = [
-        '$streak in a row!',
-        'Keep it up!',
-        'Great momentum!',
-        'Amazing!',
+        '$streak beruntun!',
+        'Pertahankan!',
+        'Momentum yang bagus!',
+        'Hebat!',
       ];
       return messages[streak % messages.length];
     }
     if (streak >= 3) {
       final messages = [
-        '$streak in a row!',
-        'Nice!',
-        'Excellent!',
-        'Perfect!',
+        '$streak beruntun!',
+        'Mantap!',
+        'Bagus sekali!',
+        'Sempurna!',
       ];
       return messages[streak % messages.length];
     }
@@ -63,10 +65,10 @@ class QuizFeedbackPopup extends StatelessWidget {
 
   String _getWrongMessage() {
     final messages = [
-      'Almost there!',
-      'Try again!',
-      'Keep learning!',
-      'Try it again!',
+      'Hampir saja!',
+      'Coba lagi!',
+      'Terus belajar!',
+      'Ayo coba lagi!',
     ];
     return messages[DateTime.now().millisecond % messages.length];
   }
@@ -139,7 +141,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                                 'Kamu menjawab dengan benar',
                                 style: GoogleFonts.nunito(
                                   fontSize: 12,
-                                  color: Colors.white.withAlpha(200),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               )
                             else
@@ -147,7 +149,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                                 _getWrongAnswerSubtext(),
                                 style: GoogleFonts.nunito(
                                   fontSize: 12,
-                                  color: Colors.white.withAlpha(200),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               ),
                           ],
@@ -157,14 +159,18 @@ class QuizFeedbackPopup extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Game3DButton(
-                  label: isLast ? 'SELESAI' : 'LANJUT',
+                Semantics(
+                  button: true,
+                  label: isLast ? 'Selesai' : 'Lanjut',
+                  child: Game3DButton(
+                    label: isLast ? 'SELESAI' : 'LANJUT',
                   color: btnColor,
-                  shadowColor: darken(btnColor, 0.2),
+                  shadowColor: t.textPrimary,
                   textColor: Colors.white,
                   horizontalPadding: 28,
                   verticalPadding: 13,
                   onTap: onLanjut,
+                ),
                 ),
               ],
             ),
@@ -235,14 +241,14 @@ class QuizFeedbackPopup extends StatelessWidget {
   }
 
   Widget _buildLivesIndicator() {
-    return Row(
+    final lives = result.livesRemaining ?? 0;
+    final isCritical = lives > 0 && lives <= 2;
+    final lifeLost = previousLivesRemaining != null && lives < previousLivesRemaining!;
+
+    final hearts = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.favorite,
-          color: result.livesRemaining == null ? Colors.white.withAlpha(100) : Colors.redAccent,
-          size: 16,
-        ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
         Text(
           'Nyawa tersisa: ',
           style: GoogleFonts.nunito(
@@ -251,17 +257,41 @@ class QuizFeedbackPopup extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        ...List.generate(
-          result.livesRemaining ?? 0,
-          (i) => Padding(
+        ...List.generate(lives, (i) {
+          final heart = Icon(Icons.favorite_rounded, color: Colors.redAccent, size: 16);
+          Widget animated;
+          if (lifeLost) {
+            animated = heart
+                .animate()
+                .scaleXY(begin: 1.4, duration: 200.ms, curve: Curves.bounceOut)
+                .then()
+                .shakeX(duration: 300.ms);
+          } else if (isCritical) {
+            animated = heart
+                .animate()
+                .shakeX(duration: 400.ms)
+                .then()
+                .shakeX(duration: 400.ms)
+                .then()
+                .shakeX();
+          } else {
+            animated = heart;
+          }
+          return Padding(
             padding: const EdgeInsets.only(right: 2),
-            child: Text(
-              '❤️',
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
-        ),
+            child: animated,
+          );
+        }),
       ],
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isCritical ? Colors.redAccent.withAlpha(30) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: hearts,
     );
   }
 }

@@ -16,26 +16,6 @@ class ReviewDialog extends StatelessWidget {
     required this.t,
   });
 
-  String _findCorrectText(QuestionModel q, QuestionResultModel qr) {
-    if (qr.correctAnswer is String) return qr.correctAnswer as String;
-    if (qr.correctAnswer is List) return (qr.correctAnswer as List).join(', ');
-    if (qr.correctAnswer is Map) return qr.correctAnswer['text']?.toString() ?? '';
-    for (final opt in q.optionObjects) {
-      if (opt.id == qr.correctAnswer.toString()) return opt.text;
-    }
-    return qr.correctAnswer?.toString() ?? '';
-  }
-
-  String _findUserText(QuestionModel q, QuestionResultModel qr) {
-    if (qr.userAnswer is String) return qr.userAnswer as String;
-    if (qr.userAnswer is List) return (qr.userAnswer as List).join(', ');
-    if (qr.userAnswer is Map) return qr.userAnswer['text']?.toString() ?? '';
-    for (final opt in q.optionObjects) {
-      if (opt.id == qr.userAnswer.toString()) return opt.text;
-    }
-    return qr.userAnswer?.toString() ?? '-';
-  }
-
   @override
   Widget build(BuildContext context) => Dialog(
     backgroundColor: t.bgSurface,
@@ -56,9 +36,13 @@ class ReviewDialog extends StatelessWidget {
                       color: t.textPrimary, fontSize: 18,
                       fontWeight: FontWeight.w900)),
               const Spacer(),
-              Bounceable(
-                onTap: () => Navigator.pop(context),
-                child: Icon(Icons.close_rounded, color: t.textSecondary, size: 22),
+              Semantics(
+                button: true,
+                label: 'Tutup',
+                child: Bounceable(
+                  onTap: () => Navigator.pop(context),
+                  child: Icon(Icons.close_rounded, color: t.mutedText, size: 22),
+                ),
               ),
             ],
           ),
