@@ -168,23 +168,29 @@ class LivesModel {
   final int max;
   final DateTime? lastLifeUpdate;
   final int? regenTimeRemaining;
+  final int? minutesUntilNextLife;
+  final bool isUnlimited;
 
   const LivesModel({
     required this.current,
     required this.max,
     this.lastLifeUpdate,
     this.regenTimeRemaining,
+    this.minutesUntilNextLife,
+    this.isUnlimited = false,
   });
 
   factory LivesModel.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
     return LivesModel(
-      current: (d['current'] ?? d['lives'] ?? 0) as int,
+      current: (d['current'] ?? d['currentLives'] ?? d['lives'] ?? 0) as int,
       max: (d['max'] ?? d['maxLives'] ?? 5) as int,
       lastLifeUpdate: d['lastLifeUpdate'] != null
           ? DateTime.tryParse(d['lastLifeUpdate'].toString())
           : null,
       regenTimeRemaining: d['regenTimeRemaining'] as int?,
+      minutesUntilNextLife: d['minutesUntilNextLife'] as int?,
+      isUnlimited: (d['isUnlimited'] ?? false) as bool,
     );
   }
 }

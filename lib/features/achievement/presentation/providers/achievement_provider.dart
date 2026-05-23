@@ -158,6 +158,11 @@ final eventsProvider = FutureProvider<List<EventModel>>(
 );
 
 final livesProvider = FutureProvider<LivesModel>((ref) async {
-  final profile = await ref.watch(profileProvider.future);
-  return LivesModel(current: profile.lifes, max: profile.maxLives);
+  try {
+    final ds = ref.read(profileDsProvider);
+    return await ds.getEffectiveLives();
+  } catch (_) {
+    final profile = await ref.watch(profileProvider.future);
+    return LivesModel(current: profile.lifes, max: profile.maxLives);
+  }
 });
