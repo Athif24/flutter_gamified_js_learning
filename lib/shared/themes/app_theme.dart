@@ -78,15 +78,15 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: t.error),
         ),
-        hintStyle: GoogleFonts.nunito(color: t.textHint, fontWeight: FontWeight.w500),
-        labelStyle: GoogleFonts.nunito(color: t.textSecondary, fontWeight: FontWeight.w600),
+        hintStyle: GoogleFonts.nunito(color: t.mutedText, fontWeight: FontWeight.w500),
+        labelStyle: GoogleFonts.nunito(color: t.mutedText, fontWeight: FontWeight.w600),
       ),
       dividerTheme: DividerThemeData(color: t.border, thickness: 1),
-      iconTheme: IconThemeData(color: t.textSecondary),
+      iconTheme: IconThemeData(color: t.mutedText),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: t.bgSurface,
         selectedItemColor: t.accent,
-        unselectedItemColor: t.textHint,
+        unselectedItemColor: t.mutedText,
       ),
     );
   }
@@ -103,9 +103,9 @@ class AppTheme {
     titleSmall   : GoogleFonts.nunito(fontSize: 14, fontWeight: FontWeight.w600, color: t.textPrimary),
     bodyLarge    : GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w500, color: t.textPrimary),
     bodyMedium   : GoogleFonts.nunito(fontSize: 14, fontWeight: FontWeight.w500, color: t.textPrimary),
-    bodySmall    : GoogleFonts.nunito(fontSize: 12, fontWeight: FontWeight.w400, color: t.textSecondary),
+    bodySmall    : GoogleFonts.nunito(fontSize: 12, fontWeight: FontWeight.w400, color: t.mutedText),
     labelLarge   : GoogleFonts.nunito(fontSize: 14, fontWeight: FontWeight.w700, color: t.textPrimary),
-    labelMedium  : GoogleFonts.nunito(fontSize: 12, fontWeight: FontWeight.w600, color: t.textSecondary),
-    labelSmall   : GoogleFonts.nunito(fontSize: 11, fontWeight: FontWeight.w600, color: t.textSecondary),
+    labelMedium  : GoogleFonts.nunito(fontSize: 12, fontWeight: FontWeight.w600, color: t.mutedText),
+    labelSmall   : GoogleFonts.nunito(fontSize: 11, fontWeight: FontWeight.w600, color: t.mutedText),
   );
 }
