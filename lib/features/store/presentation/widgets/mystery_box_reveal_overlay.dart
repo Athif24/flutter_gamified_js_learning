@@ -79,13 +79,13 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
   Color get _rewardColor {
     switch (widget.result.rewardType) {
       case 'xp':
-        return const Color(0xFF22C55E);
+        return widget.t.success;
       case 'jewels':
-        return const Color(0xFF3B82F6);
+        return widget.t.info;
       case 'item':
-        return const Color(0xFF8B5CF6);
-      default:
         return widget.t.accent;
+      default:
+        return widget.t.primary;
     }
   }
 
@@ -108,14 +108,14 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f3460),
+              widget.t.bgPrimary,
+              widget.t.bgSurface,
+              widget.t.bgSurface2,
             ],
           ),
         ),
@@ -125,17 +125,20 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
             if (_phase == _RevealPhase.reveal &&
                 widget.result.isGoodReward &&
                 !a11yReduceMotion(context))
-              ...List.generate(20, (i) => _ConfettiParticle(
-                    controller: _confettiController,
-                    index: i,
-                    color: [
-                      const Color(0xFFFFD700),
-                      const Color(0xFFFF6B6B),
-                      const Color(0xFF4CAF50),
-                      const Color(0xFF2196F3),
-                      const Color(0xFF9C27B0),
-                    ][i % 5],
-                  )),
+              ...List.generate(
+                20,
+                (i) => _ConfettiParticle(
+                  controller: _confettiController,
+                  index: i,
+                  color: [
+                    widget.t.primary,
+                    widget.t.secondary,
+                    widget.t.accent,
+                    widget.t.success,
+                    widget.t.info,
+                  ][i % 5],
+                ),
+              ),
 
             // Main content
             Center(
@@ -154,49 +157,49 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
                                   width: 128,
                                   height: 128,
                                   fit: BoxFit.contain,
-                                  placeholder: (_, __) =>
-                                      Text(_boxIcon,
-                                          style: const TextStyle(
-                                              fontSize: 128)),
-                                  errorWidget: (_, __, ___) =>
-                                      Text(_boxIcon,
-                                          style: const TextStyle(
-                                              fontSize: 128)),
+                                  placeholder: (_, __) => Text(
+                                    _boxIcon,
+                                    style: const TextStyle(fontSize: 128),
+                                  ),
+                                  errorWidget: (_, __, ___) => Text(
+                                    _boxIcon,
+                                    style: const TextStyle(fontSize: 128),
+                                  ),
                                 )
                               : Text(
-                                  _boxIcon,
-                                  style: const TextStyle(fontSize: 128),
-                                )
-                                  .animate(
-                                    onPlay: (c) => a11yReduceMotion(context)
-                                        ? null
-                                        : c.repeat(),
-                                  )
-                                  .shake(
-                                    duration: const Duration(milliseconds: 600),
-                                    hz: 3,
-                                    rotation: 0.15,
-                                    curve: Curves.easeInOut,
-                                  ),
+                                      _boxIcon,
+                                      style: const TextStyle(fontSize: 128),
+                                    )
+                                    .animate(
+                                      onPlay: (c) => a11yReduceMotion(context)
+                                          ? null
+                                          : c.repeat(),
+                                    )
+                                    .shake(
+                                      duration: const Duration(
+                                        milliseconds: 600,
+                                      ),
+                                      hz: 3,
+                                      rotation: 0.15,
+                                      curve: Curves.easeInOut,
+                                    ),
                           const SizedBox(height: 16),
                           Text(
                             widget.poolName,
                             style: GoogleFonts.nunito(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: widget.t.textPrimary.withValues(
+                                alpha: 0.8,
+                              ),
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                             ),
-                          )
-                              .animate()
-                              .fadeIn(delay: 300.ms),
+                          ).animate().fadeIn(delay: 300.ms),
                         ],
                       ),
 
                     // Flash
                     if (_showFlash)
-                      Container(
-                        color: Colors.white,
-                      )
+                      Container(color: widget.t.primary.withValues(alpha: 0.3))
                           .animate(
                             onComplete: (c) {
                               if (mounted) {
@@ -206,8 +209,9 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
                           )
                           .fadeIn(duration: 100.ms)
                           .fadeOut(
-                              duration: 300.ms,
-                              delay: const Duration(milliseconds: 100)),
+                            duration: 300.ms,
+                            delay: const Duration(milliseconds: 100),
+                          ),
 
                     // Reveal phase
                     if (_phase == _RevealPhase.reveal)
@@ -241,7 +245,6 @@ class _RewardReveal extends StatefulWidget {
   final BloomTheme t;
 
   const _RewardReveal({
-    super.key,
     required this.result,
     required this.rewardColor,
     required this.rewardIcon,
@@ -288,16 +291,9 @@ class _RewardRevealState extends State<_RewardReveal> {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Emoji
-        Text(
-          '🎉',
-          style: TextStyle(fontSize: size.width * 0.15),
-        )
+        Text('🎉', style: TextStyle(fontSize: size.width * 0.15))
             .animate()
-            .scale(
-              delay: 200.ms,
-              duration: 600.ms,
-              curve: Curves.elasticOut,
-            ),
+            .scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
         const SizedBox(height: 24),
 
         // Reward icon circle
@@ -313,31 +309,32 @@ class _RewardRevealState extends State<_RewardReveal> {
             ),
           ),
           child: Center(
-            child: widget.result.rewardType == 'item' &&
+            child:
+                widget.result.rewardType == 'item' &&
                     widget.result.itemIcon != null
                 ? CachedNetworkImage(
                     imageUrl: widget.result.itemIcon!,
                     width: 80,
                     height: 80,
                     fit: BoxFit.contain,
-                    placeholder: (_, __) => Icon(widget.rewardIcon,
-                        size: 64, color: widget.rewardColor),
-                    errorWidget: (_, __, ___) => Icon(widget.rewardIcon,
-                        size: 64, color: widget.rewardColor),
+                    placeholder: (_, __) => Icon(
+                      widget.rewardIcon,
+                      size: 64,
+                      color: widget.rewardColor,
+                    ),
+                    errorWidget: (_, __, ___) => Icon(
+                      widget.rewardIcon,
+                      size: 64,
+                      color: widget.rewardColor,
+                    ),
                   )
-                : Icon(
-                    widget.rewardIcon,
-                    size: 64,
-                    color: widget.rewardColor,
-                  ),
+                : Icon(widget.rewardIcon, size: 64, color: widget.rewardColor),
           ),
-        )
-            .animate()
-            .scale(
-              delay: 300.ms,
-              duration: 400.ms,
-              curve: Curves.easeOutBack,
-            ),
+        ).animate().scale(
+          delay: 300.ms,
+          duration: 400.ms,
+          curve: Curves.easeOutBack,
+        ),
 
         const SizedBox(height: 16),
 
@@ -345,15 +342,12 @@ class _RewardRevealState extends State<_RewardReveal> {
         Text(
           'Kamu mendapatkan',
           style: GoogleFonts.nunito(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: widget.t.mutedText,
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
           ),
-        )
-            .animate()
-            .fadeIn(delay: 500.ms)
-            .slideY(begin: 0.2),
+        ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2),
 
         const SizedBox(height: 4),
 
@@ -366,10 +360,7 @@ class _RewardRevealState extends State<_RewardReveal> {
             fontWeight: FontWeight.w900,
           ),
           textAlign: TextAlign.center,
-        )
-            .animate()
-            .fadeIn(delay: 600.ms)
-            .slideY(begin: 0.2),
+        ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2),
 
         const SizedBox(height: 8),
 
@@ -377,13 +368,11 @@ class _RewardRevealState extends State<_RewardReveal> {
         Text(
           '+$_displayAmount ${widget.result.rewardLabel}',
           style: GoogleFonts.nunito(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: widget.t.textSecondary,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
-        )
-            .animate()
-            .fadeIn(delay: 800.ms),
+        ).animate().fadeIn(delay: 800.ms),
 
         const SizedBox(height: 32),
 
@@ -398,15 +387,15 @@ class _RewardRevealState extends State<_RewardReveal> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: widget.t.accent,
+                color: widget.t.primary,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.4),
+                  color: widget.t.primary.withValues(alpha: 0.5),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
+                    color: widget.t.textPrimary.withValues(alpha: 0.3),
                     offset: const Offset(2, 2),
                     blurRadius: 0,
                   ),
@@ -416,51 +405,48 @@ class _RewardRevealState extends State<_RewardReveal> {
                 'Buka Lagi',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.nunito(
-                  color: widget.t.accentText,
+                  color: widget.t.primaryContent,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),
               ),
             ),
-          )
-              .animate()
-              .fadeIn(delay: 1000.ms)
-              .slideY(begin: 0.3),
+          ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
           const SizedBox(height: 12),
         ],
 
         // Button TUTUP
         Bounceable(
-          onTap: widget.onDismiss,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.4),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  offset: const Offset(2, 2),
-                  blurRadius: 0,
+              onTap: widget.onDismiss,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: widget.t.bgSurface2,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: widget.t.primary.withValues(alpha: 0.5),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.t.textPrimary.withValues(alpha: 0.3),
+                      offset: const Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Text(
-              'Tutup',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunito(
-                color: Colors.white.withValues(alpha: 0.8),
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
+                child: Text(
+                  'Tutup',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.nunito(
+                    color: widget.t.primaryContent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
-            ),
-          ),
-        )
+            )
             .animate()
             .fadeIn(delay: widget.canOpenAgain ? 1100.ms : 1000.ms)
             .slideY(begin: 0.3),
@@ -510,8 +496,9 @@ class _ConfettiParticle extends StatelessWidget {
                 height: 8,
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius:
-                      BorderRadius.circular(random.nextBool() ? 4 : 0),
+                  borderRadius: BorderRadius.circular(
+                    random.nextBool() ? 4 : 0,
+                  ),
                 ),
               ),
             ),

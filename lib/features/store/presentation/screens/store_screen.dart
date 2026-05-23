@@ -6,11 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/widgets/main_screen.dart';
-import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/error_helper.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
@@ -21,21 +21,11 @@ import '../../data/models/reward_pool_model.dart';
 import '../widgets/mystery_box_card.dart';
 import '../widgets/mystery_box_buy_dialog.dart';
 import '../widgets/mystery_box_reveal_overlay.dart';
+import '../widgets/store_skeleton.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════════════════════════════
-
-String _fmt(int n) {
-  if (n < 1000) return n.toString();
-  final s = n.toString();
-  final b = StringBuffer();
-  for (int i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) b.write('.');
-    b.write(s[i]);
-  }
-  return b.toString();
-}
 
 String _fmtDateId(String iso) {
   if (iso.isEmpty) return '';
@@ -64,6 +54,7 @@ String _fmtDateId(String iso) {
 
 const _typeBadgeColors = <String, Color>{
   'life_refill': Color(0xFFEF4444),
+  'full_lives': Color(0xFFEF4444),
   'xp_boost': Color(0xFFF59E0B),
   'streak_freeze': Color(0xFF3B82F6),
   'double_xp': Color(0xFF8B5CF6),
@@ -80,6 +71,19 @@ const _sourceBadgeColors = <String, Color>{
   'admin': Color(0xFF6B7280),
   'mystery_box': Color(0xFFA855F7),
 };
+
+RewardPool? _findMatchingPool(List<RewardPool> pools, String storeItemName) {
+  final name = storeItemName.toLowerCase();
+  for (final p in pools) {
+    final poolName = p.name.toLowerCase();
+    if (poolName == name) return p;
+  }
+  for (final p in pools) {
+    final poolName = p.name.toLowerCase();
+    if (poolName.contains(name) || name.contains(poolName)) return p;
+  }
+  return null;
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // MAIN STORE SCREEN
@@ -136,7 +140,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
     final profileAsync = ref.watch(profileProvider);
     final maxJewels = profileAsync.maybeWhen(
       data: (p) => p.maxJewels,
-      orElse: () => 10000,
+      orElse: () => 0,
     );
 
     return Scaffold(
@@ -155,14 +159,14 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: t.accent,
+                      color: t.primary,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: t.border, width: 2),
+                      border: Border.all(color: t.textPrimary, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: t.border,
-                          offset: const Offset(2, 2),
-                          blurRadius: 8,
+                          color: t.textPrimary,
+                          offset: const Offset(3, 3),
+                          blurRadius: 0,
                         ),
                       ],
                     ),
@@ -173,13 +177,13 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             Icon(
                               Icons.shopping_cart_rounded,
                               size: 24,
-                              color: t.accentText,
+                              color: t.primaryContent,
                             ),
                             const SizedBox(width: 10),
                             Text(
                               'Store',
                               style: GoogleFonts.nunito(
-                                color: t.accentText,
+                                color: t.primaryContent,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,
                               ),
@@ -192,61 +196,120 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                           child: Text(
                             'Tukarkan jewels kamu dengan item-item berguna!',
                             style: GoogleFonts.nunito(
-                              color: t.accentText.withValues(alpha: 0.8),
+                              color: t.primaryContent.withValues(alpha: 0.8),
                               fontSize: 14,
                             ),
                           ).animate().fadeIn(delay: 150.ms),
                         ),
                         const SizedBox(height: 14),
-                        jewelsAsync.maybeWhen(
+                        jewelsAsync.when(
+                          loading: () => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.primaryContent.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: t.primaryContent.withValues(alpha: 0.5),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.diamond, size: 24, color: t.info),
+                                const SizedBox(width: 8),
+                                Container(
+                                  width: 60,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: t.primaryContent.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          error: (_, __) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.primaryContent.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: t.primaryContent.withValues(alpha: 0.5),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.diamond, size: 24, color: t.info),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '-',
+                                  style: GoogleFonts.nunito(
+                                    color: t.primaryContent,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           data: (j) => Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20,
                               vertical: 12,
                             ),
                             decoration: BoxDecoration(
-                              color: t.accentText.withValues(alpha: 0.15),
+                              color: t.primaryContent.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: t.accentText.withValues(alpha: 0.15),
+                                color: t.primaryContent.withValues(alpha: 0.5),
                               ),
                             ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
-                                  Icons.diamond,
-                                  size: 24,
-                                  color: Color(0xFF60A5FA),
-                                ),
+                                Icon(Icons.diamond, size: 24, color: t.info),
                                 const SizedBox(width: 8),
                                 Flexible(
-                                  child: Text(
-                                    _fmt(j.balance),
-                                    style: GoogleFonts.nunito(
-                                      color: t.accentText,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 24,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      formatNumber(j.balance),
+                                      style: GoogleFonts.nunito(
+                                        color: t.primaryContent,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 24,
+                                      ),
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  '/ ${_fmt(maxJewels)}',
-                                  style: GoogleFonts.nunito(
-                                    color: t.accentText.withValues(
-                                      alpha: 0.7,
+                                if (maxJewels > 0) ...[
+                                  Text(
+                                    '/ ${formatNumber(maxJewels)}',
+                                    style: GoogleFonts.nunito(
+                                      color: t.primaryContent.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
                                     ),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
                                   ),
-                                ),
-                                const SizedBox(width: 8),
+                                  const SizedBox(width: 8),
+                                ],
                                 Text(
                                   'JEWELS',
                                   style: GoogleFonts.nunito(
-                                    color: t.accentText.withValues(
+                                    color: t.primaryContent.withValues(
                                       alpha: 0.6,
                                     ),
                                     fontWeight: FontWeight.w800,
@@ -257,7 +320,6 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                               ],
                             ),
                           ).animate().fadeIn(delay: 100.ms),
-                          orElse: () => const SizedBox.shrink(),
                         ),
                       ],
                     ),
@@ -296,8 +358,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                       color: t.border.withAlpha(80),
                       boxShadow: [
                         BoxShadow(
-                          color: t.border,
-                          offset: const Offset(0, 1),
+                          color: t.textPrimary,
+                          offset: const Offset(3, 3),
                           blurRadius: 0,
                         ),
                       ],
@@ -357,16 +419,13 @@ class _TabBtn extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: sel ? t.accent : t.bgSurface,
+          color: sel ? t.primary : t.bgSurface,
           borderRadius: BorderRadius.circular(50),
-          border: Border.all(
-            color: t.textPrimary.withValues(alpha: 0.25),
-            width: 2,
-          ),
+          border: Border.all(color: t.textPrimary, width: 2),
           boxShadow: [
             BoxShadow(
-              color: t.border,
-              offset: const Offset(2, 2),
+              color: t.textPrimary,
+              offset: const Offset(3, 3),
               blurRadius: 0,
             ),
           ],
@@ -374,12 +433,12 @@ class _TabBtn extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: sel ? t.accentText : t.textPrimary),
+            Icon(icon, size: 16, color: sel ? t.primaryContent : t.textPrimary),
             const SizedBox(width: 6),
             Text(
               label,
               style: GoogleFonts.nunito(
-                color: sel ? t.accentText : t.textPrimary,
+                color: sel ? t.primaryContent : t.textPrimary,
                 fontWeight: FontWeight.w800,
                 fontSize: 14,
               ),
@@ -447,6 +506,8 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
       ref.invalidate(storeItemsProvider);
       ref.invalidate(inventoryProvider);
       ref.invalidate(rewardPoolsProvider);
+      ref.invalidate(jewelBalanceProvider);
+      ref.invalidate(jewelHistoryProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -493,7 +554,7 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
     );
 
     return itemsAsync.when(
-      loading: () => LoadingCircle(t: t),
+      loading: () => StoreSkeleton(t: t, tabId: 0),
       error: (e, _) => _EmptyState(
         t: t,
         emoji: '🔧',
@@ -527,11 +588,7 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
             if (hasMysteryBoxes) ...[
               Row(
                 children: [
-                  Icon(
-                    Icons.card_giftcard_rounded,
-                    size: 20,
-                    color: const Color(0xFFA855F7),
-                  ),
+                  Icon(Icons.card_giftcard_rounded, size: 20, color: t.accent),
                   const SizedBox(width: 8),
                   Text(
                     'Special Items',
@@ -544,28 +601,35 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
                 ],
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                height: 240,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  itemCount: pools.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 14),
-                  itemBuilder: (_, i) => SizedBox(
-                    width: 240,
-                    child: MysteryBoxCard(
-                      pool: pools[i],
-                      balance: balance,
-                      onBuy: () => _onPoolBuy(pools[i]),
-                      t: t,
-                    ).animate().fadeIn(delay: (100 * i).ms),
-                  ),
-                ),
+              LayoutBuilder(
+                builder: (_, constraints) {
+                  final cardWidth = constraints.maxWidth > 600 ? 280.0 : 240.0;
+                  return SizedBox(
+                    height: 300,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      itemCount: pools.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 14),
+                      itemBuilder: (_, i) => SizedBox(
+                        width: cardWidth,
+                        height: 300,
+                        child: MysteryBoxCard(
+                          pool: pools[i],
+                          balance: balance,
+                          isPending: _isBuyingPool,
+                          onBuy: () => _onPoolBuy(pools[i]),
+                          t: t,
+                        ).animate().fadeIn(delay: (100 * i).ms),
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 24),
             ],
 
-            // ── ITEMS: 2-Column Grid ──
+            // ── ITEMS: Responsive Grid ──
             if (hasRegularItems) ...[
               Text(
                 'Items',
@@ -576,23 +640,30 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
                 ),
               ).animate().fadeIn(),
               const SizedBox(height: 12),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 0.78,
-                ),
-                itemCount: regularItems.length,
-                itemBuilder: (_, i) => _CompactShopCard(
-                  item: regularItems[i],
-                  t: t,
-                  ref: ref,
-                  balance: balance,
-                  onBuy: _onRegularItemBuy,
-                ).animate().fadeIn(delay: (60 * i).ms),
+              LayoutBuilder(
+                builder: (_, constraints) {
+                  final crossAxisCount = constraints.maxWidth > 600
+                      ? (constraints.maxWidth > 900 ? 4 : 3)
+                      : 2;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: 14,
+                      crossAxisSpacing: 14,
+                      childAspectRatio: 0.78,
+                    ),
+                    itemCount: regularItems.length,
+                    itemBuilder: (_, i) => _CompactShopCard(
+                      item: regularItems[i],
+                      t: t,
+                      ref: ref,
+                      balance: balance,
+                      onBuy: _onRegularItemBuy,
+                    ).animate().fadeIn(delay: (60 * i).ms),
+                  );
+                },
               ),
             ],
           ],
@@ -630,12 +701,13 @@ class _CompactShopCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: t.textPrimary.withValues(alpha: 0.2),
-          width: 2,
-        ),
+        border: Border.all(color: t.textPrimary, width: 2),
         boxShadow: [
-          BoxShadow(color: t.border, offset: const Offset(2, 2), blurRadius: 0),
+          BoxShadow(
+            color: t.textPrimary,
+            offset: const Offset(3, 3),
+            blurRadius: 0,
+          ),
         ],
       ),
       child: Column(
@@ -651,9 +723,7 @@ class _CompactShopCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: t.bgSurface2,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: t.textPrimary.withValues(alpha: 0.15),
-                  ),
+                  border: Border.all(color: t.textPrimary, width: 1.5),
                 ),
                 child: Center(
                   child: item.icon.startsWith('http')
@@ -665,12 +735,12 @@ class _CompactShopCard extends ConsumerWidget {
                           placeholder: (_, __) => Icon(
                             Icons.inventory_2_rounded,
                             size: 22,
-                            color: t.textHint,
+                            color: t.mutedText,
                           ),
                           errorWidget: (_, __, ___) => Icon(
                             Icons.inventory_2_rounded,
                             size: 22,
-                            color: t.textHint,
+                            color: t.mutedText,
                           ),
                         )
                       : Text(item.icon, style: const TextStyle(fontSize: 22)),
@@ -680,19 +750,18 @@ class _CompactShopCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
-                  color: (_typeBadgeColors[item.type] ?? t.textHint).withValues(
-                    alpha: 0.15,
-                  ),
+                  color: (_typeBadgeColors[item.type] ?? t.mutedText)
+                      .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: (_typeBadgeColors[item.type] ?? t.textHint)
-                        .withValues(alpha: 0.35),
+                    color: (_typeBadgeColors[item.type] ?? t.mutedText)
+                        .withValues(alpha: 0.5),
                   ),
                 ),
                 child: Text(
                   itemTypeLabels[item.type] ?? item.type,
                   style: GoogleFonts.nunito(
-                    color: _typeBadgeColors[item.type] ?? t.textHint,
+                    color: _typeBadgeColors[item.type] ?? t.mutedText,
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
                   ),
@@ -719,14 +788,14 @@ class _CompactShopCard extends ConsumerWidget {
           if (item.description != null && item.description!.isNotEmpty)
             Text(
               item.description!,
-              style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 10),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 10),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             )
           else
             Text(
               itemTypeDescriptions[item.type] ?? '',
-              style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 10),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 10),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -739,10 +808,10 @@ class _CompactShopCard extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.diamond, size: 12, color: Color(0xFF60A5FA)),
+                  Icon(Icons.diamond, size: 12, color: t.info),
                   const SizedBox(width: 3),
                   Text(
-                    _fmt(item.price),
+                    formatNumber(item.price),
                     style: GoogleFonts.nunito(
                       color: t.textPrimary,
                       fontWeight: FontWeight.w800,
@@ -767,14 +836,14 @@ class _CompactShopCard extends ConsumerWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: canAfford ? t.accent : t.bgSurface2,
+                      color: canAfford ? t.primary : t.bgSurface2,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: t.border, width: 2),
+                      border: Border.all(color: t.textPrimary, width: 2),
                       boxShadow: canAfford
                           ? [
                               BoxShadow(
-                                color: t.border,
-                                offset: const Offset(2, 2),
+                                color: t.textPrimary,
+                                offset: const Offset(3, 3),
                                 blurRadius: 0,
                               ),
                             ]
@@ -783,13 +852,16 @@ class _CompactShopCard extends ConsumerWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.shopping_cart_rounded,
-                            size: 14, color: canAfford ? t.accentText : t.textHint),
+                        Icon(
+                          Icons.shopping_cart_rounded,
+                          size: 14,
+                          color: canAfford ? t.primaryContent : t.mutedText,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Beli',
                           style: GoogleFonts.nunito(
-                            color: canAfford ? t.accentText : t.textHint,
+                            color: canAfford ? t.primaryContent : t.mutedText,
                             fontWeight: FontWeight.w800,
                             fontSize: 11,
                           ),
@@ -830,283 +902,330 @@ class _BuyDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining = balance - item.price;
 
-    return AlertDialog(
-      backgroundColor: t.bgSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: t.textPrimary.withValues(alpha: 0.25),
-          width: 2,
-        ),
-      ),
-      title: Text(
-        'Konfirmasi Pembelian',
-        style: GoogleFonts.nunito(
-          color: t.textPrimary,
-          fontWeight: FontWeight.w900,
-          fontSize: 18,
-        ),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Pastikan kamu yakin dengan pembelian ini. Jewels tidak bisa dikembalikan.',
-            style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: t.bgPrimary,
-              borderRadius: BorderRadius.circular(12),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.textPrimary, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: t.textPrimary,
+              offset: const Offset(3, 3),
+              blurRadius: 0,
             ),
-            child: Column(
-              children: [
-                Row(
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Text(
+                'Konfirmasi Pembelian',
+                style: GoogleFonts.nunito(
+                  color: t.textPrimary,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: t.textPrimary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Center(
-                        child: item.icon.startsWith('http')
-                            ? CachedNetworkImage(
-                                imageUrl: item.icon,
-                                width: 28,
-                                height: 28,
-                                fit: BoxFit.contain,
-                                placeholder: (_, __) => Icon(
-                                  Icons.inventory_2_rounded,
-                                  size: 24,
-                                  color: t.textHint,
-                                ),
-                                errorWidget: (_, __, ___) => Icon(
-                                  Icons.inventory_2_rounded,
-                                  size: 24,
-                                  color: t.textHint,
-                                ),
-                              )
-                            : Text(
-                                item.icon,
-                                style: const TextStyle(fontSize: 24),
-                              ),
+                    Text(
+                      'Pastikan kamu yakin dengan pembelian ini. Jewels tidak bisa dikembalikan.',
+                      style: GoogleFonts.nunito(
+                        color: t.mutedText,
+                        fontSize: 13,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: t.bgPrimary,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: t.textPrimary, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(2, 2),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            item.name,
-                            style: GoogleFonts.nunito(
-                              color: t.textPrimary,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
+                          Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: t.bgSurface,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: t.textPrimary,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: item.icon.startsWith('http')
+                                      ? CachedNetworkImage(
+                                          imageUrl: item.icon,
+                                          width: 28,
+                                          height: 28,
+                                          fit: BoxFit.contain,
+                                          placeholder: (_, __) => Icon(
+                                            Icons.inventory_2_rounded,
+                                            size: 24,
+                                            color: t.mutedText,
+                                          ),
+                                          errorWidget: (_, __, ___) => Icon(
+                                            Icons.inventory_2_rounded,
+                                            size: 24,
+                                            color: t.mutedText,
+                                          ),
+                                        )
+                                      : Text(
+                                          item.icon,
+                                          style: const TextStyle(fontSize: 24),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      style: GoogleFonts.nunito(
+                                        color: t.textPrimary,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      itemTypeLabels[item.type] ?? item.type,
+                                      style: GoogleFonts.nunito(
+                                        color: t.mutedText,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          _infoRow(
+                            'Harga',
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.diamond, size: 14, color: t.info),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '-${formatNumber(item.price)}',
+                                  style: GoogleFonts.nunito(
+                                    color: t.textPrimary,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            itemTypeLabels[item.type] ?? item.type,
-                            style: GoogleFonts.nunito(
-                              color: t.textSecondary,
-                              fontSize: 12,
+                          const SizedBox(height: 8),
+                          _infoRow(
+                            'Balance saat ini',
+                            Text(
+                              formatNumber(balance),
+                              style: GoogleFonts.nunito(
+                                color: t.textPrimary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Divider(
+                            height: 20,
+                            color: t.textPrimary.withValues(alpha: 0.1),
+                          ),
+                          _infoRow(
+                            'Sisa balance',
+                            Text(
+                              formatNumber(remaining),
+                              style: GoogleFonts.nunito(
+                                color: remaining >= 0 ? t.info : t.error,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _infoRow(
-                  'Harga',
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.diamond,
-                        size: 14,
-                        color: Color(0xFF60A5FA),
-                      ),
-                      const SizedBox(width: 4),
+                    if (item.description != null &&
+                        item.description!.isNotEmpty) ...[
+                      const SizedBox(height: 10),
                       Text(
-                        '-${_fmt(item.price)}',
+                        item.description!,
                         style: GoogleFonts.nunito(
-                          color: t.textPrimary,
-                          fontWeight: FontWeight.w800,
+                          color: t.mutedText,
                           fontSize: 13,
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                _infoRow(
-                  'Balance saat ini',
-                  Text(
-                    _fmt(balance),
-                    style: GoogleFonts.nunito(
-                      color: t.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                Divider(
-                  height: 20,
-                  color: t.textPrimary.withValues(alpha: 0.1),
-                ),
-                _infoRow(
-                  'Sisa balance',
-                  Text(
-                    _fmt(remaining),
-                    style: GoogleFonts.nunito(
-                      color: remaining >= 0 ? const Color(0xFF60A5FA) : t.error,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          if (item.description != null && item.description!.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              item.description!,
-              style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Bounceable(
+                    onTap: onDismiss,
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface2,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Batal',
+                        style: GoogleFonts.nunito(
+                          color: t.mutedText,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Bounceable(
+                    onTap: remaining < 0
+                        ? null
+                        : () async {
+                            try {
+                              await ref.read(storeDsProvider).buyItem(item.id);
+                              invalidateGamificationProviders(ref);
+                              ref.invalidate(storeItemsProvider);
+                              ref.invalidate(inventoryProvider);
+                              ref.invalidate(jewelBalanceProvider);
+                              ref.invalidate(jewelHistoryProvider);
+                              if (context.mounted) {
+                                final messenger = ScaffoldMessenger.of(context);
+                                Navigator.of(context).pop();
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Berhasil membeli ${item.name}!',
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    backgroundColor: t.success,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                final messenger = ScaffoldMessenger.of(context);
+                                Navigator.of(context).pop();
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      sanitizeErrorMessage(e),
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    backgroundColor: t.error,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: remaining >= 0 ? t.primary : t.bgSurface2,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: remaining >= 0
+                            ? [
+                                BoxShadow(
+                                  color: t.textPrimary,
+                                  offset: const Offset(3, 3),
+                                  blurRadius: 0,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Text(
+                        remaining >= 0
+                            ? AppStrings.buyNow
+                            : AppStrings.insufficientBalance,
+                        style: GoogleFonts.nunito(
+                          color: remaining >= 0
+                              ? t.primaryContent
+                              : t.mutedText,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
-        ],
-      ),
-      actions: [
-        SizedBox(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Bounceable(
-                onTap: onDismiss,
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: t.border, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: t.border,
-                        offset: const Offset(2, 2),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'Batal',
-                    style: GoogleFonts.nunito(
-                      color: t.textHint,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ),
-              Bounceable(
-                onTap: remaining < 0
-                    ? null
-                    : () async {
-                        try {
-                          await ref.read(storeDsProvider).buyItem(item.id);
-                          invalidateGamificationProviders(ref);
-                          ref.invalidate(storeItemsProvider);
-                          ref.invalidate(inventoryProvider);
-                          if (context.mounted) {
-                            final messenger = ScaffoldMessenger.of(context);
-                            Navigator.of(context).pop();
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Berhasil membeli ${item.name}!',
-                                  style: GoogleFonts.nunito(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                backgroundColor: t.success,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            final messenger = ScaffoldMessenger.of(context);
-                            Navigator.of(context).pop();
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  sanitizeErrorMessage(e),
-                                  style: GoogleFonts.nunito(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                backgroundColor: t.error,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: remaining >= 0 ? t.accent : t.bgSurface2,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: t.border, width: 2),
-                    boxShadow: remaining >= 0
-                        ? [
-                            BoxShadow(
-                              color: t.border,
-                              offset: const Offset(2, 2),
-                              blurRadius: 0,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Text(
-                    remaining >= 0
-                        ? AppStrings.buyNow
-                        : AppStrings.insufficientBalance,
-                    style: GoogleFonts.nunito(
-                      color: remaining >= 0 ? t.accentText : t.textHint,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
-      ],
+      ),
     );
   }
 
@@ -1117,7 +1236,7 @@ class _BuyDialog extends ConsumerWidget {
         Text(
           label,
           style: GoogleFonts.nunito(
-            color: t.textSecondary,
+            color: t.mutedText,
             fontWeight: FontWeight.w600,
             fontSize: 13,
           ),
@@ -1145,16 +1264,11 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
     StoreItem storeItem,
   ) async {
     final t = ref.read(currentThemeProvider);
+    final pools = ref
+        .read(rewardPoolsProvider)
+        .maybeWhen(data: (p) => p, orElse: () => <RewardPool>[]);
 
-    RewardPool? pool;
-    try {
-      final pools = ref
-          .read(rewardPoolsProvider)
-          .maybeWhen(data: (p) => p, orElse: () => <RewardPool>[]);
-      pool = pools.firstWhere((p) => p.name == storeItem.name);
-    } catch (_) {
-      pool = null;
-    }
+    final pool = _findMatchingPool(pools, storeItem.name);
 
     if (pool == null) {
       if (mounted) {
@@ -1219,6 +1333,7 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
       if (mounted) {
         ref.invalidate(inventoryProvider);
         ref.invalidate(jewelBalanceProvider);
+        ref.invalidate(jewelHistoryProvider);
       }
     } catch (e) {
       if (mounted) {
@@ -1243,9 +1358,10 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
     try {
       final inventory = await ref.read(inventoryProvider.future);
       return inventory.any(
-        (inv) => inv.item?.type == 'mystery_box' &&
-                inv.item?.name == poolName &&
-                inv.quantity > 0,
+        (inv) =>
+            inv.item?.type == 'mystery_box' &&
+            inv.item?.name == poolName &&
+            inv.quantity > 0,
       );
     } catch (_) {
       return false;
@@ -1260,46 +1376,55 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
     return Stack(
       children: [
         invAsync.when(
-          loading: () => LoadingCircle(t: t),
+          loading: () => StoreSkeleton(t: t, tabId: 1),
           error: (_, __) => _EmptyState(
             t: t,
             emoji: '📦',
             title: AppStrings.errLoadInventory,
             subtitle: '',
           ),
-          data: (items) => items.isEmpty
-              ? _EmptyState(
-                  t: t,
-                  emoji: '📦',
-                  title: 'Inventori kosong',
-                  subtitle: 'Beli item di Shop untuk mulai mengumpulkan!',
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: items.length,
-                  itemBuilder: (_, i) => Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: _InventoryCard(
-                      item: items[i],
-                      t: t,
-                      ref: ref,
-                      onUse: (inv, si) {
-                        final storeItem = inv.item;
-                        if (storeItem == null) return;
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => _UseDialog(
-                            invItem: inv,
-                            storeItem: storeItem,
-                            t: t,
-                            ref: ref,
-                          ),
-                        );
-                      },
-                      onOpenMysteryBox: _openMysteryBox,
-                    ).animate().fadeIn(delay: (80 * i).ms),
-                  ),
-                ),
+          data: (items) {
+            final sorted = List<InventoryItem>.from(items)
+              ..sort((a, b) {
+                if (a.acquiredAt == null && b.acquiredAt == null) return 0;
+                if (a.acquiredAt == null) return 1;
+                if (b.acquiredAt == null) return -1;
+                return b.acquiredAt!.compareTo(a.acquiredAt!);
+              });
+            return sorted.isEmpty
+                ? _EmptyState(
+                    t: t,
+                    emoji: '📦',
+                    title: 'Inventori kosong',
+                    subtitle: 'Beli item di Shop untuk mulai mengumpulkan!',
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: sorted.length,
+                    itemBuilder: (_, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _InventoryCard(
+                        item: sorted[i],
+                        t: t,
+                        ref: ref,
+                        onUse: (inv, si) {
+                          final storeItem = inv.item;
+                          if (storeItem == null) return;
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => _UseDialog(
+                              invItem: inv,
+                              storeItem: storeItem,
+                              t: t,
+                              ref: ref,
+                            ),
+                          );
+                        },
+                        onOpenMysteryBox: _openMysteryBox,
+                      ).animate().fadeIn(delay: (80 * i).ms),
+                    ),
+                  );
+          },
         ),
       ],
     );
@@ -1340,29 +1465,36 @@ class _InventoryCard extends ConsumerWidget {
 
     final isMysteryBox = storeItem.type == 'mystery_box';
     final canUse = storeItem.isConsumable && item.quantity > 0;
-    final typeColor = _typeBadgeColors[storeItem.type] ?? t.textHint;
+    final typeColor = _typeBadgeColors[storeItem.type] ?? t.mutedText;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: t.bgSurface,
+        color: isMysteryBox ? null : t.bgSurface,
         gradient: isMysteryBox
             ? LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0xFFA855F7).withValues(alpha: 0.05),
-                  const Color(0xFFEC4899).withValues(alpha: 0.05),
+                  Color.alphaBlend(
+                    const Color(0xFFA855F7).withValues(alpha: 0.05),
+                    t.bgSurface,
+                  ),
+                  Color.alphaBlend(
+                    const Color(0xFFEC4899).withValues(alpha: 0.05),
+                    t.bgSurface,
+                  ),
                 ],
               )
             : null,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: t.textPrimary.withValues(alpha: 0.25),
-          width: 2,
-        ),
+        border: Border.all(color: t.textPrimary, width: 2),
         boxShadow: [
-          BoxShadow(color: t.border, offset: const Offset(3, 3), blurRadius: 0),
+          BoxShadow(
+            color: t.textPrimary,
+            offset: const Offset(3, 3),
+            blurRadius: 0,
+          ),
         ],
       ),
       child: Column(
@@ -1377,9 +1509,7 @@ class _InventoryCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: t.bgSurface2,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: t.textPrimary.withValues(alpha: 0.2),
-                  ),
+                  border: Border.all(color: t.textPrimary, width: 1.5),
                 ),
                 child: Center(
                   child: storeItem.icon.startsWith('http')
@@ -1391,12 +1521,12 @@ class _InventoryCard extends ConsumerWidget {
                           placeholder: (_, __) => Icon(
                             Icons.inventory_2_rounded,
                             size: 28,
-                            color: t.textHint,
+                            color: t.mutedText,
                           ),
                           errorWidget: (_, __, ___) => Icon(
                             Icons.inventory_2_rounded,
                             size: 28,
-                            color: t.textHint,
+                            color: t.mutedText,
                           ),
                         )
                       : Text(
@@ -1418,7 +1548,7 @@ class _InventoryCard extends ConsumerWidget {
                       color: typeColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: typeColor.withValues(alpha: 0.35),
+                        color: typeColor.withValues(alpha: 0.5),
                       ),
                     ),
                     child: Text(
@@ -1439,7 +1569,7 @@ class _InventoryCard extends ConsumerWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: t.textPrimary.withValues(alpha: 0.25),
+                        color: t.textPrimary.withValues(alpha: 0.5),
                       ),
                     ),
                     child: Text(
@@ -1467,7 +1597,7 @@ class _InventoryCard extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             _itemEffectDesc(storeItem),
-            style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 12),
+            style: GoogleFonts.nunito(color: t.mutedText, fontSize: 12),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1479,7 +1609,7 @@ class _InventoryCard extends ConsumerWidget {
               Text(
                 'Diperoleh: ${_fmtDateId(item.acquiredAt ?? '')}',
                 style: GoogleFonts.nunito(
-                  color: t.textHint,
+                  color: t.mutedText,
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                 ),
@@ -1490,7 +1620,7 @@ class _InventoryCard extends ConsumerWidget {
                   label: isMysteryBox
                       ? 'Buka Mystery Box'
                       : 'Gunakan ${storeItem.name}',
-                   child: Bounceable(
+                  child: Bounceable(
                     onTap: () => isMysteryBox
                         ? _onOpenMysteryBox(context)
                         : _onUse(context),
@@ -1505,13 +1635,13 @@ class _InventoryCard extends ConsumerWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: t.accent,
+                        color: t.primary,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.border, width: 2),
+                        border: Border.all(color: t.textPrimary, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: t.border,
-                            offset: const Offset(2, 2),
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
                             blurRadius: 0,
                           ),
                         ],
@@ -1524,13 +1654,13 @@ class _InventoryCard extends ConsumerWidget {
                                 ? Icons.card_giftcard_rounded
                                 : Icons.bolt_rounded,
                             size: 14,
-                            color: t.accentText,
+                            color: t.primaryContent,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             isMysteryBox ? 'Buka' : 'Gunakan',
                             style: GoogleFonts.nunito(
-                              color: t.accentText,
+                              color: t.primaryContent,
                               fontWeight: FontWeight.w800,
                               fontSize: 12,
                             ),
@@ -1549,19 +1679,19 @@ class _InventoryCard extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: t.border, width: 2),
+                    border: Border.all(color: t.textPrimary, width: 2),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.block_rounded, size: 14, color: t.textHint),
+                      Icon(Icons.block_rounded, size: 14, color: t.mutedText),
                       const SizedBox(width: 4),
                       Text(
                         storeItem.isConsumable
                             ? 'Habis'
                             : 'Tidak bisa digunakan',
                         style: GoogleFonts.nunito(
-                          color: t.textHint,
+                          color: t.mutedText,
                           fontWeight: FontWeight.w800,
                           fontSize: 11,
                         ),
@@ -1577,8 +1707,9 @@ class _InventoryCard extends ConsumerWidget {
   }
 
   String _itemEffectDesc(StoreItem si) {
-    if (si.description != null && si.description!.isNotEmpty)
+    if (si.description != null && si.description!.isNotEmpty) {
       return si.description!;
+    }
     final base = itemTypeDescriptions[si.type] ?? '';
     if (si.effectValue != null && si.effectValue! > 0) {
       return '$base (+${si.effectValue})';
@@ -1604,254 +1735,303 @@ class _UseDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining = invItem.quantity - 1;
 
-    return AlertDialog(
-      backgroundColor: t.bgSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: t.textPrimary.withValues(alpha: 0.25),
-          width: 2,
-        ),
-      ),
-      title: Text(
-        'Gunakan Item?',
-        style: GoogleFonts.nunito(
-          color: t.textPrimary,
-          fontWeight: FontWeight.w900,
-          fontSize: 18,
-        ),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 6),
-          Text(
-            'Item ini akan digunakan dan quantity akan berkurang 1.',
-            style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: t.bgPrimary,
-              borderRadius: BorderRadius.circular(12),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.textPrimary, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: t.textPrimary,
+              offset: const Offset(3, 3),
+              blurRadius: 0,
             ),
-            child: Column(
-              children: [
-                Row(
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Text(
+                'Gunakan Item?',
+                style: GoogleFonts.nunito(
+                  color: t.textPrimary,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: t.textPrimary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Center(
-                        child: storeItem.icon.startsWith('http')
-                            ? CachedNetworkImage(
-                                imageUrl: storeItem.icon,
-                                width: 28,
-                                height: 28,
-                                fit: BoxFit.contain,
-                                placeholder: (_, __) => Icon(
-                                  Icons.inventory_2_rounded,
-                                  size: 24,
-                                  color: t.textHint,
-                                ),
-                                errorWidget: (_, __, ___) => Icon(
-                                  Icons.inventory_2_rounded,
-                                  size: 24,
-                                  color: t.textHint,
-                                ),
-                              )
-                            : Text(
-                                storeItem.icon,
-                                style: const TextStyle(fontSize: 24),
-                              ),
+                    Text(
+                      'Item ini akan digunakan dan quantity akan berkurang 1.',
+                      style: GoogleFonts.nunito(
+                        color: t.mutedText,
+                        fontSize: 13,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: t.bgPrimary,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: t.textPrimary, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(2, 2),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            storeItem.name,
-                            style: GoogleFonts.nunito(
-                              color: t.textPrimary,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
+                          Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: t.bgSurface,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: t.textPrimary,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: storeItem.icon.startsWith('http')
+                                      ? CachedNetworkImage(
+                                          imageUrl: storeItem.icon,
+                                          width: 28,
+                                          height: 28,
+                                          fit: BoxFit.contain,
+                                          placeholder: (_, __) => Icon(
+                                            Icons.inventory_2_rounded,
+                                            size: 24,
+                                            color: t.mutedText,
+                                          ),
+                                          errorWidget: (_, __, ___) => Icon(
+                                            Icons.inventory_2_rounded,
+                                            size: 24,
+                                            color: t.mutedText,
+                                          ),
+                                        )
+                                      : Text(
+                                          storeItem.icon,
+                                          style: const TextStyle(fontSize: 24),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      storeItem.name,
+                                      style: GoogleFonts.nunito(
+                                        color: t.textPrimary,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      itemTypeLabels[storeItem.type] ??
+                                          storeItem.type,
+                                      style: GoogleFonts.nunito(
+                                        color: t.mutedText,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          _infoRow(
+                            'Efek',
+                            Text(
+                              _useEffectDesc(),
+                              textAlign: TextAlign.right,
+                              style: GoogleFonts.nunito(
+                                color: t.textPrimary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            itemTypeLabels[storeItem.type] ?? storeItem.type,
-                            style: GoogleFonts.nunito(
-                              color: t.textSecondary,
-                              fontSize: 12,
+                          Divider(
+                            height: 20,
+                            color: t.textPrimary.withValues(alpha: 0.1),
+                          ),
+                          _infoRow(
+                            'Quantity setelah pakai',
+                            Text(
+                              '${invItem.quantity - 1}',
+                              style: GoogleFonts.nunito(
+                                color: remaining >= 0 ? t.textPrimary : t.error,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _infoRow(
-                  'Efek',
-                  Text(
-                    _useEffectDesc(),
-                    textAlign: TextAlign.right,
-                    style: GoogleFonts.nunito(
-                      color: t.textPrimary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                Divider(
-                  height: 20,
-                  color: t.textPrimary.withValues(alpha: 0.1),
-                ),
-                _infoRow(
-                  'Quantity setelah pakai',
-                  Text(
-                    '${invItem.quantity - 1}',
-                    style: GoogleFonts.nunito(
-                      color: remaining >= 0 ? t.textPrimary : t.error,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (storeItem.description != null &&
-              storeItem.description!.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              storeItem.description!,
-              style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
-            ),
-          ],
-        ],
-      ),
-      actions: [
-        SizedBox(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Bounceable(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: t.border, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: t.border,
-                        offset: const Offset(2, 2),
-                        blurRadius: 0,
+                    if (storeItem.description != null &&
+                        storeItem.description!.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        storeItem.description!,
+                        style: GoogleFonts.nunito(
+                          color: t.mutedText,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
-                  ),
-                  child: Text(
-                    'Batal',
-                    style: GoogleFonts.nunito(
-                      color: t.textSecondary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),
+                  ],
                 ),
               ),
-              if (remaining >= 0) ...[
-                const SizedBox(width: 12),
-                Bounceable(
-                  onTap: () async {
-                    try {
-                      await ref
-                          .read(storeDsProvider)
-                          .useItem(invItem.itemId.toString());
-                      ref.invalidate(inventoryProvider);
-                      ref.invalidate(jewelBalanceProvider);
-                      ref.invalidate(storeItemsProvider);
-                      if (context.mounted) {
-                        final messenger = ScaffoldMessenger.of(context);
-                        Navigator.of(context).pop();
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Berhasil menggunakan ${storeItem.name}!',
-                              style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
-                            ),
-                            backgroundColor: t.success,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Bounceable(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface2,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
                           ),
-                        );
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        final messenger = ScaffoldMessenger.of(context);
-                        Navigator.of(context).pop();
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              sanitizeErrorMessage(e),
-                              style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
-                            ),
-                            backgroundColor: t.error,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: t.accent,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: t.border, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: t.border,
-                          offset: const Offset(2, 2),
-                          blurRadius: 0,
+                        ],
+                      ),
+                      child: Text(
+                        'Batal',
+                        style: GoogleFonts.nunito(
+                          color: t.mutedText,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      'Gunakan',
-                      style: GoogleFonts.nunito(
-                        color: t.accentText,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
                       ),
                     ),
                   ),
-                ),
-              ],
-            ],
-          ),
+                  if (remaining >= 0) ...[
+                    const SizedBox(width: 12),
+                    Bounceable(
+                      onTap: () async {
+                        try {
+                          await ref
+                              .read(storeDsProvider)
+                              .useItem(invItem.itemId.toString());
+                          ref.invalidate(inventoryProvider);
+                          ref.invalidate(jewelBalanceProvider);
+                          ref.invalidate(storeItemsProvider);
+                          if (context.mounted) {
+                            final messenger = ScaffoldMessenger.of(context);
+                            Navigator.of(context).pop();
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Berhasil menggunakan ${storeItem.name}!',
+                                  style: GoogleFonts.nunito(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                backgroundColor: t.success,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            final messenger = ScaffoldMessenger.of(context);
+                            Navigator.of(context).pop();
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  sanitizeErrorMessage(e),
+                                  style: GoogleFonts.nunito(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                backgroundColor: t.error,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: t.primary,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: t.textPrimary, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.textPrimary,
+                              offset: const Offset(3, 3),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'Gunakan',
+                          style: GoogleFonts.nunito(
+                            color: t.primaryContent,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -1872,7 +2052,7 @@ class _UseDialog extends ConsumerWidget {
         Text(
           label,
           style: GoogleFonts.nunito(
-            color: t.textSecondary,
+            color: t.mutedText,
             fontWeight: FontWeight.w600,
             fontSize: 13,
           ),
@@ -1920,12 +2100,12 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
           // Dropdown filter
           Row(
             children: [
-              Icon(Icons.filter_alt_rounded, size: 16, color: t.textSecondary),
+              Icon(Icons.filter_alt_rounded, size: 16, color: t.mutedText),
               const SizedBox(width: 6),
               Text(
                 'Filter:',
                 style: GoogleFonts.nunito(
-                  color: t.textSecondary,
+                  color: t.mutedText,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -1936,9 +2116,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                 decoration: BoxDecoration(
                   color: t.bgSurface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: t.textPrimary.withValues(alpha: 0.2),
-                  ),
+                  border: Border.all(color: t.textPrimary, width: 1.5),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -1975,7 +2153,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
           // Table
           Expanded(
             child: histAsync.when(
-              loading: () => LoadingCircle(t: t),
+              loading: () => StoreSkeleton(t: t, tabId: 2),
               error: (_, __) => _EmptyState(
                 t: t,
                 emoji: '📜',
@@ -2007,9 +2185,14 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                       decoration: BoxDecoration(
                         color: t.bgSurface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: t.textPrimary.withValues(alpha: 0.25),
-                        ),
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
                       ),
                       child: DataTable(
                         headingRowColor: WidgetStatePropertyAll(t.bgSurface2),
@@ -2021,7 +2204,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                             label: Text(
                               'Tanggal',
                               style: GoogleFonts.nunito(
-                                color: t.textSecondary,
+                                color: t.mutedText,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12,
                               ),
@@ -2031,7 +2214,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                             label: Text(
                               'Source',
                               style: GoogleFonts.nunito(
-                                color: t.textSecondary,
+                                color: t.mutedText,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12,
                               ),
@@ -2041,7 +2224,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                             label: Text(
                               'Amount',
                               style: GoogleFonts.nunito(
-                                color: t.textSecondary,
+                                color: t.mutedText,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12,
                               ),
@@ -2052,7 +2235,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                             label: Text(
                               'Balance After',
                               style: GoogleFonts.nunito(
-                                color: t.textSecondary,
+                                color: t.mutedText,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12,
                               ),
@@ -2083,7 +2266,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                                   decoration: BoxDecoration(
                                     color:
                                         (_sourceBadgeColors[tx.source] ??
-                                                t.textHint)
+                                                t.mutedText)
                                             .withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
@@ -2092,7 +2275,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                                     style: GoogleFonts.nunito(
                                       color:
                                           _sourceBadgeColors[tx.source] ??
-                                          t.textHint,
+                                          t.mutedText,
                                       fontSize: 11,
                                       fontWeight: FontWeight.w800,
                                     ),
@@ -2101,7 +2284,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                               ),
                               DataCell(
                                 Text(
-                                  '${isEarn ? '+' : ''}${_fmt(tx.amount)}',
+                                  '${isEarn ? '+' : ''}${formatNumber(tx.amount)}',
                                   style: GoogleFonts.nunito(
                                     color: isEarn ? t.success : t.error,
                                     fontWeight: FontWeight.w900,
@@ -2115,14 +2298,14 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.diamond,
                                       size: 14,
-                                      color: Color(0xFF60A5FA),
+                                      color: t.info,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      _fmt(tx.balanceAfter ?? 0),
+                                      formatNumber(tx.balanceAfter ?? 0),
                                       style: GoogleFonts.nunito(
                                         color: t.textPrimary,
                                         fontWeight: FontWeight.w800,
@@ -2180,7 +2363,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             subtitle,
-            style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
+            style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
             textAlign: TextAlign.center,
           ),
         ],
