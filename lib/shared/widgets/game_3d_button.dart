@@ -68,7 +68,7 @@ class _Game3DButtonState extends State<Game3DButton> {
               : [
                   BoxShadow(
                     color: shadow,
-                    offset: const Offset(2, 2),
+                    offset: const Offset(3, 3),
                     blurRadius: 0,
                   ),
                 ],

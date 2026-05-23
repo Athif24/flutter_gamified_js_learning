@@ -710,8 +710,8 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   }
 
   Widget _buildContinueButton(BloomTheme t) {
-    final isQuizPassed = widget.quizId != null;
-    final ctaLabel = isQuizPassed ? 'Lihat Hasil' : 'Lanjutkan';
+    final isFromQuiz = widget.quizId != null;
+    final ctaLabel = isFromQuiz ? 'Lihat Hasil' : 'Lanjutkan';
 
     return Bounceable(
       onTap: () {
@@ -721,7 +721,6 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
           quizId: widget.quizId,
         );
         widget.onContinue?.call();
-        Navigator.of(context).pop();
       },
       child: Container(
         width: double.infinity,

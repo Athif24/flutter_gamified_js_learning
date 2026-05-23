@@ -19,7 +19,7 @@ class SlowLoadingIndicator extends StatelessWidget {
       child: IgnorePointer(
         ignoring: !visible,
         child: LinearProgressIndicator(
-          minHeight: 3,
+          minHeight: 4,
           backgroundColor: t.bgSurface2,
           valueColor: AlwaysStoppedAnimation<Color>(t.accent),
         ),
