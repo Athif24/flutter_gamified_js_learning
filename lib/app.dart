@@ -18,7 +18,7 @@ class BloomApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme    : AppTheme.build(bloomTheme),
       darkTheme: AppTheme.build(bloomTheme),
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
       routerConfig: router,
     );
   }

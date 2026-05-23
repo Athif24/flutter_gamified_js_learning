@@ -28,6 +28,8 @@ class AppStrings {
   static const errLoadQuiz = 'Gagal memuat kuis';
   static const errLoadQuizStatus = 'Gagal memuat status kuis';
   static const errLoadQuizResult = 'Gagal memuat hasil kuis';
+  static const errStartQuiz = 'Gagal memulai kuis';
+  static const errSubmitQuiz = 'Gagal mengumpulkan jawaban';
 
   // ── Error: Store ───────────────────────────────────────────────────────
   static const errLoadStoreItems = 'Gagal memuat item';
