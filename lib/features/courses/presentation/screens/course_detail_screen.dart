@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
@@ -8,7 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/loading_circle.dart';
+import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/utils/error_helper.dart';
+import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 
@@ -19,12 +22,13 @@ class CourseDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<CourseDetailScreen> createState() => _CourseDetailScreenState();
 }
 
-class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
+class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with SilentRefreshMixin<CourseDetailScreen> {
   final _scrollCtrl = ScrollController();
   final List<GlobalKey> _itemKeys = [];
   List<double> _unitPositions = [];
   List<String> _unitNames = [];
   final _activeUnitName = ValueNotifier('');
+  final _isUnitHeaderVisible = ValueNotifier<bool>(true);
   bool _scrolledToActive = false;
 
   @override
@@ -37,6 +41,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   void dispose() {
     _scrollCtrl.removeListener(_onScroll);
     _scrollCtrl.dispose();
+    _isUnitHeaderVisible.dispose();
     _activeUnitName.dispose();
     super.dispose();
   }
@@ -52,6 +57,14 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
         break;
       }
     }
+
+    // Cek apakah unit header aktif masih terlihat di viewport
+    final unitHeaderTop = _unitPositions[activeIdx];
+    final unitHeaderBottom = unitHeaderTop + 72; // 72 = tinggi _UnitHeader
+
+    // Header "tidak terlihat" jika sudah ter-scroll ke atas (bottom < offset)
+    _isUnitHeaderVisible.value = unitHeaderBottom >= offset;
+
     _activeUnitName.value = _unitNames[activeIdx];
   }
 
@@ -99,14 +112,25 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: courseAsync.when(
-        loading: () => LoadingCircle(t: t),
-        error: (e, _) => _ErrorBody(
-            t: t,
-            message: e.toString(),
-            onRetry: () =>
-                ref.refresh(courseDetailProvider(widget.courseId))),
-        data: (course) => _buildContent(t, course),
+      body: Column(
+        children: [
+          SlowLoadingIndicator(visible: showSlowIndicator, t: t),
+          Expanded(
+            child: courseAsync.when(
+              loading: () => LoadingCircle(t: t),
+              error: (e, _) => ErrorBody(
+                t: t,
+                title: AppStrings.errLoadCourseDetail,
+                message: sanitizeErrorMessage(e),
+                onRetry: () {
+                  setShowSlowIndicator(true);
+                  ref.invalidate(courseDetailProvider(widget.courseId));
+                },
+              ),
+              data: (course) => _buildContent(t, course),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -127,9 +151,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
     if (_activeUnitName.value.isEmpty && _unitNames.isNotEmpty) {
       _activeUnitName.value = _unitNames.first;
     }
-    _itemKeys
-      ..clear()
-      ..addAll(List.generate(items.length, (_) => GlobalKey()));
+    if (_itemKeys.length != items.length) {
+      _itemKeys
+        ..clear()
+        ..addAll(List.generate(items.length, (_) => GlobalKey()));
+    }
     if (!_scrolledToActive) {
       _scrollToActive(items);
       _scrolledToActive = true;
@@ -138,6 +164,50 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
     return SafeArea(
       child: Column(
         children: [
+          // Back button + Course title (app bar region)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Row(
+              children: [
+                Semantics(
+                  button: true,
+                  label: 'Kembali',
+                  child: Bounceable(
+                    onTap: () => context.pop(),
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: t.bgSurface2,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Icon(Icons.arrow_back_ios_rounded,
+                          color: t.textPrimary, size: 15),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(
+                    'Detail Kursus',
+                    style: GoogleFonts.nunito(
+                      color: t.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           _HeaderCard(
               course: course,
               progress: p,
@@ -149,7 +219,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
             child: Row(
               children: [
-                Icon(Icons.menu_book, size: 24, color: t.accent),
+                Icon(Icons.menu_book, size: 24, color: t.primary),
                 const SizedBox(width: 8),
                 Text('Peta Belajar',
                     style: GoogleFonts.nunito(
@@ -159,39 +229,56 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
               ],
             ),
           ),
-          // Active BAB indicator (fixed — shows current unit)
-          ValueListenableBuilder<String>(
-            valueListenable: _activeUnitName,
-            builder: (_, name, __) {
-              if (name.isEmpty) return const SizedBox.shrink();
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: t.accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(50),
-                    border: Border.all(
-                      color: t.accent.withValues(alpha: 0.4),
-                      width: 2,
+          // Active BAB indicator (smooth slide+fade transition)
+          ValueListenableBuilder<bool>(
+            valueListenable: _isUnitHeaderVisible,
+            builder: (_, headerVisible, __) {
+              return ValueListenableBuilder<String>(
+                valueListenable: _activeUnitName,
+                builder: (_, name, __) {
+                  final shouldShow = name.isNotEmpty && !headerVisible;
+                  return AnimatedSwitcher(
+                    duration: 250.ms,
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) => SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, -0.5),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: FadeTransition(opacity: animation, child: child),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.flag, size: 14, color: t.accent),
-                      const SizedBox(width: 6),
-                      Text(name.toUpperCase(),
-                          style: GoogleFonts.nunito(
-                            color: t.accent,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
-                          )),
-                    ],
-                  ),
-                ),
+                    child: shouldShow
+                        ? Container(
+                            key: ValueKey('banner-$name'),
+                            margin: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: t.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(
+                                color: t.textPrimary,
+                                width: 2,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.flag, size: 14, color: t.primary),
+                                const SizedBox(width: 6),
+                                Text(name.toUpperCase(),
+                                    style: GoogleFonts.nunito(
+                                      color: t.primary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1.5,
+                                    )),
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(key: ValueKey('hidden')),
+                  );
+                },
               );
             },
           ),
@@ -201,14 +288,19 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
                 ? Center(
                     child: Text('Belum ada bab',
                         style: GoogleFonts.nunito(
-                            color: t.textSecondary, fontSize: 14)))
-                : RepaintBoundary(
-                    child: _PetaBelajar(
-                      items: items,
-                      scrollCtrl: _scrollCtrl,
-                      itemKeys: _itemKeys,
-                      t: t,
-                      courseId: widget.courseId,
+                            color: t.mutedText, fontSize: 14)))
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(courseDetailProvider(widget.courseId));
+                    },
+                    child: RepaintBoundary(
+                      child: _PetaBelajar(
+                        items: items,
+                        scrollCtrl: _scrollCtrl,
+                        itemKeys: _itemKeys,
+                        t: t,
+                        courseId: widget.courseId,
+                      ),
                     ),
                   ),
           ),
@@ -299,97 +391,26 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cycle colors like DaisyUI
-    final colors = [
-      (const Color(0xFF22C55E), const Color(0xFFFFFFFF)),
-      (const Color(0xFF3B82F6), const Color(0xFFFFFFFF)),
-      (const Color(0xFFF59E0B), const Color(0xFFFFFFFF)),
-      (const Color(0xFF06B6D4), const Color(0xFFFFFFFF)),
-    ];
-    final idx = course.id.hashCode % colors.length;
-    final (cBg, cFg) = colors[idx];
+    final cBg = t.primary;
+    final cFg = t.primaryContent;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: BoxDecoration(
         color: cBg,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: t.border, width: 2),
+        border: Border.all(color: t.textPrimary, width: 2),
         boxShadow: [
-          BoxShadow(color: t.border, offset: const Offset(4, 4), blurRadius: 0),
+          BoxShadow(color: t.textPrimary, offset: const Offset(3, 3), blurRadius: 0),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(23),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail Hero
-            if (course.thumbnail != null)
-              Hero(
-                tag: 'course-thumb-${course.id}',
-                child: Container(
-                  height: 160,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider(course.thumbnail!),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          cBg.withValues(alpha: 0.6),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            // Content
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, course.thumbnail != null ? 16 : 24, 24, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Back pill
-                  Semantics(
-                    label: 'Kembali ke Semua Kursus',
-                    child: Bounceable(
-                      onTap: () => context.pop(),
-                      child: Container(
-                        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: cFg.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.transparent, width: 2),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.arrow_back_ios_rounded,
-                                color: cFg.withValues(alpha: 0.8), size: 12),
-                            const SizedBox(width: 4),
-                            Text('Semua Kursus',
-                                style: GoogleFonts.nunito(
-                                    color: cFg.withValues(alpha: 0.8),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Title Hero
-                  Hero(
+            // Title Hero
+            Hero(
                     tag: 'course-title-${course.id}',
                     child: Material(
                       color: Colors.transparent,
@@ -409,15 +430,85 @@ class _HeaderCard extends StatelessWidget {
                             fontSize: 13)),
                   ],
                   const SizedBox(height: 16),
-                  // Stats pills
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _Pill(cFg, Icons.menu_book, '${course.totalLessons} Lesson'),
-                      _Pill(cFg, Icons.check, '$completedUnits/${course.units.length} Unit'),
-                      _Pill(cFg, Icons.flash_on, '$progressPct% Selesai'),
-                    ],
+                  // Stats row (3-pill layout like Achievement Hero Card)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: cFg.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: t.textPrimary.withValues(alpha: 0.5), width: 2),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 32, height: 32,
+                                decoration: BoxDecoration(
+                                  color: cFg.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: cFg.withValues(alpha: 0.3), width: 1.5),
+                                ),
+                                child: Center(child: Icon(Icons.menu_book, color: cFg, size: 16)),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('${course.totalLessons}', style: GoogleFonts.nunito(
+                                  color: cFg, fontSize: 18, fontWeight: FontWeight.w900)),
+                              Text('LESSON', style: GoogleFonts.nunito(
+                                  color: cFg.withValues(alpha: 0.8), fontSize: 10,
+                                  fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                            ],
+                          ),
+                        ),
+                        Container(width: 1, height: 40, color: t.textPrimary.withValues(alpha: 0.2)),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 32, height: 32,
+                                decoration: BoxDecoration(
+                                  color: cFg.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: cFg.withValues(alpha: 0.3), width: 1.5),
+                                ),
+                                child: Center(child: Icon(Icons.check, color: cFg, size: 16)),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('$completedUnits/${course.units.length}', style: GoogleFonts.nunito(
+                                  color: cFg, fontSize: 18, fontWeight: FontWeight.w900)),
+                              Text('UNIT SELESAI', style: GoogleFonts.nunito(
+                                  color: cFg.withValues(alpha: 0.8), fontSize: 10,
+                                  fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                            ],
+                          ),
+                        ),
+                        Container(width: 1, height: 40, color: t.textPrimary.withValues(alpha: 0.2)),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 32, height: 32,
+                                decoration: BoxDecoration(
+                                  color: cFg.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: cFg.withValues(alpha: 0.3), width: 1.5),
+                                ),
+                                child: Center(child: Icon(Icons.percent_rounded, color: cFg, size: 16)),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('$progressPct%', style: GoogleFonts.nunito(
+                                  color: cFg, fontSize: 18, fontWeight: FontWeight.w900)),
+                              Text('PROGRES', style: GoogleFonts.nunito(
+                                  color: cFg.withValues(alpha: 0.8), fontSize: 10,
+                                  fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   // Progress bar
@@ -430,38 +521,11 @@ class _HeaderCard extends StatelessWidget {
                       minHeight: 12,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
-}
-
-class _Pill extends StatelessWidget {
-  final Color textColor;
-  final IconData icon;
-  final String label;
-  const _Pill(this.textColor, this.icon, this.label);
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: textColor.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 14, color: textColor.withValues(alpha: 0.9)),
-          const SizedBox(width: 4),
-          Text(label,
-              style: GoogleFonts.nunito(
-                  color: textColor.withValues(alpha: 0.9),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11)),
-        ]),
-      );
 }
 
 // ── Peta Belajar ──────────────────────────────────────────────────────────
@@ -526,12 +590,17 @@ class _PetaBelajar extends StatelessWidget {
                       t: t,
                     );
                   }
-                  return Bounceable(
-                    onTap: item.isLocked
-                        ? null
-                        : () => context.push(
-                            '/lesson/${item.lessonId}?courseId=$courseId'),
-                    child: Container(
+                  return Semantics(
+                    button: true,
+                    label: item.isLocked
+                        ? '${item.lessonName} (terkunci)'
+                        : 'Buka ${item.lessonName}',
+                    child: Bounceable(
+                      onTap: item.isLocked
+                          ? null
+                          : () => context.push(
+                              '/lesson/${item.lessonId}?courseId=$courseId'),
+                      child: Container(
                       key: itemKeys[i],
                       height: item.isFirstActive ? 192 : 152,
                       alignment: Alignment.center,
@@ -544,7 +613,8 @@ class _PetaBelajar extends StatelessWidget {
                         t: t,
                       ),
                     ),
-                  );
+                  ),
+                );
                 }),
               ),
             ],
@@ -588,15 +658,22 @@ class _UnitHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(
                   width: 2,
-                  color: t.border.withValues(alpha: 0.3),
+                  color: t.textPrimary,
                 ),
                 color: t.bgSurface2,
+                boxShadow: [
+                  BoxShadow(
+                    color: t.textPrimary,
+                    offset: const Offset(3, 3),
+                    blurRadius: 0,
+                  ),
+                ],
               ),
               child: Text(
                 name.toUpperCase(),
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.nunito(
-                  color: t.textSecondary,
+                  color: t.mutedText,
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
@@ -648,30 +725,18 @@ class _LessonBubble extends StatelessWidget {
           ? t.bgSurface
           : isLocked
               ? t.bgSurface2
-              : t.accent,
+              : t.primary,
         border: Border.all(
-          width: 4,
-          color: isCompleted
-              ? t.success
-              : isLocked
-                  ? t.border.withValues(alpha: 0.3)
-                  : t.accent,
+          width: 2,
+          color: t.textPrimary,
         ),
-        boxShadow: isCompleted
-            ? [
-                BoxShadow(
-                    color: t.success.withValues(alpha: 0.3),
-                    blurRadius: 0,
-                    offset: const Offset(0, 4))
-              ]
-            : isLocked
-                ? null
-                : [
-                    BoxShadow(
-                        color: t.textPrimary.withValues(alpha: 0.25),
-                        blurRadius: 0,
-                        offset: const Offset(0, 6))
-                  ],
+        boxShadow: [
+          BoxShadow(
+            color: t.textPrimary,
+            blurRadius: 0,
+            offset: const Offset(3, 3),
+          ),
+        ],
       ),
       child: Stack(
         alignment: Alignment.center,
@@ -683,7 +748,7 @@ class _LessonBubble extends StatelessWidget {
                 margin: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: t.accentText.withValues(alpha: 0.15),
+                  color: t.primaryContent.withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -694,9 +759,9 @@ class _LessonBubble extends StatelessWidget {
                 : isLocked
                     ? Icon(Icons.lock_outline,
                         size: 20,
-                        color: t.textHint.withValues(alpha: 0.5))
+                        color: t.mutedText.withValues(alpha: 0.5))
                     : Icon(Icons.menu_book_rounded,
-                        size: 22, color: t.accentText),
+                        size: 22, color: t.primaryContent),
           ),
         ],
       ),
@@ -729,7 +794,7 @@ class _LessonBubble extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.nunito(
                     color: isLocked
-                        ? t.textHint.withValues(alpha: 0.5)
+                        ? t.mutedText.withValues(alpha: 0.5)
                         : t.textPrimary.withValues(alpha: 0.8),
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -772,6 +837,7 @@ class _StartHereLabel extends StatelessWidget {
           decoration: BoxDecoration(
             color: t.textPrimary,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: t.textPrimary, width: 2),
           ),
           child: Text(
             'Mulai di sini!',
@@ -847,48 +913,4 @@ class _PetaBelajarPainter extends CustomPainter {
       o.positions != positions;
 }
 
-// ── Error ──────────────────────────────────────────────────────────────────
 
-class _ErrorBody extends StatelessWidget {
-  final BloomTheme t;
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorBody(
-      {required this.t, required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) => Center(
-      child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text('😢', style: TextStyle(fontSize: 48)),
-            const SizedBox(height: 12),
-            Text(AppStrings.errLoadCourseDetail,
-                style: GoogleFonts.nunito(
-                    color: t.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16)),
-            const SizedBox(height: 20),
-            Bounceable(
-              onTap: onRetry,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
-                decoration: BoxDecoration(
-                    color: t.accent,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: t.border, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: t.border,
-                        offset: const Offset(2, 2),
-                        blurRadius: 0,
-                      ),
-                    ]),
-                child: Text(AppStrings.retry,
-                    style: GoogleFonts.nunito(
-                        fontWeight: FontWeight.w800, color: t.accentText)),
-              ),
-            ),
-          ])));
-}
