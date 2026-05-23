@@ -7,7 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
+import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../shared/widgets/celebration_screen.dart';
+import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../data/models/course_model.dart';
 import '../providers/course_provider.dart';
@@ -33,6 +37,7 @@ class QuizScreen extends ConsumerStatefulWidget {
 
 class _QuizScreenState extends ConsumerState<QuizScreen> {
   bool _showCelebration = true;
+  int? _previousLivesRemaining;
 
   @override
   void initState() {
@@ -55,52 +60,42 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     if (quiz.quiz == null && quiz.error == null) {
       return Scaffold(
         backgroundColor: t.bgPrimary,
-        body: Center(child: CircularProgressIndicator(color: t.accent)),
+        body: Column(
+          children: [
+            SlowLoadingIndicator(visible: true, t: t),
+            Expanded(
+              child: Center(
+                child: CircularProgressIndicator(color: t.primary),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
     if (quiz.error != null) {
       return Scaffold(
         backgroundColor: t.bgPrimary,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('\u{1F622}', style: TextStyle(fontSize: 56)),
-                const SizedBox(height: 12),
-                Text(
-                  AppStrings.errLoadQuiz,
-                  style: GoogleFonts.nunito(
-                    color: t.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+        body: Column(
+          children: [
+            SlowLoadingIndicator(visible: false, t: t),
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: ErrorBody(
+                    t: t,
+                    title: AppStrings.errLoadQuiz,
+                    message: sanitizeErrorMessage(quiz.error!),
+                    onRetry: () {
+                      ref.read(quizProvider.notifier).reset();
+                      context.pop();
+                    },
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  quiz.error!,
-                  style: GoogleFonts.nunito(
-                    color: t.textSecondary,
-                    fontSize: 13,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 22),
-                Game3DButton(
-                  label: 'Kembali',
-                  color: t.accent,
-                  shadowColor: darken(t.accent, 0.2),
-                  textColor: t.accentText,
-                  onTap: () {
-                    ref.read(quizProvider.notifier).reset();
-                    context.pop();
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       );
     }
@@ -133,6 +128,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             '/quiz-intro/${widget.quizId}${widget.courseId != null ? '?courseId=${widget.courseId}' : ''}',
           );
         },
+        onBackToMap: () {
+          ref.read(quizProvider.notifier).reset();
+          while (context.canPop()) {
+            context.pop();
+          }
+        },
       );
     }
 
@@ -156,15 +157,19 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               const SizedBox(height: 8),
               Text(
                 'Soal untuk kuis ini belum ditambahkan.',
-                style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
+                style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
               ),
               const SizedBox(height: 22),
-              Game3DButton(
+              Semantics(
+                button: true,
                 label: 'Kembali',
-                color: t.accent,
-                shadowColor: darken(t.accent, 0.2),
-                textColor: t.accentText,
-                onTap: () => context.pop(),
+                child: Game3DButton(
+                  label: 'Kembali',
+                  color: t.primary,
+                  shadowColor: darken(t.primary, 0.2),
+                  textColor: t.primaryContent,
+                  onTap: () => context.pop(),
+                ),
               ),
             ],
           ),
@@ -185,20 +190,24 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Row(
                 children: [
-                  Bounceable(
-                    onTap: () => _confirmExit(context, t),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: t.bgSurface2,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: t.border),
-                      ),
-                      child: Icon(
-                        Icons.close_rounded,
-                        color: t.textPrimary,
-                        size: 18,
+                  Semantics(
+                    button: true,
+                    label: 'Tutup kuis',
+                    child: Bounceable(
+                      onTap: () => _confirmExit(context, t),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: t.bgSurface2,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: t.border),
+                        ),
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: t.textPrimary,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -228,14 +237,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: t.accent.withValues(alpha: 0.15),
+                      color: t.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(50),
-                      border: Border.all(color: t.accent.withValues(alpha: 0.3)),
+                      border: Border.all(color: t.primary.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       '\u{2B50} +${current.points} XP',
                       style: GoogleFonts.nunito(
-                        color: t.accent,
+                        color: t.primary,
                         fontWeight: FontWeight.w800,
                         fontSize: 11,
                       ),
@@ -251,7 +260,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   Text(
                     '${quiz.currentIndex + 1}',
                     style: GoogleFonts.nunito(
-                      color: t.accent,
+                      color: t.primary,
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
                     ),
@@ -259,7 +268,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   Text(
                     '/${questions.length}',
                     style: GoogleFonts.nunito(
-                      color: t.textSecondary,
+                      color: t.mutedText,
                       fontSize: 14,
                     ),
                   ),
@@ -269,7 +278,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       percent: progress,
                       lineHeight: 10,
                       backgroundColor: t.bgSurface3,
-                      progressColor: t.accent,
+                      progressColor: t.primary,
                       barRadius: const Radius.circular(5),
                       padding: EdgeInsets.zero,
                       animation: true,
@@ -342,7 +351,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 currentQuestion: quiz.current,
                 currentStreak: quiz.currentStreak,
                 livesRemaining: quiz.lastAnswerResult!.livesRemaining,
+                previousLivesRemaining: _previousLivesRemaining,
                 onLanjut: () {
+                  _previousLivesRemaining = quiz.lastAnswerResult!.livesRemaining;
+                  final lives = quiz.lastAnswerResult!.livesRemaining;
+                  if (lives != null && lives <= 0 && !quiz.lastAnswerResult!.isCorrect) {
+                    _showGameOverDialog(context, t);
+                    return;
+                  }
                   ref.read(quizProvider.notifier).clearLastAnswerResult();
                   if (quiz.isLast) {
                     ref.read(quizProvider.notifier).submit(widget.quizId);
@@ -355,6 +371,71 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               BottomBar(quiz: quiz, quizId: widget.quizId, t: t),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showGameOverDialog(BuildContext context, BloomTheme t) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: t.bgSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Icon(Icons.favorite_rounded, color: t.error, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              'Nyawa Habis!',
+              style: GoogleFonts.nunito(
+                color: t.textPrimary,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Nyawa kamu habis. Beli nyawa di Store untuk melanjutkan kuis.',
+          style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
+        ),
+        actions: [
+          Semantics(
+            button: true,
+            label: 'Keluar dari kuis',
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ref.read(quizProvider.notifier).reset();
+                context.pop();
+              },
+              child: Text(
+                'Keluar',
+                style: GoogleFonts.nunito(
+                  color: t.mutedText,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          Semantics(
+            button: true,
+            label: 'Beli nyawa di Store',
+            child: Game3DButton(
+            label: 'Beli Nyawa',
+            color: t.error,
+            shadowColor: t.textPrimary,
+            textColor: Colors.white,
+            horizontalPadding: 16,
+            verticalPadding: 8,
+            onTap: () {
+              Navigator.pop(context);
+              ref.read(quizProvider.notifier).reset();
+              ref.read(navIndexProvider.notifier).state = 3;
+              context.go('/home');
+            },
+          ),
+          ),
+        ],
       ),
     );
   }
@@ -373,21 +454,28 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           ),
         ),
         content: Text(
-          'Progress kuis akan hilang.',
-          style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13),
+          'Progres kuis sudah tersimpan. Kamu dapat melanjutkan kuis ini kapan saja.',
+          style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Lanjut',
-              style: GoogleFonts.nunito(
-                color: t.accent,
-                fontWeight: FontWeight.w700,
+          Semantics(
+            button: true,
+            label: 'Lanjut mengerjakan kuis',
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Lanjut',
+                style: GoogleFonts.nunito(
+                  color: t.primary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
-          Game3DButton(
+          Semantics(
+            button: true,
+            label: 'Keluar dari kuis',
+            child: Game3DButton(
             label: 'Keluar',
             color: t.error,
             shadowColor: darken(t.error, 0.25),
@@ -395,10 +483,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             horizontalPadding: 16,
             verticalPadding: 8,
             onTap: () {
-              ref.read(quizProvider.notifier).reset();
               Navigator.pop(context);
               context.pop();
             },
+          ),
           ),
         ],
       ),
