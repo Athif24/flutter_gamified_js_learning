@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
 import '../../../../../shared/providers/gamification_providers.dart';
-import '../../../../../core/constants/app_strings.dart';
 import '../../providers/course_provider.dart';
 import '../../../data/models/course_model.dart';
 import 'quiz_review_dialog.dart';
@@ -18,6 +17,7 @@ class QuizResultScreen extends ConsumerStatefulWidget {
   final String? courseId;
   final String quizId;
   final VoidCallback onRetry;
+  final VoidCallback? onBackToMap;
 
   const QuizResultScreen({
     super.key,
@@ -26,14 +26,18 @@ class QuizResultScreen extends ConsumerStatefulWidget {
     required this.courseId,
     required this.quizId,
     required this.onRetry,
+    this.onBackToMap,
   });
 
   @override
   ConsumerState<QuizResultScreen> createState() => _QuizResultScreenState();
 }
 
-class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
+class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
+    with SingleTickerProviderStateMixin {
   int _displayPct = 0;
+  bool _hasInvalidated = false;
+  late final AnimationController _scoreAnimController;
 
   bool get _isSuperResult =>
       widget.result.passed &&
@@ -43,41 +47,41 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
   @override
   void initState() {
     super.initState();
+    _scoreAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _scoreAnimController.addListener(_onScoreTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _animateScoreRing();
-      invalidateGamificationProviders(
-        ref,
-        courseId: (widget.courseId?.isNotEmpty ?? false) ? widget.courseId! : null,
-        quizId: widget.quizId,
-      );
+      Future.delayed(const Duration(milliseconds: 350), () {
+        if (mounted) _scoreAnimController.forward();
+      });
+      if (!_hasInvalidated) {
+        _hasInvalidated = true;
+        invalidateGamificationProviders(
+          ref,
+          courseId: (widget.courseId?.isNotEmpty ?? false) ? widget.courseId! : null,
+          quizId: widget.quizId,
+        );
+      }
     });
   }
 
-  void _animateScoreRing() {
+  void _onScoreTick() {
     final targetPct = widget.result.percentage.round();
-    const durationMs = 800;
-    final startedAt = DateTime.now().millisecondsSinceEpoch + 350;
+    final eased = 1 - (1 - _scoreAnimController.value) *
+        (1 - _scoreAnimController.value) *
+        (1 - _scoreAnimController.value);
+    setState(() {
+      _displayPct = (targetPct * eased).round();
+    });
+  }
 
-    void tick() {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final elapsed = now - startedAt;
-      if (elapsed < 0) {
-        Future.delayed(const Duration(milliseconds: 16), tick);
-        return;
-      }
-      final progress = (elapsed / durationMs).clamp(0.0, 1.0);
-      final eased = 1 - (1 - progress) * (1 - progress) * (1 - progress);
-      if (mounted) {
-        setState(() {
-          _displayPct = (targetPct * eased).round();
-        });
-      }
-      if (progress < 1) {
-        Future.delayed(const Duration(milliseconds: 16), tick);
-      }
-    }
-
-    Future.delayed(const Duration(milliseconds: 350), tick);
+  @override
+  void dispose() {
+    _scoreAnimController.removeListener(_onScoreTick);
+    _scoreAnimController.dispose();
+    super.dispose();
   }
 
   @override
@@ -117,22 +121,14 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                             : widget.t.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: widget.result.passed
-                              ? (_isSuperResult
-                                  ? widget.t.warning.withValues(alpha: 0.4)
-                                  : widget.t.success.withValues(alpha: 0.3))
-                              : widget.t.error.withValues(alpha: 0.3),
+                          color: widget.t.textPrimary,
+                          width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.result.passed
-                                ? (_isSuperResult
-                                    ? widget.t.warning.withValues(alpha: 0.3)
-                                    : widget.t.success.withValues(alpha: 0.1))
-                                : widget.t.error.withValues(alpha: 0.1),
-                            offset: const Offset(4, 4),
-                            blurRadius: _isSuperResult ? 30 : 0,
-                            spreadRadius: _isSuperResult ? 5 : 0,
+                            color: widget.t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
                           ),
                         ],
                       ),
@@ -141,13 +137,16 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                           if (_isSuperResult) _buildLegendaryBadge(widget.t),
                           if (_isSuperResult) const SizedBox(height: 12),
 
-                          Text(
-                            widget.result.passed ? '🏆' : '😢',
-                            style: const TextStyle(fontSize: 64),
+                          Semantics(
+                            label: widget.result.passed ? 'Lulus' : 'Belum lulus',
+                            child: Text(
+                              widget.result.passed ? '🏆' : '😢',
+                              style: const TextStyle(fontSize: 64),
+                            ),
                           )
                               .animate()
                               .scale(
-                                begin: const Offset(0, 0),
+                                begin: const Offset(0.8, 0.8),
                                 end: const Offset(1, 1),
                                 duration: 700.ms,
                                 curve: Curves.elasticOut,
@@ -173,7 +172,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                                 ? 'Kamu berhasil melewati batas nilai!'
                                 : 'Nilai minimum: —. Coba lagi!',
                             style: GoogleFonts.nunito(
-                              color: widget.t.textSecondary,
+                              color: widget.t.mutedText,
                               fontSize: 13,
                             ),
                             textAlign: TextAlign.center,
@@ -201,6 +200,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                             isPassed: widget.result.passed,
                             isSuper: _isSuperResult,
                             t: widget.t,
+                            ringBgColor: widget.t.bgSurface2,
                           )
                               .animate()
                               .fadeIn(delay: 350.ms)
@@ -209,33 +209,38 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                           const SizedBox(height: 24),
 
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _StatBadge(
-                                t: widget.t,
-                                icon: Icons.check_circle_rounded,
-                                value: '${widget.result.questionResults.where((q) => q.isCorrect).length}/${widget.result.questionResults.length}',
-                                label: 'Benar',
-                                color: widget.t.success,
-                                delay: 700,
+                              Expanded(
+                                child: _StatBadge(
+                                  t: widget.t,
+                                  icon: Icons.check_circle_rounded,
+                                  value: '${widget.result.questionResults.where((q) => q.isCorrect).length}/${widget.result.questionResults.length}',
+                                  label: 'Benar',
+                                  color: widget.t.success,
+                                  delay: 700,
+                                ),
                               ),
                               if (widget.result.xpEarned > 0)
-                                _StatBadge(
-                                  t: widget.t,
-                                  icon: Icons.bolt_rounded,
-                                  value: '+${widget.result.xpEarned}',
-                                  label: 'XP',
-                                  color: widget.t.warning,
-                                  delay: 780,
+                                Expanded(
+                                  child: _StatBadge(
+                                    t: widget.t,
+                                    icon: Icons.bolt_rounded,
+                                    value: '+${widget.result.xpEarned}',
+                                    label: 'XP',
+                                    color: widget.t.warning,
+                                    delay: 780,
+                                  ),
                                 ),
                               if (widget.result.jewelsEarned > 0)
-                                _StatBadge(
-                                  t: widget.t,
-                                  icon: Icons.diamond_rounded,
-                                  value: '+${widget.result.jewelsEarned}',
-                                  label: 'Jewel',
-                                  color: widget.t.info,
-                                  delay: 860,
+                                Expanded(
+                                  child: _StatBadge(
+                                    t: widget.t,
+                                    icon: Icons.diamond_rounded,
+                                    value: '+${widget.result.jewelsEarned}',
+                                    label: 'Jewel',
+                                    color: widget.t.info,
+                                    delay: 860,
+                                  ),
                                 ),
                             ],
                           ),
@@ -246,34 +251,37 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                     const SizedBox(height: 24),
 
                     if (widget.result.questionResults.isNotEmpty)
-                      SizedBox(
-                        width: double.infinity,
-                        child: Game3DButton(
-                          color: widget.t.bgSurface2,
-                          shadowColor: widget.t.accent,
-                          textColor: widget.t.accent,
-                          horizontalPadding: 20,
-                          verticalPadding: 13,
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => ReviewDialog(
-                                questionResults: widget.result.questionResults,
-                                questions: ref.read(quizProvider).quiz?.questions ?? [],
-                                t: widget.t,
-                              ),
-                            );
-                          },
+                      Semantics(
+                        button: true,
+                        label: 'Lihat Jawaban',
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Game3DButton(
+                            color: widget.t.bgSurface2,
+                            shadowColor: widget.t.textPrimary,
+                            textColor: widget.t.primary,
+                            horizontalPadding: 20,
+                            verticalPadding: 13,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => ReviewDialog(
+                                  questionResults: widget.result.questionResults,
+                                  questions: ref.read(quizProvider).quiz?.questions ?? [],
+                                  t: widget.t,
+                                ),
+                              );
+                            },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.assignment_turned_in_rounded,
-                                  color: widget.t.accent, size: 18),
+                                  color: widget.t.primary, size: 18),
                               const SizedBox(width: 8),
                               Text(
                                 'Lihat Jawaban',
                                 style: GoogleFonts.nunito(
-                                  color: widget.t.accent,
+                                  color: widget.t.primary,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14,
                                 ),
@@ -282,70 +290,50 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
                           ),
                         ).animate().fadeIn(delay: 1100.ms),
                       ),
+                    ),
 
                     if (widget.result.questionResults.isNotEmpty)
                       const SizedBox(height: 12),
 
-                    SizedBox(
-                      width: double.infinity,
-                      child: Game3DButton(
-                        color: widget.t.accent,
-                        shadowColor: darken(widget.t.accent, 0.2),
-                        textColor: widget.t.accentText,
-                        horizontalPadding: 20,
-                        verticalPadding: 15,
-                        onTap: () {
-                          ref.read(quizProvider.notifier).reset();
-                          context.pop();
-                          context.pop();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.map_outlined, color: widget.t.accentText, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Kembali ke Peta Belajar',
-                              style: GoogleFonts.nunito(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 15,
-                                color: widget.t.accentText,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().fadeIn(delay: 1200.ms),
-                    ),
-
-                    if (!widget.result.passed) ...[
-                      const SizedBox(height: 12),
-                      SizedBox(
+                    Semantics(
+                      button: true,
+                      label: 'Kembali ke Peta Belajar',
+                      child: SizedBox(
                         width: double.infinity,
                         child: Game3DButton(
-                          color: widget.t.bgSurface2,
-                          shadowColor: widget.t.accent,
-                          textColor: widget.t.accent,
+                          color: widget.t.primary,
+                          shadowColor: widget.t.textPrimary,
+                          textColor: widget.t.primaryContent,
                           horizontalPadding: 20,
                           verticalPadding: 15,
-                          onTap: () => widget.onRetry(),
+                          onTap: () {
+                            ref.read(quizProvider.notifier).reset();
+                            if (widget.onBackToMap != null) {
+                              widget.onBackToMap!();
+                            } else {
+                              while (context.canPop()) {
+                                context.pop();
+                              }
+                            }
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.replay_rounded, color: widget.t.accent, size: 18),
+                              Icon(Icons.map_outlined, color: widget.t.primaryContent, size: 18),
                               const SizedBox(width: 8),
                               Text(
-                                AppStrings.retry,
+                                'Kembali ke Peta Belajar',
                                 style: GoogleFonts.nunito(
-                                  color: widget.t.accent,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 15,
+                                  color: widget.t.primaryContent,
                                 ),
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(delay: 1300.ms),
+                        ).animate().fadeIn(delay: 1200.ms),
                       ),
-                    ],
+                    ),
 
                     const SizedBox(height: 32),
                   ],
@@ -362,7 +350,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
 
   List<Widget> _buildMiniConfetti(BloomTheme t) {
     final size = MediaQuery.of(context).size;
-    final colors = [t.warning, t.info, t.success, t.accent];
+    final colors = [t.warning, t.info, t.success, t.primary];
     
     return List.generate(6, (i) {
       final random = Random(i * 7);
@@ -394,7 +382,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen> {
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: t.warning.withValues(alpha: 0.4)),
+        border: Border.all(color: t.textPrimary, width: 2),
       ),
       child: Text(
         'LEGENDARY SCORE',
@@ -417,12 +405,14 @@ class _ScoreRing extends StatelessWidget {
   final bool isPassed;
   final bool isSuper;
   final BloomTheme t;
+  final Color ringBgColor;
 
   const _ScoreRing({
     required this.pct,
     required this.isPassed,
     required this.isSuper,
     required this.t,
+    required this.ringBgColor,
   });
 
   @override
@@ -435,6 +425,7 @@ class _ScoreRing extends StatelessWidget {
           pct: pct / 100.0,
           color: isPassed ? t.success : t.error,
           strokeWidth: 10,
+          ringBgColor: ringBgColor,
         ),
         child: Center(
           child: Column(
@@ -451,7 +442,7 @@ class _ScoreRing extends StatelessWidget {
               Text(
                 'SKOR',
                 style: GoogleFonts.nunito(
-                  color: t.textSecondary,
+                  color: t.mutedText,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -468,11 +459,13 @@ class _RingPainter extends CustomPainter {
   final double pct;
   final Color color;
   final double strokeWidth;
+  final Color ringBgColor;
 
   _RingPainter({
     required this.pct,
     required this.color,
     required this.strokeWidth,
+    required this.ringBgColor,
   });
 
   @override
@@ -481,7 +474,7 @@ class _RingPainter extends CustomPainter {
     final radius = (size.width - strokeWidth) / 2;
 
     final bgPaint = Paint()
-      ..color = const Color(0xFFE5E5E5)
+      ..color = ringBgColor
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
 
@@ -504,7 +497,9 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter oldDelegate) {
-    return oldDelegate.pct != pct || oldDelegate.color != color;
+    return oldDelegate.pct != pct ||
+        oldDelegate.color != color ||
+        oldDelegate.ringBgColor != ringBgColor;
   }
 }
 
@@ -547,7 +542,7 @@ class _StatBadge extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: GoogleFonts.nunito(
-            color: t.textSecondary,
+            color: t.mutedText,
             fontSize: 10,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.5,
