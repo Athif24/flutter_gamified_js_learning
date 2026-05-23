@@ -19,7 +19,6 @@ import 'quiz/question_card.dart';
 import 'quiz/choice_question.dart';
 import 'quiz/essay_question.dart';
 import 'quiz/arrange_question.dart';
-import 'quiz/coding_question.dart';
 import 'quiz/quiz_timer.dart';
 import 'quiz/quiz_feedback_popup.dart';
 import 'quiz/bottom_bar.dart';
@@ -321,15 +320,6 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         onAnswer: (answer) => ref
                             .read(quizProvider.notifier)
                             .answer(current.id, answer),
-                      )
-                    else if (current.type == 'coding')
-                      CodingQuestion(
-                        t: t,
-                        codeSnippet: current.codeSnippet,
-                        codeTemplate: current.codeTemplate,
-                        onChanged: (v) => ref
-                            .read(quizProvider.notifier)
-                            .answer(current.id, v),
                       )
                     else
                       EssayQuestion(
