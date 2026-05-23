@@ -8,6 +8,7 @@ import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -38,8 +39,10 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
       fetch: () async {
         ref.invalidate(coursesProvider);
         ref.invalidate(enrolledCoursesProvider);
-        await ref.read(coursesProvider.future);
-        await ref.read(enrolledCoursesProvider.future);
+        await Future.wait([
+          ref.read(coursesProvider.future),
+          ref.read(enrolledCoursesProvider.future),
+        ]);
       },
       fetchState: fetchState,
     );
@@ -59,6 +62,22 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
     final coursesAsync = ref.watch(coursesProvider);
     final enrolledAsync = ref.watch(enrolledCoursesProvider);
 
+    ref.listen(enrolledCoursesProvider, (prev, next) {
+      next.whenOrNull(
+        error: (e, _) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(sanitizeErrorMessage(e)),
+                backgroundColor: t.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      );
+    });
+
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: SafeArea(
@@ -70,11 +89,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
             ),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () async {
-                  ref.invalidate(coursesProvider);
-                  ref.invalidate(enrolledCoursesProvider);
-                  await _silentRefresh();
-                },
+                onRefresh: _silentRefresh,
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
@@ -95,8 +110,15 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
                           child: LoadingCircle(t: t),
                         ),
                       error: (e, _) => SliverFillRemaining(
-                        child: _ErrorView(t: t, message: sanitizeErrorMessage(e),
-                            onRetry: () => ref.refresh(coursesProvider)),
+                        child: ErrorBody(
+                          t: t,
+                          title: AppStrings.errLoadCourses,
+                          message: sanitizeErrorMessage(e),
+                          onRetry: () {
+                            setShowSlowIndicator(true);
+                            ref.invalidate(coursesProvider);
+                          },
+                        ),
                       ),
                       data: (courses) {
                         return enrolledAsync.when(
@@ -164,13 +186,13 @@ class _HeaderBanner extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Container(
         decoration: BoxDecoration(
-          color: t.accent,
+          color: t.primary,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: t.border, width: 2),
+          border: Border.all(color: t.textPrimary, width: 2),
           boxShadow: [
             BoxShadow(
-              color: t.border,
-              offset: const Offset(4, 4),
+              color: t.textPrimary,
+              offset: const Offset(3, 3),
               blurRadius: 0,
             ),
           ],
@@ -182,12 +204,12 @@ class _HeaderBanner extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.menu_book, size: 24, color: t.accentText),
+                  Icon(Icons.menu_book, size: 24, color: t.primaryContent),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text('Pilih Kursusmu',
                         style: GoogleFonts.nunito(
-                            color: t.accentText,
+                            color: t.primaryContent,
                             fontSize: 22,
                             fontWeight: FontWeight.w900)),
                   ),
@@ -196,24 +218,25 @@ class _HeaderBanner extends StatelessWidget {
               const SizedBox(height: 6),
               Text('Mulai perjalanan belajarmu dan kuasai skill baru!',
                   style: GoogleFonts.nunito(
-                      color: t.accentText.withValues(alpha: 0.8),
+                      color: t.primaryContent.withValues(alpha: 0.8),
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: 14),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                 decoration: BoxDecoration(
-                  color: t.accentText.withValues(alpha: 0.2),
+                  color: t.primaryContent.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: t.textPrimary, width: 2),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.auto_awesome, size: 16, color: t.accentText.withValues(alpha: 0.9)),
+                    Icon(Icons.auto_awesome, size: 16, color: t.primaryContent.withValues(alpha: 0.9)),
                     const SizedBox(width: 6),
                     Text('$courseCount Kursus Tersedia',
                         style: GoogleFonts.nunito(
-                            color: t.accentText.withValues(alpha: 0.9),
+                            color: t.primaryContent.withValues(alpha: 0.9),
                             fontSize: 12,
                             fontWeight: FontWeight.w700)),
                   ],
@@ -239,21 +262,26 @@ class _EmptyState extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 80),
         decoration: BoxDecoration(
+          color: t.bgSurface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: t.border.withValues(alpha: 0.2),
-            width: 2,
-          ),
+          border: Border.all(color: t.textPrimary, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: t.textPrimary,
+              offset: const Offset(3, 3),
+              blurRadius: 0,
+            ),
+          ],
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.menu_book, size: 64, color: t.textHint.withValues(alpha: 0.5)),
+          Icon(Icons.menu_book, size: 64, color: t.mutedText.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text('Belum ada kursus nih',
               style: GoogleFonts.nunito(color: t.textPrimary.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w700, fontSize: 16)),
           const SizedBox(height: 4),
           Text('Sabar ya, admin lagi nyiapin kursus kece buat kamu!',
-              style: GoogleFonts.nunito(color: t.textHint, fontSize: 13),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
               textAlign: TextAlign.center),
         ]),
       ),
@@ -284,7 +312,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal enroll: $e')),
+          SnackBar(content: Text('Gagal enroll: ${sanitizeErrorMessage(e)}')),
         );
       }
     } finally {
@@ -308,12 +336,12 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
 
     // DaisyUI cycling header colors
     final palettes = <(Color, Color)>[
-      (t.accent, t.accentText),
-      (t.success, t.accentText),
+      (t.primary, t.primaryContent),
+      (t.success, t.primaryContent),
       (t.warning, Colors.white),
-      (t.info, t.accentText),
+      (t.info, t.primaryContent),
       (t.success, Colors.white),
-      (t.info, t.accentText),
+      (t.info, t.primaryContent),
     ];
     final (headerBg, headerFg) = palettes[index % palettes.length];
 
@@ -322,11 +350,11 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: t.border, width: 2),
+        border: Border.all(color: t.textPrimary, width: 2),
         boxShadow: [
           BoxShadow(
-            color: t.border,
-            offset: const Offset(4, 4),
+            color: t.textPrimary,
+            offset: const Offset(3, 3),
             blurRadius: 0,
           ),
         ],
@@ -363,18 +391,18 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: t.accent.withValues(alpha: 0.2),
+                        color: t.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(50),
-                        border: Border.all(color: t.accent.withValues(alpha: 0.4)),
+                        border: Border.all(color: t.textPrimary, width: 2),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.check, size: 12, color: t.accent),
+                          Icon(Icons.check, size: 12, color: t.primary),
                           const SizedBox(width: 4),
                           Text('Selesai',
                               style: GoogleFonts.nunito(
-                                  color: t.accent, fontSize: 10,
+                                  color: t.primary, fontSize: 10,
                                   fontWeight: FontWeight.w700)),
                         ],
                       ),
@@ -386,13 +414,13 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: t.accent.withValues(alpha: 0.2),
+                        color: t.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(50),
-                        border: Border.all(color: t.accent.withValues(alpha: 0.4)),
+                        border: Border.all(color: t.textPrimary, width: 2),
                       ),
                       child: Text('Enrolled',
                           style: GoogleFonts.nunito(
-                              color: t.accent, fontSize: 10,
+                              color: t.primary, fontSize: 10,
                               fontWeight: FontWeight.w700)),
                     ),
                   ),
@@ -421,13 +449,13 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                   const SizedBox(height: 4),
                   Text(course.description!,
                       style: GoogleFonts.nunito(
-                          color: t.textSecondary, fontSize: 12),
+                          color: t.mutedText, fontSize: 12),
                       maxLines: 2, overflow: TextOverflow.ellipsis),
                 ],
                 const SizedBox(height: 4),
                 Text('${course.totalLessons} lesson',
                     style: GoogleFonts.nunito(
-                        color: t.textSecondary, fontSize: 12,
+                        color: t.mutedText, fontSize: 12,
                         fontWeight: FontWeight.w600)),
                 if (isEnrolled) ...[
                   const SizedBox(height: 10),
@@ -436,7 +464,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                     children: [
                       Text('Progress',
                           style: GoogleFonts.nunito(
-                              color: t.textSecondary, fontSize: 11)),
+                              color: t.mutedText, fontSize: 11)),
                       Text('$progressPct%',
                           style: GoogleFonts.nunito(
                               color: t.textPrimary, fontSize: 11,
@@ -449,7 +477,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                     child: LinearProgressIndicator(
                       value: progress.clamp(0.0, 1.0),
                       backgroundColor: t.bgSurface2,
-                      valueColor: AlwaysStoppedAnimation(t.accent),
+                      valueColor: AlwaysStoppedAnimation(t.primary),
                       minHeight: 10,
                     ),
                   ),
@@ -468,10 +496,10 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                         decoration: BoxDecoration(
                           color: t.bgSurface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: t.border, width: 2),
+                          border: Border.all(color: t.textPrimary, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: t.border,
+                              color: t.textPrimary,
                               offset: const Offset(3, 3),
                               blurRadius: 0,
                             ),
@@ -509,12 +537,12 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                         constraints: const BoxConstraints(minHeight: 48),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: t.accent,
+                          color: t.primary,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: t.border, width: 2),
+                          border: Border.all(color: t.textPrimary, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: t.border,
+                              color: t.textPrimary,
                               offset: const Offset(3, 3),
                               blurRadius: 0,
                             ),
@@ -526,7 +554,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                                   width: 18, height: 18,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: t.accentText,
+                                    color: t.primaryContent,
                                   ),
                                 )
                               : Row(
@@ -534,10 +562,10 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                                   children: [
                                     Text('Mulai',
                                         style: GoogleFonts.nunito(
-                                            color: t.accentText, fontSize: 13,
+                                            color: t.primaryContent, fontSize: 13,
                                             fontWeight: FontWeight.w800)),
                                     const SizedBox(width: 4),
-                                    Icon(Icons.arrow_forward, size: 16, color: t.accentText),
+                                    Icon(Icons.arrow_forward, size: 16, color: t.primaryContent),
                                   ],
                                 ),
                         ),
@@ -555,35 +583,4 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  final BloomTheme t;
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorView({required this.t, required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) => Center(child: Padding(
-    padding: const EdgeInsets.all(32),
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Text('😢', style: TextStyle(fontSize: 48)),
-      const SizedBox(height: 12),
-      Text(AppStrings.errLoadCourses,
-          style: GoogleFonts.nunito(color: t.textPrimary,
-              fontWeight: FontWeight.w700, fontSize: 16)),
-      const SizedBox(height: 8),
-      Text(message, style: GoogleFonts.nunito(
-          color: t.textSecondary, fontSize: 12),
-          textAlign: TextAlign.center, maxLines: 3),
-      const SizedBox(height: 22),
-      Bounceable(
-        onTap: onRetry,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-          decoration: BoxDecoration(
-              color: t.accent, borderRadius: BorderRadius.circular(50)),
-          child: Text(AppStrings.retry, style: GoogleFonts.nunito(
-              fontWeight: FontWeight.w800, color: t.accentText)),
-        ),
-      ),
-    ]),
-  ));
-}
+
