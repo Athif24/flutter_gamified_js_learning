@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../achievement/data/models/achievement_model.dart';
 import '../models/profile_model.dart';
 
 class ProfileRemoteDatasource {
@@ -14,6 +15,15 @@ class ProfileRemoteDatasource {
       return ProfileModel.fromJson(extractMap(res.data));
     } on DioException catch (e) {
       throw Exception(e.response?.data?['message'] ?? 'Gagal memuat profil');
+    }
+  }
+
+  Future<LivesModel> getEffectiveLives() async {
+    try {
+      final res = await _api.get(Api.usersLives);
+      return LivesModel.fromJson(res.data);
+    } on DioException {
+      rethrow;
     }
   }
 
