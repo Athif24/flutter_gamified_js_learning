@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 
@@ -27,13 +28,14 @@ class _CropScreenState extends State<CropScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = widget.t;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: t.bgPrimary,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: Icon(Icons.close, color: t.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -45,7 +47,7 @@ class _CropScreenState extends State<CropScreen> {
                 image: _imageData,
                 controller: _controller,
                 withCircleUi: true,
-                baseColor: Colors.black,
+                baseColor: t.bgPrimary,
                 onCropped: (cropped) async {
                   final dir = Directory.systemTemp;
                   final file = File(
@@ -61,35 +63,53 @@ class _CropScreenState extends State<CropScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Ulangi',
-                        style: GoogleFonts.nunito(
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
+                    child: Bounceable(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: t.bgSurface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: t.textPrimary, width: 2),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Ulangi',
+                          style: GoogleFonts.nunito(
+                            color: t.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _controller.crop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
+                    child: Bounceable(
+                      onTap: () => _controller.crop(),
+                      child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: Text(
-                        'Simpan',
-                        style: GoogleFonts.nunito(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
+                        decoration: BoxDecoration(
+                          color: t.primary,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: t.textPrimary, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.textPrimary,
+                              offset: const Offset(3, 3),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Simpan',
+                          style: GoogleFonts.nunito(
+                            color: t.primaryContent,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
