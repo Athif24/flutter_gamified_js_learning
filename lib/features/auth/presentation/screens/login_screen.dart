@@ -51,11 +51,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Stack(children: [
         // Decorative blobs
         Positioned(top: -60, right: -60,
-            child: _Blob(200, t.accent.withValues(alpha: 0.15))),
+            child: _Blob(200, t.primary.withValues(alpha: 0.15))),
         Positioned(top: 100, left: -40,
             child: _Blob(120, t.info.withValues(alpha: 0.1))),
         Positioned(bottom: 100, right: -40,
-            child: _Blob(150, t.accent.withValues(alpha: 0.1))),
+            child: _Blob(150, t.primary.withValues(alpha: 0.1))),
 
         SafeArea(child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -67,9 +67,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Container(
                 width: 72, height: 72,
                 decoration: BoxDecoration(
-                  color: t.accent, shape: BoxShape.circle,
+                  color: t.primary, shape: BoxShape.circle,
                   boxShadow: [BoxShadow(
-                    color: t.accent.withValues(alpha: 0.4),
+                    color: t.primary.withValues(alpha: 0.4),
                     blurRadius: 20, offset: const Offset(0, 8),
                   )],
                 ),
@@ -81,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   fontSize: 28, fontWeight: FontWeight.w900,
                   color: t.textPrimary)),
               Text('JavaScript Learning', style: GoogleFonts.nunito(
-                  fontSize: 13, color: t.textSecondary,
+                  fontSize: 13, color: t.mutedText,
                   fontWeight: FontWeight.w500)),
             ]).animate().fadeIn(duration: 500.ms).scale(begin: const Offset(.8,.8)),
 
@@ -95,7 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(height: 6),
             Text('Masuk dan lanjutkan belajar JavaScript-mu',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.nunito(fontSize: 13, color: t.textSecondary))
+                style: GoogleFonts.nunito(fontSize: 13, color: t.mutedText))
                 .animate().fadeIn(delay: 200.ms),
 
             const SizedBox(height: 28),
@@ -125,7 +125,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: GoogleFonts.nunito(color: t.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'nama@email.com',
-                        prefixIcon: Icon(Icons.email_outlined, color: t.accent, size: 20),
+                        prefixIcon: Icon(Icons.email_outlined, color: t.primary, size: 20),
                       ),
                       validator: (v) => (v == null || !v.contains('@'))
                           ? 'Email tidak valid' : null,
@@ -140,11 +140,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: GoogleFonts.nunito(color: t.textPrimary),
                       decoration: InputDecoration(
                         hintText: '••••••••',
-                        prefixIcon: Icon(Icons.lock_outline, color: t.accent, size: 20),
+                        prefixIcon: Icon(Icons.lock_outline, color: t.primary, size: 20),
                         suffixIcon: IconButton(
                           icon: Icon(_obscure ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
-                              color: t.textHint, size: 20),
+                              color: t.mutedText, size: 20),
                           onPressed: () => setState(() => _obscure = !_obscure),
                         ),
                       ),
@@ -177,20 +177,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         decoration: BoxDecoration(
-                          color: t.accent,
+                          color: t.primary,
                           borderRadius: BorderRadius.circular(50),
                           boxShadow: [BoxShadow(
-                            color: t.accent.withValues(alpha: 0.4),
+                            color: t.primary.withValues(alpha: 0.4),
                             blurRadius: 14, offset: const Offset(0, 6),
                           )],
                         ),
                         child: Center(child: auth.isLoading
                             ? SizedBox(width: 20, height: 20,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2.5, color: t.accentText))
+                                    strokeWidth: 2.5, color: t.primaryContent))
                             : Text('Masuk', style: GoogleFonts.nunito(
                                 fontWeight: FontWeight.w800, fontSize: 15,
-                                color: t.accentText))),
+                                color: t.primaryContent))),
                       ),
                     ).animate().fadeIn(delay: 400.ms),
                   ],
@@ -201,14 +201,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(height: 22),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text('Belum punya akun? ', style: GoogleFonts.nunito(
-                  color: t.textSecondary, fontSize: 13)),
+                  color: t.mutedText, fontSize: 13)),
               Bounceable(
                 onTap: () => context.go('/register'),
                 child: Text('Daftar Sekarang', style: GoogleFonts.nunito(
-                  color: t.accent, fontSize: 13,
+                  color: t.primary, fontSize: 13,
                   fontWeight: FontWeight.w800,
                   decoration: TextDecoration.underline,
-                  decorationColor: t.accent,
+                  decorationColor: t.primary,
                 )),
               ),
             ]).animate().fadeIn(delay: 500.ms),

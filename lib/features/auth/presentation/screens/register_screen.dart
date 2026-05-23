@@ -49,8 +49,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       backgroundColor: t.bgPrimary,
       body: Stack(children: [
         Positioned(top: -40, left: -40, child: _Blob(120, t.info.withValues(alpha: 0.12))),
-        Positioned(top: 80, right: -20,  child: _Blob(80,  t.accent.withValues(alpha: 0.15))),
-        Positioned(bottom: 60, right: -30, child: _Blob(100, t.accent.withValues(alpha: 0.1))),
+        Positioned(top: 80, right: -20,  child: _Blob(80,  t.primary.withValues(alpha: 0.15))),
+        Positioned(bottom: 60, right: -30, child: _Blob(100, t.primary.withValues(alpha: 0.1))),
 
         SafeArea(child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -77,7 +77,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               padding: const EdgeInsets.only(left: 54),
               child: Text('Mulai perjalanan belajar JavaScript-mu 🚀',
                   style: GoogleFonts.nunito(
-                      fontSize: 12, color: t.textSecondary,
+                      fontSize: 12, color: t.mutedText,
                       fontWeight: FontWeight.w500)),
             ).animate().fadeIn(delay: 100.ms),
 
@@ -143,25 +143,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         decoration: BoxDecoration(
-                          color: t.accent,
+                          color: t.primary,
                           borderRadius: BorderRadius.circular(50),
                           boxShadow: [BoxShadow(
-                            color: t.accent.withValues(alpha: 0.4),
+                            color: t.primary.withValues(alpha: 0.4),
                             blurRadius: 14, offset: const Offset(0, 6),
                           )],
                         ),
                         child: Center(child: auth.isLoading
                             ? SizedBox(width: 20, height: 20,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2.5, color: t.accentText))
+                                    strokeWidth: 2.5, color: t.primaryContent))
                             : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                                 Text('Daftar & Mulai Belajar',
                                     style: GoogleFonts.nunito(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 14, color: t.accentText)),
+                                        fontSize: 14, color: t.primaryContent)),
                                 const SizedBox(width: 8),
                                 Icon(Icons.rocket_launch_rounded,
-                                    color: t.accentText, size: 16),
+                                    color: t.primaryContent, size: 16),
                               ])),
                       ),
                     ),
@@ -173,13 +173,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             const SizedBox(height: 20),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text('Sudah punya akun? ',
-                  style: GoogleFonts.nunito(color: t.textSecondary, fontSize: 13)),
+                  style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13)),
               Bounceable(
                 onTap: () => context.go('/login'),
                 child: Text('Masuk', style: GoogleFonts.nunito(
-                  color: t.accent, fontSize: 13, fontWeight: FontWeight.w800,
+                  color: t.primary, fontSize: 13, fontWeight: FontWeight.w800,
                   decoration: TextDecoration.underline,
-                  decorationColor: t.accent,
+                  decorationColor: t.primary,
                 )),
               ),
             ]).animate().fadeIn(delay: 460.ms),
@@ -215,7 +215,7 @@ class _Field extends StatelessWidget {
         style: GoogleFonts.nunito(color: t.textPrimary),
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: Icon(icon, color: t.accent, size: 20),
+          prefixIcon: Icon(icon, color: t.primary, size: 20),
         ),
         validator: validator,
       ),
@@ -244,11 +244,11 @@ class _PasswordField extends StatelessWidget {
         style: GoogleFonts.nunito(color: t.textPrimary),
         decoration: InputDecoration(
           hintText: '••••••••',
-          prefixIcon: Icon(Icons.lock_outline, color: t.accent, size: 20),
+          prefixIcon: Icon(Icons.lock_outline, color: t.primary, size: 20),
           suffixIcon: IconButton(
             icon: Icon(obscure ? Icons.visibility_off_outlined
                 : Icons.visibility_outlined,
-                color: t.textHint, size: 20),
+                color: t.mutedText, size: 20),
             onPressed: toggle,
           ),
         ),
