@@ -168,6 +168,7 @@ class QuizResultModel {
   final bool passed;
   final int xpEarned;
   final int jewelsEarned;
+  final int passingScore;
   final bool alreadyClaimed;
   final StreakInfo? streak;
   final LevelUpInfo? levelUp;
@@ -181,6 +182,7 @@ class QuizResultModel {
     required this.passed,
     required this.xpEarned,
     this.jewelsEarned = 0,
+    this.passingScore = 100,
     this.alreadyClaimed = false,
     this.streak,
     this.levelUp,
@@ -197,6 +199,7 @@ class QuizResultModel {
       passed         : d['passed'] ?? d['is_passed'] ?? d['isPassed'] ?? false,
       xpEarned       : (d['xp_earned'] ?? d['xpEarned'] ?? d['xp'] ?? d['earned_xp'] ?? 0) as int,
       jewelsEarned   : (d['jewels_earned'] ?? d['jewelsEarned'] ?? d['earned_jewels'] ?? 0) as int,
+      passingScore   : (d['passing_score'] ?? d['passingScore'] ?? 100) as int,
       alreadyClaimed : d['already_claimed'] ?? d['alreadyClaimed'] ?? false,
       streak         : d['streak'] != null ? StreakInfo.fromJson(d['streak']) : null,
       levelUp        : d['level_up'] != null ? LevelUpInfo.fromJson(d['level_up']) : null,
