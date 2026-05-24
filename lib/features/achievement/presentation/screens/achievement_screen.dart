@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -86,7 +87,14 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
             SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
               child: hasError
-                  ? _buildError(t)
+                  ? ErrorBody(
+                      t: t,
+                      title: AppStrings.errLoadAchievementDetail,
+                      onRetry: () {
+                        setShowSlowIndicator(true);
+                        _silentRefresh();
+                      },
+                    )
                   : RefreshIndicator(
                       onRefresh: () async {
                         await _silentRefresh();
@@ -278,81 +286,6 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildError(BloomTheme t) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: t.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: t.error.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.error_outline_rounded, color: t.error, size: 24),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppStrings.errLoadAchievementDetail,
-                    style: GoogleFonts.nunito(
-                      color: t.textPrimary,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Semantics(
-                  label: 'Coba lagi',
-                  child: Bounceable(
-                    onTap: () {
-                      setShowSlowIndicator(true);
-                      _silentRefresh();
-                    },
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.textPrimary,
-                            offset: const Offset(3, 3),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        AppStrings.retry,
-                        style: GoogleFonts.nunito(
-                          color: t.primary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

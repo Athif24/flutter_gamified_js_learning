@@ -2,14 +2,15 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/leaderboard_provider.dart';
@@ -99,7 +100,16 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
             Expanded(
               child: boardAsync.when(
                 loading: () => LeaderboardSkeleton(t: t),
-                error: (e, _) => _buildError(t, e),
+                error: (e, _) => ErrorBody(
+                  t: t,
+                  icon: iconForError(e),
+                  title: AppStrings.errLoadLeaderboardDetail,
+                  message: sanitizeErrorMessage(e),
+                  onRetry: () {
+                    setShowSlowIndicator(true);
+                    _silentRefresh();
+                  },
+                ),
                 data: (res) => _buildContent(t, res),
               ),
             ),
@@ -189,83 +199,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
               topXp: topXp,
               myRank: currentUserRank,
             ).animate().fadeIn(delay: 350.ms),
-        ],
-      ),
-    );
-  }
-
-  // ── Error ────────────────────────────────────────────────────────────
-
-  Widget _buildError(BloomTheme t, Object e) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: t.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: t.error.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.error_outline_rounded, color: t.error, size: 24),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppStrings.errLoadLeaderboardDetail,
-                    style: GoogleFonts.nunito(
-                      color: t.textPrimary,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Semantics(
-                  label: 'Coba lagi',
-                  child: Bounceable(
-                    onTap: () {
-                      setShowSlowIndicator(true);
-                      _silentRefresh();
-                    },
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.textPrimary,
-                            offset: const Offset(3, 3),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        AppStrings.retry,
-                        style: GoogleFonts.nunito(
-                          color: t.primary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

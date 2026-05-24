@@ -7,6 +7,7 @@ import '../../../../shared/themes/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
+import '../../../../shared/widgets/error_body.dart';
 import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/error_helper.dart';
@@ -555,11 +556,11 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
 
     return itemsAsync.when(
       loading: () => StoreSkeleton(t: t, tabId: 0),
-      error: (e, _) => _EmptyState(
+      error: (e, _) => ErrorBody(
         t: t,
-        emoji: '🔧',
+        icon: iconForError(e),
         title: AppStrings.errLoadStoreItems,
-        subtitle: sanitizeErrorMessage(e),
+        message: sanitizeErrorMessage(e),
       ),
       data: (items) {
         final pools = poolsAsync.maybeWhen(
@@ -1377,11 +1378,9 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
       children: [
         invAsync.when(
           loading: () => StoreSkeleton(t: t, tabId: 1),
-          error: (_, __) => _EmptyState(
+          error: (_, __) => ErrorBody(
             t: t,
-            emoji: '📦',
             title: AppStrings.errLoadInventory,
-            subtitle: '',
           ),
           data: (items) {
             final sorted = List<InventoryItem>.from(items)
@@ -2154,11 +2153,9 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
           Expanded(
             child: histAsync.when(
               loading: () => StoreSkeleton(t: t, tabId: 2),
-              error: (_, __) => _EmptyState(
+              error: (_, __) => ErrorBody(
                 t: t,
-                emoji: '📜',
                 title: 'Belum ada riwayat',
-                subtitle: '',
               ),
               data: (list) {
                 if (list.isEmpty) {

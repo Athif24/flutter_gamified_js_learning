@@ -112,6 +112,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
                       error: (e, _) => SliverFillRemaining(
                         child: ErrorBody(
                           t: t,
+                          icon: iconForError(e),
                           title: AppStrings.errLoadCourses,
                           message: sanitizeErrorMessage(e),
                           onRetry: () {
