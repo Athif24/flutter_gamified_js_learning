@@ -73,7 +73,8 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           SlowLoadingIndicator(
             visible: showSlowIndicator,
@@ -92,6 +93,7 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
                       loading: () => LoadingCircle(t: t),
                       error: (e, _) => ErrorBody(
                         t: t,
+                        icon: iconForError(e),
                         title: AppStrings.errLoadQuiz,
                         message: sanitizeErrorMessage(e),
                         onRetry: () {
@@ -118,6 +120,7 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
             ),
           ),
         ],
+      ),
       ),
     );
   }

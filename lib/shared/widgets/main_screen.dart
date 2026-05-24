@@ -3,11 +3,18 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/theme_provider.dart';
+import 'offline_banner.dart';
+import '../../core/providers/connectivity_provider.dart';
+import '../../features/courses/presentation/providers/course_provider.dart';
 import '../../features/courses/presentation/screens/course_list_screen.dart';
 import '../../features/achievement/presentation/screens/achievement_screen.dart';
+import '../../features/leaderboard/presentation/providers/leaderboard_provider.dart';
 import '../../features/leaderboard/presentation/screens/leaderboard_screen.dart';
+import '../../features/store/presentation/providers/store_provider.dart';
 import '../../features/store/presentation/screens/store_screen.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/shared/presentation/providers/fetch_state_providers.dart';
 
 final navIndexProvider = StateProvider<int>((_) => 0);
 
@@ -16,6 +23,20 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(connectivityProvider, (prev, next) {
+      final wasOffline = prev?.valueOrNull == false;
+      final nowOnline  = next.valueOrNull == true;
+      if (wasOffline && nowOnline) {
+        ref.invalidate(coursesProvider);
+        ref.invalidate(achievementFetchProvider);
+        ref.invalidate(leaderboardProvider);
+        ref.invalidate(storeItemsProvider);
+        ref.invalidate(jewelBalanceProvider);
+        ref.invalidate(inventoryProvider);
+        ref.invalidate(profileProvider);
+      }
+    });
+
     final t     = ref.watch(currentThemeProvider);
     final index = ref.watch(navIndexProvider);
 
@@ -29,7 +50,14 @@ class MainScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: IndexedStack(index: index, children: screens),
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(
+            child: IndexedStack(index: index, children: screens),
+          ),
+        ],
+      ),
       bottomNavigationBar: _BottomNav(current: index, t: t),
     );
   }

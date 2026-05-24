@@ -62,12 +62,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           SlowLoadingIndicator(
             visible: showSlowIndicator,
             t: t,
           ),
+          // inner SafeArea for header — harmless nesting
           SafeArea(
             bottom: false,
             child: Padding(
@@ -141,6 +143,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
               loading: () => LoadingCircle(t: t),
               error: (e, _) => ErrorBody(
                   t: t,
+                  icon: iconForError(e),
                   title: AppStrings.errLoadLesson,
                   message: sanitizeErrorMessage(e),
                   onRetry: () {
@@ -256,6 +259,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
             ),
           ),
         ],
+      ),
       ),
     );
   }

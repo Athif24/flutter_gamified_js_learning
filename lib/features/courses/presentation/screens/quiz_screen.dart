@@ -91,7 +91,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     if (quiz.quiz == null && quiz.error == null) {
       return Scaffold(
         backgroundColor: t.bgPrimary,
-        body: Column(
+        body: SafeArea(
+          child: Column(
           children: [
             SlowLoadingIndicator(visible: true, t: t),
             Padding(
@@ -118,13 +119,15 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             ),
           ],
         ),
+        ),
       );
     }
 
     if (quiz.error != null) {
       return Scaffold(
         backgroundColor: t.bgPrimary,
-        body: Column(
+        body: SafeArea(
+          child: Column(
           children: [
             SlowLoadingIndicator(visible: false, t: t),
             Padding(
@@ -152,6 +155,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   padding: const EdgeInsets.all(32),
                   child: ErrorBody(
                     t: t,
+                    icon: iconForError(quiz.error!),
                     title: AppStrings.errLoadQuiz,
                     message: sanitizeErrorMessage(quiz.error!),
                     onRetry: () {
@@ -163,6 +167,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               ),
             ),
           ],
+        ),
         ),
       );
     }

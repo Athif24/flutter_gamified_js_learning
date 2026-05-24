@@ -112,7 +112,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           SlowLoadingIndicator(visible: showSlowIndicator, t: t),
           Expanded(
@@ -120,6 +121,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
               loading: () => LoadingCircle(t: t),
               error: (e, _) => ErrorBody(
                 t: t,
+                icon: iconForError(e),
                 title: AppStrings.errLoadCourseDetail,
                 message: sanitizeErrorMessage(e),
                 onRetry: () {
@@ -131,6 +133,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -527,10 +530,10 @@ class _HeaderCard extends StatelessWidget {
                       minHeight: 12,
                     ),
                   ),
-              ],
-            ),
-          ),
-        );
+          ],
+        ),
+      ),
+    );
   }
 }
 
