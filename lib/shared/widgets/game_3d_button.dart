@@ -42,7 +42,7 @@ class _Game3DButtonState extends State<Game3DButton> {
     final isDisabled = widget.onTap == null && !widget.isLoading;
     final faceColor = isDisabled ? const Color(0xFFE5E5E5) : widget.color;
     final shadow = isDisabled ? const Color(0xFFC0C0C0) : widget.shadowColor;
-    final txtColor = isDisabled ? const Color(0xFFB0B0B0) : widget.textColor;
+    final txtColor = isDisabled ? const Color(0xFF666666) : widget.textColor;
 
     return GestureDetector(
       onTapDown: widget.onTap != null ? (_) => setState(() => _pressed = true) : null,
@@ -83,13 +83,16 @@ class _Game3DButtonState extends State<Game3DButton> {
                 ),
               )
             : (widget.child ??
-                Text(
-                  widget.label!,
-                  style: GoogleFonts.nunito(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                    color: txtColor,
-                    letterSpacing: 0.5,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    widget.label!,
+                    style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                      color: txtColor,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 )),
       ),

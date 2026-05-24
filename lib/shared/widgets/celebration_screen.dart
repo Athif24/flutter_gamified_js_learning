@@ -332,17 +332,16 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
               ]
             : null,
       ),
-      child: Center(
-        child: Text(
-          _hasLevelUp ? '⭐' : '🏆',
-          style: const TextStyle(fontSize: 48),
-        ),
+      child: Icon(
+        _hasLevelUp ? Icons.auto_awesome_rounded : Icons.emoji_events_rounded,
+        size: 48,
+        color: _hasLevelUp ? t.warning : t.accent,
       ),
     )
         .animate()
         .scale(
           begin: const Offset(0.82, 0.82),
-          end: Offset.zero,
+          end: const Offset(1, 1),
           duration: 500.ms,
           curve: Curves.easeInOut,
         );
@@ -834,20 +833,25 @@ class _AnimatedRewardCardState extends State<_AnimatedRewardCard>
                 ),
               ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(widget.emoji, style: const TextStyle(fontSize: 24)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              widget.label,
-              style: GoogleFonts.nunito(
-                color: Colors.white.withAlpha(180),
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(widget.emoji, style: const TextStyle(fontSize: 24)),
+              const SizedBox(width: 8),
+              Text(
+                widget.label,
+                style: GoogleFonts.nunito(
+                  color: Colors.white.withAlpha(180),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
+            ],
           ),
+          const SizedBox(height: 8),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
