@@ -70,60 +70,73 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
           ),
           SafeArea(
             bottom: false,
-            child: lessonAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
-              data: (lesson) => Semantics(
-                label: '${lesson.title}, ${lesson.type}',
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                  child: Row(children: [
-                    Semantics(
-                      button: true,
-                      label: 'Kembali',
-                      child: Bounceable(
-                        onTap: () => context.pop(),
-                        child: Container(
-                          width: 38, height: 38,
-                          decoration: BoxDecoration(
-                              color: t.bgSurface2, shape: BoxShape.circle,
-                              border: Border.all(color: t.textPrimary, width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: t.textPrimary,
-                                  offset: const Offset(3, 3),
-                                  blurRadius: 0,
-                                ),
-                              ]),
-                          child: Icon(Icons.arrow_back_ios_rounded,
-                              color: t.textPrimary, size: 15),
-                        ),
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Row(children: [
+                Semantics(
+                  button: true,
+                  label: 'Kembali',
+                  child: Bounceable(
+                    onTap: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else if (widget.courseId != null) {
+                        context.go('/course/${widget.courseId}');
+                      } else {
+                        context.go('/home');
+                      }
+                    },
+                    child: Container(
+                      width: 38, height: 38,
+                      decoration: BoxDecoration(
+                          color: t.bgSurface2, shape: BoxShape.circle,
+                          border: Border.all(color: t.textPrimary, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.textPrimary,
+                              offset: const Offset(3, 3),
+                              blurRadius: 0,
+                            ),
+                          ]),
+                      child: Icon(Icons.arrow_back_ios_rounded,
+                          color: t.textPrimary, size: 15),
                     ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(lesson.title,
-                      style: GoogleFonts.nunito(
-                          color: t.textPrimary, fontSize: 15,
-                          fontWeight: FontWeight.w800),
-                      overflow: TextOverflow.ellipsis)),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: t.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(50),
-                      border: Border.all(color: t.textPrimary, width: 2),
-                    ),
-                    child: Text(lesson.type.toUpperCase(),
-                        style: GoogleFonts.nunito(
-                            color: t.primary, fontSize: 10,
-                            fontWeight: FontWeight.w800)),
                   ),
-                ]),
-              ),
+                ),
+                lessonAsync.whenOrNull(
+                  data: (lesson) => Expanded(
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 12),
+                        Semantics(
+                          label: '${lesson.title}, ${lesson.type}',
+                          child: Text(lesson.title,
+                              style: GoogleFonts.nunito(
+                                  color: t.textPrimary, fontSize: 15,
+                                  fontWeight: FontWeight.w800),
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: t.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(color: t.textPrimary, width: 2),
+                          ),
+                          child: Text(lesson.type.toUpperCase(),
+                              style: GoogleFonts.nunito(
+                                  color: t.primary, fontSize: 10,
+                                  fontWeight: FontWeight.w800)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ) ?? const Spacer(),
+              ]),
             ),
           ),
-        ),
-        Expanded(
+          Expanded(
           child: lessonAsync.when(
               loading: () => LoadingCircle(t: t),
               error: (e, _) => ErrorBody(
@@ -264,7 +277,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
           courseId: widget.courseId,
         );
         if (context.mounted) {
-          context.push('/quiz-intro/$effectiveQuizId?courseId=${widget.courseId ?? ''}');
+          context.push('/quiz-intro/$effectiveQuizId?courseId=${widget.courseId ?? ''}&lessonId=${widget.lessonId}');
         }
         return;
       }

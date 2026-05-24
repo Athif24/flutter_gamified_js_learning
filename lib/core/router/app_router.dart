@@ -83,6 +83,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, s) => QuizIntroScreen(
           quizId   : s.pathParameters['quizId']!,
           courseId : s.uri.queryParameters['courseId'],
+          lessonId : s.uri.queryParameters['lessonId'],
         ),
       ),
       GoRoute(
@@ -90,6 +91,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, s) => QuizScreen(
           quizId   : s.pathParameters['quizId']!,
           courseId : s.uri.queryParameters['courseId'],
+          lessonId : s.uri.queryParameters['lessonId'],
         ),
       ),
     ],

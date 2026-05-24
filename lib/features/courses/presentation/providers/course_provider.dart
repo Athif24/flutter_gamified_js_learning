@@ -268,13 +268,15 @@ class QuizNotifier extends StateNotifier<QuizState> {
 
   /// Load quiz data directly from a started response (used by IntroScreen)
   void loadFromData(QuizDetailModel quizData) {
+    final maxIndex = quizData.questions.isEmpty ? 0 : quizData.questions.length - 1;
     final startIndex = quizData.answeredQuestionIds.isNotEmpty
         ? quizData.answeredQuestionIds.length
         : 0;
+    final clampedIndex = startIndex > maxIndex ? maxIndex : startIndex;
     state = const QuizState().copyWith(
       quiz: quizData,
       userQuizId: quizData.userQuizId,
-      currentIndex: startIndex,
+      currentIndex: clampedIndex,
     );
   }
 

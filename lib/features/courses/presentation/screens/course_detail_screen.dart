@@ -173,7 +173,13 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                   button: true,
                   label: 'Kembali',
                   child: Bounceable(
-                    onTap: () => context.pop(),
+                    onTap: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
                     child: Container(
                       width: 38,
                       height: 38,
