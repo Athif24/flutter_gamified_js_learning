@@ -9,6 +9,7 @@ class ArrangeQuestion extends StatelessWidget {
   final List<QuizOption> options;
   final List<String> blocks;
   final String questionText;
+  final String questionId;
   final BloomTheme t;
   final Function(List<String> orderedIds) onAnswer;
 
@@ -18,6 +19,7 @@ class ArrangeQuestion extends StatelessWidget {
     required this.options,
     required this.blocks,
     required this.questionText,
+    required this.questionId,
     required this.t,
     required this.onAnswer,
   });
@@ -27,6 +29,7 @@ class ArrangeQuestion extends StatelessWidget {
     switch (variant) {
       case 'complete_word':
         return CompleteWordWidget(
+          key: ValueKey(questionId),
           options: options,
           blocks: blocks,
           questionText: questionText,
@@ -35,12 +38,14 @@ class ArrangeQuestion extends StatelessWidget {
         );
       case 'reorder_words':
         return ReorderWordsWidget(
+          key: ValueKey(questionId),
           options: options,
           t: t,
           onAnswer: onAnswer,
         );
       case 'drag_blocks':
         return DragBlocksWidget(
+          key: ValueKey(questionId),
           blocks: blocks,
           options: options,
           t: t,
@@ -48,6 +53,7 @@ class ArrangeQuestion extends StatelessWidget {
         );
       default:
         return ReorderWordsWidget(
+          key: ValueKey(questionId),
           options: options,
           t: t,
           onAnswer: onAnswer,
@@ -78,7 +84,6 @@ class CompleteWordWidget extends StatefulWidget {
 
 class _CompleteWordWidgetState extends State<CompleteWordWidget> {
   final Map<int, String> _filledBlanks = {};
-  final Set<String> _usedOptionIds = {};
 
   @override
   void initState() {
@@ -107,7 +112,6 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
       if (!_filledBlanks.containsKey(i)) {
         setState(() {
           _filledBlanks[i] = optionId;
-          _usedOptionIds.add(optionId);
         });
         _updateAnswer();
         return;
@@ -117,10 +121,8 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
 
   void _onBlankTap(int blankIndex) {
     if (_filledBlanks.containsKey(blankIndex)) {
-      final optionId = _filledBlanks[blankIndex]!;
       setState(() {
         _filledBlanks.remove(blankIndex);
-        _usedOptionIds.remove(optionId);
       });
       _updateAnswer();
     }
@@ -171,7 +173,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
           child: _buildCodeWithBlanks(),
         ),
         const SizedBox(height: 16),
-        if (remaining > 0) ...[
+        if (blankCount > 0) ...[
           Row(
             children: [
               Text(
@@ -185,17 +187,23 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
             ],
           ),
           const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: widget.options
-                .where((opt) => !_usedOptionIds.contains(opt.id))
-                .map((opt) {
-              return Semantics(
-                button: true,
-                label: 'Pilih ${opt.text}',
-                child: Bounceable(
-                  onTap: () => _onChipTap(opt.id),
+        ],
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: widget.options.map((opt) {
+            final filledCount = _filledBlanks.values.where((id) => id == opt.id).length;
+            final optOccurrences = widget.options.where((o) => o.id == opt.id).length;
+            final allUsed = filledCount >= optOccurrences;
+            final isUsed = _filledBlanks.containsValue(opt.id);
+            return Semantics(
+              button: true,
+              label: allUsed ? 'Sudah dipilih' : 'Pilih ${opt.text}',
+              child: Bounceable(
+                onTap: allUsed ? null : () => _onChipTap(opt.id),
+                child: AnimatedOpacity(
+                  opacity: allUsed ? 0.25 : 1.0,
+                  duration: const Duration(milliseconds: 200),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(
@@ -203,26 +211,34 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4ECDC4).withValues(alpha: 0.15),
+                      color: isUsed
+                          ? widget.t.success.withValues(alpha: 0.1)
+                          : const Color(0xFF4ECDC4).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: const Color(0xFF4ECDC4).withValues(alpha: 0.4),
+                        color: isUsed
+                            ? widget.t.success.withValues(alpha: 0.5)
+                            : const Color(0xFF4ECDC4).withValues(alpha: 0.4),
                       ),
                     ),
                     child: Text(
                       opt.text,
                       style: GoogleFonts.firaCode(
-                        color: const Color(0xFF4ECDC4),
+                        color: isUsed
+                            ? widget.t.success
+                            : const Color(0xFF4ECDC4),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-              );
-            }).toList(),
-          ),
-        ] else ...[
+              ),
+            );
+          }).toList(),
+        ),
+        if (remaining <= 0 && blankCount > 0) ...[
+          const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
@@ -403,7 +419,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   @override
   void initState() {
     super.initState();
-    _options = List.from(widget.options);
+    _options = List.from(widget.options)..shuffle();
     _isCodeMode = _detectIsCodeMode(_options);
     _lineMode = _isCodeMode && _isLineMode(_options);
   }
@@ -824,24 +840,19 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
 
   void _initBlocks() {
     if (widget.blocks.isNotEmpty) {
-      _orderedBlocks = widget.blocks
-          .map((b) => _CodeBlockItem(id: 'block_${widget.blocks.indexOf(b)}', text: b))
-          .toList();
+      _orderedBlocks = widget.blocks.asMap().entries
+          .map((e) => _CodeBlockItem(id: 'block_${e.key}', text: e.value))
+          .toList()
+          ..shuffle();
     } else {
       _orderedBlocks = widget.options
           .map((o) => _CodeBlockItem(id: o.id, text: o.text))
-          .toList();
+          .toList()
+          ..shuffle();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onAnswer(_orderedBlocks.map((b) => b.id).toList());
     });
-  }
-
-  void _shuffle() {
-    setState(() {
-      _orderedBlocks.shuffle();
-    });
-    widget.onAnswer(_orderedBlocks.map((b) => b.id).toList());
   }
 
   @override
@@ -866,50 +877,11 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            'Drag Block',
-            style: GoogleFonts.nunito(
-              color: widget.t.mutedText,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Spacer(),
-          Semantics(
-            button: true,
-            label: 'Acak ulang jawaban',
-            child: Bounceable(
-              onTap: _shuffle,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: widget.t.bgSurface2,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: widget.t.border),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.shuffle_rounded, color: widget.t.primary, size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Acak Ulang',
-                      style: GoogleFonts.nunito(
-                        color: widget.t.primary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
       const SizedBox(height: 12),
       ReorderableListView.builder(
+        buildDefaultDragHandles: false,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _orderedBlocks.length,
@@ -935,25 +907,16 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
             ),
             child: Row(
               children: [
-                Container(
-                  width: 44,
-                  height: 50,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.drag_handle_rounded,
-                    color: Colors.white30,
-                    size: 22,
-                  ),
-                ),
-                Container(
-                  width: 26,
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${i + 1}',
-                    style: GoogleFonts.firaCode(
+                ReorderableDragStartListener(
+                  index: i,
+                  child: Container(
+                    width: 56,
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.drag_handle_rounded,
                       color: Colors.white30,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      size: 28,
                     ),
                   ),
                 ),
