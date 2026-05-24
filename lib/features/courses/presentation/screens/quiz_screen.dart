@@ -10,6 +10,7 @@ import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
+import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/celebration_screen.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -27,8 +28,9 @@ import 'quiz/quiz_result_screen.dart';
 class QuizScreen extends ConsumerStatefulWidget {
   final String quizId;
   final String? courseId;
+  final String? lessonId;
 
-  const QuizScreen({super.key, required this.quizId, this.courseId});
+  const QuizScreen({super.key, required this.quizId, this.courseId, this.lessonId});
 
   @override
   ConsumerState<QuizScreen> createState() => _QuizScreenState();
@@ -56,16 +58,63 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     final t = ref.watch(currentThemeProvider);
     final quiz = ref.watch(quizProvider);
 
+    final backButton = Semantics(
+      button: true,
+      label: 'Kembali',
+      child: Bounceable(
+        onTap: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        },
+        child: Container(
+          width: 38, height: 38,
+          decoration: BoxDecoration(
+            color: t.bgSurface2, shape: BoxShape.circle,
+            border: Border.all(color: t.textPrimary, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: t.textPrimary,
+                offset: const Offset(3, 3),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Icon(Icons.arrow_back_ios_rounded,
+              color: t.textPrimary, size: 15),
+        ),
+      ),
+    );
+
     if (quiz.quiz == null && quiz.error == null) {
       return Scaffold(
         backgroundColor: t.bgPrimary,
         body: Column(
           children: [
             SlowLoadingIndicator(visible: true, t: t),
-            Expanded(
-              child: Center(
-                child: CircularProgressIndicator(color: t.primary),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Row(
+                children: [
+                  backButton,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Memuat Kuis...',
+                      style: GoogleFonts.nunito(
+                        color: t.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
+            Expanded(
+              child: Center(child: LoadingCircle(t: t)),
             ),
           ],
         ),
@@ -78,6 +127,25 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         body: Column(
           children: [
             SlowLoadingIndicator(visible: false, t: t),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Row(
+                children: [
+                  backButton,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Kuis',
+                      style: GoogleFonts.nunito(
+                        color: t.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: Center(
                 child: Padding(
@@ -121,16 +189,25 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         t: t,
         courseId: widget.courseId,
         quizId: widget.quizId,
+        lessonId: widget.lessonId,
         onRetry: () {
           ref.read(quizProvider.notifier).reset();
+          final queryParams = <String, String>{};
+          if (widget.courseId != null) queryParams['courseId'] = widget.courseId!;
+          if (widget.lessonId != null) queryParams['lessonId'] = widget.lessonId!;
+          final queryString = queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
           context.pushReplacement(
-            '/quiz-intro/${widget.quizId}${widget.courseId != null ? '?courseId=${widget.courseId}' : ''}',
+            '/quiz-intro/${widget.quizId}${queryString.isNotEmpty ? '?$queryString' : ''}',
           );
         },
         onBackToMap: () {
           ref.read(quizProvider.notifier).reset();
-          while (context.canPop()) {
-            context.pop();
+          if (widget.courseId != null) {
+            context.go('/course/${widget.courseId}');
+          } else {
+            while (context.canPop()) {
+              context.pop();
+            }
           }
         },
       );
@@ -143,7 +220,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('\u{1F4CB}', style: TextStyle(fontSize: 56)),
+              Icon(Icons.assignment_outlined, size: 56, color: t.mutedText),
               const SizedBox(height: 12),
               Text(
                 'Belum ada soal',
@@ -312,6 +389,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       )
                     else if (current.type == 'arrange' || current.type == 'complete_word')
                       ArrangeQuestion(
+                        questionId: current.id,
                         variant: current.type == 'complete_word' ? 'complete_word' : current.arrangeVariant,
                         options: current.optionObjects,
                         blocks: current.blocks,
@@ -323,6 +401,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       )
                     else
                       EssayQuestion(
+                        key: ValueKey(current.id),
                         t: t,
                         onChanged: (v) => ref
                             .read(quizProvider.notifier)
@@ -345,7 +424,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 onLanjut: () {
                   _previousLivesRemaining = quiz.lastAnswerResult!.livesRemaining;
                   final lives = quiz.lastAnswerResult!.livesRemaining;
-                  if (lives != null && lives <= 0 && !quiz.lastAnswerResult!.isCorrect) {
+                  if (lives != null && lives <= 0 && !quiz.isLast && !quiz.lastAnswerResult!.isCorrect) {
                     _showGameOverDialog(context, t);
                     return;
                   }
@@ -370,7 +449,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: t.bgSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: t.textPrimary, width: 2),
+        ),
         title: Row(
           children: [
             Icon(Icons.favorite_rounded, color: t.error, size: 24),
@@ -384,48 +466,60 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             ),
           ],
         ),
-        content: Text(
-          'Nyawa kamu habis. Beli nyawa di Store untuk melanjutkan kuis.',
-          style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
-        ),
-        actions: [
-          Semantics(
-            button: true,
-            label: 'Keluar dari kuis',
-            child: TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ref.read(quizProvider.notifier).reset();
-                context.pop();
-              },
-              child: Text(
-                'Keluar',
-                style: GoogleFonts.nunito(
-                  color: t.mutedText,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Nyawa kamu habis. Beli nyawa di Store untuk melanjutkan kuis.',
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
             ),
-          ),
-          Semantics(
-            button: true,
-            label: 'Beli nyawa di Store',
-            child: Game3DButton(
-            label: 'Beli Nyawa',
-            color: t.error,
-            shadowColor: t.textPrimary,
-            textColor: Colors.white,
-            horizontalPadding: 16,
-            verticalPadding: 8,
-            onTap: () {
-              Navigator.pop(context);
-              ref.read(quizProvider.notifier).reset();
-              ref.read(navIndexProvider.notifier).state = 3;
-              context.go('/home');
-            },
-          ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: 'Keluar dari kuis',
+                    child: Game3DButton(
+                      label: 'Keluar',
+                      color: t.bgSurface2,
+                      shadowColor: t.textPrimary,
+                      textColor: t.textPrimary,
+                      horizontalPadding: 16,
+                      verticalPadding: 10,
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(quizProvider.notifier).reset();
+                        context.pop();
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: 'Beli nyawa di Store',
+                    child: Game3DButton(
+                      label: 'Beli Nyawa',
+                      color: t.error,
+                      shadowColor: t.textPrimary,
+                      textColor: Colors.white,
+                      horizontalPadding: 16,
+                      verticalPadding: 10,
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(quizProvider.notifier).clearLastAnswerResult();
+                        ref.read(navIndexProvider.notifier).state = 3;
+                        context.go('/home');
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -435,7 +529,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: t.bgSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: t.textPrimary, width: 2),
+        ),
         title: Text(
           'Keluar dari Kuis?',
           style: GoogleFonts.nunito(
@@ -443,42 +540,54 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             fontWeight: FontWeight.w800,
           ),
         ),
-        content: Text(
-          'Progres kuis sudah tersimpan. Kamu dapat melanjutkan kuis ini kapan saja.',
-          style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
-        ),
-        actions: [
-          Semantics(
-            button: true,
-            label: 'Lanjut mengerjakan kuis',
-            child: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Lanjut',
-                style: GoogleFonts.nunito(
-                  color: t.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Progres kuis sudah tersimpan. Kamu dapat melanjutkan kuis ini kapan saja.',
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
             ),
-          ),
-          Semantics(
-            button: true,
-            label: 'Keluar dari kuis',
-            child: Game3DButton(
-            label: 'Keluar',
-            color: t.error,
-            shadowColor: darken(t.error, 0.25),
-            textColor: Colors.white,
-            horizontalPadding: 16,
-            verticalPadding: 8,
-            onTap: () {
-              Navigator.pop(context);
-              context.pop();
-            },
-          ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: 'Lanjut mengerjakan kuis',
+                    child: Game3DButton(
+                      label: 'Lanjut',
+                      color: t.primary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.primaryContent,
+                      horizontalPadding: 16,
+                      verticalPadding: 10,
+                      onTap: () => Navigator.pop(context),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: 'Keluar dari kuis',
+                    child: Game3DButton(
+                      label: 'Keluar',
+                      color: t.error,
+                      shadowColor: darken(t.error, 0.25),
+                      textColor: Colors.white,
+                      horizontalPadding: 16,
+                      verticalPadding: 10,
+                      onTap: () {
+                        Navigator.pop(context);
+                        context.pop();
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

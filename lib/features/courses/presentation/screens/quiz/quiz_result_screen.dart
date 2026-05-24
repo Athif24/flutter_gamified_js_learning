@@ -16,6 +16,7 @@ class QuizResultScreen extends ConsumerStatefulWidget {
   final BloomTheme t;
   final String? courseId;
   final String quizId;
+  final String? lessonId;
   final VoidCallback onRetry;
   final VoidCallback? onBackToMap;
 
@@ -25,6 +26,7 @@ class QuizResultScreen extends ConsumerStatefulWidget {
     required this.t,
     required this.courseId,
     required this.quizId,
+    this.lessonId,
     required this.onRetry,
     this.onBackToMap,
   });
@@ -116,17 +118,25 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                       decoration: BoxDecoration(
                         color: widget.result.passed
                             ? (_isSuperResult
-                                ? widget.t.warning.withValues(alpha: 0.1)
-                                : widget.t.success.withValues(alpha: 0.1))
-                            : widget.t.error.withValues(alpha: 0.1),
+                                ? widget.t.warning.withValues(alpha: 0.15)
+                                : widget.t.success.withValues(alpha: 0.15))
+                            : widget.t.error.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: widget.t.textPrimary,
+                          color: widget.result.passed
+                              ? (_isSuperResult
+                                  ? widget.t.warning
+                                  : widget.t.success)
+                              : widget.t.error,
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.t.textPrimary,
+                            color: widget.result.passed
+                                ? (_isSuperResult
+                                    ? widget.t.warning.withValues(alpha: 0.3)
+                                    : widget.t.success.withValues(alpha: 0.3))
+                                : widget.t.error.withValues(alpha: 0.3),
                             offset: const Offset(3, 3),
                             blurRadius: 0,
                           ),
@@ -139,9 +149,36 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
 
                           Semantics(
                             label: widget.result.passed ? 'Lulus' : 'Belum lulus',
-                            child: Text(
-                              widget.result.passed ? '🏆' : '😢',
-                              style: const TextStyle(fontSize: 64),
+                            child: Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: widget.result.passed
+                                    ? (_isSuperResult
+                                        ? widget.t.warning.withValues(alpha: 0.2)
+                                        : widget.t.success.withValues(alpha: 0.2))
+                                    : widget.t.error.withValues(alpha: 0.2),
+                                border: Border.all(
+                                  color: widget.result.passed
+                                      ? (_isSuperResult
+                                          ? widget.t.warning
+                                          : widget.t.success)
+                                      : widget.t.error,
+                                  width: 3,
+                                ),
+                              ),
+                              child: Icon(
+                                widget.result.passed
+                                    ? Icons.emoji_events_rounded
+                                    : Icons.close_rounded,
+                                size: 44,
+                                color: widget.result.passed
+                                    ? (_isSuperResult
+                                        ? widget.t.warning
+                                        : widget.t.success)
+                                    : widget.t.error,
+                              ),
                             ),
                           )
                               .animate()
@@ -170,9 +207,9 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           Text(
                             widget.result.passed
                                 ? 'Kamu berhasil melewati batas nilai!'
-                                : 'Nilai minimum: —. Coba lagi!',
+                                : 'Nilai minimum: ${widget.result.passingScore}%. Coba lagi!',
                             style: GoogleFonts.nunito(
-                              color: widget.t.mutedText,
+                              color: widget.t.textSecondary,
                               fontSize: 13,
                             ),
                             textAlign: TextAlign.center,
@@ -308,7 +345,9 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           verticalPadding: 15,
                           onTap: () {
                             ref.read(quizProvider.notifier).reset();
-                            if (widget.onBackToMap != null) {
+                            if (widget.courseId != null) {
+                              context.go('/course/${widget.courseId}');
+                            } else if (widget.onBackToMap != null) {
                               widget.onBackToMap!();
                             } else {
                               while (context.canPop()) {
@@ -442,7 +481,7 @@ class _ScoreRing extends StatelessWidget {
               Text(
                 'SKOR',
                 style: GoogleFonts.nunito(
-                  color: t.mutedText,
+            color: t.textSecondary,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),

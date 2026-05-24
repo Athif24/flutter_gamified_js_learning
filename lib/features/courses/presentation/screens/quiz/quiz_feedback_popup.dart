@@ -27,9 +27,9 @@ class QuizFeedbackPopup extends StatelessWidget {
     required this.onLanjut,
   });
 
-  Color get _correctBg => t.success.withValues(alpha: 0.15);
+  Color get _correctBg => t.success.withValues(alpha: 0.12);
   Color get _correctBtn => t.success;
-  Color get _incorrectBg => t.error.withValues(alpha: 0.15);
+  Color get _incorrectBg => t.error.withValues(alpha: 0.12);
   Color get _incorrectBtn => t.error;
 
   String _getCorrectMessage(int streak) {
@@ -105,7 +105,7 @@ class QuizFeedbackPopup extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border(top: BorderSide(color: Colors.white.withAlpha(50))),
+        border: Border(top: BorderSide(color: t.border.withValues(alpha: 0.4))),
       ),
       child: SafeArea(
         top: false,
@@ -132,7 +132,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                               style: GoogleFonts.nunito(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 16,
-                                color: Colors.white,
+                                color: t.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -141,7 +141,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                                 'Kamu menjawab dengan benar',
                                 style: GoogleFonts.nunito(
                                   fontSize: 12,
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: t.textSecondary,
                                 ),
                               )
                             else
@@ -149,7 +149,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                                 _getWrongAnswerSubtext(),
                                 style: GoogleFonts.nunito(
                                   fontSize: 12,
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: t.textSecondary,
                                 ),
                               ),
                           ],
@@ -166,7 +166,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                     label: isLast ? 'SELESAI' : 'LANJUT',
                   color: btnColor,
                   shadowColor: t.textPrimary,
-                  textColor: Colors.white,
+                  textColor: isCorrect ? t.successContent : t.errorContent,
                   horizontalPadding: 28,
                   verticalPadding: 13,
                   onTap: onLanjut,
@@ -191,16 +191,17 @@ class QuizFeedbackPopup extends StatelessWidget {
   }
 
   Widget _buildAnimatedIcon(bool isCorrect) {
+    final color = isCorrect ? t.success : t.error;
     final icon = Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(50),
+        color: color.withValues(alpha: 0.15),
         shape: BoxShape.circle,
       ),
       child: Icon(
         isCorrect ? Icons.check : Icons.close,
-        color: Colors.white,
+        color: color,
         size: 24,
       ),
     );
@@ -218,9 +219,9 @@ class QuizFeedbackPopup extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(20),
+        color: t.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: Colors.white.withAlpha(40)),
+        border: Border.all(color: t.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -228,9 +229,9 @@ class QuizFeedbackPopup extends StatelessWidget {
           const Text('🔥', style: TextStyle(fontSize: 16)),
           const SizedBox(width: 6),
           Text(
-            '$currentStreak in a row!',
+            '$currentStreak beruntun!',
             style: GoogleFonts.nunito(
-              color: Colors.white,
+              color: t.warning,
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
@@ -245,50 +246,53 @@ class QuizFeedbackPopup extends StatelessWidget {
     final isCritical = lives > 0 && lives <= 2;
     final lifeLost = previousLivesRemaining != null && lives < previousLivesRemaining!;
 
-    final hearts = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SizedBox(width: 4),
-        Text(
-          'Nyawa tersisa: ',
-          style: GoogleFonts.nunito(
-            color: Colors.white.withAlpha(200),
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+    final hearts = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 4),
+          Text(
+            'Nyawa tersisa: ',
+            style: GoogleFonts.nunito(
+              color: t.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        ...List.generate(lives, (i) {
-          final heart = Icon(Icons.favorite_rounded, color: Colors.redAccent, size: 16);
-          Widget animated;
-          if (lifeLost) {
-            animated = heart
-                .animate()
-                .scaleXY(begin: 1.4, duration: 200.ms, curve: Curves.bounceOut)
-                .then()
-                .shakeX(duration: 300.ms);
-          } else if (isCritical) {
-            animated = heart
-                .animate()
-                .shakeX(duration: 400.ms)
-                .then()
-                .shakeX(duration: 400.ms)
-                .then()
-                .shakeX();
-          } else {
-            animated = heart;
-          }
-          return Padding(
-            padding: const EdgeInsets.only(right: 2),
-            child: animated,
-          );
-        }),
-      ],
+          ...List.generate(lives, (i) {
+            final heart = Icon(Icons.favorite_rounded, color: t.error, size: 16);
+            Widget animated;
+            if (lifeLost) {
+              animated = heart
+                  .animate()
+                  .scaleXY(begin: 1.4, duration: 200.ms, curve: Curves.bounceOut)
+                  .then()
+                  .shakeX(duration: 300.ms);
+            } else if (isCritical) {
+              animated = heart
+                  .animate()
+                  .shakeX(duration: 400.ms)
+                  .then()
+                  .shakeX(duration: 400.ms)
+                  .then()
+                  .shakeX();
+            } else {
+              animated = heart;
+            }
+            return Padding(
+              padding: const EdgeInsets.only(right: 2),
+              child: animated,
+            );
+          }),
+        ],
+      ),
     );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isCritical ? Colors.redAccent.withAlpha(30) : Colors.transparent,
+        color: isCritical ? t.error.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: hearts,
