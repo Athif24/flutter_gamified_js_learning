@@ -2,7 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/bloom_theme.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/error_helper.dart';
 import 'game_3d_button.dart';
+
+IconData iconForError(Object e) {
+  return switch (categorizeError(e)) {
+    ApiErrorType.network    => Icons.wifi_off_rounded,
+    ApiErrorType.timeout    => Icons.timer_off_rounded,
+    ApiErrorType.server     => Icons.dns_rounded,
+    ApiErrorType.auth       => Icons.lock_rounded,
+    ApiErrorType.validation => Icons.warning_rounded,
+    ApiErrorType.unknown    => Icons.error_outline_rounded,
+  };
+}
 
 class ErrorBody extends StatelessWidget {
   final BloomTheme t;
@@ -63,6 +75,7 @@ class ErrorBody extends StatelessWidget {
                 color: t.primary,
                 shadowColor: t.textPrimary,
                 textColor: t.primaryContent,
+                horizontalPadding: 16,
                 onTap: onRetry,
               ),
             ),

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_storage.dart';
 
@@ -39,10 +40,11 @@ class ApiClient {
     _authInterceptor = _AuthInterceptor();
     _dio = Dio(BaseOptions(
       baseUrl        : Api.base,
-      connectTimeout : const Duration(seconds: 30),
-      receiveTimeout : const Duration(seconds: 45),
+      connectTimeout : const Duration(seconds: 10),
+      receiveTimeout : const Duration(seconds: 15),
       headers        : {'Content-Type': 'application/json'},
     ));
+    _dio.interceptors.add(_ConnectivityInterceptor());
     _dio.interceptors.add(_authInterceptor);
     _dio.interceptors.add(_TimingInterceptor());
     _dio.interceptors.add(LogInterceptor(
@@ -111,6 +113,21 @@ class _AuthInterceptor extends Interceptor {
       debugPrint('[API] 💥 $path — ${e.message}');
     }
     h.next(e);
+  }
+}
+
+class _ConnectivityInterceptor extends Interceptor {
+  @override
+  Future<void> onRequest(RequestOptions o, RequestInterceptorHandler h) async {
+    final result = await Connectivity().checkConnectivity();
+    if (result.contains(ConnectivityResult.none)) {
+      return h.reject(DioException(
+        requestOptions: o,
+        message: 'Koneksi internet tidak stabil. Periksa koneksi kamu dan coba lagi.',
+        type: DioExceptionType.connectionError,
+      ));
+    }
+    h.next(o);
   }
 }
 
