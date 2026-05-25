@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../../../core/services/cloudinary_service.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
 import '../../providers/auth_provider.dart';
@@ -59,6 +59,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
 Future<void> _finish() async {
+  if (_avatarFile != null && mounted) {
+    try {
+      final url = await CloudinaryService.uploadImage(_avatarFile!.path);
+      if (mounted) {
+        await ref.read(authProvider.notifier).updateProfile(avatar: url);
+      }
+    } catch (_) {
+      // Avatar upload gagal — tetap lanjut ke onboarding
+    }
+  }
   if (mounted) {
     await ref.read(authProvider.notifier).completeOnboarding();
     if (mounted) context.go('/home');
@@ -81,22 +91,13 @@ Padding(
     children: [
       Row(
         children: [
-          // Always show the back button container for consistent height
-          // Make it non-interactive on first step
           _isFirst
-              ? Container(
-                  width: 36, height: 36,
-                  color: Colors.transparent, // Transparent so it doesn't affect layout
-                )
+              ? const SizedBox(width: 36, height: 36)
               : GestureDetector(
                   onTap: _prev,
-                  child: Container(
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
                     width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: t.bgSurface2,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: t.border),
-                    ),
                     child: Icon(Icons.arrow_back_ios_rounded,
                         color: t.textPrimary, size: 14),
                   ),
@@ -104,12 +105,13 @@ Padding(
           const Spacer(),
           if (!_isLast)
             GestureDetector(
-              onTap: () => context.go('/home'),
-              child: Text('Lewati',
-                  style: GoogleFonts.nunito(
-                      color: t.mutedText,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13)),
+              onTap: _next,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 36, height: 36,
+                child: Icon(Icons.arrow_forward_ios_rounded,
+                    color: t.textPrimary, size: 14),
+              ),
             )
           else
             const SizedBox(width: 36),

@@ -84,4 +84,18 @@ class AuthRemoteDatasource {
       throw Exception(msg);
     }
   }
+
+  Future<void> updateProfile({String? avatar}) async {
+    debugPrint('[ACTION] Update profile: avatar=$avatar');
+    try {
+      await _api.put(Api.authProfile, data: {
+        if (avatar != null) 'avatar': avatar,
+      });
+      debugPrint('[ACTION] Update profile ✅');
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Gagal memperbarui profil';
+      debugPrint('[ACTION] Update profile ❌ $msg');
+      throw Exception(msg);
+    }
+  }
 }

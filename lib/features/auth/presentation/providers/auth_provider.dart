@@ -7,6 +7,7 @@ import '../../../../core/storage/secure_storage.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/models/auth_model.dart';
+import '../../../../features/shared/presentation/widgets/post_register_tutorial.dart';
 
 class AuthState {
   final AuthUser? user;
@@ -33,6 +34,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _api;
   AuthNotifier(this._ds, this._api) : super(const AuthState()) { _restore(); }
 
+  static const _onboardingSPKey = 'onboarding_completed';
+
   Future<void> _restore() async {
     final token = await SecureStorage.getToken();
     if (token == null) {
@@ -40,7 +43,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
     try {
-      final user = await _ds.getMe();
+      var user = await _ds.getMe();
+      final prefs = await SharedPreferences.getInstance();
+      final localCompleted = prefs.getBool(_onboardingSPKey) ?? false;
+      if (localCompleted && !user.onboardingCompleted) {
+        user = user.copyWith(onboardingCompleted: true);
+      }
       state = state.copyWith(user: user, isCheckingAuth: false, clearError: true);
     } catch (_) {
       await SecureStorage.clearAll();
@@ -56,6 +64,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // where SecureStorage hasn't flushed to disk yet.
       _api.cacheToken(r.token);
       state = state.copyWith(user: r.user, isLoading: false);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_onboardingSPKey, r.user.onboardingCompleted);
+      await PostRegisterTutorial.reset();
       _maybeRegisterToken();
       return true;
     } catch (e) {
@@ -71,15 +82,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final r = await _ds.register(name, email, password);
+      AuthUser user;
       if (r.token.isEmpty) {
-        // Backend doesn't return token on register → auto-login
         final loginR = await _ds.login(email, password);
         _api.cacheToken(loginR.token);
-        state = state.copyWith(user: loginR.user, isLoading: false);
+        user = loginR.user;
       } else {
         _api.cacheToken(r.token);
-        state = state.copyWith(user: r.user, isLoading: false);
+        user = r.user;
       }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_onboardingSPKey, user.onboardingCompleted);
+      state = state.copyWith(user: user, isLoading: false);
+      await PostRegisterTutorial.reset();
       _maybeRegisterToken();
       return true;
     } catch (e) {
@@ -117,8 +132,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (_) {}
   }
 
+  Future<void> updateProfile({String? avatar}) async {
+    await _ds.updateProfile(avatar: avatar);
+  }
+
   Future<void> completeOnboarding() async {
     await _ds.completeOnboarding();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingSPKey, true);
     if (state.user != null) {
       state = state.copyWith(user: state.user!.copyWith(onboardingCompleted: true));
     }
@@ -128,6 +149,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await FcmService.unregisterToken(_api);
     await _ds.logout();
     _api.clearCachedToken();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_onboardingSPKey);
     state = const AuthState(isCheckingAuth: false);
   }
 }
