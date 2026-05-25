@@ -1,0 +1,176 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../../../../shared/themes/theme_provider.dart';
+
+class NotificationStep extends ConsumerStatefulWidget {
+  const NotificationStep({super.key});
+  @override
+  ConsumerState<NotificationStep> createState() => _NotificationStepState();
+}
+
+class _NotificationStepState extends ConsumerState<NotificationStep> {
+  bool _granted = false;
+  bool _checked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkStatus();
+  }
+
+  Future<void> _checkStatus() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final settings = await messaging.getNotificationSettings();
+      if (mounted) {
+        setState(() {
+          _granted = settings.authorizationStatus == AuthorizationStatus.authorized
+              || settings.authorizationStatus == AuthorizationStatus.provisional;
+          _checked = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _checked = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = ref.watch(currentThemeProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(flex: 2),
+          Icon(_granted ? Icons.notifications_active_rounded : Icons.notifications_off_rounded,
+              size: 56, color: _granted ? t.primary : t.mutedText),
+          const SizedBox(height: 16),
+          Text('Notifikasi',
+              style: GoogleFonts.nunito(
+                  fontSize: 22, fontWeight: FontWeight.w900, color: t.textPrimary)),
+          const SizedBox(height: 8),
+          Text('Dapatkan pengingat dan info terbaru dari Bloom',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.nunito(
+                  fontSize: 13, color: t.mutedText, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 24),
+          if (_checked)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: _granted
+                    ? t.success.withValues(alpha: 0.1)
+                    : t.bgSurface2,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: _granted
+                      ? t.success.withValues(alpha: 0.3)
+                      : t.border,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _granted
+                        ? Icons.check_circle_rounded
+                        : Icons.error_outline_rounded,
+                    color: _granted ? t.success : t.mutedText,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _granted ? 'Notifikasi Aktif' : 'Notifikasi Tidak Aktif',
+                          style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13, color: t.textPrimary)),
+                        const SizedBox(height: 2),
+                        Text(
+                          _granted
+                              ? 'Kamu akan menerima pengingat streak dan info dari Bloom'
+                              : 'Aktifkan lewat Pengaturan > Aplikasi > Bloom',
+                          style: GoogleFonts.nunito(
+                              fontSize: 11, color: t.mutedText,
+                              fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 16),
+          _NotifCard(
+            t: t,
+            icon: Icons.local_fire_department_rounded,
+            iconColor: const Color(0xFFFF6B35),
+            title: 'Pengingat Streak',
+            desc: 'Dapatkan notifikasi setiap hari buat jaga streak belajarmu',
+          ),
+          const SizedBox(height: 12),
+          _NotifCard(
+            t: t,
+            icon: Icons.campaign_rounded,
+            iconColor: t.info,
+            title: 'Pengumuman & Info',
+            desc: 'Info admin tentang event, kursus baru, dan promo spesial',
+          ),
+          const Spacer(flex: 3),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotifCard extends StatelessWidget {
+  final BloomTheme t;
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String desc;
+  const _NotifCard({required this.t, required this.icon, required this.iconColor, required this.title, required this.desc});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: t.bgSurface2,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: t.border),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 42, height: 42,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: iconColor, size: 22),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w700, fontSize: 13, color: t.textPrimary)),
+              const SizedBox(height: 2),
+              Text(desc,
+                  style: GoogleFonts.nunito(
+                      fontSize: 11, color: t.mutedText, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
