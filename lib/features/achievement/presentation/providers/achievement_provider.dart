@@ -108,34 +108,40 @@ class XpHistoryNotifier extends StateNotifier<XpHistoryState> {
   final AchievementRemoteDatasource _ds;
   XpHistoryNotifier(this._ds) : super(const XpHistoryState());
 
-  Future<void> fetchInitial() async {
-    state = state.copyWith(isLoading: true);
-    try {
-      final result = await _ds.getXpHistory();
-      state = XpHistoryState(
-        entries: result.data,
-        cursor: result.cursor,
-        hasMore: result.hasMore,
-      );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
-    }
+Future<void> fetchInitial() async {
+  if (!mounted) return;
+  state = state.copyWith(isLoading: true);
+  try {
+    final result = await _ds.getXpHistory();
+    if (!mounted) return;
+    state = XpHistoryState(
+      entries: result.data,
+      cursor: result.cursor,
+      hasMore: result.hasMore,
+    );
+  } catch (_) {
+    if (!mounted) return;
+    state = state.copyWith(isLoading: false);
   }
+}
 
-  Future<void> loadMore() async {
-    if (!state.hasMore || state.isLoadingMore) return;
-    state = state.copyWith(isLoadingMore: true);
-    try {
-      final result = await _ds.getXpHistory(cursor: state.cursor);
-      state = XpHistoryState(
-        entries: [...state.entries, ...result.data],
-        cursor: result.cursor,
-        hasMore: result.hasMore,
-      );
-    } catch (_) {
-      state = state.copyWith(isLoadingMore: false);
-    }
+Future<void> loadMore() async {
+  if (!mounted) return;
+  if (!state.hasMore || state.isLoadingMore) return;
+  state = state.copyWith(isLoadingMore: true);
+  try {
+    final result = await _ds.getXpHistory(cursor: state.cursor);
+    if (!mounted) return;
+    state = XpHistoryState(
+      entries: [...state.entries, ...result.data],
+      cursor: result.cursor,
+      hasMore: result.hasMore,
+    );
+  } catch (_) {
+    if (!mounted) return;
+    state = state.copyWith(isLoadingMore: false);
   }
+}
 }
 
 final xpHistoryProvider =
