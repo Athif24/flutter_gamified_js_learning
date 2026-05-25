@@ -71,9 +71,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final r = await _ds.register(name, email, password);
-      // Cache token in memory immediately
-      _api.cacheToken(r.token);
-      state = state.copyWith(user: r.user, isLoading: false);
+      if (r.token.isEmpty) {
+        // Backend doesn't return token on register → auto-login
+        final loginR = await _ds.login(email, password);
+        _api.cacheToken(loginR.token);
+        state = state.copyWith(user: loginR.user, isLoading: false);
+      } else {
+        _api.cacheToken(r.token);
+        state = state.copyWith(user: r.user, isLoading: false);
+      }
       _maybeRegisterToken();
       return true;
     } catch (e) {
@@ -109,6 +115,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await _ds.getMe();
       state = state.copyWith(user: user);
     } catch (_) {}
+  }
+
+  Future<void> completeOnboarding() async {
+    await _ds.completeOnboarding();
+    if (state.user != null) {
+      state = state.copyWith(user: state.user!.copyWith(onboardingCompleted: true));
+    }
   }
 
   Future<void> logout() async {

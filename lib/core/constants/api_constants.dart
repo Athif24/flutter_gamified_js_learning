@@ -69,6 +69,7 @@ class Api {
   // ── Users ─────────────────────────────────────────────────────
   static const users                             = '/api/v1/users';
   static const usersLives                        = '/api/v1/users/lives';
+  static const usersOnboarding                   = '/api/v1/users/me/onboarding';
   static String userById(String id)              => '/api/v1/users/$id';
 
   // ── User-Courses (Enrollments) ──────────────────────────────

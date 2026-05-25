@@ -879,12 +879,13 @@ Color _darken(Color c, double amount) => Color.lerp(c, Colors.black, amount)!;
 Color _deriveSurface2(Color base200, bool isLight) =>
     isLight ? Color.lerp(base200, Colors.black, 0.04)! : Color.lerp(base200, Colors.white, 0.04)!;
 
+const darkThemeIds = <String>{
+  'dark', 'synthwave', 'halloween', 'forest', 'black',
+  'luxury', 'dracula', 'night', 'coffee', 'dim',
+  'sunset', 'business',
+};
+
 BloomTheme daisyToBloomTheme(String id, Map<String, String> data) {
-  const darkThemeIds = <String>{
-    'dark', 'synthwave', 'halloween', 'forest', 'black',
-    'luxury', 'dracula', 'night', 'coffee', 'dim',
-    'sunset', 'business',
-  };
   final isLight = !darkThemeIds.contains(id);
   final base100 = oklchToColor(data['--color-base-100']!);
   final base200 = oklchToColor(data['--color-base-200']!);

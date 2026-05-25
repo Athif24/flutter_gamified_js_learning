@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/theme_provider.dart';
 import 'offline_banner.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../core/providers/connectivity_provider.dart';
 import '../../features/courses/presentation/providers/course_provider.dart';
 import '../../features/courses/presentation/screens/course_list_screen.dart';
@@ -15,14 +16,33 @@ import '../../features/store/presentation/screens/store_screen.dart';
 import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/shared/presentation/providers/fetch_state_providers.dart';
+import '../../features/shared/presentation/widgets/post_register_tutorial.dart';
 
 final navIndexProvider = StateProvider<int>((_) => 0);
 
-class MainScreen extends ConsumerWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
+  @override
+  ConsumerState<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends ConsumerState<MainScreen> {
+  bool _showTutorial = false;
+  final _navKeys = List.generate(5, (_) => GlobalKey());
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _checkTutorial();
+  }
+
+  Future<void> _checkTutorial() async {
+    final done = await PostRegisterTutorial.isCompleted();
+    if (mounted) setState(() => _showTutorial = !done);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.listen(connectivityProvider, (prev, next) {
       final wasOffline = prev?.valueOrNull == false;
       final nowOnline  = next.valueOrNull == true;
@@ -48,7 +68,7 @@ class MainScreen extends ConsumerWidget {
       ProfileScreen(),
     ];
 
-    return Scaffold(
+    final scaffold = Scaffold(
       backgroundColor: t.bgPrimary,
       body: Column(
         children: [
@@ -58,7 +78,52 @@ class MainScreen extends ConsumerWidget {
           ),
         ],
       ),
-      bottomNavigationBar: _BottomNav(current: index, t: t),
+      bottomNavigationBar: _BottomNav(current: index, t: t, navKeys: _navKeys),
+    );
+
+    if (!_showTutorial) return scaffold;
+
+    return PostRegisterTutorial(
+      theme: t,
+      onComplete: () {
+        ref.read(authProvider.notifier).completeOnboarding().catchError((_) {});
+      },
+      steps: [
+        TutorialStep(
+          targetKey: _navKeys[0],
+          title: 'Halaman Utama — Courses',
+          description: 'Ini halaman utama! Jelajahi semua kursus JavaScript yang tersedia dan mulai perjalanan belajarmu.',
+        ),
+        TutorialStep(
+          targetKey: _navKeys[1],
+          title: 'Achievement',
+          description: 'Pantau XP, streak harian, dan badge prestasimu di sini. Semakin rajin belajar, semakin banyak pencapaian!',
+        ),
+        TutorialStep(
+          targetKey: _navKeys[2],
+          title: 'Leaderboard',
+          description: 'Lihat peringkat dan bersaing dengan developer lain. Siapa tahu kamu bisa jadi yang teratas!',
+        ),
+        TutorialStep(
+          targetKey: _navKeys[3],
+          title: 'Store',
+          description: 'Tukarkan jewel-mu dengan item-item keren dari store. Lengkapi koleksi dan tampil beda!',
+        ),
+        TutorialStep(
+          targetKey: _navKeys[4],
+          title: 'Profile',
+          description: 'Atur profil, avatar, dan pengaturan akun. Pastikan data kamu selalu terbarui!',
+        ),
+        TutorialStep(
+          title: 'Mulai Belajar',
+          description: 'Tap salah satu kursus di halaman ini untuk mulai belajar materi dan mengerjakan quiz seru!',
+        ),
+        TutorialStep(
+          title: 'Siap Jadi Master JavaScript!',
+          description: 'Kamu sudah siap! Jelajahi semua fitur Bloom dan raih prestasi terbaikmu. Selamat belajar! \u{1F680}',
+        ),
+      ],
+      child: scaffold,
     );
   }
 }
@@ -66,7 +131,8 @@ class MainScreen extends ConsumerWidget {
 class _BottomNav extends ConsumerWidget {
   final int current;
   final BloomTheme t;
-  const _BottomNav({required this.current, required this.t});
+  final List<GlobalKey> navKeys;
+  const _BottomNav({required this.current, required this.t, required this.navKeys});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,6 +165,7 @@ class _BottomNav extends ConsumerWidget {
 
               return Expanded(
                 child: Bounceable(
+                  key: navKeys[i],
                   onTap: () =>
                       ref.read(navIndexProvider.notifier).state = i,
                   child: Column(

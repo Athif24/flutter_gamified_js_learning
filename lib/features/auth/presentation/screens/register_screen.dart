@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/widgets/main_screen.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -35,8 +34,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final ok = await ref.read(authProvider.notifier)
         .register(_nameCtrl.text.trim(), _emailCtrl.text.trim(), _passCtrl.text);
     if (ok && mounted) {
-      ref.read(navIndexProvider.notifier).state = 0;
-      context.go('/home');
+      context.go('/onboarding');
     }
   }
 
@@ -69,13 +67,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
               ),
               const SizedBox(width: 14),
-              Text('Buat Akun Baru', style: Theme.of(context).textTheme.headlineMedium),
+              Text('Welcome to Bloom \u{1F338}', style: Theme.of(context).textTheme.headlineMedium),
             ]).animate().fadeIn(),
 
             const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.only(left: 54),
-              child: Text('Mulai perjalanan belajar JavaScript-mu 🚀',
+              child: Text('Daftar akun baru yuk!',
                   style: GoogleFonts.nunito(
                       fontSize: 12, color: t.mutedText,
                       fontWeight: FontWeight.w500)),

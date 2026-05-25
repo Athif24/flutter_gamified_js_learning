@@ -8,6 +8,7 @@ class AuthUser {
   final int jewels;
   final int level;
   final String levelTitle;
+  final bool onboardingCompleted;
 
   const AuthUser({
     required this.id,
@@ -19,7 +20,14 @@ class AuthUser {
     this.jewels = 0,
     this.level = 1,
     this.levelTitle = 'Pemula',
+    this.onboardingCompleted = false,
   });
+
+  AuthUser copyWith({bool? onboardingCompleted}) => AuthUser(
+    id: id, name: name, email: email, avatar: avatar, role: role,
+    xpTotal: xpTotal, jewels: jewels, level: level, levelTitle: levelTitle,
+    onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+  );
 
   factory AuthUser.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
@@ -36,6 +44,7 @@ class AuthUser {
       jewels : (s?['jewels'] ?? 0) as int,
       level  : (lvl?['id'] ?? 1) as int,
       levelTitle: lvl?['name']?.toString() ?? 'Pemula',
+      onboardingCompleted: u['onboarding_completed'] ?? false,
     );
   }
 }

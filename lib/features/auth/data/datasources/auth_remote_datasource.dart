@@ -72,4 +72,16 @@ class AuthRemoteDatasource {
       throw Exception(e.response?.data?['message'] ?? 'Gagal memuat profil');
     }
   }
+
+  Future<void> completeOnboarding() async {
+    debugPrint('[ACTION] Complete onboarding');
+    try {
+      await _api.patch(Api.usersOnboarding);
+      debugPrint('[ACTION] Complete onboarding ✅');
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Gagal menyimpan onboarding';
+      debugPrint('[ACTION] Complete onboarding ❌ $msg');
+      throw Exception(msg);
+    }
+  }
 }
