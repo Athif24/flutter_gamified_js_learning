@@ -679,7 +679,7 @@ class _CompactShopCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final w = screenW;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final canAfford = balance >= item.price;
 
     return Container(
@@ -908,7 +908,7 @@ class _BuyDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining = balance - item.price;
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return StatefulBuilder(
       builder: (_, setLocalState) => Dialog(
@@ -1203,7 +1203,7 @@ class _BuyDialog extends ConsumerWidget {
   }
 
   Widget _infoRow(String label, Widget value, double sw) {
-    final rs = (double px) => px * (sw / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (sw / 390).clamp(0.8, 1.3);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -1696,7 +1696,7 @@ class _UseDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining = invItem.quantity - 1;
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return StatefulBuilder(
       builder: (_, setLocalState) => Dialog(
@@ -1981,7 +1981,7 @@ class _UseDialog extends ConsumerWidget {
   }
 
   Widget _infoRow(String label, Widget value, double sw) {
-    final rs = (double px) => px * (sw / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (sw / 390).clamp(0.8, 1.3);
     return Row(
       children: [
         FittedBox(
@@ -2288,7 +2288,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = screenW;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,

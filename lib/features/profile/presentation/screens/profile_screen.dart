@@ -1050,7 +1050,7 @@ class _RecentActivity extends StatelessWidget {
       px * (screenW / 390).clamp(0.8, 1.3);
 
   Widget _buildEntry(BloomTheme t, RecentXpEntry e, double screenW) {
-    final rs = (double px) => _rsEntry(px, screenW);
+    double rs(double px) => _rsEntry(px, screenW);
     final cfg = _sourceConfig[e.sourceType] ?? _sourceConfig['lesson']!;
     final icon = cfg['icon'] as IconData;
     final label = cfg['label'] as String;
@@ -1153,7 +1153,7 @@ class _RecentActivity extends StatelessWidget {
   }
 
   Widget _emptyActivity(BloomTheme t, double screenW) {
-    final rs = (double px) => _rsEntry(px, screenW);
+    double rs(double px) => _rsEntry(px, screenW);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -2084,8 +2084,9 @@ Future<void> _showChangePassword(
                           ),
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty)
+                          if (v == null || v.isEmpty) {
                             return 'Masukkan password baru';
+                          }
                           if (v.length < 6) return 'Minimal 6 karakter';
                           return null;
                         },
@@ -2174,8 +2175,9 @@ Future<void> _showChangePassword(
                               onTap: isLoading
                                   ? null
                                   : () async {
-                                      if (!formKey.currentState!.validate())
+                                      if (!formKey.currentState!.validate()) {
                                         return;
+                                      }
                                       setState(() => isLoading = true);
                                       try {
                                         final error = await ref
@@ -2209,8 +2211,9 @@ Future<void> _showChangePassword(
                                           }
                                           return;
                                         }
-                                        if (ctx.mounted)
+                                        if (ctx.mounted) {
                                           Navigator.of(ctx).pop();
+                                        }
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(
                                             context,

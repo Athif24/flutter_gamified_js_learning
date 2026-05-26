@@ -1529,7 +1529,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
   }
 
   Widget _buildBadgeCard(BloomTheme t, BadgeModel b, double screenW) {
-    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (screenW / 390).clamp(0.8, 1.3);
     final earned = b.isEarned;
     final condIcon = _conditionIcons[b.conditionType];
     final condLabel = _conditionLabels[b.conditionType];

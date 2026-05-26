@@ -36,8 +36,9 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
   }
 
   void _onScroll() {
-    if (!widget.hasMore || widget.isLoadingMore || widget.onLoadMore == null)
+    if (!widget.hasMore || widget.isLoadingMore || widget.onLoadMore == null) {
       return;
+    }
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (currentScroll >= maxScroll * 0.8) {
@@ -104,7 +105,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final sorted = List<XpHistoryEntry>.from(widget.entries)
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -174,7 +175,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
   }
 
   Widget _loadingSkeleton(BloomTheme t, double screenW) {
-    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (screenW / 390).clamp(0.8, 1.3);
     return Column(
       children: List.generate(
         6,
@@ -196,7 +197,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
   }
 
   Widget _buildList(BloomTheme t, Map<String, List<XpHistoryEntry>> groups, double screenW) {
-    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (screenW / 390).clamp(0.8, 1.3);
     final groupList = groups.entries.toList();
 
     final children = groupList.asMap().entries.expand((groupEntry) {
@@ -289,7 +290,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     int entryIdx,
     double screenW,
   ) {
-    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (screenW / 390).clamp(0.8, 1.3);
     final totalIdx = groupIdx * 100 + entryIdx;
     final cfg =
         _sourceConfig(t)[e.sourceType] ??
@@ -395,7 +396,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
   }
 
   Widget _emptyState(BloomTheme t, double screenW) {
-    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (screenW / 390).clamp(0.8, 1.3);
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: rs(32)),

@@ -106,7 +106,7 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -289,7 +289,7 @@ class _RewardRevealState extends State<_RewardReveal> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final w = size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

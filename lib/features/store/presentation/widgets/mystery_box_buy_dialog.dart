@@ -44,7 +44,7 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
     final remaining = balance - pool.jewelCost;
     final ValueNotifier<bool> isPending = ValueNotifier(false);
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return StatefulBuilder(
       builder: (_, setLocalState) => Dialog(

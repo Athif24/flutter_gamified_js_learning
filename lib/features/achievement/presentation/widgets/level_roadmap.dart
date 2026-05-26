@@ -15,7 +15,7 @@ class LevelRoadmap extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final sorted = List<LevelModel>.from(levels)
       ..sort((a, b) => a.requiredXp.compareTo(b.requiredXp));

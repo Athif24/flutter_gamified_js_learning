@@ -48,7 +48,7 @@ class _StoreSkeletonState extends State<StoreSkeleton>
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return ListView(
       padding: EdgeInsets.all(rs(20)),
       children: [
