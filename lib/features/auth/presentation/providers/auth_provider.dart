@@ -157,9 +157,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> updateProfile({String? avatar}) async {
     await _ds.updateProfile(avatar: avatar);
-    if (avatar != null && state.user != null) {
-      state = state.copyWith(user: state.user!.copyWith(avatar: avatar));
-    }
+    await refreshMe();
   }
 
   Future<void> setWizardCompleted() async {
