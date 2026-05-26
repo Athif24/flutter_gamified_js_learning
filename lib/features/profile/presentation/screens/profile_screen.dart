@@ -31,6 +31,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../../data/models/profile_model.dart';
 import '../widgets/crop_screen.dart';
+import '../../../../shared/widgets/game_3d_button.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -92,13 +93,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   },
                 ),
                 data: (p) => RefreshIndicator(
-                onRefresh: () async {
-                  await _silentRefresh();
-                },
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-                  child: Column(
+                  onRefresh: () async {
+                    await _silentRefresh();
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                    child: Column(
                       children: [
                         _ProfileHeroCard(t: t, profile: p, ref: ref),
                         const SizedBox(height: 16),
@@ -162,6 +163,8 @@ class _ProfileHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final initials = profile.initials;
 
     return Stack(
@@ -191,7 +194,7 @@ class _ProfileHeroCard extends StatelessWidget {
                   border: Border.all(color: t.textPrimary, width: 3),
                 ),
                 child: CircleAvatar(
-                  radius: 40,
+                  radius: rs(40).roundToDouble(),
                   backgroundColor: t.bgSurface.withValues(alpha: 0.3),
                   backgroundImage: profile.avatar != null
                       ? NetworkImage(profile.avatar!)
@@ -201,7 +204,7 @@ class _ProfileHeroCard extends StatelessWidget {
                           initials,
                           style: GoogleFonts.nunito(
                             color: t.primary,
-                            fontSize: 28,
+                            fontSize: rs(28),
                             fontWeight: FontWeight.w900,
                           ),
                         )
@@ -209,20 +212,28 @@ class _ProfileHeroCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                profile.name,
-                style: GoogleFonts.nunito(
-                  color: t.primaryContent,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  profile.name,
+                  style: GoogleFonts.nunito(
+                    color: t.primaryContent,
+                    fontSize: rs(24),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                profile.email,
-                style: GoogleFonts.nunito(
-                  color: t.primaryContent.withValues(alpha: 0.8),
-                  fontSize: 14,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  profile.email,
+                  style: GoogleFonts.nunito(
+                    color: t.primaryContent.withValues(alpha: 0.8),
+                    fontSize: rs(14),
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
@@ -244,7 +255,7 @@ class _ProfileHeroCard extends StatelessWidget {
                         profile.levelTitle,
                         style: GoogleFonts.nunito(
                           color: t.primaryContent,
-                          fontSize: 12,
+                          fontSize: rs(12),
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -263,7 +274,7 @@ class _ProfileHeroCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.calendar_today_rounded,
-                          size: 12,
+                          size: rs(12),
                           color: t.primaryContent.withValues(alpha: 0.8),
                         ),
                         const SizedBox(width: 4),
@@ -271,7 +282,7 @@ class _ProfileHeroCard extends StatelessWidget {
                           'Bergabung ${profile.daysSinceJoined} hari lalu',
                           style: GoogleFonts.nunito(
                             color: t.primaryContent.withValues(alpha: 0.8),
-                            fontSize: 12,
+                            fontSize: rs(12),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -308,14 +319,14 @@ class _ProfileHeroCard extends StatelessWidget {
                       Icon(
                         Icons.edit_outlined,
                         color: t.secondaryContent,
-                        size: 16,
+                        size: rs(16),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Edit Profile',
                         style: GoogleFonts.nunito(
                           color: t.secondaryContent,
-                          fontSize: 14,
+                          fontSize: rs(14),
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -367,8 +378,8 @@ class _ProfileHeroCard extends StatelessWidget {
             onTap: () => showThemePicker(context, ref),
             hitTestBehavior: HitTestBehavior.opaque,
             child: Container(
-              width: 36,
-              height: 36,
+              width: rs(36),
+              height: rs(36),
               decoration: BoxDecoration(
                 color: t.bgSurface.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(10),
@@ -384,7 +395,7 @@ class _ProfileHeroCard extends StatelessWidget {
               child: Icon(
                 Icons.palette_rounded,
                 color: t.textPrimary,
-                size: 18,
+                size: rs(18),
               ),
             ),
           ),
@@ -405,19 +416,7 @@ class _ProfileStatsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final streakActive = profile.currentStreak > 0;
 
-    int? daysSinceLastActivity;
-    if (profile.lastActivityDate != null) {
-      final last = DateTime.tryParse(profile.lastActivityDate!);
-      if (last != null) {
-        daysSinceLastActivity = DateTime.now().difference(last).inDays;
-      }
-    }
-
-    final streakLabel = streakActive
-        ? 'STREAK HARI INI'
-        : daysSinceLastActivity != null && daysSinceLastActivity > 1
-        ? 'STREAK BERAKHIR ($daysSinceLastActivity HARI LALU)'
-        : 'STREAK HARI INI';
+    final streakLabel = 'STREAK HARI INI';
 
     final streakValue = profile.currentStreak > 0
         ? '${profile.currentStreak} hari'
@@ -497,72 +496,85 @@ class _StatCard extends StatelessWidget {
   const _StatCard({required this.t, required this.data});
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Color.alphaBlend(data.color.withValues(alpha: 0.08), t.bgSurface),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: t.textPrimary, width: 2),
-      boxShadow: [
-        BoxShadow(
-          color: t.textPrimary,
-          offset: const Offset(3, 3),
-          blurRadius: 0,
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          data.color.withValues(alpha: 0.08),
+          t.bgSurface,
         ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: data.color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: data.color.withValues(alpha: 0.4),
-              width: 2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: t.textPrimary, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: t.textPrimary,
+            offset: const Offset(3, 3),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: rs(40),
+            height: rs(40),
+            decoration: BoxDecoration(
+              color: data.color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: data.color.withValues(alpha: 0.4),
+                width: 2,
+              ),
+            ),
+            child: Center(
+              child: Icon(data.icon, color: data.color, size: rs(20)),
             ),
           ),
-          child: Center(child: Icon(data.icon, color: data.color, size: 20)),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          data.label,
-          style: GoogleFonts.nunito(
-            color: t.mutedText,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
+          const SizedBox(height: 12),
+          Text(
+            data.label,
+            style: GoogleFonts.nunito(
+              color: t.mutedText,
+              fontSize: rs(11),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          data.value,
-          style: GoogleFonts.nunito(
-            color: t.textPrimary,
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              data.value,
+              style: GoogleFonts.nunito(
+                color: t.textPrimary,
+                fontSize: rs(20),
+                fontWeight: FontWeight.w900,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          data.sub,
-          style: GoogleFonts.nunito(
-            color: t.textPrimary.withValues(alpha: 0.5),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+          const SizedBox(height: 2),
+          Text(
+            data.sub,
+            style: GoogleFonts.nunito(
+              color: t.textPrimary.withValues(alpha: 0.5),
+              fontSize: rs(11),
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 // ── Learning Summary ───────────────────────────────────────────────────────────
@@ -574,6 +586,8 @@ class _LearningSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final courseRate = profile.coursesEnrolled > 0
         ? (profile.coursesCompleted / profile.coursesEnrolled * 100).round()
         : 0;
@@ -601,7 +615,7 @@ class _LearningSummary extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.menu_book_rounded, color: t.primary, size: 20),
+              Icon(Icons.menu_book_rounded, color: t.primary, size: rs(20)),
               const SizedBox(width: 8),
               Expanded(
                 child: SingleChildScrollView(
@@ -611,7 +625,7 @@ class _LearningSummary extends StatelessWidget {
                     maxLines: 1,
                     style: GoogleFonts.nunito(
                       color: t.textPrimary,
-                      fontSize: 16,
+                      fontSize: rs(16),
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -634,7 +648,7 @@ class _LearningSummary extends StatelessWidget {
                   '${profile.lessonsCompleted} lesson selesai',
                   style: GoogleFonts.nunito(
                     color: t.primary,
-                    fontSize: 11,
+                    fontSize: rs(11),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -736,71 +750,75 @@ class _ProgressBlock extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: t.bgSurface2.withValues(alpha: 0.4),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: t.textPrimary.withValues(alpha: 0.15),
-        width: 2,
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: t.bgSurface2.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: t.textPrimary.withValues(alpha: 0.15),
+          width: 2,
+        ),
       ),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.nunito(
-                color: t.textSecondary.withValues(alpha: 0.6),
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.nunito(
+                  color: t.textSecondary.withValues(alpha: 0.6),
+                  fontSize: rs(12),
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                value,
+                style: GoogleFonts.nunito(
+                  color: t.textPrimary,
+                  fontSize: rs(14),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: t.textPrimary.withValues(alpha: 0.15)),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: pct / 100.0,
+                backgroundColor: t.bgSurface3,
+                valueColor: AlwaysStoppedAnimation(t.primary),
+                minHeight: 6,
               ),
             ),
-            const Spacer(),
-            Text(
-              value,
-              style: GoogleFonts.nunito(
-                color: t.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: 8,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: t.textPrimary.withValues(alpha: 0.15)),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: pct / 100.0,
-              backgroundColor: t.bgSurface3,
-              valueColor: AlwaysStoppedAnimation(t.primary),
-              minHeight: 6,
+          const SizedBox(height: 4),
+          Text(
+            sub,
+            style: GoogleFonts.nunito(
+              color: t.textHint,
+              fontSize: rs(11),
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          sub,
-          style: GoogleFonts.nunito(
-            color: t.textHint,
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _MiniStat extends StatelessWidget {
@@ -820,68 +838,74 @@ class _MiniStat extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      color: t.bgSurface2.withValues(alpha: 0.4),
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(
-        color: t.textPrimary.withValues(alpha: 0.15),
-        width: 2,
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: t.bgSurface2.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: t.textPrimary.withValues(alpha: 0.15),
+          width: 2,
+        ),
       ),
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: borderColor),
+      child: Row(
+        children: [
+          Container(
+            width: rs(32),
+            height: rs(32),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: borderColor),
+            ),
+            child: Center(
+              child: Icon(icon, color: iconColor, size: rs(16)),
+            ),
           ),
-          child: Center(child: Icon(icon, color: iconColor, size: 16)),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.nunito(
-                    color: t.textSecondary.withValues(alpha: 0.55),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.nunito(
+                      color: t.textSecondary.withValues(alpha: 0.55),
+                      fontSize: rs(10),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
-              ),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.nunito(
-                    color: t.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.nunito(
+                      color: t.textPrimary,
+                      fontSize: rs(14),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 // ── Recent Activity ────────────────────────────────────────────────────────────
@@ -939,6 +963,8 @@ class _RecentActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final totalXp = entries.fold<int>(0, (sum, e) => sum + e.xpEarned);
 
     return Container(
@@ -961,13 +987,13 @@ class _RecentActivity extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.timeline_rounded, color: t.accent, size: 20),
+              Icon(Icons.timeline_rounded, color: t.accent, size: rs(20)),
               const SizedBox(width: 8),
               Text(
                 'Aktivitas Terbaru',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
-                  fontSize: 16,
+                  fontSize: rs(16),
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -987,13 +1013,13 @@ class _RecentActivity extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.bolt_rounded, color: t.warning, size: 14),
+                    Icon(Icons.bolt_rounded, color: t.warning, size: rs(14)),
                     const SizedBox(width: 3),
                     Text(
                       '+${formatNumber(totalXp)} XP',
                       style: GoogleFonts.nunito(
                         color: t.warning,
-                        fontSize: 11,
+                        fontSize: rs(11),
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -1004,7 +1030,7 @@ class _RecentActivity extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (entries.isEmpty)
-            _emptyActivity(t)
+            _emptyActivity(t, w)
           else
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 320),
@@ -1012,7 +1038,7 @@ class _RecentActivity extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: entries.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (ctx, i) => _buildEntry(t, entries[i]),
+                itemBuilder: (ctx, i) => _buildEntry(t, entries[i], w),
               ),
             ),
         ],
@@ -1020,7 +1046,11 @@ class _RecentActivity extends StatelessWidget {
     ).animate().fadeIn(delay: 200.ms);
   }
 
-  Widget _buildEntry(BloomTheme t, RecentXpEntry e) {
+  static double _rsEntry(double px, double screenW) =>
+      px * (screenW / 390).clamp(0.8, 1.3);
+
+  Widget _buildEntry(BloomTheme t, RecentXpEntry e, double screenW) {
+    final rs = (double px) => _rsEntry(px, screenW);
     final cfg = _sourceConfig[e.sourceType] ?? _sourceConfig['lesson']!;
     final icon = cfg['icon'] as IconData;
     final label = cfg['label'] as String;
@@ -1056,8 +1086,8 @@ class _RecentActivity extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: rs(36),
+              height: rs(36),
               decoration: BoxDecoration(
                 color: bgColor,
                 borderRadius: BorderRadius.circular(12),
@@ -1065,7 +1095,7 @@ class _RecentActivity extends StatelessWidget {
                   color: t.textPrimary.withValues(alpha: 0.35),
                 ),
               ),
-              child: Icon(icon, color: iconColor, size: 16),
+              child: Icon(icon, color: iconColor, size: rs(16)),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1076,13 +1106,16 @@ class _RecentActivity extends StatelessWidget {
                     label,
                     style: GoogleFonts.nunito(
                       color: t.textPrimary,
-                      fontSize: 14,
+                      fontSize: rs(14),
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   Text(
                     '${_dateLabel(e.createdAt)} • ${_timeStr(e.createdAt)}',
-                    style: GoogleFonts.nunito(color: t.textHint, fontSize: 11),
+                    style: GoogleFonts.nunito(
+                      color: t.textHint,
+                      fontSize: rs(11),
+                    ),
                   ),
                 ],
               ),
@@ -1100,13 +1133,13 @@ class _RecentActivity extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.bolt_rounded, color: t.warning, size: 14),
+                  Icon(Icons.bolt_rounded, color: t.warning, size: rs(14)),
                   const SizedBox(width: 3),
                   Text(
                     '+${formatNumber(e.xpEarned)}',
                     style: GoogleFonts.nunito(
                       color: t.warning,
-                      fontSize: 14,
+                      fontSize: rs(14),
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1119,41 +1152,44 @@ class _RecentActivity extends StatelessWidget {
     );
   }
 
-  Widget _emptyActivity(BloomTheme t) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(vertical: 40),
-    decoration: BoxDecoration(
-      color: t.bgSurface2,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: t.textPrimary, width: 2),
-      boxShadow: [
-        BoxShadow(
-          color: t.textPrimary,
-          offset: const Offset(3, 3),
-          blurRadius: 0,
-        ),
-      ],
-    ),
-    child: Column(
-      children: [
-        Icon(Icons.bolt_rounded, size: 40, color: t.mutedText),
-        const SizedBox(height: 8),
-        Text(
-          'Belum ada aktivitas terbaru',
-          style: GoogleFonts.nunito(
-            color: t.mutedText,
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
+  Widget _emptyActivity(BloomTheme t, double screenW) {
+    final rs = (double px) => _rsEntry(px, screenW);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      decoration: BoxDecoration(
+        color: t.bgSurface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: t.textPrimary, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: t.textPrimary,
+            offset: const Offset(3, 3),
+            blurRadius: 0,
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Selesaikan quiz atau lesson untuk mulai kumpulkan XP.',
-          style: GoogleFonts.nunito(color: t.mutedText, fontSize: 11),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.bolt_rounded, size: rs(40), color: t.mutedText),
+          const SizedBox(height: 8),
+          Text(
+            'Belum ada aktivitas terbaru',
+            style: GoogleFonts.nunito(
+              color: t.mutedText,
+              fontSize: rs(13),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Selesaikan quiz atau lesson untuk mulai kumpulkan XP.',
+            style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(11)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // ── Account Section ────────────────────────────────────────────────────────────
@@ -1200,6 +1236,8 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = widget.t;
 
     return Container(
@@ -1222,13 +1260,13 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_rounded, color: t.accent, size: 20),
+              Icon(Icons.shield_rounded, color: t.accent, size: rs(20)),
               const SizedBox(width: 8),
               Text(
                 'Akun & Keamanan',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
-                  fontSize: 16,
+                  fontSize: rs(16),
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -1249,8 +1287,8 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: rs(40),
+                  height: rs(40),
                   decoration: BoxDecoration(
                     color: t.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -1258,7 +1296,11 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                       color: t.textPrimary.withValues(alpha: 0.35),
                     ),
                   ),
-                  child: Icon(Icons.email_rounded, color: t.primary, size: 20),
+                  child: Icon(
+                    Icons.email_rounded,
+                    color: t.primary,
+                    size: rs(20),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1269,7 +1311,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                         'EMAIL LOGIN',
                         style: GoogleFonts.nunito(
                           color: t.textSecondary.withValues(alpha: 0.55),
-                          fontSize: 11,
+                          fontSize: rs(11),
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                         ),
@@ -1278,7 +1320,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                         widget.email,
                         style: GoogleFonts.nunito(
                           color: t.textPrimary,
-                          fontSize: 14,
+                          fontSize: rs(14),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1303,8 +1345,8 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: rs(40),
+                  height: rs(40),
                   decoration: BoxDecoration(
                     color: t.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -1315,7 +1357,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                   child: Icon(
                     Icons.notifications_outlined,
                     color: t.primary,
-                    size: 20,
+                    size: rs(20),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1327,7 +1369,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                         'Notifikasi',
                         style: GoogleFonts.nunito(
                           color: t.textPrimary,
-                          fontSize: 14,
+                          fontSize: rs(14),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1335,7 +1377,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                         'Terima notifikasi belajar',
                         style: GoogleFonts.nunito(
                           color: t.textHint,
-                          fontSize: 12,
+                          fontSize: rs(12),
                         ),
                       ),
                     ],
@@ -1380,14 +1422,14 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                           Icon(
                             Icons.lock_rounded,
                             color: t.primaryContent,
-                            size: 16,
+                            size: rs(16),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             'Ubah Password',
                             style: GoogleFonts.nunito(
                               color: t.primaryContent,
-                              fontSize: 14,
+                              fontSize: rs(14),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -1426,14 +1468,14 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                             Icon(
                               Icons.logout_rounded,
                               color: t.bgPrimary,
-                              size: 16,
+                              size: rs(16),
                             ),
                             const SizedBox(width: 6),
                             Text(
                               'Keluar',
                               style: GoogleFonts.nunito(
                                 color: t.bgPrimary,
-                                fontSize: 14,
+                                fontSize: rs(14),
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -1450,7 +1492,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
           Text(
             'Untuk keamanan, ganti password secara berkala dan pastikan tidak '
             'menggunakan password yang sama dengan akun lain.',
-            style: GoogleFonts.nunito(color: t.textHint, fontSize: 12),
+            style: GoogleFonts.nunito(color: t.textHint, fontSize: rs(12)),
           ),
         ],
       ),
@@ -1767,171 +1809,101 @@ Future<void> _showEditProfile(
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Bounceable(
-                        onTap: () => Navigator.of(ctx).pop(),
-                        child: Semantics(
-                          label: 'Batalkan perubahan',
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.secondary,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: t.textPrimary,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: t.textPrimary,
-                                  offset: const Offset(2, 2),
-                                  blurRadius: 0,
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              'Batal',
-                              style: GoogleFonts.nunito(
-                                color: t.secondaryContent,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
+                      Expanded(
+                        child: Game3DButton(
+                          label: 'Batal',
+                          color: t.secondary,
+                          shadowColor: t.textPrimary,
+                          textColor: t.secondaryContent,
+                          onTap: () => Navigator.of(ctx).pop(),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Bounceable(
-                        onTap: isLoading
-                            ? null
-                            : () async {
-                                if (!formKey.currentState!.validate()) return;
-                                setState(() => isLoading = true);
-                                try {
-                                  String? uploadedUrl;
-                                  if (avatarFile != null) {
-                                    uploadedUrl =
-                                        await CloudinaryService.uploadImage(
-                                          avatarFile!.path,
-                                        );
+                      Expanded(
+                        child: Game3DButton(
+                          label: 'Simpan',
+                          color: t.primary,
+                          shadowColor: t.textPrimary,
+                          textColor: t.primaryContent,
+                          onTap: isLoading
+                              ? null
+                              : () async {
+                                  if (!formKey.currentState!.validate()) return;
+                                  setState(() => isLoading = true);
+                                  try {
+                                    String? uploadedUrl;
+                                    if (avatarFile != null) {
+                                      uploadedUrl =
+                                          await CloudinaryService.uploadImage(
+                                            avatarFile!.path,
+                                          );
+                                    }
+                                    final updateData = <String, dynamic>{
+                                      'name': nameController.text.trim(),
+                                      'email': emailController.text.trim(),
+                                    };
+                                    if (avatarFile != null) {
+                                      updateData['avatar'] = uploadedUrl!;
+                                    } else if (avatarUrl == null &&
+                                        profile.avatar != null) {
+                                      updateData['avatar'] = '';
+                                    }
+                                    await ref
+                                        .read(profileDsProvider)
+                                        .updateProfile(updateData);
+                                    ref.invalidate(profileProvider);
+                                    ref.read(authProvider.notifier).refreshMe();
+                                    if (ctx.mounted) Navigator.of(ctx).pop();
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Profil berhasil diperbarui',
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          backgroundColor: t.success,
+                                          behavior: SnackBarBehavior.floating,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    setState(() => isLoading = false);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            e.toString().replaceAll(
+                                              'Exception: ',
+                                              '',
+                                            ),
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          backgroundColor: t.error,
+                                          behavior: SnackBarBehavior.floating,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   }
-                                  final updateData = <String, dynamic>{
-                                    'name': nameController.text.trim(),
-                                    'email': emailController.text.trim(),
-                                  };
-                                  if (avatarFile != null) {
-                                    updateData['avatar'] = uploadedUrl!;
-                                  } else if (avatarUrl == null &&
-                                      profile.avatar != null) {
-                                    updateData['avatar'] = '';
-                                  }
-                                  await ref
-                                      .read(profileDsProvider)
-                                      .updateProfile(updateData);
-                                  ref.invalidate(profileProvider);
-                                  ref.read(authProvider.notifier).refreshMe();
-                                  if (ctx.mounted) Navigator.of(ctx).pop();
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Profil berhasil diperbarui',
-                                          style: GoogleFonts.nunito(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        backgroundColor: t.success,
-                                        behavior: SnackBarBehavior.floating,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  setState(() => isLoading = false);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          e.toString().replaceAll(
-                                            'Exception: ',
-                                            '',
-                                          ),
-                                          style: GoogleFonts.nunito(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        backgroundColor: t.error,
-                                        behavior: SnackBarBehavior.floating,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                        child: Semantics(
-                          label: 'Simpan perubahan',
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.primary,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: t.textPrimary,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: t.textPrimary,
-                                  offset: const Offset(2, 2),
-                                  blurRadius: 0,
-                                ),
-                              ],
-                            ),
-                            child: isLoading
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: t.bgPrimary,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        'Menyimpan...',
-                                        style: GoogleFonts.nunito(
-                                          color: t.bgPrimary,
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : Text(
-                                    'Simpan',
-                                    style: GoogleFonts.nunito(
-                                      color: t.primaryContent,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                          ),
+                                },
+                          isLoading: isLoading,
                         ),
                       ),
                     ],
@@ -2183,70 +2155,74 @@ Future<void> _showChangePassword(
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Bounceable(
-                            onTap: () => Navigator.of(ctx).pop(),
-                            child: Semantics(
-                              label: 'Batalkan perubahan',
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: t.secondary,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: t.textPrimary,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: t.textPrimary,
-                                      offset: const Offset(2, 2),
-                                      blurRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                                child: Text(
-                                  'Batal',
-                                  style: GoogleFonts.nunito(
-                                    color: t.secondaryContent,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
+                          Expanded(
+                            child: Game3DButton(
+                              label: 'Batal',
+                              color: t.secondary,
+                              shadowColor: t.textPrimary,
+                              textColor: t.secondaryContent,
+                              onTap: () => Navigator.of(ctx).pop(),
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Bounceable(
-                            onTap: isLoading
-                                ? null
-                                : () async {
-                                    if (!formKey.currentState!.validate())
-                                      return;
-                                    setState(() => isLoading = true);
-                                    try {
-                                      final error = await ref
-                                          .read(authProvider.notifier)
-                                          .changePassword(
-                                            currentPwController.text,
-                                            newPwController.text,
-                                          );
-                                      if (error != null) {
-                                        setState(() => isLoading = false);
+                          Expanded(
+                            child: Game3DButton(
+                              label: 'Simpan',
+                              color: t.primary,
+                              shadowColor: t.textPrimary,
+                              textColor: t.primaryContent,
+                              onTap: isLoading
+                                  ? null
+                                  : () async {
+                                      if (!formKey.currentState!.validate())
+                                        return;
+                                      setState(() => isLoading = true);
+                                      try {
+                                        final error = await ref
+                                            .read(authProvider.notifier)
+                                            .changePassword(
+                                              currentPwController.text,
+                                              newPwController.text,
+                                            );
+                                        if (error != null) {
+                                          setState(() => isLoading = false);
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  error,
+                                                  style: GoogleFonts.nunito(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                backgroundColor: t.error,
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          return;
+                                        }
+                                        if (ctx.mounted)
+                                          Navigator.of(ctx).pop();
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                error,
+                                                'Password berhasil diubah!',
                                                 style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w600,
+                                                  fontWeight: FontWeight.w700,
                                                 ),
                                               ),
-                                              backgroundColor: t.error,
+                                              backgroundColor: t.success,
                                               behavior:
                                                   SnackBarBehavior.floating,
                                               shape: RoundedRectangleBorder(
@@ -2256,87 +2232,11 @@ Future<void> _showChangePassword(
                                             ),
                                           );
                                         }
-                                        return;
+                                      } catch (_) {
+                                        setState(() => isLoading = false);
                                       }
-                                      if (ctx.mounted) Navigator.of(ctx).pop();
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Password berhasil diubah!',
-                                              style: GoogleFonts.nunito(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                            backgroundColor: t.success,
-                                            behavior: SnackBarBehavior.floating,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    } catch (_) {
-                                      setState(() => isLoading = false);
-                                    }
-                                  },
-                            child: Semantics(
-                              label: 'Simpan perubahan',
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: t.primary,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: t.textPrimary,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: t.textPrimary,
-                                      offset: const Offset(2, 2),
-                                      blurRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                                child: isLoading
-                                    ? Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: t.bgPrimary,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            'Menyimpan...',
-                                            style: GoogleFonts.nunito(
-                                              color: t.bgPrimary,
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Text(
-                                        'Simpan',
-                                        style: GoogleFonts.nunito(
-                                          color: t.primaryContent,
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                              ),
+                                    },
+                              isLoading: isLoading,
                             ),
                           ),
                         ],
@@ -2408,108 +2308,40 @@ Future<void> _showLogoutConfirm(
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Bounceable(
-                    onTap: () => Navigator.of(ctx).pop(),
-                    child: Semantics(
-                      label: 'Batalkan logout',
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.secondary,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: const Offset(2, 2),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'Batal',
-                          style: GoogleFonts.nunito(
-                            color: t.secondaryContent,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
+                  Expanded(
+                    child: Game3DButton(
+                      label: 'Batal',
+                      color: t.secondary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.secondaryContent,
+                      onTap: () => Navigator.of(ctx).pop(),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Bounceable(
-                    onTap: isLoading
-                        ? null
-                        : () async {
-                            setState(() => isLoading = true);
-                            await ref.read(authProvider.notifier).logout();
+                  Expanded(
+                    child: Game3DButton(
+                      label: 'Keluar',
+                      color: t.error,
+                      shadowColor: t.textPrimary,
+                      textColor: t.bgPrimary,
+                      onTap: isLoading
+                          ? null
+                          : () async {
+                              setState(() => isLoading = true);
+                              await ref.read(authProvider.notifier).logout();
 
-                            invalidateGamificationProviders(ref);
-                            ref.invalidate(coursesProvider);
-                            ref.invalidate(courseDetailProvider);
-                            ref.invalidate(storeItemsProvider);
-                            ref.invalidate(inventoryProvider);
-                            ref.invalidate(rewardPoolsProvider);
-                            ref.read(navIndexProvider.notifier).state = 0;
+                              invalidateGamificationProviders(ref);
+                              ref.invalidate(coursesProvider);
+                              ref.invalidate(courseDetailProvider);
+                              ref.invalidate(storeItemsProvider);
+                              ref.invalidate(inventoryProvider);
+                              ref.invalidate(rewardPoolsProvider);
+                              ref.read(navIndexProvider.notifier).state = 0;
 
-                            if (ctx.mounted) Navigator.of(ctx).pop();
-                            if (context.mounted) context.go('/login');
-                          },
-                    child: Semantics(
-                      label: 'Konfirmasi logout',
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.error.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: const Offset(2, 2),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: isLoading
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    width: 14,
-                                    height: 14,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: t.bgPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Keluar...',
-                                    style: GoogleFonts.nunito(
-                                      color: t.bgPrimary,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                'Keluar',
-                                style: GoogleFonts.nunito(
-                                  color: t.bgPrimary,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 13,
-                                ),
-                              ),
-                      ),
+                              if (ctx.mounted) Navigator.of(ctx).pop();
+                              if (context.mounted) context.go('/login');
+                            },
+                      isLoading: isLoading,
                     ),
                   ),
                 ],
@@ -2521,5 +2353,3 @@ Future<void> _showLogoutConfirm(
     ),
   );
 }
-
-

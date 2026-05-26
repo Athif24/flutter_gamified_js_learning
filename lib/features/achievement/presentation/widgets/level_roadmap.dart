@@ -14,6 +14,8 @@ class LevelRoadmap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final w = MediaQuery.of(context).size.width;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final sorted = List<LevelModel>.from(levels)
       ..sort((a, b) => a.requiredXp.compareTo(b.requiredXp));
@@ -24,7 +26,7 @@ class LevelRoadmap extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(rs(20)),
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(24),
@@ -42,13 +44,13 @@ class LevelRoadmap extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.map_rounded, color: t.primary, size: 20),
+              Icon(Icons.map_rounded, color: t.primary, size: rs(20)),
               const SizedBox(width: 8),
               Text(
                 'Peta Level',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
-                  fontSize: 16,
+                  fontSize: rs(16),
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -57,7 +59,7 @@ class LevelRoadmap extends ConsumerWidget {
                 '${currentLevelIdx + 1} / ${sorted.length} level',
                 style: GoogleFonts.nunito(
                   color: t.mutedText,
-                  fontSize: 14,
+                  fontSize: rs(14),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -95,7 +97,7 @@ class LevelRoadmap extends ConsumerWidget {
                     margin: EdgeInsets.only(
                       bottom: i < sorted.length - 1 ? 12 : 0,
                     ),
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(rs(16)),
                     decoration: BoxDecoration(
                       color: isCurrent
                           ? t.primary.withAlpha(12)
@@ -126,13 +128,13 @@ class LevelRoadmap extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: 28,
+                            width: rs(28),
                             child: Column(
                               children: [
                                 const SizedBox(height: 2),
                                 Container(
-                                  width: 28,
-                                  height: 28,
+                                  width: rs(28),
+                                  height: rs(28),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: isPassed
@@ -154,18 +156,18 @@ class LevelRoadmap extends ConsumerWidget {
                                         ? Icon(
                                             Icons.check_rounded,
                                             color: t.primaryContent,
-                                            size: 16,
+                                            size: rs(16),
                                           )
                                         : isCurrent
                                         ? Icon(
                                             Icons.star_rounded,
                                             color: t.primaryContent,
-                                            size: 14,
+                                            size: rs(14),
                                           )
                                         : Icon(
                                             Icons.lock_rounded,
                                             color: t.mutedText.withAlpha(100),
-                                            size: 14,
+                                            size: rs(14),
                                           ),
                                   ),
                                 ),
@@ -185,10 +187,8 @@ class LevelRoadmap extends ConsumerWidget {
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        ConstrainedBox(
-                                          constraints: const BoxConstraints(
-                                            maxWidth: 140,
-                                          ),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
                                           child: Text(
                                             level.name,
                                             style: GoogleFonts.nunito(
@@ -198,7 +198,7 @@ class LevelRoadmap extends ConsumerWidget {
                                                   ? t.success
                                                   : t.mutedText.withAlpha(127),
                                               fontWeight: FontWeight.w800,
-                                              fontSize: 14,
+                                              fontSize: rs(14),
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -206,9 +206,9 @@ class LevelRoadmap extends ConsumerWidget {
                                         if (isCurrent) ...[
                                           const SizedBox(width: 8),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: rs(8),
+                                              vertical: rs(2),
                                             ),
                                             decoration: BoxDecoration(
                                               color: t.primary.withAlpha(25),
@@ -218,13 +218,16 @@ class LevelRoadmap extends ConsumerWidget {
                                                 color: t.primary.withAlpha(100),
                                               ),
                                             ),
-                                            child: Text(
-                                              'SEKARANG',
-                                              style: GoogleFonts.nunito(
-                                                color: t.primary,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w900,
-                                                letterSpacing: 0.5,
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                'SEKARANG',
+                                                style: GoogleFonts.nunito(
+                                                  color: t.primary,
+                                                  fontSize: rs(10),
+                                                  fontWeight: FontWeight.w900,
+                                                  letterSpacing: 0.5,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -232,9 +235,9 @@ class LevelRoadmap extends ConsumerWidget {
                                         if (isPassed) ...[
                                           const SizedBox(width: 8),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: rs(8),
+                                              vertical: rs(2),
                                             ),
                                             decoration: BoxDecoration(
                                               color: t.success.withAlpha(25),
@@ -244,13 +247,16 @@ class LevelRoadmap extends ConsumerWidget {
                                                 color: t.success.withAlpha(100),
                                               ),
                                             ),
-                                            child: Text(
-                                              'SELESAI',
-                                              style: GoogleFonts.nunito(
-                                                color: t.success,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w900,
-                                                letterSpacing: 0.5,
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                'SELESAI',
+                                                style: GoogleFonts.nunito(
+                                                  color: t.success,
+                                                  fontSize: rs(10),
+                                                  fontWeight: FontWeight.w900,
+                                                  letterSpacing: 0.5,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -263,33 +269,39 @@ class LevelRoadmap extends ConsumerWidget {
                                         Icon(
                                           Icons.bolt_rounded,
                                           color: t.warning,
-                                          size: 14,
+                                          size: rs(14),
                                         ),
                                         const SizedBox(width: 4),
-                                        Text(
-                                          '${formatNumber(level.requiredXp)} XP',
-                                          style: GoogleFonts.nunito(
-                                            color: t.mutedText,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            '${formatNumber(level.requiredXp)} XP',
+                                            style: GoogleFonts.nunito(
+                                              color: t.mutedText,
+                                              fontSize: rs(11),
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                         ),
                                         if (level.rewardJewels > 0) ...[
                                           const SizedBox(width: 8),
-                                          Text(
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
                                             '+${level.rewardJewels}',
                                             style: GoogleFonts.nunito(
                                               color: t.info,
-                                              fontSize: 11,
+                                              fontSize: rs(11),
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
-                                          const SizedBox(width: 2),
-                                          Icon(
-                                            Icons.diamond_rounded,
-                                            color: t.info,
-                                            size: 14,
-                                          ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Icon(
+                                          Icons.diamond_rounded,
+                                          color: t.info,
+                                          size: rs(14),
+                                        ),
                                         ],
                                       ],
                                     ),
@@ -312,17 +324,20 @@ class LevelRoadmap extends ConsumerWidget {
                                         valueColor: AlwaysStoppedAnimation(
                                           t.primary,
                                         ),
-                                        minHeight: 8,
+                                        minHeight: rs(8),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
-                                    '${xpInLevel.clamp(0, 999999)} / $xpNeeded XP dalam level ini',
-                                    style: GoogleFonts.nunito(
-                                      color: t.mutedText,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      '${xpInLevel.clamp(0, 999999)} / $xpNeeded XP dalam level ini',
+                                      style: GoogleFonts.nunito(
+                                        color: t.mutedText,
+                                        fontSize: rs(10),
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ],

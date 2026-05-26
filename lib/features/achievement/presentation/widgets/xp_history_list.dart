@@ -103,6 +103,8 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final sorted = List<XpHistoryEntry>.from(widget.entries)
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -116,7 +118,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(rs(20)),
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(24),
@@ -134,41 +136,45 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
         children: [
           Row(
             children: [
-              Icon(Icons.history_rounded, color: t.mutedText, size: 20),
+              Icon(Icons.history_rounded, color: t.mutedText, size: rs(20)),
               const SizedBox(width: 8),
               Text(
                 'Riwayat XP',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
-                  fontSize: 16,
+                  fontSize: rs(16),
                   fontWeight: FontWeight.w800,
                 ),
               ),
               if (sorted.isNotEmpty || widget.isLoading) const Spacer(),
               if (sorted.isNotEmpty && !widget.isLoading)
-                Text(
-                  'Total ${sorted.length} transaksi',
-                  style: GoogleFonts.nunito(
-                    color: t.mutedText,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Total ${sorted.length} transaksi',
+                    style: GoogleFonts.nunito(
+                      color: t.mutedText,
+                      fontSize: rs(14),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 16),
           if (widget.isLoading)
-            _loadingSkeleton(t)
+            _loadingSkeleton(t, w)
           else if (sorted.isEmpty)
-            _emptyState(t)
+            _emptyState(t, w)
           else
-            _buildList(t, groups),
+            _buildList(t, groups, w),
         ],
       ),
     );
   }
 
-  Widget _loadingSkeleton(BloomTheme t) {
+  Widget _loadingSkeleton(BloomTheme t, double screenW) {
+    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
     return Column(
       children: List.generate(
         6,
@@ -176,7 +182,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
           padding: EdgeInsets.only(top: i == 0 ? 0 : 8),
           child:
               Container(
-                    height: 56,
+                    height: rs(56),
                     decoration: BoxDecoration(
                       color: t.bgSurface2,
                       borderRadius: BorderRadius.circular(12),
@@ -189,7 +195,8 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     );
   }
 
-  Widget _buildList(BloomTheme t, Map<String, List<XpHistoryEntry>> groups) {
+  Widget _buildList(BloomTheme t, Map<String, List<XpHistoryEntry>> groups, double screenW) {
+    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
     final groupList = groups.entries.toList();
 
     final children = groupList.asMap().entries.expand((groupEntry) {
@@ -213,12 +220,12 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: EdgeInsets.symmetric(horizontal: rs(10)),
                     child: Text(
                       dateLabel,
                       style: GoogleFonts.nunito(
                         color: t.mutedText.withAlpha(102),
-                        fontSize: 11,
+                        fontSize: rs(11),
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.1,
                       ),
@@ -240,7 +247,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
 
       for (final entry in groupEntries.asMap().entries) {
         if (entry.key > 0) items.add(const SizedBox(height: 8));
-        items.add(_buildEntry(t, entry.value, groupIdx, entry.key));
+        items.add(_buildEntry(t, entry.value, groupIdx, entry.key, screenW));
       }
 
       return items;
@@ -252,7 +259,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
           padding: const EdgeInsets.only(top: 8),
           child:
               Container(
-                    height: 56,
+                    height: rs(56),
                     decoration: BoxDecoration(
                       color: t.bgSurface2,
                       borderRadius: BorderRadius.circular(12),
@@ -265,7 +272,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     }
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 384),
+      constraints: BoxConstraints(maxHeight: rs(384)),
       child: ListView(
         controller: _scrollController,
         shrinkWrap: true,
@@ -280,7 +287,9 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     XpHistoryEntry e,
     int groupIdx,
     int entryIdx,
+    double screenW,
   ) {
+    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
     final totalIdx = groupIdx * 100 + entryIdx;
     final cfg =
         _sourceConfig(t)[e.sourceType] ??
@@ -300,7 +309,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
         : null;
 
     return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: rs(16), vertical: rs(10)),
           decoration: BoxDecoration(
             color: t.bgSurface2.withAlpha(102),
             borderRadius: BorderRadius.circular(12),
@@ -309,43 +318,49 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
           child: Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: rs(36),
+                height: rs(36),
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: iconColor.withAlpha(76)),
                 ),
-                child: Icon(icon, color: iconColor, size: 18),
+                child: Icon(icon, color: iconColor, size: rs(18)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      label,
-                      style: GoogleFonts.nunito(
-                        color: t.textPrimary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        label,
+                        style: GoogleFonts.nunito(
+                          color: t.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: rs(14),
+                        ),
                       ),
                     ),
                     if (time != null)
-                      Text(
-                        time,
-                        style: GoogleFonts.nunito(
-                          color: t.mutedText.withAlpha(128),
-                          fontSize: 11,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          time,
+                          style: GoogleFonts.nunito(
+                            color: t.mutedText.withAlpha(128),
+                            fontSize: rs(11),
+                          ),
                         ),
                       ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 2,
+                padding: EdgeInsets.symmetric(
+                  horizontal: rs(10),
+                  vertical: rs(2),
                 ),
                 decoration: BoxDecoration(
                   color: t.warning.withAlpha(25),
@@ -355,14 +370,17 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.bolt_rounded, color: t.warning, size: 14),
+                    Icon(Icons.bolt_rounded, color: t.warning, size: rs(14)),
                     const SizedBox(width: 3),
-                    Text(
-                      '+${formatNumber(e.earnedXp)}',
-                      style: GoogleFonts.nunito(
-                        color: t.warning,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '+${formatNumber(e.earnedXp)}',
+                        style: GoogleFonts.nunito(
+                          color: t.warning,
+                          fontWeight: FontWeight.w800,
+                          fontSize: rs(14),
+                        ),
                       ),
                     ),
                   ],
@@ -376,26 +394,27 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
         .slideX(begin: 0.05);
   }
 
-  Widget _emptyState(BloomTheme t) {
+  Widget _emptyState(BloomTheme t, double screenW) {
+    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32),
+      padding: EdgeInsets.symmetric(vertical: rs(32)),
       child: Column(
         children: [
-          Icon(Icons.bolt_rounded, size: 48, color: t.mutedText),
+          Icon(Icons.bolt_rounded, size: rs(48), color: t.mutedText),
           const SizedBox(height: 12),
           Text(
             'Belum ada XP yang dikumpulkan',
             style: GoogleFonts.nunito(
               color: t.mutedText,
-              fontSize: 14,
+              fontSize: rs(14),
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Selesaikan quiz atau pelajaran untuk mendapat XP',
-            style: GoogleFonts.nunito(color: t.mutedText, fontSize: 12),
+            style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(12)),
           ),
         ],
       ),

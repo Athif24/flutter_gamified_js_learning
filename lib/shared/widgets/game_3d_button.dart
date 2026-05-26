@@ -96,15 +96,17 @@ class _Game3DButtonState extends State<Game3DButton> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      widget.label ?? '',
-                      style: GoogleFonts.nunito(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                        color: txtColor,
-                        letterSpacing: 0.5,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.label ?? '',
+                        style: GoogleFonts.nunito(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: txtColor,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
                   ),

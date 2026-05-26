@@ -780,12 +780,15 @@ class _HeroCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Stack(
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Stack(
     clipBehavior: Clip.none,
     children: [
       Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(rs(24)),
         decoration: BoxDecoration(
           color: t.primary,
           borderRadius: BorderRadius.circular(24),
@@ -809,14 +812,14 @@ class _HeroCard extends StatelessWidget {
                   'Progress Kamu',
                   style: GoogleFonts.nunito(
                     color: t.primaryContent.withValues(alpha: 0.8),
-                    fontSize: 14,
+                    fontSize: rs(14),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: rs(8),
+                    vertical: rs(4),
                   ),
                   decoration: BoxDecoration(
                     color: t.primaryContent.withValues(alpha: 0.2),
@@ -829,7 +832,7 @@ class _HeroCard extends StatelessWidget {
                       Icon(
                         Icons.military_tech_rounded,
                         color: t.primaryContent,
-                        size: 12,
+                        size: rs(12),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -837,7 +840,7 @@ class _HeroCard extends StatelessWidget {
                         style: GoogleFonts.nunito(
                           color: t.primaryContent,
                           fontWeight: FontWeight.w800,
-                          fontSize: 11,
+                          fontSize: rs(11),
                         ),
                       ),
                     ],
@@ -845,12 +848,16 @@ class _HeroCard extends StatelessWidget {
                 ),
               ],
             ),
-            Text(
-              name,
-              style: GoogleFonts.nunito(
-                color: t.primaryContent,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                name,
+                style: GoogleFonts.nunito(
+                  color: t.primaryContent,
+                  fontSize: rs(24),
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -864,15 +871,18 @@ class _HeroCard extends StatelessWidget {
                     Icon(
                       Icons.bolt_rounded,
                       color: t.primaryContent.withValues(alpha: 0.8),
-                      size: 16,
+                      size: rs(16),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      '${formatNumber(xp.totalXp)} XP',
-                      style: GoogleFonts.nunito(
-                        color: t.primaryContent.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '${formatNumber(xp.totalXp)} XP',
+                        style: GoogleFonts.nunito(
+                          color: t.primaryContent.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w800,
+                          fontSize: rs(14),
+                        ),
                       ),
                     ),
                   ],
@@ -880,22 +890,27 @@ class _HeroCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      xp.nextLevelTitle != null
-                          ? '${formatNumber(xp.xpToNextLevel)} XP lagi menuju ${xp.nextLevelTitle}'
-                          : 'Max level!',
-                      style: GoogleFonts.nunito(
-                        color: t.primaryContent.withValues(alpha: 0.8),
-                        fontSize: 12,
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          xp.nextLevelTitle != null
+                              ? '${formatNumber(xp.xpToNextLevel)} XP lagi menuju ${xp.nextLevelTitle}'
+                              : 'Max level!',
+                          style: GoogleFonts.nunito(
+                            color: t.primaryContent.withValues(alpha: 0.8),
+                            fontSize: rs(12),
+                          ),
+                        ),
                       ),
                     ),
                     if (xp.nextLevelTitle != null)
                       Padding(
-                        padding: const EdgeInsets.only(left: 4),
+                        padding: EdgeInsets.only(left: rs(4)),
                         child: Icon(
                           Icons.chevron_right,
                           color: t.primaryContent.withValues(alpha: 0.8),
-                          size: 14,
+                          size: rs(14),
                         ),
                       ),
                   ],
@@ -904,7 +919,7 @@ class _HeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Container(
-              height: 24,
+              height: rs(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: t.border.withAlpha(120), width: 2),
@@ -938,7 +953,7 @@ class _HeroCard extends StatelessWidget {
                   xp.levelTitle,
                   style: GoogleFonts.nunito(
                     color: t.primaryContent.withValues(alpha: 0.8),
-                    fontSize: 12,
+                    fontSize: rs(12),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -948,7 +963,7 @@ class _HeroCard extends StatelessWidget {
                     xp.nextLevelTitle!,
                     style: GoogleFonts.nunito(
                       color: t.primaryContent.withValues(alpha: 0.8),
-                      fontSize: 12,
+                      fontSize: rs(12),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -958,7 +973,7 @@ class _HeroCard extends StatelessWidget {
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              padding: EdgeInsets.symmetric(vertical: rs(12), horizontal: rs(16)),
               decoration: BoxDecoration(
                 color: t.bgSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
@@ -974,8 +989,8 @@ class _HeroCard extends StatelessWidget {
                     child: Column(
                       children: [
                         Container(
-                          width: 32,
-                          height: 32,
+                          width: rs(32),
+                          height: rs(32),
                           decoration: BoxDecoration(
                             color: t.warning.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
@@ -988,24 +1003,27 @@ class _HeroCard extends StatelessWidget {
                             child: Icon(
                               Icons.local_fire_department_rounded,
                               color: t.warning,
-                              size: 16,
+                              size: rs(16),
                             ),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          '${streak?.currentStreak ?? 0}',
-                          style: GoogleFonts.nunito(
-                            color: t.primaryContent,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '${streak?.currentStreak ?? 0}',
+                            style: GoogleFonts.nunito(
+                              color: t.primaryContent,
+                              fontSize: rs(18),
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
                         Text(
                           'HARI STREAK',
                           style: GoogleFonts.nunito(
                             color: t.primaryContent.withValues(alpha: 0.8),
-                            fontSize: 10,
+                            fontSize: rs(10),
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
                           ),
@@ -1014,16 +1032,16 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    width: 1,
-                    height: 40,
+                    width: rs(1),
+                    height: rs(40),
                     color: t.textPrimary.withValues(alpha: 0.2),
                   ),
                   Expanded(
                     child: Column(
                       children: [
                         Container(
-                          width: 32,
-                          height: 32,
+                          width: rs(32),
+                          height: rs(32),
                           decoration: BoxDecoration(
                             color: t.info.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
@@ -1036,24 +1054,27 @@ class _HeroCard extends StatelessWidget {
                             child: Icon(
                               Icons.diamond_rounded,
                               color: t.info,
-                              size: 16,
+                              size: rs(16),
                             ),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          formatNumber(xp.jewels),
-                          style: GoogleFonts.nunito(
-                            color: t.primaryContent,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            formatNumber(xp.jewels),
+                            style: GoogleFonts.nunito(
+                              color: t.primaryContent,
+                              fontSize: rs(18),
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
                         Text(
                           'JEWELS',
                           style: GoogleFonts.nunito(
                             color: t.primaryContent.withValues(alpha: 0.8),
-                            fontSize: 10,
+                            fontSize: rs(10),
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
                           ),
@@ -1062,16 +1083,16 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    width: 1,
-                    height: 40,
+                    width: rs(1),
+                    height: rs(40),
                     color: t.textPrimary.withValues(alpha: 0.2),
                   ),
                   Expanded(
                     child: Column(
                       children: [
                         Container(
-                          width: 32,
-                          height: 32,
+                          width: rs(32),
+                          height: rs(32),
                           decoration: BoxDecoration(
                             color: t.error.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
@@ -1084,24 +1105,27 @@ class _HeroCard extends StatelessWidget {
                             child: Icon(
                               Icons.favorite_rounded,
                               color: t.error,
-                              size: 16,
+                              size: rs(16),
                             ),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          '${lives?.current ?? 0}',
-                          style: GoogleFonts.nunito(
-                            color: t.primaryContent,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '${lives?.current ?? 0}',
+                            style: GoogleFonts.nunito(
+                              color: t.primaryContent,
+                              fontSize: rs(18),
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
                         Text(
                           'LIVES',
                           style: GoogleFonts.nunito(
                             color: t.primaryContent.withValues(alpha: 0.8),
-                            fontSize: 10,
+                            fontSize: rs(10),
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
                           ),
@@ -1117,6 +1141,7 @@ class _HeroCard extends StatelessWidget {
       ),
     ],
   );
+}
 }
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -1137,8 +1162,11 @@ class _StatCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Container(
+    padding: EdgeInsets.all(rs(16)),
     decoration: BoxDecoration(
       color: Color.alphaBlend(color.withValues(alpha: 0.08), t.bgSurface),
       borderRadius: BorderRadius.circular(16),
@@ -1156,35 +1184,39 @@ class _StatCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 40,
-          height: 40,
+          width: rs(40),
+          height: rs(40),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: color.withValues(alpha: 0.4), width: 2),
           ),
-          child: Center(child: Icon(icon, color: color, size: 20)),
+          child: Center(child: Icon(icon, color: color, size: rs(20))),
         ),
         const SizedBox(height: 12),
         Text(
           label,
           style: GoogleFonts.nunito(
             color: t.mutedText,
-            fontSize: 11,
+            fontSize: rs(11),
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          value,
-          style: GoogleFonts.nunito(
-            color: t.textPrimary,
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            value,
+            style: GoogleFonts.nunito(
+              color: t.textPrimary,
+              fontSize: rs(20),
+              fontWeight: FontWeight.w900,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
         if (subtitle != null) ...[
           const SizedBox(height: 2),
@@ -1194,7 +1226,7 @@ class _StatCard extends StatelessWidget {
               subtitle!,
               style: GoogleFonts.nunito(
                 color: t.textPrimary.withValues(alpha: 0.5),
-                fontSize: 11,
+                fontSize: rs(11),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1203,6 +1235,7 @@ class _StatCard extends StatelessWidget {
       ],
     ),
   );
+  }
 }
 
 // ── Badges ────────────────────────────────────────────────────────────────────
@@ -1219,15 +1252,18 @@ class _SectionHeader extends StatelessWidget {
     this.count,
   });
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Row(
     children: [
-      Icon(icon, color: t.warning, size: 20),
+      Icon(icon, color: t.warning, size: rs(20)),
       const SizedBox(width: 8),
       Text(
         title,
         style: GoogleFonts.nunito(
           color: t.textPrimary,
-          fontSize: 16,
+          fontSize: rs(16),
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -1237,13 +1273,14 @@ class _SectionHeader extends StatelessWidget {
           count!,
           style: GoogleFonts.nunito(
             color: t.textSecondary,
-            fontSize: 13,
+            fontSize: rs(13),
             fontWeight: FontWeight.w700,
           ),
         ),
       ],
     ],
   );
+  }
 }
 
 class _BadgeCollection extends ConsumerStatefulWidget {
@@ -1295,6 +1332,8 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = widget.t;
     return widget.badgesAsync.when(
       loading: () => _BadgeGridSkeleton(t: t),
@@ -1312,31 +1351,31 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
               const SizedBox(height: 12),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: t.bgSurface2,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: t.textPrimary, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: t.textPrimary,
-                      offset: const Offset(3, 3),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Column(
-                    children: [
-                      const Text('🏅', style: TextStyle(fontSize: 36)),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Belum ada badge',
-                        style: GoogleFonts.nunito(
-                          color: t.textSecondary,
-                          fontSize: 13,
-                        ),
+                  padding: EdgeInsets.all(rs(24)),
+                  decoration: BoxDecoration(
+                    color: t.bgSurface2,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: t.textPrimary, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: t.textPrimary,
+                        offset: const Offset(3, 3),
+                        blurRadius: 0,
                       ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text('🏅', style: TextStyle(fontSize: rs(36))),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Belum ada badge',
+                          style: GoogleFonts.nunito(
+                            color: t.textSecondary,
+                            fontSize: rs(13),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -1356,7 +1395,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(rs(20)),
           decoration: BoxDecoration(
             color: t.bgSurface,
             borderRadius: BorderRadius.circular(24),
@@ -1380,7 +1419,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: 34,
+                height: rs(34),
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
@@ -1412,7 +1451,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
               ),
               const SizedBox(height: 12),
               Container(
-                height: 2,
+                height: rs(2),
                 decoration: BoxDecoration(
                   color: t.textPrimary.withAlpha(80),
                   boxShadow: [
@@ -1428,7 +1467,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
               if (filtered.isEmpty)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  padding: EdgeInsets.symmetric(vertical: rs(32)),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
                     borderRadius: BorderRadius.circular(16),
@@ -1438,7 +1477,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                     children: [
                       Icon(
                         Icons.emoji_events_outlined,
-                        size: 40,
+                        size: rs(40),
                         color: t.textHint,
                       ),
                       const SizedBox(height: 8),
@@ -1448,7 +1487,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                             : 'Semua badge sudah diraih!',
                         style: GoogleFonts.nunito(
                           color: t.textSecondary,
-                          fontSize: 13,
+                          fontSize: rs(13),
                         ),
                       ),
                     ],
@@ -1475,7 +1514,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                           .map(
                             (b) => SizedBox(
                               width: childWidth,
-                              child: _buildBadgeCard(t, b),
+                              child: _buildBadgeCard(t, b, w),
                             ),
                           )
                           .toList(),
@@ -1489,13 +1528,14 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
     );
   }
 
-  Widget _buildBadgeCard(BloomTheme t, BadgeModel b) {
+  Widget _buildBadgeCard(BloomTheme t, BadgeModel b, double screenW) {
+    final rs = (double px) => px * (screenW / 390).clamp(0.8, 1.3);
     final earned = b.isEarned;
     final condIcon = _conditionIcons[b.conditionType];
     final condLabel = _conditionLabels[b.conditionType];
 
     final cardBody = Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(rs(16)),
       decoration: BoxDecoration(
         color: earned ? t.bgSurface : t.bgSurface2.withAlpha(180),
         borderRadius: BorderRadius.circular(16),
@@ -1505,8 +1545,8 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: rs(56),
+            height: rs(56),
             decoration: BoxDecoration(
               color: earned ? t.warning.withAlpha(25) : t.bgSurface3,
               borderRadius: BorderRadius.circular(16),
@@ -1519,50 +1559,56 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                 child: b.icon.startsWith('http')
                     ? CachedNetworkImage(
                         imageUrl: b.icon,
-                        width: 36,
-                        height: 36,
+                        width: rs(36),
+                        height: rs(36),
                         fit: BoxFit.contain,
                         placeholder: (_, __) => Icon(
                           Icons.emoji_events_rounded,
-                          size: 24,
+                          size: rs(24),
                           color: earned ? t.warning : t.textHint,
                         ),
                         errorWidget: (_, __, ___) => Icon(
                           Icons.emoji_events_rounded,
-                          size: 24,
+                          size: rs(24),
                           color: earned ? t.warning : t.textHint,
                         ),
                       )
-                    : Text(b.icon, style: const TextStyle(fontSize: 24)),
+                    : Text(b.icon, style: TextStyle(fontSize: rs(24))),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            b.name,
-            style: GoogleFonts.nunito(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: earned ? t.textPrimary : t.textHint,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (b.description != null && b.description!.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              b.description!,
-              style: GoogleFonts.nunito(fontSize: 11, color: t.textHint),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              b.name,
+              style: GoogleFonts.nunito(
+                fontSize: rs(14),
+                fontWeight: FontWeight.w800,
+                color: earned ? t.textPrimary : t.textHint,
+              ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (b.description != null && b.description!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                b.description!,
+                style: GoogleFonts.nunito(fontSize: rs(11), color: t.textHint),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
           if (condIcon != null && b.conditionValue != null) ...[
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: rs(6), vertical: rs(2)),
               decoration: BoxDecoration(
                 color: t.bgSurface2,
                 borderRadius: BorderRadius.circular(50),
@@ -1571,14 +1617,17 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(condIcon, size: 10, color: t.textSecondary),
+                  Icon(condIcon, size: rs(10), color: t.textSecondary),
                   const SizedBox(width: 3),
-                  Text(
-                    '$condLabel: ${b.conditionValue}',
-                    style: GoogleFonts.nunito(
-                      fontSize: 10,
-                      color: t.textSecondary,
-                      fontWeight: FontWeight.w700,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '$condLabel: ${b.conditionValue}',
+                      style: GoogleFonts.nunito(
+                        fontSize: rs(10),
+                        color: t.textSecondary,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -1590,12 +1639,12 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.diamond_rounded, size: 10, color: t.info),
+                Icon(Icons.diamond_rounded, size: rs(10), color: t.info),
                 const SizedBox(width: 2),
                 Text(
                   '+${b.rewardJewels} jewels',
                   style: GoogleFonts.nunito(
-                    fontSize: 11,
+                    fontSize: rs(11),
                     color: t.info,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1605,9 +1654,12 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
           ],
           if (earned && b.earnedAt != null) ...[
             const SizedBox(height: 12),
-            Text(
-              'Diraih ${_formatDate(b.earnedAt)}',
-              style: GoogleFonts.nunito(fontSize: 10, color: t.textHint),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Diraih ${_formatDate(b.earnedAt)}',
+                style: GoogleFonts.nunito(fontSize: rs(10), color: t.textHint),
+              ),
             ),
           ],
         ],
@@ -1618,31 +1670,31 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
       clipBehavior: Clip.none,
       children: [
         cardBody,
-        Positioned(
-          right: -8,
-          top: -8,
-          child: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: earned ? t.success : t.bgSurface3,
-              border: Border.all(color: t.border, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: t.border,
-                  offset: const Offset(1, 1),
-                  blurRadius: 0,
-                ),
-              ],
-            ),
-            child: Center(
-              child: earned
-                  ? Icon(Icons.check_rounded, color: t.accentText, size: 13)
-                  : Icon(Icons.lock_rounded, color: t.textHint, size: 14),
+          Positioned(
+            right: -8,
+            top: -8,
+            child: Container(
+              width: rs(24),
+              height: rs(24),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: earned ? t.success : t.bgSurface3,
+                border: Border.all(color: t.border, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: t.border,
+                    offset: const Offset(1, 1),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: earned
+                    ? Icon(Icons.check_rounded, color: t.accentText, size: rs(13))
+                    : Icon(Icons.lock_rounded, color: t.textHint, size: rs(14)),
+              ),
             ),
           ),
-        ),
       ],
     );
 
