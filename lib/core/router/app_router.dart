@@ -22,9 +22,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     observers: [_navLogger],
     refreshListenable: ref.watch(authRefreshNotifierProvider),
     redirect: (context, state) {
-      final auth     = ref.read(authProvider);
+      final auth = ref.read(authProvider);
       final loggedIn = auth.isLoggedIn;
-      final onAuth   = state.matchedLocation == '/login' ||
+      final onAuth =
+          state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
       final onSplash = state.matchedLocation == '/splash';
 
@@ -37,32 +38,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       }
 
       if (!loggedIn && !onAuth) return '/login';
-      if (loggedIn  && onAuth)  return '/home';
+      if (loggedIn && onAuth) return '/home';
 
-      if (loggedIn && !auth.user!.onboardingCompleted && state.matchedLocation != '/onboarding') {
+      if (loggedIn &&
+          !auth.wizardCompleted &&
+          state.matchedLocation != '/onboarding') {
         return '/onboarding';
       }
 
       return null;
     },
     routes: [
-      GoRoute(path: '/splash',
-          builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/login',
-          builder: (_, __) => const LoginScreen()),
-      GoRoute(path: '/register',
-          builder: (_, __) => const RegisterScreen()),
-      GoRoute(path: '/onboarding',
-          builder: (_, __) => const OnboardingScreen()),
-      GoRoute(path: '/home',
-          builder: (_, __) => const MainScreen()),
+      GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
+      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
+      GoRoute(
+        path: '/onboarding',
+        builder: (_, __) => const OnboardingScreen(),
+      ),
+      GoRoute(path: '/home', builder: (_, __) => const MainScreen()),
       GoRoute(
         path: '/course/:courseId',
         pageBuilder: (_, s) => CustomTransitionPage(
           key: s.pageKey,
-          child: CourseDetailScreen(
-            courseId: s.pathParameters['courseId']!,
-          ),
+          child: CourseDetailScreen(courseId: s.pathParameters['courseId']!),
           transitionDuration: const Duration(milliseconds: 350),
           transitionsBuilder: (_, animation, __, child) {
             final curved = CurvedAnimation(
@@ -82,30 +81,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/lesson/:lessonId',
         builder: (_, s) => LessonScreen(
-          lessonId : s.pathParameters['lessonId']!,
-          courseId : s.uri.queryParameters['courseId'],
+          lessonId: s.pathParameters['lessonId']!,
+          courseId: s.uri.queryParameters['courseId'],
         ),
       ),
       GoRoute(
         path: '/quiz-intro/:quizId',
         builder: (_, s) => QuizIntroScreen(
-          quizId   : s.pathParameters['quizId']!,
-          courseId : s.uri.queryParameters['courseId'],
-          lessonId : s.uri.queryParameters['lessonId'],
+          quizId: s.pathParameters['quizId']!,
+          courseId: s.uri.queryParameters['courseId'],
+          lessonId: s.uri.queryParameters['lessonId'],
         ),
       ),
       GoRoute(
         path: '/quiz/:quizId',
         builder: (_, s) => QuizScreen(
-          quizId   : s.pathParameters['quizId']!,
-          courseId : s.uri.queryParameters['courseId'],
-          lessonId : s.uri.queryParameters['lessonId'],
+          quizId: s.pathParameters['quizId']!,
+          courseId: s.uri.queryParameters['courseId'],
+          lessonId: s.uri.queryParameters['lessonId'],
         ),
       ),
     ],
     errorBuilder: (ctx, state) => const Scaffold(
-      body: Center(child: Text('Halaman tidak ditemukan',
-          style: TextStyle(color: Colors.white))),
+      body: Center(
+        child: Text(
+          'Halaman tidak ditemukan',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
     ),
   );
 });

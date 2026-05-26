@@ -23,9 +23,16 @@ class AuthUser {
     this.onboardingCompleted = false,
   });
 
-  AuthUser copyWith({bool? onboardingCompleted}) => AuthUser(
-    id: id, name: name, email: email, avatar: avatar, role: role,
-    xpTotal: xpTotal, jewels: jewels, level: level, levelTitle: levelTitle,
+  AuthUser copyWith({bool? onboardingCompleted, String? avatar}) => AuthUser(
+    id: id,
+    name: name,
+    email: email,
+    avatar: avatar ?? this.avatar,
+    role: role,
+    xpTotal: xpTotal,
+    jewels: jewels,
+    level: level,
+    levelTitle: levelTitle,
     onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
   );
 
@@ -35,16 +42,17 @@ class AuthUser {
     final s = d['stats'] as Map<String, dynamic>?;
     final lvl = s?['level'] as Map<String, dynamic>?;
     return AuthUser(
-      id    : (u['id'] ?? '').toString(),
-      name  : u['name'] ?? u['username'] ?? '',
-      email : u['email'] ?? '',
+      id: (u['id'] ?? '').toString(),
+      name: u['name'] ?? u['username'] ?? '',
+      email: u['email'] ?? '',
       avatar: u['avatar'] ?? u['profilePicture'],
-      role  : u['role']?.toString(),
+      role: u['role']?.toString(),
       xpTotal: (s?['xp_total'] ?? 0) as int,
-      jewels : (s?['jewels'] ?? 0) as int,
-      level  : (lvl?['id'] ?? 1) as int,
+      jewels: (s?['jewels'] ?? 0) as int,
+      level: (lvl?['id'] ?? 1) as int,
       levelTitle: lvl?['name']?.toString() ?? 'Pemula',
-      onboardingCompleted: u['onboarding_completed'] ?? false,
+      onboardingCompleted:
+          u['onboarding_completed'] ?? d['onboarding_completed'] ?? false,
     );
   }
 }
@@ -58,7 +66,7 @@ class LoginResponse {
     final d = j['data'] ?? j;
     return LoginResponse(
       token: d['token'] ?? d['accessToken'] ?? '',
-      user : AuthUser.fromJson(d),
+      user: AuthUser.fromJson(d),
     );
   }
 }

@@ -7,32 +7,46 @@ import '../../../../core/storage/secure_storage.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/models/auth_model.dart';
-import '../../../../features/shared/presentation/widgets/post_register_tutorial.dart';
 
 class AuthState {
   final AuthUser? user;
   final bool isLoading;
   final bool isCheckingAuth;
   final String? error;
-  const AuthState({this.user, this.isLoading = false, this.isCheckingAuth = true, this.error});
+  final bool wizardCompleted;
+  const AuthState({
+    this.user,
+    this.isLoading = false,
+    this.isCheckingAuth = true,
+    this.error,
+    this.wizardCompleted = false,
+  });
 
   bool get isLoggedIn => user != null;
 
   AuthState copyWith({
-    AuthUser? user, bool? isLoading, bool? isCheckingAuth, String? error,
-    bool clearUser = false, bool clearError = false,
+    AuthUser? user,
+    bool? isLoading,
+    bool? isCheckingAuth,
+    String? error,
+    bool? wizardCompleted,
+    bool clearUser = false,
+    bool clearError = false,
   }) => AuthState(
-    user          : clearUser  ? null  : (user      ?? this.user),
-    isLoading     : isLoading  ?? this.isLoading,
+    user: clearUser ? null : (user ?? this.user),
+    isLoading: isLoading ?? this.isLoading,
     isCheckingAuth: isCheckingAuth ?? this.isCheckingAuth,
-    error         : clearError ? null  : (error     ?? this.error),
+    error: clearError ? null : (error ?? this.error),
+    wizardCompleted: wizardCompleted ?? this.wizardCompleted,
   );
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRemoteDatasource _ds;
   final ApiClient _api;
-  AuthNotifier(this._ds, this._api) : super(const AuthState()) { _restore(); }
+  AuthNotifier(this._ds, this._api) : super(const AuthState()) {
+    _restore();
+  }
 
   static const _onboardingSPKey = 'onboarding_completed';
 
@@ -45,14 +59,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       var user = await _ds.getMe();
       final prefs = await SharedPreferences.getInstance();
-      final localCompleted = prefs.getBool(_onboardingSPKey) ?? false;
-      if (localCompleted && !user.onboardingCompleted) {
-        user = user.copyWith(onboardingCompleted: true);
-      }
-      state = state.copyWith(user: user, isCheckingAuth: false, clearError: true);
+      final wizardDone =
+          prefs.getBool(_onboardingSPKey) ?? user.onboardingCompleted;
+      state = state.copyWith(
+        user: user,
+        wizardCompleted: wizardDone,
+        isCheckingAuth: false,
+        clearError: true,
+      );
     } catch (_) {
       await SecureStorage.clearAll();
-      state = state.copyWith(isCheckingAuth: false, clearUser: true, clearError: true);
+      state = state.copyWith(
+        isCheckingAuth: false,
+        clearUser: true,
+        clearError: true,
+      );
     }
   }
 
@@ -63,17 +84,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Cache token in memory immediately to avoid race condition
       // where SecureStorage hasn't flushed to disk yet.
       _api.cacheToken(r.token);
-      state = state.copyWith(user: r.user, isLoading: false);
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_onboardingSPKey, r.user.onboardingCompleted);
-      await PostRegisterTutorial.reset();
+      final wizardDone =
+          prefs.getBool(_onboardingSPKey) ?? r.user.onboardingCompleted;
+      state = state.copyWith(
+        user: r.user,
+        isLoading: false,
+        wizardCompleted: wizardDone,
+      );
       _maybeRegisterToken();
       return true;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: sanitizeErrorMessage(e),
-      );
+      state = state.copyWith(isLoading: false, error: sanitizeErrorMessage(e));
       return false;
     }
   }
@@ -92,16 +114,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user = r.user;
       }
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_onboardingSPKey, user.onboardingCompleted);
-      state = state.copyWith(user: user, isLoading: false);
-      await PostRegisterTutorial.reset();
+      final wizardDone =
+          prefs.getBool(_onboardingSPKey) ?? user.onboardingCompleted;
+      state = state.copyWith(
+        user: user,
+        isLoading: false,
+        wizardCompleted: wizardDone,
+      );
       _maybeRegisterToken();
       return true;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: sanitizeErrorMessage(e),
-      );
+      state = state.copyWith(isLoading: false, error: sanitizeErrorMessage(e));
       return false;
     }
   }
@@ -134,14 +157,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> updateProfile({String? avatar}) async {
     await _ds.updateProfile(avatar: avatar);
+    if (avatar != null && state.user != null) {
+      state = state.copyWith(user: state.user!.copyWith(avatar: avatar));
+    }
+  }
+
+  Future<void> setWizardCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingSPKey, true);
+    state = state.copyWith(wizardCompleted: true);
   }
 
   Future<void> completeOnboarding() async {
     await _ds.completeOnboarding();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_onboardingSPKey, true);
     if (state.user != null) {
-      state = state.copyWith(user: state.user!.copyWith(onboardingCompleted: true));
+      state = state.copyWith(
+        user: state.user!.copyWith(onboardingCompleted: true),
+      );
     }
   }
 
@@ -155,8 +187,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-final _authDsProvider = Provider((ref) =>
-    AuthRemoteDatasource(ref.read(apiClientProvider)));
+final _authDsProvider = Provider(
+  (ref) => AuthRemoteDatasource(ref.read(apiClientProvider)),
+);
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
-    (ref) => AuthNotifier(ref.read(_authDsProvider), ref.read(apiClientProvider)));
+  (ref) => AuthNotifier(ref.read(_authDsProvider), ref.read(apiClientProvider)),
+);
