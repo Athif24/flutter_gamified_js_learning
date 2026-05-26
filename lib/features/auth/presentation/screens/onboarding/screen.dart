@@ -22,11 +22,15 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _pageCtrl = PageController();
   int _current = 0;
+  bool _isLoading = false;
   File? _avatarFile;
 
   List<Widget> get _steps => [
     WelcomeStep(),
-    ProfileStep(avatarFile: _avatarFile, onAvatarPicked: (f) => setState(() => _avatarFile = f)),
+    ProfileStep(
+      avatarFile: _avatarFile,
+      onAvatarPicked: (f) => setState(() => _avatarFile = f),
+    ),
     ThemeStep(),
     SoundStep(),
     NotificationStep(),
@@ -58,22 +62,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-Future<void> _finish() async {
-  if (_avatarFile != null && mounted) {
+  Future<void> _finish() async {
+    setState(() => _isLoading = true);
     try {
-      final url = await CloudinaryService.uploadImage(_avatarFile!.path);
+      if (_avatarFile != null && mounted) {
+        try {
+          final url = await CloudinaryService.uploadImage(_avatarFile!.path);
+          if (mounted) {
+            await ref.read(authProvider.notifier).updateProfile(avatar: url);
+          }
+        } catch (_) {
+          // Avatar upload gagal — tetap lanjut ke onboarding
+        }
+      }
       if (mounted) {
-        await ref.read(authProvider.notifier).updateProfile(avatar: url);
+        await ref.read(authProvider.notifier).setWizardCompleted();
+        if (mounted) context.go('/home');
       }
     } catch (_) {
-      // Avatar upload gagal — tetap lanjut ke onboarding
+      if (mounted) setState(() => _isLoading = false);
     }
   }
-  if (mounted) {
-    await ref.read(authProvider.notifier).completeOnboarding();
-    if (mounted) context.go('/home');
-  }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -85,38 +94,46 @@ Future<void> _finish() async {
       body: SafeArea(
         child: Column(
           children: [
-Padding(
-  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-  child: Column(
-    children: [
-      Row(
-        children: [
-          _isFirst
-              ? const SizedBox(width: 36, height: 36)
-              : GestureDetector(
-                  onTap: _prev,
-                  behavior: HitTestBehavior.opaque,
-                  child: SizedBox(
-                    width: 36, height: 36,
-                    child: Icon(Icons.arrow_back_ios_rounded,
-                        color: t.textPrimary, size: 14),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      _isFirst
+                          ? const SizedBox(width: 36, height: 36)
+                          : GestureDetector(
+                              onTap: _prev,
+                              behavior: HitTestBehavior.opaque,
+                              child: SizedBox(
+                                width: 36,
+                                height: 36,
+                                child: Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  color: t.textPrimary,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                      const Spacer(),
+                      if (!_isLast)
+                        GestureDetector(
+                          onTap: _next,
+                          behavior: HitTestBehavior.opaque,
+                          child: SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: t.textPrimary,
+                              size: 14,
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 36),
+                    ],
                   ),
-                ),
-          const Spacer(),
-          if (!_isLast)
-            GestureDetector(
-              onTap: _next,
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 36, height: 36,
-                child: Icon(Icons.arrow_forward_ios_rounded,
-                    color: t.textPrimary, size: 14),
-              ),
-            )
-          else
-            const SizedBox(width: 36),
-        ],
-      ),
                   const SizedBox(height: 16),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
@@ -166,7 +183,8 @@ Padding(
                     shadowColor: t.textPrimary,
                     textColor: t.primaryContent,
                     horizontalPadding: 16,
-                    onTap: _finish,
+                    isLoading: _isLoading,
+                    onTap: _isLoading ? null : _finish,
                   ),
                 ),
               )

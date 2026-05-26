@@ -9,36 +9,69 @@ class PositionStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(currentThemeProvider);
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: rs(24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(Icons.celebration_rounded, size: 64, color: t.primary),
-          const SizedBox(height: 16),
-          Text('Siap Memulai!',
-              style: GoogleFonts.nunito(
-                  fontSize: 24, fontWeight: FontWeight.w900, color: t.textPrimary)),
-          const SizedBox(height: 8),
-          Text('Ini posisi awal kamu. Yuk kejar yang terbaik!',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunito(
-                  fontSize: 13, color: t.mutedText, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 28),
+          Icon(Icons.celebration_rounded, size: rs(64), color: t.primary),
+          SizedBox(height: rs(16)),
+          Text(
+            'Siap Memulai!',
+            style: GoogleFonts.nunito(
+              fontSize: rs(24),
+              fontWeight: FontWeight.w900,
+              color: t.textPrimary,
+            ),
+          ),
+          SizedBox(height: rs(8)),
+          Text(
+            'Ini posisi awal kamu. Yuk kejar yang terbaik!',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.nunito(
+              fontSize: rs(13),
+              color: t.mutedText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: rs(28)),
           Row(
             children: [
-              Expanded(child: _StatCard(t: t, icon: Icons.stars_rounded, label: 'XP Awal', value: '0')),
-              const SizedBox(width: 12),
-              Expanded(child: _StatCard(t: t, icon: Icons.monitor_heart_rounded, label: 'Level', value: '1')),
-              const SizedBox(width: 12),
-              Expanded(child: _StatCard(t: t, icon: Icons.leaderboard_rounded, label: 'Peringkat', value: '-')),
+              Expanded(
+                child: _StatCard(
+                  t: t,
+                  icon: Icons.stars_rounded,
+                  label: 'XP Awal',
+                  value: '0',
+                ),
+              ),
+              SizedBox(width: rs(12)),
+              Expanded(
+                child: _StatCard(
+                  t: t,
+                  icon: Icons.monitor_heart_rounded,
+                  label: 'Level',
+                  value: '1',
+                ),
+              ),
+              SizedBox(width: rs(12)),
+              Expanded(
+                child: _StatCard(
+                  t: t,
+                  icon: Icons.leaderboard_rounded,
+                  label: 'Peringkat',
+                  value: '-',
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: rs(28)),
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(rs(18)),
             decoration: BoxDecoration(
               color: t.bgSurface2,
               borderRadius: BorderRadius.circular(16),
@@ -46,14 +79,21 @@ class PositionStep extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.format_quote_rounded, color: t.primary, size: 28),
-                const SizedBox(width: 12),
+                Icon(
+                  Icons.format_quote_rounded,
+                  color: t.primary,
+                  size: rs(28),
+                ),
+                SizedBox(width: rs(12)),
                 Expanded(
                   child: Text(
                     'Perjalanan sejauh ribuan kilometer dimulai dari satu langkah.',
                     style: GoogleFonts.nunito(
-                        fontSize: 12, color: t.textPrimary,
-                        fontWeight: FontWeight.w600, fontStyle: FontStyle.italic),
+                      fontSize: rs(12),
+                      color: t.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
               ],
@@ -67,29 +107,51 @@ class PositionStep extends ConsumerWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  final BloomTheme t; final IconData icon; final String label; final String value;
-  const _StatCard({required this.t, required this.icon, required this.label, required this.value});
+  final BloomTheme t;
+  final IconData icon;
+  final String label;
+  final String value;
+  const _StatCard({
+    required this.t,
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-    decoration: BoxDecoration(
-      color: t.bgSurface2,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: t.border),
-    ),
-    child: Column(
-      children: [
-        Icon(icon, color: t.primary, size: 24),
-        const SizedBox(height: 6),
-        Text(value,
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: rs(16), horizontal: rs(4)),
+      decoration: BoxDecoration(
+        color: t.bgSurface2,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: t.border),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: t.primary, size: rs(24)),
+          SizedBox(height: rs(6)),
+          Text(
+            value,
             style: GoogleFonts.nunito(
-                fontSize: 18, fontWeight: FontWeight.w900, color: t.textPrimary)),
-        const SizedBox(height: 2),
-        Text(label,
+              fontSize: rs(18),
+              fontWeight: FontWeight.w900,
+              color: t.textPrimary,
+            ),
+          ),
+          SizedBox(height: rs(2)),
+          Text(
+            label,
             style: GoogleFonts.nunito(
-                fontSize: 10, color: t.mutedText, fontWeight: FontWeight.w600)),
-      ],
-    ),
-  );
+              fontSize: rs(10),
+              color: t.mutedText,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

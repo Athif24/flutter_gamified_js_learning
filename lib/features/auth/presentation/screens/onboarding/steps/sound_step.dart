@@ -53,27 +53,42 @@ class _SoundStepState extends ConsumerState<SoundStep> {
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: rs(24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(_muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-              size: 56, color: _muted ? t.mutedText : t.primary),
-          const SizedBox(height: 16),
-          Text('Atur Suara',
-              style: GoogleFonts.nunito(
-                  fontSize: 22, fontWeight: FontWeight.w900, color: t.textPrimary)),
-          const SizedBox(height: 8),
-          Text('Dengar feedback suara saat jawab quiz',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunito(
-                  fontSize: 13, color: t.mutedText, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 32),
+          Icon(
+            _muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+            size: rs(56),
+            color: _muted ? t.mutedText : t.primary,
+          ),
+          SizedBox(height: rs(16)),
+          Text(
+            'Atur Suara',
+            style: GoogleFonts.nunito(
+              fontSize: rs(22),
+              fontWeight: FontWeight.w900,
+              color: t.textPrimary,
+            ),
+          ),
+          SizedBox(height: rs(8)),
+          Text(
+            'Dengar feedback suara saat jawab quiz',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.nunito(
+              fontSize: rs(13),
+              color: t.mutedText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: rs(32)),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(rs(20)),
             decoration: BoxDecoration(
               color: t.bgSurface2,
               borderRadius: BorderRadius.circular(16),
@@ -83,13 +98,20 @@ class _SoundStepState extends ConsumerState<SoundStep> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.notifications_active_rounded,
-                        color: t.primary, size: 20),
-                    const SizedBox(width: 12),
-                    Text('Suara Efek',
-                        style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14, color: t.textPrimary)),
+                    Icon(
+                      Icons.notifications_active_rounded,
+                      color: t.primary,
+                      size: rs(20),
+                    ),
+                    SizedBox(width: rs(12)),
+                    Text(
+                      'Suara Efek',
+                      style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w700,
+                        fontSize: rs(14),
+                        color: t.textPrimary,
+                      ),
+                    ),
                     const Spacer(),
                     GestureDetector(
                       onTap: () => setState(() {
@@ -97,17 +119,21 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                         _savePrefs();
                       }),
                       child: Container(
-                        width: 48, height: 26,
+                        width: rs(48),
+                        height: rs(26),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(13),
                           color: _muted ? t.border : t.primary,
                         ),
                         child: AnimatedAlign(
                           duration: const Duration(milliseconds: 200),
-                          alignment: _muted ? Alignment.centerLeft : Alignment.centerRight,
+                          alignment: _muted
+                              ? Alignment.centerLeft
+                              : Alignment.centerRight,
                           child: Container(
-                            width: 22, height: 22,
-                            margin: const EdgeInsets.all(2),
+                            width: rs(22),
+                            height: rs(22),
+                            margin: EdgeInsets.all(rs(2)),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: t.bgPrimary,
@@ -118,29 +144,40 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: rs(16)),
                 Row(
                   children: [
-                    Icon(Icons.volume_down_rounded, color: t.mutedText, size: 18),
+                    Icon(
+                      Icons.volume_down_rounded,
+                      color: t.mutedText,
+                      size: rs(18),
+                    ),
                     Expanded(
                       child: Slider(
                         value: _volume,
-                        min: 0, max: 1,
+                        min: 0,
+                        max: 1,
                         activeColor: t.primary,
                         inactiveColor: t.border,
-                        onChanged: _muted ? null : (v) {
-                          setState(() => _volume = v);
-                          _savePrefs();
-                        },
+                        onChanged: _muted
+                            ? null
+                            : (v) {
+                                setState(() => _volume = v);
+                                _savePrefs();
+                              },
                       ),
                     ),
-                    Icon(Icons.volume_up_rounded, color: t.mutedText, size: 18),
+                    Icon(
+                      Icons.volume_up_rounded,
+                      color: t.mutedText,
+                      size: rs(18),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: rs(20)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -150,7 +187,7 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                 color: t.success,
                 onTap: () => _preview('sounds/correct.wav'),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: rs(16)),
               _PreviewButton(
                 t: t,
                 label: 'Reward',
@@ -159,10 +196,15 @@ class _SoundStepState extends ConsumerState<SoundStep> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text('Tap tombol di atas untuk preview suara',
-              style: GoogleFonts.nunito(
-                  fontSize: 11, color: t.mutedText, fontWeight: FontWeight.w500)),
+          SizedBox(height: rs(8)),
+          Text(
+            'Tap tombol di atas untuk preview suara',
+            style: GoogleFonts.nunito(
+              fontSize: rs(11),
+              color: t.mutedText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const Spacer(flex: 3),
         ],
       ),
@@ -175,31 +217,46 @@ class _PreviewButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
-  const _PreviewButton({required this.t, required this.label, required this.color, required this.onTap});
+  const _PreviewButton({
+    required this.t,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: rs(20), vertical: rs(10)),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: t.textPrimary, width: 2),
           boxShadow: [
-            BoxShadow(color: t.textPrimary, offset: const Offset(2, 2), blurRadius: 0),
+            BoxShadow(
+              color: t.textPrimary,
+              offset: const Offset(2, 2),
+              blurRadius: 0,
+            ),
           ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.play_arrow_rounded, color: t.bgPrimary, size: 18),
-            const SizedBox(width: 6),
-            Text(label,
-                style: GoogleFonts.nunito(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12, color: t.bgPrimary)),
+            Icon(Icons.play_arrow_rounded, color: t.bgPrimary, size: rs(18)),
+            SizedBox(width: rs(6)),
+            Text(
+              label,
+              style: GoogleFonts.nunito(
+                fontWeight: FontWeight.w800,
+                fontSize: rs(12),
+                color: t.bgPrimary,
+              ),
+            ),
           ],
         ),
       ),

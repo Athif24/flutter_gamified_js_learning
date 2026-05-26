@@ -3,9 +3,8 @@ import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/game_3d_button.dart';
 
 class CropScreen extends StatefulWidget {
   final File imageFile;
@@ -19,6 +18,7 @@ class CropScreen extends StatefulWidget {
 class _CropScreenState extends State<CropScreen> {
   late Uint8List _imageData;
   final _controller = CropController();
+  bool _isCropping = false;
 
   @override
   void initState() {
@@ -63,55 +63,30 @@ class _CropScreenState extends State<CropScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Bounceable(
+                    child: Game3DButton(
+                      label: 'Ulangi',
+                      color: t.bgSurface,
+                      shadowColor: t.textPrimary,
+                      textColor: t.textPrimary,
+                      horizontalPadding: 16,
+                      verticalPadding: 13,
                       onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: t.bgSurface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Ulangi',
-                          style: GoogleFonts.nunito(
-                            color: t.textPrimary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Bounceable(
-                      onTap: () => _controller.crop(),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: t.primary,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: const Offset(3, 3),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Simpan',
-                          style: GoogleFonts.nunito(
-                            color: t.primaryContent,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
+                    child: Game3DButton(
+                      label: 'Simpan',
+                      color: t.primary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.primaryContent,
+                      horizontalPadding: 16,
+                      verticalPadding: 13,
+                      isLoading: _isCropping,
+                      onTap: _isCropping ? null : () {
+                        setState(() => _isCropping = true);
+                        _controller.crop();
+                      },
                     ),
                   ),
                 ],

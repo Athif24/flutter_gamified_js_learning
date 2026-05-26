@@ -51,28 +51,41 @@ class ProfileStep extends ConsumerWidget {
           const Spacer(flex: 2),
           Icon(Icons.face_rounded, size: 56, color: t.primary),
           const SizedBox(height: 16),
-          Text('Pilih Foto Profil',
-              style: GoogleFonts.nunito(
-                  fontSize: 22, fontWeight: FontWeight.w900, color: t.textPrimary)),
+          Text(
+            'Pilih Foto Profil',
+            style: GoogleFonts.nunito(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: t.textPrimary,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('Tambahkan avatar biar profil kamu makin kece',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunito(
-                  fontSize: 13, color: t.mutedText, fontWeight: FontWeight.w500)),
+          Text(
+            'Tambahkan avatar biar profil kamu makin kece',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.nunito(
+              fontSize: 13,
+              color: t.mutedText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 28),
           GestureDetector(
             onTap: () => _pickImage(context, ref.read(currentThemeProvider)),
             child: Stack(
               children: [
                 Container(
-                  width: 110, height: 110,
+                  width: 110,
+                  height: 110,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: t.bgSurface2,
                     border: Border.all(color: t.primary, width: 3),
                     image: avatarFile != null
                         ? DecorationImage(
-                            image: FileImage(avatarFile!), fit: BoxFit.cover)
+                            image: FileImage(avatarFile!),
+                            fit: BoxFit.cover,
+                          )
                         : null,
                   ),
                   child: avatarFile == null
@@ -80,25 +93,35 @@ class ProfileStep extends ConsumerWidget {
                       : null,
                 ),
                 Positioned(
-                  bottom: 0, right: 0,
+                  bottom: 0,
+                  right: 0,
                   child: Container(
-                    width: 36, height: 36,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: t.primary,
                       shape: BoxShape.circle,
                       border: Border.all(color: t.bgPrimary, width: 3),
                     ),
-                    child: Icon(Icons.camera_alt_rounded,
-                        color: t.primaryContent, size: 18),
+                    child: Icon(
+                      Icons.camera_alt_rounded,
+                      color: t.primaryContent,
+                      size: 18,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          Text('Klik avatar untuk upload foto',
-              style: GoogleFonts.nunito(
-                  fontSize: 12, color: t.mutedText, fontWeight: FontWeight.w500)),
+          Text(
+            'Klik avatar untuk upload foto',
+            style: GoogleFonts.nunito(
+              fontSize: 12,
+              color: t.mutedText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const Spacer(flex: 3),
         ],
       ),
