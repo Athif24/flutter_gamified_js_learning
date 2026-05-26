@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../courses/presentation/providers/course_provider.dart';
 import '../providers/auth_provider.dart';
@@ -17,19 +17,48 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _formKey  = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  final _formCardKey = GlobalKey();
   final _emailCtrl = TextEditingController();
-  final _passCtrl  = TextEditingController();
-  bool _obscure    = true;
+  final _passCtrl = TextEditingController();
+  bool _obscure = true;
+  double _prevBottom = 0;
 
   @override
   void dispose() {
-    _emailCtrl.dispose(); _passCtrl.dispose(); super.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
+
+  double r(double px) {
+    final w = MediaQuery.of(context).size.width;
+    return px * (w / 390).clamp(0.8, 1.3);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    if (bottom > 0 && _prevBottom == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_formCardKey.currentContext != null) {
+          Scrollable.ensureVisible(
+            _formCardKey.currentContext!,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment: 0.1,
+          );
+        }
+      });
+    }
+    _prevBottom = bottom;
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ok = await ref.read(authProvider.notifier)
+    final ok = await ref
+        .read(authProvider.notifier)
         .login(_emailCtrl.text.trim(), _passCtrl.text);
     if (ok && mounted) {
       invalidateGamificationProviders(ref);
@@ -41,182 +70,262 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  InputDecoration _inputDecoration(String hint, IconData icon, BloomTheme t) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: r(13)),
+      prefixIcon: Icon(icon, color: t.textPrimary, size: r(20)),
+      filled: true,
+      fillColor: t.bgSurface2,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: t.textPrimary, width: 2),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: t.border, width: 2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: t.primary, width: 2),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
-    final t    = ref.watch(currentThemeProvider);
+    final t = ref.watch(currentThemeProvider);
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
-      body: Stack(children: [
-        // Decorative blobs
-        Positioned(top: -60, right: -60,
-            child: _Blob(200, t.primary.withValues(alpha: 0.15))),
-        Positioned(top: 100, left: -40,
-            child: _Blob(120, t.info.withValues(alpha: 0.1))),
-        Positioned(bottom: 100, right: -40,
-            child: _Blob(150, t.primary.withValues(alpha: 0.1))),
-
-        SafeArea(child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.08),
-
-            // Logo
-            Column(children: [
-              Container(
-                width: 72, height: 72,
-                decoration: BoxDecoration(
-                  color: t.primary, shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(
-                    color: t.primary.withValues(alpha: 0.4),
-                    blurRadius: 20, offset: const Offset(0, 8),
-                  )],
-                ),
-                child: Center(child: Text('🌸',
-                    style: const TextStyle(fontSize: 36))),
-              ),
-              const SizedBox(height: 10),
-              Text('Bloom', style: GoogleFonts.nunito(
-                  fontSize: 28, fontWeight: FontWeight.w900,
-                  color: t.textPrimary)),
-              Text('JavaScript Learning', style: GoogleFonts.nunito(
-                  fontSize: 13, color: t.mutedText,
-                  fontWeight: FontWeight.w500)),
-            ]).animate().fadeIn(duration: 500.ms).scale(begin: const Offset(.8,.8)),
-
-            const SizedBox(height: 32),
-
-            Text('Selamat Datang! 👋', style: GoogleFonts.nunito(
-                fontSize: 22, fontWeight: FontWeight.w800,
-                color: t.textPrimary))
-                .animate().fadeIn(delay: 150.ms),
-
-            const SizedBox(height: 6),
-            Text('Masuk dan lanjutkan belajar JavaScript-mu',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.nunito(fontSize: 13, color: t.mutedText))
-                .animate().fadeIn(delay: 200.ms),
-
-            const SizedBox(height: 28),
-
-            // Form card
-            Container(
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                color: t.bgSurface,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: t.border),
-                boxShadow: [BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
-                  blurRadius: 24, offset: const Offset(0, 8),
-                )],
-              ),
-              child: Form(
-                key: _formKey,
+      body: SafeArea(
+        child: CustomScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: r(24)),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _Label('Email', t),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _emailCtrl,
-                      keyboardType: TextInputType.emailAddress,
-                      style: GoogleFonts.nunito(color: t.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: 'nama@email.com',
-                        prefixIcon: Icon(Icons.email_outlined, color: t.primary, size: 20),
-                      ),
-                      validator: (v) => (v == null || !v.contains('@'))
-                          ? 'Email tidak valid' : null,
-                    ).animate().fadeIn(delay: 300.ms),
+                    const Spacer(flex: 2),
+                    // Logo
+                    Column(
+                          children: [
+                            Container(
+                              width: r(72),
+                              height: r(72),
+                              decoration: BoxDecoration(
+                                color: t.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: t.textPrimary,
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: t.textPrimary,
+                                    offset: const Offset(3, 3),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '🌸',
+                                  style: TextStyle(fontSize: r(36)),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: r(10)),
+                            Text(
+                              'Bloom',
+                              style: GoogleFonts.nunito(
+                                fontSize: r(28),
+                                fontWeight: FontWeight.w900,
+                                color: t.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              'JavaScript Learning',
+                              style: GoogleFonts.nunito(
+                                fontSize: r(13),
+                                color: t.mutedText,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        )
+                        .animate()
+                        .fadeIn(duration: 500.ms)
+                        .scale(begin: const Offset(.8, .8)),
 
-                    const SizedBox(height: 14),
-                    _Label('Password', t),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _passCtrl,
-                      obscureText: _obscure,
-                      style: GoogleFonts.nunito(color: t.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: '••••••••',
-                        prefixIcon: Icon(Icons.lock_outline, color: t.primary, size: 20),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscure ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                              color: t.mutedText, size: 20),
-                          onPressed: () => setState(() => _obscure = !_obscure),
+                    SizedBox(height: r(20)),
+
+                    Text(
+                      'Selamat Datang!',
+                      style: GoogleFonts.nunito(
+                        fontSize: r(22),
+                        fontWeight: FontWeight.w800,
+                        color: t.textPrimary,
+                      ),
+                    ).animate().fadeIn(delay: 150.ms),
+
+                    SizedBox(height: r(6)),
+                    Text(
+                      'Masuk dan lanjutkan belajar JavaScript-mu',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.nunito(
+                        fontSize: r(13),
+                        color: t.mutedText,
+                      ),
+                    ).animate().fadeIn(delay: 200.ms),
+
+                    SizedBox(height: r(24)),
+
+                    // Form card — Neo Brutalism
+                    Container(
+                      key: _formCardKey,
+                      padding: EdgeInsets.all(r(22)),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: t.textPrimary, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: t.textPrimary,
+                            offset: const Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _Label('Email', t),
+                            SizedBox(height: r(8)),
+                            TextFormField(
+                              controller: _emailCtrl,
+                              keyboardType: TextInputType.emailAddress,
+                              style: GoogleFonts.nunito(color: t.textPrimary),
+                              decoration: _inputDecoration(
+                                'nama@email.com',
+                                Icons.email_outlined,
+                                t,
+                              ),
+                              validator: (v) => (v == null || !v.contains('@'))
+                                  ? 'Email tidak valid'
+                                  : null,
+                            ).animate().fadeIn(delay: 300.ms),
+
+                            SizedBox(height: r(14)),
+                            _Label('Password', t),
+                            SizedBox(height: r(8)),
+                            TextFormField(
+                              controller: _passCtrl,
+                              obscureText: _obscure,
+                              style: GoogleFonts.nunito(color: t.textPrimary),
+                              decoration:
+                                  _inputDecoration(
+                                    '••••••••',
+                                    Icons.lock_outline,
+                                    t,
+                                  ).copyWith(
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscure
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                        color: t.mutedText,
+                                        size: r(20),
+                                      ),
+                                      onPressed: () =>
+                                          setState(() => _obscure = !_obscure),
+                                    ),
+                                  ),
+                              validator: (v) => (v == null || v.length < 6)
+                                  ? 'Min. 6 karakter'
+                                  : null,
+                            ).animate().fadeIn(delay: 350.ms),
+
+                            if (auth.error != null) ...[
+                              SizedBox(height: r(12)),
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(r(12)),
+                                decoration: BoxDecoration(
+                                  color: t.error.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: t.error, width: 2),
+                                ),
+                                child: Text(
+                                  auth.error!,
+                                  style: GoogleFonts.nunito(
+                                    color: t.error,
+                                    fontSize: r(12),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ).animate().fadeIn().shakeX(),
+                            ],
+
+                            SizedBox(height: r(20)),
+
+                            SizedBox(
+                              width: double.infinity,
+                              child: Game3DButton(
+                                label: 'Masuk',
+                                color: t.primary,
+                                shadowColor: t.textPrimary,
+                                textColor: t.primaryContent,
+                                horizontalPadding: r(16),
+                                isLoading: auth.isLoading,
+                                onTap: auth.isLoading ? null : _submit,
+                              ),
+                            ).animate().fadeIn(delay: 400.ms),
+                          ],
                         ),
                       ),
-                      validator: (v) => (v == null || v.length < 6)
-                          ? 'Min. 6 karakter' : null,
-                    ).animate().fadeIn(delay: 350.ms),
+                    ).animate().fadeIn(delay: 260.ms).slideY(begin: 0.1),
+                    SizedBox(height: r(12)),
 
-                    if (auth.error != null) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: t.error.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.error.withValues(alpha: 0.3)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Belum punya akun? ',
+                          style: GoogleFonts.nunito(
+                            color: t.mutedText,
+                            fontSize: r(14),
+                          ),
                         ),
-                        child: Text(auth.error!,
+                        GestureDetector(
+                          onTap: () => context.push('/register'),
+                          child: Text(
+                            'Daftar Sekarang',
                             style: GoogleFonts.nunito(
-                                color: t.error, fontSize: 12,
-                                fontWeight: FontWeight.w600)),
-                      ).animate().fadeIn().shakeX(),
-                    ],
-
-                    const SizedBox(height: 20),
-
-                    Bounceable(
-                      onTap: auth.isLoading ? () {} : _submit,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          color: t.primary,
-                          borderRadius: BorderRadius.circular(50),
-                          boxShadow: [BoxShadow(
-                            color: t.primary.withValues(alpha: 0.4),
-                            blurRadius: 14, offset: const Offset(0, 6),
-                          )],
+                              color: t.primary,
+                              fontSize: r(14),
+                              fontWeight: FontWeight.w800,
+                              decoration: TextDecoration.underline,
+                              decorationColor: t.primary,
+                            ),
+                          ),
                         ),
-                        child: Center(child: auth.isLoading
-                            ? SizedBox(width: 20, height: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2.5, color: t.primaryContent))
-                            : Text('Masuk', style: GoogleFonts.nunito(
-                                fontWeight: FontWeight.w800, fontSize: 15,
-                                color: t.primaryContent))),
-                      ),
-                    ).animate().fadeIn(delay: 400.ms),
+                      ],
+                    ).animate().fadeIn(delay: 500.ms),
+                    const Spacer(flex: 2),
                   ],
                 ),
               ),
-            ).animate().fadeIn(delay: 260.ms).slideY(begin: 0.1),
-
-            const SizedBox(height: 22),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text('Belum punya akun? ', style: GoogleFonts.nunito(
-                  color: t.mutedText, fontSize: 13)),
-              Bounceable(
-                onTap: () => context.go('/register'),
-                child: Text('Daftar Sekarang', style: GoogleFonts.nunito(
-                  color: t.primary, fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  decoration: TextDecoration.underline,
-                  decorationColor: t.primary,
-                )),
-              ),
-            ]).animate().fadeIn(delay: 500.ms),
-
-            const SizedBox(height: 40),
-          ]),
-        )),
-      ]),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -226,15 +335,13 @@ class _Label extends StatelessWidget {
   final BloomTheme t;
   const _Label(this.text, this.t);
   @override
-  Widget build(BuildContext context) => Text(text, style: GoogleFonts.nunito(
-      fontSize: 13, fontWeight: FontWeight.w700, color: t.textPrimary));
-}
-
-class _Blob extends StatelessWidget {
-  final double size; final Color color;
-  const _Blob(this.size, this.color);
-  @override
-  Widget build(BuildContext context) => Container(
-      width: size, height: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color));
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Text(text, style: GoogleFonts.nunito(
+      fontSize: rs(13),
+      fontWeight: FontWeight.w700,
+      color: t.textPrimary,
+    ));
+  }
 }
