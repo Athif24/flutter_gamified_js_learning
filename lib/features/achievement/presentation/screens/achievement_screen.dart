@@ -1755,9 +1755,9 @@ class _FilterTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: isActive ? t.accent : t.bgSurface,
         borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: t.border, width: 2),
+        border: Border.all(color: t.textPrimary, width: 2),
         boxShadow: [
-          BoxShadow(color: t.border, offset: const Offset(2, 2), blurRadius: 0),
+          BoxShadow(color: t.textPrimary, offset: const Offset(3, 3), blurRadius: 0),
         ],
       ),
       child: Row(
