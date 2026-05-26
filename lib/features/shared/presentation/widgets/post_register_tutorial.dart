@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../shared/themes/bloom_theme.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 
@@ -30,21 +29,6 @@ class PostRegisterTutorial extends StatefulWidget {
 
   @override
   State<PostRegisterTutorial> createState() => _PostRegisterTutorialState();
-
-  static Future<bool> isCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('tutorial_completed') ?? false;
-  }
-
-  static Future<void> markCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('tutorial_completed', true);
-  }
-
-  static Future<void> reset() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('tutorial_completed');
-  }
 }
 
 class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
@@ -59,10 +43,9 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
     setState(() => _step++);
   }
 
-  Future<void> _finish() async {
+  void _finish() {
     widget.onComplete?.call();
-    await PostRegisterTutorial.markCompleted();
-    if (mounted) setState(() => _step = widget.steps.length);
+    setState(() => _step = widget.steps.length);
   }
 
   @override

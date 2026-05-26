@@ -28,7 +28,10 @@ class Game3DButton extends StatefulWidget {
     this.isLoading = false,
     this.horizontalPadding = 28,
     this.verticalPadding = 13,
-  }) : assert(label != null || child != null, 'Either label or child must be provided');
+  }) : assert(
+         label != null || child != null,
+         'Either label or child must be provided',
+       );
 
   @override
   State<Game3DButton> createState() => _Game3DButtonState();
@@ -45,11 +48,15 @@ class _Game3DButtonState extends State<Game3DButton> {
     final txtColor = isDisabled ? const Color(0xFF666666) : widget.textColor;
 
     return GestureDetector(
-      onTapDown: widget.onTap != null ? (_) => setState(() => _pressed = true) : null,
-      onTapUp: widget.onTap != null ? (_) {
-        setState(() => _pressed = false);
-        widget.onTap?.call();
-      } : null,
+      onTapDown: widget.onTap != null
+          ? (_) => setState(() => _pressed = true)
+          : null,
+      onTapUp: widget.onTap != null
+          ? (_) {
+              setState(() => _pressed = false);
+              widget.onTap?.call();
+            }
+          : null,
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 80),
@@ -62,7 +69,10 @@ class _Game3DButtonState extends State<Game3DButton> {
         decoration: BoxDecoration(
           color: faceColor,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _pressed ? Colors.transparent : shadow, width: 2),
+          border: Border.all(
+            color: _pressed ? Colors.transparent : shadow,
+            width: 2,
+          ),
           boxShadow: _pressed
               ? null
               : [
@@ -74,27 +84,45 @@ class _Game3DButtonState extends State<Game3DButton> {
                 ],
         ),
         child: widget.isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: txtColor,
-                ),
-              )
-            : (widget.child ??
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    widget.label!,
-                    style: GoogleFonts.nunito(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
                       color: txtColor,
-                      letterSpacing: 0.5,
                     ),
                   ),
-                )),
+                  const SizedBox(width: 10),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.label ?? '',
+                      style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                        color: txtColor,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : (widget.child ??
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.label!,
+                      style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                        color: txtColor,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  )),
       ),
     );
   }
