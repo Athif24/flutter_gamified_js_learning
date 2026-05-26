@@ -1,31 +1,33 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/info_row.dart';
 import '../../../../core/utils/accessibility.dart';
 import '../../../../core/utils/color_parser.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/utils/error_helper.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../data/models/reward_pool_model.dart';
+import '../../../../shared/providers/gamification_providers.dart';
+import '../providers/reward_pool_provider.dart';
+import '../providers/store_provider.dart';
 
-class MysteryBoxBuyDialog extends StatelessWidget {
+class MysteryBoxBuyDialog extends ConsumerWidget {
   final RewardPool pool;
   final int balance;
-  final bool isPending;
-  final VoidCallback onClose;
-  final VoidCallback onConfirm;
   final BloomTheme t;
+  final WidgetRef ref;
 
   const MysteryBoxBuyDialog({
     super.key,
     required this.pool,
     required this.balance,
-    required this.isPending,
-    required this.onClose,
-    required this.onConfirm,
     required this.t,
+    required this.ref,
   });
 
   String get _icon {
@@ -38,13 +40,17 @@ class MysteryBoxBuyDialog extends StatelessWidget {
   Color? _parseColor(String? hex) => parseColor(hex);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final remaining = balance - pool.jewelCost;
+    final ValueNotifier<bool> isPending = ValueNotifier(false);
+    final w = MediaQuery.of(context).size.width;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
 
-    return Dialog(
+    return StatefulBuilder(
+      builder: (_, setLocalState) => Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(maxWidth: rs(400)),
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(20),
@@ -61,29 +67,29 @@ class MysteryBoxBuyDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              padding: EdgeInsets.fromLTRB(rs(24), rs(24), rs(24), rs(16)),
               child: Row(
                 children: [
                   Container(
-                        width: 36,
-                        height: 36,
+                        width: rs(36),
+                        height: rs(36),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(rs(8)),
                           border: Border.all(color: t.textPrimary, width: 1.5),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6.5),
+                          borderRadius: BorderRadius.circular(rs(6)),
                           child: _icon.startsWith('http')
                               ? CachedNetworkImage(
                                   imageUrl: _icon,
-                                  width: 36,
-                                  height: 36,
+                                  width: rs(36),
+                                  height: rs(36),
                                   fit: BoxFit.contain,
                                   placeholder: (_, __) => Container(
                                     color: t.bgSurface2,
                                     child: Icon(
                                       Icons.card_giftcard,
-                                      size: 20,
+                                      size: rs(20),
                                       color: t.mutedText,
                                     ),
                                   ),
@@ -91,7 +97,7 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                                     color: t.bgSurface2,
                                     child: Icon(
                                       Icons.card_giftcard,
-                                      size: 20,
+                                      size: rs(20),
                                       color: t.mutedText,
                                     ),
                                   ),
@@ -101,7 +107,7 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                                   alignment: Alignment.center,
                                   child: Text(
                                     _icon,
-                                    style: const TextStyle(fontSize: 20),
+                                    style: TextStyle(fontSize: rs(20)),
                                   ),
                                 ),
                         ),
@@ -128,14 +134,14 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                         duration: 1200.ms,
                         curve: Curves.easeInOut,
                       ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: rs(8)),
                   Expanded(
                     child: Text(
                       'Beli ${pool.name}?',
                       style: GoogleFonts.nunito(
                         color: t.textPrimary,
                         fontWeight: FontWeight.w900,
-                        fontSize: 18,
+                        fontSize: rs(18),
                       ),
                     ),
                   ),
@@ -144,7 +150,7 @@ class MysteryBoxBuyDialog extends StatelessWidget {
             ),
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: rs(24)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -152,13 +158,13 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                       'Hadiah yang didapat bersifat acak. Jewels tidak bisa dikembalikan setelah pembelian.',
                       style: GoogleFonts.nunito(
                         color: t.mutedText,
-                        fontSize: 13,
+                        fontSize: rs(13),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: rs(16)),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(rs(16)),
                       decoration: BoxDecoration(
                         color: t.bgPrimary,
                         borderRadius: BorderRadius.circular(12),
@@ -179,20 +185,20 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                             value: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.diamond, size: 14, color: t.info),
-                                const SizedBox(width: 4),
+                                Icon(Icons.diamond, size: rs(14), color: t.info),
+                                SizedBox(width: rs(4)),
                                 Text(
                                   '-${formatNumber(pool.jewelCost)}',
                                   style: GoogleFonts.nunito(
                                     color: t.textPrimary,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 13,
+                                    fontSize: rs(13),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: rs(8)),
                           InfoRow(
                             label: 'Balance saat ini',
                             t: t,
@@ -201,12 +207,12 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                               style: GoogleFonts.nunito(
                                 color: t.textPrimary,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 13,
+                                fontSize: rs(13),
                               ),
                             ),
                           ),
                           Divider(
-                            height: 20,
+                            height: rs(20),
                             color: t.textPrimary.withValues(alpha: 0.1),
                           ),
                           InfoRow(
@@ -217,46 +223,46 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                               style: GoogleFonts.nunito(
                                 color: remaining >= 0 ? t.info : t.error,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 14,
+                                fontSize: rs(14),
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: rs(16)),
                     Text(
                       'Kemungkinan Hadiah',
                       style: GoogleFonts.nunito(
                         color: t.mutedText,
-                        fontSize: 10,
+                        fontSize: rs(10),
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: rs(8)),
                     ...pool.rewards.map((reward) {
                       final color = _parseColor(reward.color);
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
+                        padding: EdgeInsets.only(bottom: rs(6)),
                         child: Row(
                           children: [
                             Container(
-                              width: 8,
-                              height: 8,
+                              width: rs(8),
+                              height: rs(8),
                               decoration: BoxDecoration(
                                 color: color ?? t.mutedText,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: rs(8)),
                             Expanded(
                               child: Text(
                                 reward.displayLabel,
                                 style: GoogleFonts.nunito(
                                   color: t.textPrimary,
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: rs(13),
                                 ),
                               ),
                             ),
@@ -265,7 +271,7 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                               style: GoogleFonts.nunito(
                                 color: t.mutedText,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                                fontSize: rs(12),
                               ),
                             ),
                           ],
@@ -276,88 +282,88 @@ class MysteryBoxBuyDialog extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: rs(16)),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: EdgeInsets.fromLTRB(rs(24), 0, rs(24), rs(24)),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Semantics(
-                    label: 'Batal',
-                    child: Bounceable(
-                      onTap: isPending ? null : onClose,
-                      child: Container(
-                        constraints: const BoxConstraints(
-                          minWidth: 48,
-                          minHeight: 48,
-                        ),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.bgSurface2,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: const Offset(3, 3),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'Batal',
-                          style: GoogleFonts.nunito(
-                            color: t.mutedText,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
+                  Expanded(
+                    child: Game3DButton(
+                      label: 'Batal',
+                      color: t.secondary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.secondaryContent,
+                      horizontalPadding: 14,
+                      verticalPadding: 10,
+                      onTap: isPending.value ? null : () => Navigator.of(context).pop(),
                     ),
                   ),
-                  Semantics(
-                    label: remaining >= 0
-                        ? 'Beli Sekarang'
-                        : 'Saldo Tidak Cukup',
-                    child: Bounceable(
-                      onTap: isPending ? null : onConfirm,
-                      child: Container(
-                        constraints: const BoxConstraints(
-                          minWidth: 48,
-                          minHeight: 48,
-                        ),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isPending ? t.bgSurface2 : t.primary,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: isPending
-                              ? null
-                              : [
-                                  BoxShadow(
-                                    color: t.textPrimary,
-                                    offset: const Offset(3, 3),
-                                    blurRadius: 0,
-                                  ),
-                                ],
-                        ),
-                        child: Text(
-                          isPending ? 'Memproses...' : 'Beli Sekarang',
-                          style: GoogleFonts.nunito(
-                            color: isPending ? t.mutedText : t.primaryContent,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
+                  SizedBox(width: rs(12)),
+                  Expanded(
+                    child: Game3DButton(
+                      label: remaining >= 0
+                          ? AppStrings.buyNow
+                          : 'Saldo Tidak Cukup',
+                      color: remaining >= 0 ? t.primary : t.bgSurface2,
+                      shadowColor: t.textPrimary,
+                      textColor: remaining >= 0
+                          ? t.primaryContent
+                          : t.mutedText,
+                      horizontalPadding: 14,
+                      verticalPadding: 10,
+                      isLoading: isPending.value,
+                      onTap: remaining < 0 || isPending.value
+                          ? null
+                          : () async {
+                              setLocalState(() => isPending.value = true);
+                              try {
+                                await ref.read(rewardPoolDsProvider).buyPool(pool.id);
+                                invalidateGamificationProviders(ref);
+                                ref.invalidate(storeItemsProvider);
+                                ref.invalidate(inventoryProvider);
+                                ref.invalidate(rewardPoolsProvider);
+                                ref.invalidate(jewelBalanceProvider);
+                                ref.invalidate(jewelHistoryProvider);
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Berhasil membeli ${pool.name}!',
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      backgroundColor: t.success,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  setLocalState(() => isPending.value = false);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        sanitizeErrorMessage(e),
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w600,
+                                        ),                                                
+                                      ),
+                                      backgroundColor: t.error,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
                     ),
                   ),
                 ],
@@ -366,6 +372,7 @@ class MysteryBoxBuyDialog extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

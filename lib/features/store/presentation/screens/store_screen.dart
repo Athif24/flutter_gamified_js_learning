@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
@@ -46,8 +47,7 @@ String _fmtDateId(String iso) {
       'Nov',
       'Des',
     ];
-    return '${d.day} ${m[d.month - 1]} ${d.year}, '
-        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    return '${d.day} ${m[d.month - 1]} ${d.year}';
   } catch (_) {
     return iso.substring(0, 10);
   }
@@ -135,6 +135,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
       }
     });
 
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final tabIdx = ref.watch(storeTabProvider);
     final jewelsAsync = ref.watch(jewelBalanceProvider);
@@ -152,13 +154,13 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
             SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             // ── Header ────────────────────────────────────────────────────
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: EdgeInsets.fromLTRB(rs(20), rs(16), rs(20), 0),
               color: t.bgPrimary,
               child: Column(
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(rs(24)),
                     decoration: BoxDecoration(
                       color: t.primary,
                       borderRadius: BorderRadius.circular(24),
@@ -177,18 +179,21 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                           children: [
                             Icon(
                               Icons.shopping_cart_rounded,
-                              size: 24,
+                              size: rs(24),
                               color: t.primaryContent,
                             ),
-                            const SizedBox(width: 10),
-                            Text(
+                            SizedBox(width: rs(10)),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
                               'Store',
                               style: GoogleFonts.nunito(
                                 color: t.primaryContent,
-                                fontSize: 24,
+                                fontSize: rs(24),
                                 fontWeight: FontWeight.w900,
                               ),
                             ).animate().fadeIn(),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -198,16 +203,16 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             'Tukarkan jewels kamu dengan item-item berguna!',
                             style: GoogleFonts.nunito(
                               color: t.primaryContent.withValues(alpha: 0.8),
-                              fontSize: 14,
+                              fontSize: rs(14),
                             ),
                           ).animate().fadeIn(delay: 150.ms),
                         ),
-                        const SizedBox(height: 14),
+                        SizedBox(height: rs(14)),
                         jewelsAsync.when(
                           loading: () => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: rs(20),
+                              vertical: rs(12),
                             ),
                             decoration: BoxDecoration(
                               color: t.primaryContent.withValues(alpha: 0.15),
@@ -219,11 +224,11 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.diamond, size: 24, color: t.info),
+                                Icon(Icons.diamond, size: rs(24), color: t.info),
                                 const SizedBox(width: 8),
                                 Container(
-                                  width: 60,
-                                  height: 24,
+                                  width: rs(60),
+                                  height: rs(24),
                                   decoration: BoxDecoration(
                                     color: t.primaryContent.withValues(
                                       alpha: 0.3,
@@ -235,9 +240,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             ),
                           ),
                           error: (_, __) => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: rs(20),
+                              vertical: rs(12),
                             ),
                             decoration: BoxDecoration(
                               color: t.primaryContent.withValues(alpha: 0.15),
@@ -249,23 +254,23 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.diamond, size: 24, color: t.info),
+                                Icon(Icons.diamond, size: rs(24), color: t.info),
                                 const SizedBox(width: 8),
-                                Text(
-                                  '-',
-                                  style: GoogleFonts.nunito(
-                                    color: t.primaryContent,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 24,
+                                  Text(
+                                    '-',
+                                    style: GoogleFonts.nunito(
+                                      color: t.primaryContent,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: rs(24),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
                           data: (j) => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: rs(20),
+                              vertical: rs(12),
                             ),
                             decoration: BoxDecoration(
                               color: t.primaryContent.withValues(alpha: 0.15),
@@ -278,7 +283,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.diamond, size: 24, color: t.info),
+                                Icon(Icons.diamond, size: rs(24), color: t.info),
                                 const SizedBox(width: 8),
                                 Flexible(
                                   child: FittedBox(
@@ -302,7 +307,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                         alpha: 0.7,
                                       ),
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 12,
+                                      fontSize: rs(12),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -314,7 +319,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                       alpha: 0.6,
                                     ),
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 12,
+                                    fontSize: rs(12),
                                     letterSpacing: 1.2,
                                   ),
                                 ),
@@ -325,15 +330,15 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: rs(14)),
 
                   // Tabs
                   SizedBox(
-                    height: 40,
+                    height: rs(40),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: 3,
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      separatorBuilder: (_, __) => SizedBox(width: rs(8)),
                       itemBuilder: (_, i) {
                         final icons = [
                           Icons.shopping_cart_rounded,
@@ -348,13 +353,14 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                           idx: i,
                           cur: tabIdx,
                           ref: ref,
+                          screenW: w,
                         );
                       },
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: rs(10)),
                   Container(
-                    height: 2,
+                    height: rs(2),
                     decoration: BoxDecoration(
                       color: t.border.withAlpha(80),
                       boxShadow: [
@@ -366,7 +372,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: rs(14)),
                 ],
               ),
             ),
@@ -383,9 +389,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                   await _silentRefresh();
                 },
                 child: switch (tabIdx) {
-                  1 => const _InventoryTab(),
-                  2 => const _JewelHistoryTab(),
-                  _ => const _ShopTab(),
+                  1 => _InventoryTab(screenW: w),
+                  2 => _JewelHistoryTab(screenW: w),
+                  _ => _ShopTab(screenW: w),
                 },
               ),
             ),
@@ -402,6 +408,7 @@ class _TabBtn extends ConsumerWidget {
   final String label;
   final int idx, cur;
   final WidgetRef ref;
+  final double screenW;
   const _TabBtn({
     required this.t,
     required this.icon,
@@ -409,16 +416,19 @@ class _TabBtn extends ConsumerWidget {
     required this.idx,
     required this.cur,
     required this.ref,
+    required this.screenW,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef _) {
+    final w = screenW;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final sel = idx == cur;
     return Bounceable(
       onTap: () => ref.read(storeTabProvider.notifier).state = idx,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: rs(16), vertical: rs(8)),
         decoration: BoxDecoration(
           color: sel ? t.primary : t.bgSurface,
           borderRadius: BorderRadius.circular(50),
@@ -434,14 +444,14 @@ class _TabBtn extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: sel ? t.primaryContent : t.textPrimary),
-            const SizedBox(width: 6),
+            Icon(icon, size: rs(16), color: sel ? t.primaryContent : t.textPrimary),
+            SizedBox(width: rs(6)),
             Text(
               label,
               style: GoogleFonts.nunito(
                 color: sel ? t.primaryContent : t.textPrimary,
                 fontWeight: FontWeight.w800,
-                fontSize: 14,
+                fontSize: rs(14),
               ),
             ),
           ],
@@ -456,7 +466,8 @@ class _TabBtn extends ConsumerWidget {
 // ════════════════════════════════════════════════════════════════════════════
 
 class _ShopTab extends ConsumerStatefulWidget {
-  const _ShopTab();
+  final double screenW;
+  const _ShopTab({required this.screenW});
 
   @override
   ConsumerState<_ShopTab> createState() => _ShopTabState();
@@ -486,65 +497,24 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
         .read(jewelBalanceProvider)
         .maybeWhen(data: (j) => j.balance, orElse: () => 0);
 
-    final confirmed = await showDialog<bool>(
+    setState(() => _isBuyingPool = true);
+    await showDialog<void>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       builder: (ctx) => MysteryBoxBuyDialog(
         pool: pool,
         balance: balance,
-        isPending: _isBuyingPool,
-        onClose: () => Navigator.of(ctx).pop(false),
-        onConfirm: () => Navigator.of(ctx).pop(true),
         t: t,
+        ref: ref,
       ),
     );
-
-    if (confirmed != true || !mounted) return;
-    setState(() => _isBuyingPool = true);
-    try {
-      final result = await ref.read(rewardPoolDsProvider).buyPool(pool.id);
-      invalidateGamificationProviders(ref);
-      ref.invalidate(storeItemsProvider);
-      ref.invalidate(inventoryProvider);
-      ref.invalidate(rewardPoolsProvider);
-      ref.invalidate(jewelBalanceProvider);
-      ref.invalidate(jewelHistoryProvider);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result['message'] ?? 'Berhasil membeli ${pool.name}!',
-            style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
-          ),
-          backgroundColor: t.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            sanitizeErrorMessage(e),
-            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
-          ),
-          backgroundColor: t.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isBuyingPool = false);
-    }
+    if (mounted) setState(() => _isBuyingPool = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final w = widget.screenW;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final itemsAsync = ref.watch(storeItemsProvider);
     final poolsAsync = ref.watch(rewardPoolsProvider);
@@ -579,29 +549,30 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
             emoji: '🛒',
             title: 'Belum ada item tersedia',
             subtitle: 'Check back later untuk item baru!',
+            screenW: w,
           );
         }
 
         return ListView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(rs(20)),
           children: [
             // ── SPECIAL ITEMS: Horizontal Carousel ──
             if (hasMysteryBoxes) ...[
               Row(
                 children: [
-                  Icon(Icons.card_giftcard_rounded, size: 20, color: t.accent),
-                  const SizedBox(width: 8),
+                  Icon(Icons.card_giftcard_rounded, size: rs(20), color: t.accent),
+                  SizedBox(width: rs(8)),
                   Text(
                     'Special Items',
                     style: GoogleFonts.nunito(
                       color: t.textPrimary,
                       fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                      fontSize: rs(16),
                     ),
                   ).animate().fadeIn(),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: rs(12)),
               LayoutBuilder(
                 builder: (_, constraints) {
                   final cardWidth = constraints.maxWidth > 600 ? 280.0 : 240.0;
@@ -627,20 +598,29 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
                   );
                 },
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: rs(24)),
             ],
 
             // ── ITEMS: Responsive Grid ──
             if (hasRegularItems) ...[
-              Text(
-                'Items',
-                style: GoogleFonts.nunito(
-                  color: t.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                ),
+              Row(
+                children: [
+                  Icon(Icons.shopping_cart_rounded, size: rs(16), color: t.accent),
+                  const SizedBox(width: 8),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Items',
+                      style: GoogleFonts.nunito(
+                        color: t.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: rs(16),
+                      ),
+                    ),
+                  ),
+                ],
               ).animate().fadeIn(),
-              const SizedBox(height: 12),
+              SizedBox(height: rs(12)),
               LayoutBuilder(
                 builder: (_, constraints) {
                   final crossAxisCount = constraints.maxWidth > 600
@@ -662,6 +642,7 @@ class _ShopTabState extends ConsumerState<_ShopTab> {
                       ref: ref,
                       balance: balance,
                       onBuy: _onRegularItemBuy,
+                      screenW: w,
                     ).animate().fadeIn(delay: (60 * i).ms),
                   );
                 },
@@ -684,6 +665,7 @@ class _CompactShopCard extends ConsumerWidget {
   final WidgetRef ref;
   final int balance;
   final void Function(StoreItem) onBuy;
+  final double screenW;
 
   const _CompactShopCard({
     required this.item,
@@ -691,14 +673,17 @@ class _CompactShopCard extends ConsumerWidget {
     required this.ref,
     required this.balance,
     required this.onBuy,
+    required this.screenW,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final w = screenW;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
     final canAfford = balance >= item.price;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(rs(14)),
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(16),
@@ -719,8 +704,8 @@ class _CompactShopCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: rs(44),
+                height: rs(44),
                 decoration: BoxDecoration(
                   color: t.bgSurface2,
                   borderRadius: BorderRadius.circular(10),
@@ -730,26 +715,26 @@ class _CompactShopCard extends ConsumerWidget {
                   child: item.icon.startsWith('http')
                       ? CachedNetworkImage(
                           imageUrl: item.icon,
-                          width: 26,
-                          height: 26,
+                          width: rs(26),
+                          height: rs(26),
                           fit: BoxFit.contain,
                           placeholder: (_, __) => Icon(
                             Icons.inventory_2_rounded,
-                            size: 22,
+                            size: rs(22),
                             color: t.mutedText,
                           ),
                           errorWidget: (_, __, ___) => Icon(
                             Icons.inventory_2_rounded,
-                            size: 22,
+                            size: rs(22),
                             color: t.mutedText,
                           ),
                         )
-                      : Text(item.icon, style: const TextStyle(fontSize: 22)),
+                      : Text(item.icon, style: TextStyle(fontSize: rs(22))),
                 ),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: rs(5), vertical: rs(2)),
                 decoration: BoxDecoration(
                   color: (_typeBadgeColors[item.type] ?? t.mutedText)
                       .withValues(alpha: 0.15),
@@ -759,46 +744,58 @@ class _CompactShopCard extends ConsumerWidget {
                         .withValues(alpha: 0.5),
                   ),
                 ),
-                child: Text(
-                  itemTypeLabels[item.type] ?? item.type,
-                  style: GoogleFonts.nunito(
-                    color: _typeBadgeColors[item.type] ?? t.mutedText,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    itemTypeLabels[item.type] ?? item.type,
+                    style: GoogleFonts.nunito(
+                      color: _typeBadgeColors[item.type] ?? t.mutedText,
+                      fontSize: rs(9),
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: rs(10)),
 
           // Name
-          Text(
-            item.name,
-            style: GoogleFonts.nunito(
-              color: t.textPrimary,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              item.name,
+              style: GoogleFonts.nunito(
+                color: t.textPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: rs(13),
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: rs(3)),
 
           // Description (compact)
           if (item.description != null && item.description!.isNotEmpty)
-            Text(
-              item.description!,
-              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 10),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                item.description!,
+                style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(10)),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             )
           else
-            Text(
-              itemTypeDescriptions[item.type] ?? '',
-              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 10),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                itemTypeDescriptions[item.type] ?? '',
+                style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(10)),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
 
           const Spacer(),
@@ -809,14 +806,17 @@ class _CompactShopCard extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.diamond, size: 12, color: t.info),
+                  Icon(Icons.diamond, size: rs(12), color: t.info),
                   const SizedBox(width: 3),
-                  Text(
-                    formatNumber(item.price),
-                    style: GoogleFonts.nunito(
-                      color: t.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      formatNumber(item.price),
+                      style: GoogleFonts.nunito(
+                        color: t.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: rs(12),
+                      ),
                     ),
                   ),
                 ],
@@ -827,14 +827,14 @@ class _CompactShopCard extends ConsumerWidget {
                 child: Bounceable(
                   onTap: canAfford ? () => onBuy(item) : null,
                   child: Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 36,
+                    constraints: BoxConstraints(
+                      minWidth: rs(36),
+                      minHeight: rs(36),
                     ),
                     alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: rs(10),
+                      vertical: rs(6),
                     ),
                     decoration: BoxDecoration(
                       color: canAfford ? t.primary : t.bgSurface2,
@@ -855,16 +855,19 @@ class _CompactShopCard extends ConsumerWidget {
                       children: [
                         Icon(
                           Icons.shopping_cart_rounded,
-                          size: 14,
+                          size: rs(14),
                           color: canAfford ? t.primaryContent : t.mutedText,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          'Beli',
-                          style: GoogleFonts.nunito(
-                            color: canAfford ? t.primaryContent : t.mutedText,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 11,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Beli',
+                            style: GoogleFonts.nunito(
+                              color: canAfford ? t.primaryContent : t.mutedText,
+                              fontWeight: FontWeight.w800,
+                              fontSize: rs(11),
+                            ),
                           ),
                         ),
                       ],
@@ -891,7 +894,7 @@ class _BuyDialog extends ConsumerWidget {
   final int balance;
   final VoidCallback onDismiss;
 
-  const _BuyDialog({
+  _BuyDialog({
     required this.item,
     required this.t,
     required this.ref,
@@ -899,14 +902,19 @@ class _BuyDialog extends ConsumerWidget {
     required this.onDismiss,
   });
 
+  final ValueNotifier<bool> _isBuying = ValueNotifier(false);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining = balance - item.price;
+    final w = MediaQuery.of(context).size.width;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
 
-    return Dialog(
+    return StatefulBuilder(
+      builder: (_, setLocalState) => Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
+        child: Container(
+        constraints: BoxConstraints(maxWidth: rs(400)),
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(20),
@@ -923,19 +931,22 @@ class _BuyDialog extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Text(
+              padding: EdgeInsets.fromLTRB(rs(24), rs(24), rs(24), rs(16)),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
                 'Konfirmasi Pembelian',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
                   fontWeight: FontWeight.w900,
-                  fontSize: 18,
+                  fontSize: rs(18),
                 ),
               ),
             ),
+            ),
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: rs(24)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -943,13 +954,13 @@ class _BuyDialog extends ConsumerWidget {
                       'Pastikan kamu yakin dengan pembelian ini. Jewels tidak bisa dikembalikan.',
                       style: GoogleFonts.nunito(
                         color: t.mutedText,
-                        fontSize: 13,
+                        fontSize: rs(13),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: rs(16)),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(rs(16)),
                       decoration: BoxDecoration(
                         color: t.bgPrimary,
                         borderRadius: BorderRadius.circular(12),
@@ -967,8 +978,8 @@ class _BuyDialog extends ConsumerWidget {
                           Row(
                             children: [
                               Container(
-                                width: 48,
-                                height: 48,
+                                width: rs(48),
+                                height: rs(48),
                                 decoration: BoxDecoration(
                                   color: t.bgSurface,
                                   borderRadius: BorderRadius.circular(10),
@@ -981,27 +992,27 @@ class _BuyDialog extends ConsumerWidget {
                                   child: item.icon.startsWith('http')
                                       ? CachedNetworkImage(
                                           imageUrl: item.icon,
-                                          width: 28,
-                                          height: 28,
+                                          width: rs(28),
+                                          height: rs(28),
                                           fit: BoxFit.contain,
                                           placeholder: (_, __) => Icon(
                                             Icons.inventory_2_rounded,
-                                            size: 24,
+                                            size: rs(24),
                                             color: t.mutedText,
                                           ),
                                           errorWidget: (_, __, ___) => Icon(
                                             Icons.inventory_2_rounded,
-                                            size: 24,
+                                            size: rs(24),
                                             color: t.mutedText,
                                           ),
                                         )
                                       : Text(
                                           item.icon,
-                                          style: const TextStyle(fontSize: 24),
+                                          style: TextStyle(fontSize: rs(24)),
                                         ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: rs(12)),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1011,15 +1022,15 @@ class _BuyDialog extends ConsumerWidget {
                                       style: GoogleFonts.nunito(
                                         color: t.textPrimary,
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 14,
+                                        fontSize: rs(14),
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
+                                    SizedBox(height: rs(2)),
                                     Text(
                                       itemTypeLabels[item.type] ?? item.type,
                                       style: GoogleFonts.nunito(
                                         color: t.mutedText,
-                                        fontSize: 12,
+                                        fontSize: rs(12),
                                       ),
                                     ),
                                   ],
@@ -1027,26 +1038,27 @@ class _BuyDialog extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          SizedBox(height: rs(14)),
                           _infoRow(
                             'Harga',
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.diamond, size: 14, color: t.info),
+                                Icon(Icons.diamond, size: rs(14), color: t.info),
                                 const SizedBox(width: 4),
                                 Text(
                                   '-${formatNumber(item.price)}',
                                   style: GoogleFonts.nunito(
                                     color: t.textPrimary,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 13,
+                                    fontSize: rs(13),
                                   ),
                                 ),
                               ],
                             ),
+                            w,
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: rs(8)),
                           _infoRow(
                             'Balance saat ini',
                             Text(
@@ -1054,9 +1066,10 @@ class _BuyDialog extends ConsumerWidget {
                               style: GoogleFonts.nunito(
                                 color: t.textPrimary,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 13,
+                                fontSize: rs(13),
                               ),
                             ),
+                            w,
                           ),
                           Divider(
                             height: 20,
@@ -1069,21 +1082,22 @@ class _BuyDialog extends ConsumerWidget {
                               style: GoogleFonts.nunito(
                                 color: remaining >= 0 ? t.info : t.error,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 14,
+                                fontSize: rs(14),
                               ),
                             ),
+                            w,
                           ),
                         ],
                       ),
                     ),
                     if (item.description != null &&
                         item.description!.isNotEmpty) ...[
-                      const SizedBox(height: 10),
+                      SizedBox(height: rs(10)),
                       Text(
                         item.description!,
                         style: GoogleFonts.nunito(
                           color: t.mutedText,
-                          fontSize: 13,
+                          fontSize: rs(13),
                         ),
                       ),
                     ],
@@ -1091,50 +1105,41 @@ class _BuyDialog extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: rs(16)),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: EdgeInsets.fromLTRB(rs(24), 0, rs(24), rs(24)),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Bounceable(
-                    onTap: onDismiss,
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.bgSurface2,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.textPrimary,
-                            offset: const Offset(3, 3),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Batal',
-                        style: GoogleFonts.nunito(
-                          color: t.mutedText,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
+                  Expanded(
+                    child: Game3DButton(
+                      label: 'Batal',
+                      color: t.secondary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.secondaryContent,
+                      horizontalPadding: 14,
+                      verticalPadding: 10,
+                      onTap: onDismiss,
                     ),
                   ),
-                  Bounceable(
-                    onTap: remaining < 0
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Game3DButton(
+                      label: remaining >= 0
+                          ? AppStrings.buyNow
+                          : AppStrings.insufficientBalance,
+                      color: remaining >= 0 ? t.primary : t.bgSurface2,
+                      shadowColor: t.textPrimary,
+                      textColor: remaining >= 0
+                          ? t.primaryContent
+                          : t.mutedText,
+                      horizontalPadding: 14,
+                      verticalPadding: 10,
+                      isLoading: _isBuying.value,
+                    onTap: remaining < 0 || _isBuying.value
                         ? null
                         : () async {
+                            setLocalState(() => _isBuying.value = true);
                             try {
                               await ref.read(storeDsProvider).buyItem(item.id);
                               invalidateGamificationProviders(ref);
@@ -1181,44 +1186,10 @@ class _BuyDialog extends ConsumerWidget {
                                   ),
                                 );
                               }
+                            } finally {
+                              setLocalState(() => _isBuying.value = false);
                             }
                           },
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: remaining >= 0 ? t.primary : t.bgSurface2,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                        boxShadow: remaining >= 0
-                            ? [
-                                BoxShadow(
-                                  color: t.textPrimary,
-                                  offset: const Offset(3, 3),
-                                  blurRadius: 0,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Text(
-                        remaining >= 0
-                            ? AppStrings.buyNow
-                            : AppStrings.insufficientBalance,
-                        style: GoogleFonts.nunito(
-                          color: remaining >= 0
-                              ? t.primaryContent
-                              : t.mutedText,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -1227,22 +1198,28 @@ class _BuyDialog extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
-  Widget _infoRow(String label, Widget value) {
+  Widget _infoRow(String label, Widget value, double sw) {
+    final rs = (double px) => px * (sw / 390).clamp(0.8, 1.3);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.nunito(
-            color: t.mutedText,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: GoogleFonts.nunito(
+              color: t.mutedText,
+              fontWeight: FontWeight.w600,
+              fontSize: rs(13),
+            ),
           ),
         ),
-        value,
+        const SizedBox(width: 8),
+        Flexible(child: value),
       ],
     );
   }
@@ -1253,7 +1230,8 @@ class _BuyDialog extends ConsumerWidget {
 // ════════════════════════════════════════════════════════════════════════════
 
 class _InventoryTab extends ConsumerStatefulWidget {
-  const _InventoryTab();
+  final double screenW;
+  const _InventoryTab({required this.screenW});
 
   @override
   ConsumerState<_InventoryTab> createState() => _InventoryTabState();
@@ -1371,6 +1349,8 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
 
   @override
   Widget build(BuildContext context) {
+    final w = widget.screenW;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = ref.watch(currentThemeProvider);
     final invAsync = ref.watch(inventoryProvider);
 
@@ -1396,13 +1376,15 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
                     emoji: '📦',
                     title: 'Inventori kosong',
                     subtitle: 'Beli item di Shop untuk mulai mengumpulkan!',
+                    screenW: widget.screenW,
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(rs(20)),
                     itemCount: sorted.length,
                     itemBuilder: (_, i) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
+                      padding: EdgeInsets.only(bottom: rs(14)),
                       child: _InventoryCard(
+                        screenW: w,
                         item: sorted[i],
                         t: t,
                         ref: ref,
@@ -1431,6 +1413,7 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
 }
 
 class _InventoryCard extends ConsumerWidget {
+  final double screenW;
   final InventoryItem item;
   final BloomTheme t;
   final WidgetRef ref;
@@ -1438,6 +1421,7 @@ class _InventoryCard extends ConsumerWidget {
   final void Function(InventoryItem, StoreItem) onOpenMysteryBox;
 
   const _InventoryCard({
+    required this.screenW,
     required this.item,
     required this.t,
     required this.ref,
@@ -1459,6 +1443,8 @@ class _InventoryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final w = screenW;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final storeItem = item.item;
     if (storeItem == null) return const SizedBox.shrink();
 
@@ -1467,7 +1453,7 @@ class _InventoryCard extends ConsumerWidget {
     final typeColor = _typeBadgeColors[storeItem.type] ?? t.mutedText;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(rs(20)),
       decoration: BoxDecoration(
         color: isMysteryBox ? null : t.bgSurface,
         gradient: isMysteryBox
@@ -1503,8 +1489,8 @@ class _InventoryCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: rs(56),
+                height: rs(56),
                 decoration: BoxDecoration(
                   color: t.bgSurface2,
                   borderRadius: BorderRadius.circular(12),
@@ -1514,23 +1500,23 @@ class _InventoryCard extends ConsumerWidget {
                   child: storeItem.icon.startsWith('http')
                       ? CachedNetworkImage(
                           imageUrl: storeItem.icon,
-                          width: 32,
-                          height: 32,
+                          width: rs(32),
+                          height: rs(32),
                           fit: BoxFit.contain,
                           placeholder: (_, __) => Icon(
                             Icons.inventory_2_rounded,
-                            size: 28,
+                            size: rs(28),
                             color: t.mutedText,
                           ),
                           errorWidget: (_, __, ___) => Icon(
                             Icons.inventory_2_rounded,
-                            size: 28,
+                            size: rs(28),
                             color: t.mutedText,
                           ),
                         )
                       : Text(
                           storeItem.icon,
-                          style: const TextStyle(fontSize: 28),
+                          style: TextStyle(fontSize: rs(28)),
                         ),
                 ),
               ),
@@ -1539,9 +1525,9 @@ class _InventoryCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: rs(8),
+                      vertical: rs(3),
                     ),
                     decoration: BoxDecoration(
                       color: typeColor.withValues(alpha: 0.15),
@@ -1550,20 +1536,23 @@ class _InventoryCard extends ConsumerWidget {
                         color: typeColor.withValues(alpha: 0.5),
                       ),
                     ),
-                    child: Text(
-                      itemTypeLabels[storeItem.type] ?? storeItem.type,
-                      style: GoogleFonts.nunito(
-                        color: typeColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        itemTypeLabels[storeItem.type] ?? storeItem.type,
+                        style: GoogleFonts.nunito(
+                          color: typeColor,
+                          fontSize: rs(11),
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: rs(6)),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: rs(8),
+                      vertical: rs(2),
                     ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
@@ -1576,7 +1565,7 @@ class _InventoryCard extends ConsumerWidget {
                       style: GoogleFonts.nunito(
                         color: t.textPrimary,
                         fontWeight: FontWeight.w800,
-                        fontSize: 13,
+                        fontSize: rs(13),
                       ),
                     ),
                   ),
@@ -1584,33 +1573,42 @@ class _InventoryCard extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            storeItem.name,
-            style: GoogleFonts.nunito(
-              color: t.textPrimary,
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
+          SizedBox(height: rs(12)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              storeItem.name,
+              style: GoogleFonts.nunito(
+                color: t.textPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: rs(16),
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            _itemEffectDesc(storeItem),
-            style: GoogleFonts.nunito(color: t.mutedText, fontSize: 12),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          SizedBox(height: rs(4)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              _itemEffectDesc(storeItem),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(12)),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: rs(12)),
           Divider(height: 1, color: t.textPrimary.withValues(alpha: 0.1)),
-          const SizedBox(height: 10),
+          SizedBox(height: rs(10)),
           Row(
             children: [
-              Text(
-                'Diperoleh: ${_fmtDateId(item.acquiredAt ?? '')}',
-                style: GoogleFonts.nunito(
-                  color: t.mutedText,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Diperoleh: ${_fmtDateId(item.acquiredAt ?? '')}',
+                  style: GoogleFonts.nunito(
+                    color: t.mutedText,
+                    fontSize: rs(10),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -1619,61 +1617,23 @@ class _InventoryCard extends ConsumerWidget {
                   label: isMysteryBox
                       ? 'Buka Mystery Box'
                       : 'Gunakan ${storeItem.name}',
-                  child: Bounceable(
+                  child: Game3DButton(
+                    label: isMysteryBox ? 'Buka' : 'Gunakan',
+                    color: t.primary,
+                    shadowColor: t.textPrimary,
+                    textColor: t.primaryContent,
+                    horizontalPadding: 14,
+                    verticalPadding: 6,
                     onTap: () => isMysteryBox
                         ? _onOpenMysteryBox(context)
                         : _onUse(context),
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.primary,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.textPrimary,
-                            offset: const Offset(3, 3),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isMysteryBox
-                                ? Icons.card_giftcard_rounded
-                                : Icons.bolt_rounded,
-                            size: 14,
-                            color: t.primaryContent,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isMysteryBox ? 'Buka' : 'Gunakan',
-                            style: GoogleFonts.nunito(
-                              color: t.primaryContent,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 )
               else
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 7,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: rs(14),
+                    vertical: rs(7),
                   ),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
@@ -1683,7 +1643,7 @@ class _InventoryCard extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.block_rounded, size: 14, color: t.mutedText),
+                      Icon(Icons.block_rounded, size: rs(14), color: t.mutedText),
                       const SizedBox(width: 4),
                       Text(
                         storeItem.isConsumable
@@ -1692,7 +1652,7 @@ class _InventoryCard extends ConsumerWidget {
                         style: GoogleFonts.nunito(
                           color: t.mutedText,
                           fontWeight: FontWeight.w800,
-                          fontSize: 11,
+                          fontSize: rs(11),
                         ),
                       ),
                     ],
@@ -1723,21 +1683,26 @@ class _UseDialog extends ConsumerWidget {
   final BloomTheme t;
   final WidgetRef ref;
 
-  const _UseDialog({
+  _UseDialog({
     required this.invItem,
     required this.storeItem,
     required this.t,
     required this.ref,
   });
 
+  final ValueNotifier<bool> _isUsing = ValueNotifier(false);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining = invItem.quantity - 1;
+    final w = MediaQuery.of(context).size.width;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
 
-    return Dialog(
+    return StatefulBuilder(
+      builder: (_, setLocalState) => Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
+        child: Container(
+        constraints: BoxConstraints(maxWidth: rs(400)),
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(20),
@@ -1754,19 +1719,22 @@ class _UseDialog extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Text(
+              padding: EdgeInsets.fromLTRB(rs(24), rs(24), rs(24), rs(16)),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
                 'Gunakan Item?',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
                   fontWeight: FontWeight.w900,
-                  fontSize: 18,
+                  fontSize: rs(18),
                 ),
               ),
             ),
+            ),
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: rs(24)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1774,13 +1742,13 @@ class _UseDialog extends ConsumerWidget {
                       'Item ini akan digunakan dan quantity akan berkurang 1.',
                       style: GoogleFonts.nunito(
                         color: t.mutedText,
-                        fontSize: 13,
+                        fontSize: rs(13),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: rs(16)),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(rs(16)),
                       decoration: BoxDecoration(
                         color: t.bgPrimary,
                         borderRadius: BorderRadius.circular(12),
@@ -1798,8 +1766,8 @@ class _UseDialog extends ConsumerWidget {
                           Row(
                             children: [
                               Container(
-                                width: 48,
-                                height: 48,
+                                width: rs(48),
+                                height: rs(48),
                                 decoration: BoxDecoration(
                                   color: t.bgSurface,
                                   borderRadius: BorderRadius.circular(10),
@@ -1812,27 +1780,27 @@ class _UseDialog extends ConsumerWidget {
                                   child: storeItem.icon.startsWith('http')
                                       ? CachedNetworkImage(
                                           imageUrl: storeItem.icon,
-                                          width: 28,
-                                          height: 28,
+                                          width: rs(28),
+                                          height: rs(28),
                                           fit: BoxFit.contain,
                                           placeholder: (_, __) => Icon(
                                             Icons.inventory_2_rounded,
-                                            size: 24,
+                                            size: rs(24),
                                             color: t.mutedText,
                                           ),
                                           errorWidget: (_, __, ___) => Icon(
                                             Icons.inventory_2_rounded,
-                                            size: 24,
+                                            size: rs(24),
                                             color: t.mutedText,
                                           ),
                                         )
                                       : Text(
                                           storeItem.icon,
-                                          style: const TextStyle(fontSize: 24),
+                                          style: TextStyle(fontSize: rs(24)),
                                         ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: rs(12)),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1842,16 +1810,16 @@ class _UseDialog extends ConsumerWidget {
                                       style: GoogleFonts.nunito(
                                         color: t.textPrimary,
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 14,
+                                        fontSize: rs(14),
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
+                                    SizedBox(height: rs(2)),
                                     Text(
                                       itemTypeLabels[storeItem.type] ??
                                           storeItem.type,
                                       style: GoogleFonts.nunito(
                                         color: t.mutedText,
-                                        fontSize: 12,
+                                        fontSize: rs(12),
                                       ),
                                     ),
                                   ],
@@ -1859,7 +1827,7 @@ class _UseDialog extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          SizedBox(height: rs(14)),
                           _infoRow(
                             'Efek',
                             Text(
@@ -1868,9 +1836,10 @@ class _UseDialog extends ConsumerWidget {
                               style: GoogleFonts.nunito(
                                 color: t.textPrimary,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 13,
+                                fontSize: rs(13),
                               ),
                             ),
+                            w,
                           ),
                           Divider(
                             height: 20,
@@ -1883,21 +1852,22 @@ class _UseDialog extends ConsumerWidget {
                               style: GoogleFonts.nunito(
                                 color: remaining >= 0 ? t.textPrimary : t.error,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 14,
+                                fontSize: rs(14),
                               ),
                             ),
+                            w,
                           ),
                         ],
                       ),
                     ),
                     if (storeItem.description != null &&
                         storeItem.description!.isNotEmpty) ...[
-                      const SizedBox(height: 10),
+                      SizedBox(height: rs(10)),
                       Text(
                         storeItem.description!,
                         style: GoogleFonts.nunito(
                           color: t.mutedText,
-                          fontSize: 13,
+                          fontSize: rs(13),
                         ),
                       ),
                     ],
@@ -1905,132 +1875,97 @@ class _UseDialog extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: rs(16)),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: EdgeInsets.fromLTRB(rs(24), 0, rs(24), rs(24)),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Bounceable(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.bgSurface2,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: t.textPrimary,
-                            offset: const Offset(3, 3),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Batal',
-                        style: GoogleFonts.nunito(
-                          color: t.mutedText,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
+                  Expanded(
+                    child: Game3DButton(
+                      label: 'Batal',
+                      color: t.secondary,
+                      shadowColor: t.textPrimary,
+                      textColor: t.secondaryContent,
+                      horizontalPadding: 14,
+                      verticalPadding: 10,
+                      onTap: _isUsing.value ? null : () => Navigator.of(context).pop(),
                     ),
                   ),
-                  if (remaining >= 0) ...[
-                    const SizedBox(width: 12),
-                    Bounceable(
-                      onTap: () async {
-                        try {
-                          await ref
-                              .read(storeDsProvider)
-                              .useItem(invItem.itemId.toString());
-                          ref.invalidate(inventoryProvider);
-                          ref.invalidate(jewelBalanceProvider);
-                          ref.invalidate(storeItemsProvider);
-                          if (context.mounted) {
-                            final messenger = ScaffoldMessenger.of(context);
-                            Navigator.of(context).pop();
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Berhasil menggunakan ${storeItem.name}!',
-                                  style: GoogleFonts.nunito(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                backgroundColor: t.success,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            final messenger = ScaffoldMessenger.of(context);
-                            Navigator.of(context).pop();
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  sanitizeErrorMessage(e),
-                                  style: GoogleFonts.nunito(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                backgroundColor: t.error,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.primary,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: const Offset(3, 3),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'Gunakan',
-                          style: GoogleFonts.nunito(
-                            color: t.primaryContent,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                          ),
-                        ),
+                  SizedBox(width: 12),
+                  if (remaining >= 0)
+                    Expanded(
+                      child: Game3DButton(
+                        label: 'Gunakan',
+                        color: t.primary,
+                        shadowColor: t.textPrimary,
+                        textColor: t.primaryContent,
+                        horizontalPadding: 14,
+                        verticalPadding: 10,
+                        isLoading: _isUsing.value,
+                        onTap: _isUsing.value
+                            ? null
+                            : () async {
+                                setLocalState(() => _isUsing.value = true);
+                                try {
+                                  await ref
+                                      .read(storeDsProvider)
+                                      .useItem(invItem.itemId.toString());
+                                  ref.invalidate(inventoryProvider);
+                                  ref.invalidate(jewelBalanceProvider);
+                                  ref.invalidate(storeItemsProvider);
+                                  if (context.mounted) {
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    Navigator.of(context).pop();
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Berhasil menggunakan ${storeItem.name}!',
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        backgroundColor: t.success,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    Navigator.of(context).pop();
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          sanitizeErrorMessage(e),
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        backgroundColor: t.error,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  setLocalState(() => _isUsing.value = false);
+                                }
+                              },
                       ),
                     ),
-                  ],
                 ],
               ),
             ),
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -2045,15 +1980,19 @@ class _UseDialog extends ConsumerWidget {
     return base;
   }
 
-  Widget _infoRow(String label, Widget value) {
+  Widget _infoRow(String label, Widget value, double sw) {
+    final rs = (double px) => px * (sw / 390).clamp(0.8, 1.3);
     return Row(
       children: [
-        Text(
-          label,
-          style: GoogleFonts.nunito(
-            color: t.mutedText,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: GoogleFonts.nunito(
+              color: t.mutedText,
+              fontWeight: FontWeight.w600,
+              fontSize: rs(13),
+            ),
           ),
         ),
         const SizedBox(width: 8),
@@ -2070,7 +2009,8 @@ class _UseDialog extends ConsumerWidget {
 // ════════════════════════════════════════════════════════════════════════════
 
 class _JewelHistoryTab extends ConsumerStatefulWidget {
-  const _JewelHistoryTab();
+  final double screenW;
+  const _JewelHistoryTab({required this.screenW});
 
   @override
   ConsumerState<_JewelHistoryTab> createState() => _JewelHistoryTabState();
@@ -2164,6 +2104,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                     emoji: '📜',
                     title: 'Belum ada riwayat transaksi',
                     subtitle: 'Transaksi jewels kamu akan muncul di sini',
+                    screenW: widget.screenW,
                   );
                 }
                 if (filtered.isEmpty) {
@@ -2172,6 +2113,7 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
                     emoji: '🔍',
                     title: 'Tidak ada transaksi',
                     subtitle: '',
+                    screenW: widget.screenW,
                   );
                 }
                 return SingleChildScrollView(
@@ -2335,36 +2277,51 @@ class _JewelHistoryTabState extends ConsumerState<_JewelHistoryTab> {
 class _EmptyState extends StatelessWidget {
   final BloomTheme t;
   final String emoji, title, subtitle;
+  final double screenW;
   const _EmptyState({
     required this.t,
     required this.emoji,
     required this.title,
     required this.subtitle,
+    required this.screenW,
   });
   @override
-  Widget build(BuildContext context) => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(emoji, style: const TextStyle(fontSize: 56)),
-        const SizedBox(height: 14),
-        Text(
-          title,
-          style: GoogleFonts.nunito(
-            color: t.textPrimary,
-            fontWeight: FontWeight.w700,
-            fontSize: 16,
+  Widget build(BuildContext context) {
+    final w = screenW;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(emoji, style: TextStyle(fontSize: rs(56))),
           ),
-        ),
-        if (subtitle.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
-            textAlign: TextAlign.center,
+          SizedBox(height: rs(14)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              style: GoogleFonts.nunito(
+                color: t.textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: rs(16),
+              ),
+            ),
           ),
+          if (subtitle.isNotEmpty) ...[
+            SizedBox(height: rs(6)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                subtitle,
+                style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(13)),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }

@@ -47,55 +47,57 @@ class _StoreSkeletonState extends State<StoreSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final rs = (double px) => px * (w / 390).clamp(0.8, 1.3);
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(rs(20)),
       children: [
-        if (widget.tabId == 0) ..._shopSkeleton(),
-        if (widget.tabId == 1) ..._inventorySkeleton(),
-        if (widget.tabId == 2) ..._historySkeleton(),
+        if (widget.tabId == 0) ..._shopSkeleton(rs),
+        if (widget.tabId == 1) ..._inventorySkeleton(rs),
+        if (widget.tabId == 2) ..._historySkeleton(rs),
       ],
     );
   }
 
-  List<Widget> _shopSkeleton() {
+  List<Widget> _shopSkeleton(double Function(double) rs) {
     return [
       _shimmer(
         Row(
           children: [
             Container(
-              width: 20,
-              height: 20,
+              width: rs(20),
+              height: rs(20),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(rs(4)),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: rs(8)),
             Container(
-              width: 100,
-              height: 16,
+              width: rs(100),
+              height: rs(16),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(rs(4)),
               ),
             ),
           ],
         ),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: rs(12)),
       LayoutBuilder(
         builder: (_, c) {
-          final cardWidth = c.maxWidth > 600 ? 280.0 : 240.0;
+          final cardWidth = c.maxWidth > 600 ? rs(280) : rs(240);
           return SizedBox(
-            height: 300,
+            height: rs(300),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: 2,
-              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              separatorBuilder: (_, __) => SizedBox(width: rs(14)),
               itemBuilder: (_, __) => _shimmer(
                 Container(
                   width: cardWidth,
-                  height: 300,
+                  height: rs(300),
                   decoration: BoxDecoration(
                     color: widget.t.bgSurface,
                     borderRadius: BorderRadius.circular(18),
@@ -107,18 +109,18 @@ class _StoreSkeletonState extends State<StoreSkeleton>
           );
         },
       ),
-      const SizedBox(height: 24),
+      SizedBox(height: rs(24)),
       _shimmer(
         Container(
-          width: 60,
-          height: 16,
+          width: rs(60),
+          height: rs(16),
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(rs(4)),
           ),
         ),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: rs(12)),
       LayoutBuilder(
         builder: (_, constraints) {
           final crossAxisCount = constraints.maxWidth > 600
@@ -129,8 +131,8 @@ class _StoreSkeletonState extends State<StoreSkeleton>
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
+              mainAxisSpacing: rs(14),
+              crossAxisSpacing: rs(14),
               childAspectRatio: 0.78,
             ),
             itemCount: 4,
@@ -149,26 +151,26 @@ class _StoreSkeletonState extends State<StoreSkeleton>
     ];
   }
 
-  List<Widget> _inventorySkeleton() {
+  List<Widget> _inventorySkeleton(double Function(double) rs) {
     return [
       _shimmer(
         Container(
-          width: 100,
-          height: 16,
+          width: rs(100),
+          height: rs(16),
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(rs(4)),
           ),
         ),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: rs(12)),
       ...List.generate(
         4,
         (i) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
+          padding: EdgeInsets.only(bottom: rs(14)),
           child: _shimmer(
             Container(
-              height: 120,
+              height: rs(120),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface,
                 borderRadius: BorderRadius.circular(18),
@@ -181,32 +183,32 @@ class _StoreSkeletonState extends State<StoreSkeleton>
     ];
   }
 
-  List<Widget> _historySkeleton() {
+  List<Widget> _historySkeleton(double Function(double) rs) {
     return [
       _shimmer(
         Row(
           children: [
             Container(
-              width: 16,
-              height: 16,
+              width: rs(16),
+              height: rs(16),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(rs(4)),
               ),
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: rs(6)),
             Container(
-              width: 50,
-              height: 14,
+              width: rs(50),
+              height: rs(14),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(rs(4)),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: rs(8)),
             Container(
-              width: 120,
-              height: 36,
+              width: rs(120),
+              height: rs(36),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface,
                 borderRadius: BorderRadius.circular(12),
@@ -216,7 +218,7 @@ class _StoreSkeletonState extends State<StoreSkeleton>
           ],
         ),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: rs(16)),
       _shimmer(
         Container(
           decoration: BoxDecoration(
@@ -227,23 +229,23 @@ class _StoreSkeletonState extends State<StoreSkeleton>
           child: Column(
             children: [
               Container(
-                height: 40,
+                height: rs(40),
                 color: widget.t.bgSurface2,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: rs(16)),
                 child: Row(
                   children: [
-                    Expanded(child: _skeletonBox(width: 60)),
-                    Expanded(child: _skeletonBox(width: 70)),
-                    Expanded(child: _skeletonBox(width: 50)),
-                    Expanded(child: _skeletonBox(width: 70)),
+                    Expanded(child: _skeletonBox(rs: rs, width: rs(60))),
+                    Expanded(child: _skeletonBox(rs: rs, width: rs(70))),
+                    Expanded(child: _skeletonBox(rs: rs, width: rs(50))),
+                    Expanded(child: _skeletonBox(rs: rs, width: rs(70))),
                   ],
                 ),
               ),
-              ...List.generate(
+                  ...List.generate(
                 5,
                 (i) => Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  height: rs(48),
+                  padding: EdgeInsets.symmetric(horizontal: rs(16)),
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -253,10 +255,10 @@ class _StoreSkeletonState extends State<StoreSkeleton>
                   ),
                   child: Row(
                     children: [
-                      Expanded(child: _skeletonBox(width: 80)),
-                      Expanded(child: _skeletonBox(width: 60)),
-                      Expanded(child: _skeletonBox(width: 50)),
-                      Expanded(child: _skeletonBox(width: 60)),
+                      Expanded(child: _skeletonBox(rs: rs, width: rs(80))),
+                      Expanded(child: _skeletonBox(rs: rs, width: rs(60))),
+                      Expanded(child: _skeletonBox(rs: rs, width: rs(50))),
+                      Expanded(child: _skeletonBox(rs: rs, width: rs(60))),
                     ],
                   ),
                 ),
@@ -268,13 +270,13 @@ class _StoreSkeletonState extends State<StoreSkeleton>
     ];
   }
 
-  Widget _skeletonBox({double width = 50}) {
+  Widget _skeletonBox({required double Function(double) rs, double width = 50}) {
     return Container(
-      height: 12,
+      height: rs(12),
       width: width,
       decoration: BoxDecoration(
         color: widget.t.bgSurface2,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(rs(4)),
       ),
     );
   }

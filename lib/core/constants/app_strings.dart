@@ -10,7 +10,7 @@ class AppStrings {
   // ── Button Labels ──────────────────────────────────────────────────────
   static const retry = 'Coba Lagi';
   static const retryLabel = 'Retry';
-  static const buyNow = 'Beli Sekarang';
+  static const buyNow = 'Beli';
   static const markComplete = 'Tandai Selesai';
   static const process = 'Memproses...';
   static const insufficientBalance = 'Saldo Tidak Cukup';
