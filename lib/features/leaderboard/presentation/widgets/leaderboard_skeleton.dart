@@ -3,7 +3,8 @@ import '../../../../shared/themes/theme_provider.dart';
 
 class LeaderboardSkeleton extends StatefulWidget {
   final BloomTheme t;
-  const LeaderboardSkeleton({super.key, required this.t});
+  final double screenW;
+  const LeaderboardSkeleton({super.key, required this.t, required this.screenW});
 
   @override
   State<LeaderboardSkeleton> createState() => _LeaderboardSkeletonState();
@@ -35,113 +36,115 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
   @override
   Widget build(BuildContext context) {
     final t = widget.t;
+    final w = widget.screenW;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      padding: EdgeInsets.fromLTRB(rs(20), rs(20), rs(20), rs(32)),
       child: Column(
         children: [
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) =>
                 _Shimmer(progress: _animation.value, t: t, child: child!),
-            child: _buildHeaderSkeleton(),
+            child: _buildHeaderSkeleton(rs),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) =>
                 _Shimmer(progress: _animation.value, t: t, child: child!),
-            child: _buildUserCardSkeleton(),
+            child: _buildUserCardSkeleton(rs),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) =>
                 _Shimmer(progress: _animation.value, t: t, child: child!),
-            child: _buildPodiumSkeleton(),
+            child: _buildPodiumSkeleton(rs),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) =>
                 _Shimmer(progress: _animation.value, t: t, child: child!),
-            child: _buildSearchSkeleton(),
+            child: _buildSearchSkeleton(rs),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) =>
                 _Shimmer(progress: _animation.value, t: t, child: child!),
-            child: _buildTableSkeleton(),
+            child: _buildTableSkeleton(rs),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) =>
                 _Shimmer(progress: _animation.value, t: t, child: child!),
-            child: _buildFooterSkeleton(),
+            child: _buildFooterSkeleton(rs),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderSkeleton() {
+  Widget _buildHeaderSkeleton(double Function(double) rs) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: rs(32),
+              height: rs(32),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(rs(8)),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: rs(8)),
             Container(
-              width: 180,
-              height: 28,
+              width: rs(180),
+              height: rs(28),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(rs(8)),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: rs(8)),
         Container(
-          width: 280,
-          height: 14,
+          width: rs(280),
+          height: rs(14),
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(rs(6)),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildUserCardSkeleton() {
+  Widget _buildUserCardSkeleton(double Function(double) rs) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(rs(24)),
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(rs(24)),
         border: Border.all(color: widget.t.textPrimary, width: 2),
       ),
       child: Column(
         children: [
           Container(
-            width: 120,
-            height: 18,
+            width: rs(120),
+            height: rs(18),
             decoration: BoxDecoration(
               color: widget.t.bgSurface2,
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(rs(6)),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           Row(
             children: [
               Expanded(
@@ -149,14 +152,14 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 60,
-                      height: 10,
+                      width: rs(60),
+                      height: rs(10),
                       color: widget.t.bgSurface2,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: rs(8)),
                     Container(
-                      width: 80,
-                      height: 28,
+                      width: rs(80),
+                      height: rs(28),
                       color: widget.t.bgSurface2,
                     ),
                   ],
@@ -167,14 +170,14 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      width: 60,
-                      height: 10,
+                      width: rs(60),
+                      height: rs(10),
                       color: widget.t.bgSurface2,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: rs(8)),
                     Container(
-                      width: 100,
-                      height: 28,
+                      width: rs(100),
+                      height: rs(28),
                       color: widget.t.bgSurface2,
                     ),
                   ],
@@ -187,61 +190,61 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
     );
   }
 
-  Widget _buildPodiumSkeleton() {
+  Widget _buildPodiumSkeleton(double Function(double) rs) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Container(
-              width: 22,
-              height: 22,
+              width: rs(22),
+              height: rs(22),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface2,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(rs(4)),
               ),
             ),
-            const SizedBox(width: 8),
-            Container(width: 160, height: 18, color: widget.t.bgSurface2),
+            SizedBox(width: rs(8)),
+            Container(width: rs(160), height: rs(18), color: widget.t.bgSurface2),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: rs(16)),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Expanded(child: _podiumBlock(height: 48)),
-            const SizedBox(width: 8),
-            Expanded(child: _podiumBlock(height: 80)),
-            const SizedBox(width: 8),
-            Expanded(child: _podiumBlock(height: 40)),
+            Expanded(child: _podiumBlock(rs, height: rs(48))),
+            SizedBox(width: rs(8)),
+            Expanded(child: _podiumBlock(rs, height: rs(80))),
+            SizedBox(width: rs(8)),
+            Expanded(child: _podiumBlock(rs, height: rs(40))),
           ],
         ),
       ],
     );
   }
 
-  Widget _podiumBlock({required double height}) {
+  Widget _podiumBlock(double Function(double) rs, {required double height}) {
     return Column(
       children: [
         Container(
-          width: 44,
-          height: 44,
+          width: rs(44),
+          height: rs(44),
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(height: 8),
-        Container(width: 50, height: 10, color: widget.t.bgSurface2),
-        const SizedBox(height: 4),
-        Container(width: 30, height: 10, color: widget.t.bgSurface2),
-        const SizedBox(height: 8),
+        SizedBox(height: rs(8)),
+        Container(width: rs(50), height: rs(10), color: widget.t.bgSurface2),
+        SizedBox(height: rs(4)),
+        Container(width: rs(30), height: rs(10), color: widget.t.bgSurface2),
+        SizedBox(height: rs(8)),
         Container(
           height: height,
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(12),
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(rs(12)),
             ),
           ),
         ),
@@ -249,24 +252,24 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
     );
   }
 
-  Widget _buildSearchSkeleton() {
+  Widget _buildSearchSkeleton(double Function(double) rs) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(rs(16)),
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(rs(18)),
         border: Border.all(color: widget.t.textPrimary, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(width: 80, height: 12, color: widget.t.bgSurface2),
-          const SizedBox(height: 8),
+          Container(width: rs(80), height: rs(12), color: widget.t.bgSurface2),
+          SizedBox(height: rs(8)),
           Container(
-            height: 40,
+            height: rs(40),
             decoration: BoxDecoration(
               color: widget.t.bgPrimary,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(rs(10)),
             ),
           ),
         ],
@@ -274,12 +277,12 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
     );
   }
 
-  Widget _buildTableSkeleton() {
+  Widget _buildTableSkeleton(double Function(double) rs) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(rs(16)),
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(rs(24)),
         border: Border.all(color: widget.t.textPrimary, width: 2),
       ),
       child: Column(
@@ -288,33 +291,33 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
           Row(
             children: [
               Container(
-                width: 28,
-                height: 28,
+                width: rs(28),
+                height: rs(28),
                 decoration: BoxDecoration(
                   color: widget.t.bgSurface2,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(rs(6)),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(width: 120, height: 20, color: widget.t.bgSurface2),
+              SizedBox(width: rs(8)),
+              Container(width: rs(120), height: rs(20), color: widget.t.bgSurface2),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: rs(16)),
           ...List.generate(
             5,
             (i) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.only(bottom: rs(8)),
               child: Row(
                 children: [
-                  Container(width: 32, height: 24, color: widget.t.bgSurface2),
-                  const SizedBox(width: 12),
-                  Container(width: 32, height: 32, color: widget.t.bgSurface2),
-                  const SizedBox(width: 8),
+                  Container(width: rs(32), height: rs(24), color: widget.t.bgSurface2),
+                  SizedBox(width: rs(12)),
+                  Container(width: rs(32), height: rs(32), color: widget.t.bgSurface2),
+                  SizedBox(width: rs(8)),
                   Expanded(
-                    child: Container(height: 14, color: widget.t.bgSurface2),
+                    child: Container(height: rs(14), color: widget.t.bgSurface2),
                   ),
-                  const SizedBox(width: 12),
-                  Container(width: 60, height: 14, color: widget.t.bgSurface2),
+                  SizedBox(width: rs(12)),
+                  Container(width: rs(60), height: rs(14), color: widget.t.bgSurface2),
                 ],
               ),
             ),
@@ -324,30 +327,30 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
     );
   }
 
-  Widget _buildFooterSkeleton() {
+  Widget _buildFooterSkeleton(double Function(double) rs) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(rs(16)),
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(rs(18)),
         border: Border.all(color: widget.t.textPrimary, width: 2),
       ),
       child: Row(
         children: [
-          Expanded(child: _footerItem()),
-          Expanded(child: _footerItem()),
-          Expanded(child: _footerItem()),
+          Expanded(child: _footerItem(rs)),
+          Expanded(child: _footerItem(rs)),
+          Expanded(child: _footerItem(rs)),
         ],
       ),
     );
   }
 
-  Widget _footerItem() {
+  Widget _footerItem(double Function(double) rs) {
     return Column(
       children: [
-        Container(width: 60, height: 10, color: widget.t.bgSurface2),
-        const SizedBox(height: 8),
-        Container(width: 40, height: 20, color: widget.t.bgSurface2),
+        Container(width: rs(60), height: rs(10), color: widget.t.bgSurface2),
+        SizedBox(height: rs(8)),
+        Container(width: rs(40), height: rs(20), color: widget.t.bgSurface2),
       ],
     );
   }
