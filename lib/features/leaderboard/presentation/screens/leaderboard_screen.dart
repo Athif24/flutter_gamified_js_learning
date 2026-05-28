@@ -873,36 +873,26 @@ class _LeaderboardTable extends StatelessWidget {
                     screenW: screenW,
                   ),
                 )),
-                // Separator + user row (if user not in top 5)
-                if (!isSearchActive && currentUserRank != null && currentUserRank! > 5)
-                  _buildUserSection(entries, currentUserRank!, t, screenW, rs),
+                // Separator (always visible when not searching)
+                if (!isSearchActive && currentUserRank != null) ...[
+                  SizedBox(height: rs(8)),
+                  _Separator(t: t, screenW: screenW),
+                  // User row (only if not in top 5)
+                  if (currentUserRank! > 5) ...[
+                    SizedBox(height: rs(8)),
+                    if (entries.where((e) => e.rank == currentUserRank).firstOrNull case final userEntry?)
+                      _LeaderboardRow(
+                        entry: userEntry,
+                        isCurrentUser: true,
+                        t: t,
+                        screenW: screenW,
+                      ),
+                  ],
+                ],
               ],
             ),
         ],
       ),
-    );
-  }
-
-  Widget _buildUserSection(
-    List<LeaderboardEntry> entries,
-    int userRank,
-    BloomTheme t,
-    double screenW,
-    double Function(double) rs,
-  ) {
-    final userEntry = entries.where((e) => e.rank == userRank).firstOrNull;
-    return Column(
-      children: [
-        _Separator(t: t, screenW: screenW),
-        SizedBox(height: rs(8)),
-        if (userEntry != null)
-          _LeaderboardRow(
-            entry: userEntry,
-            isCurrentUser: true,
-            t: t,
-            screenW: screenW,
-          ),
-      ],
     );
   }
 }
