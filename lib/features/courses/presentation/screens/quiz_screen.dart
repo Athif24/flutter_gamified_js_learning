@@ -25,6 +25,7 @@ import 'quiz/quiz_timer.dart';
 import 'quiz/quiz_feedback_popup.dart';
 import 'quiz/bottom_bar.dart';
 import 'quiz/quiz_result_screen.dart';
+import '../../../../shared/services/sound_service.dart';
 
 class QuizScreen extends ConsumerStatefulWidget {
   final String quizId;
@@ -58,6 +59,17 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
     final quiz = ref.watch(quizProvider);
+    final sound = ref.watch(soundProvider);
+
+    ref.listen<QuizState>(quizProvider, (prev, next) {
+      if (next.lastAnswerResult != null && prev?.lastAnswerResult != next.lastAnswerResult) {
+        if (next.lastAnswerResult!.isCorrect) {
+          sound.playCorrect();
+        } else {
+          sound.playWrong();
+        }
+      }
+    });
 
     final backButton = Semantics(
       button: true,
@@ -456,6 +468,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   _previousLivesRemaining = quiz.lastAnswerResult!.livesRemaining;
                   final lives = quiz.lastAnswerResult!.livesRemaining;
                   if (lives != null && lives <= 0 && !quiz.isLast && !quiz.lastAnswerResult!.isCorrect) {
+                    sound.playGameOver();
                     _showGameOverDialog(context, t);
                     return;
                   }

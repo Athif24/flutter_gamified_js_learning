@@ -20,6 +20,7 @@ import '../../data/models/course_model.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
+import '../../../../shared/services/sound_service.dart';
 
 class QuizIntroScreen extends ConsumerStatefulWidget {
   final String quizId;
@@ -365,6 +366,7 @@ class _IntroBodyState extends State<_IntroBody> {
                 padding: EdgeInsets.only(top: S.scale(context, 4)),
                 child: GestureDetector(
                   onTap: () {
+                    widget.ref.read(soundProvider).playClick();
                     widget.ref.read(navIndexProvider.notifier).state = 3;
                     context.go('/home');
                   },
@@ -460,7 +462,12 @@ class _IntroBodyState extends State<_IntroBody> {
                       shadowColor: t.textPrimary,
                       textColor: t.primaryContent,
                       isLoading: _isStarting,
-                      onTap: _hasLives ? () => _handleStart() : null,
+                      onTap: _hasLives
+                          ? () {
+                              widget.ref.read(soundProvider).playClick();
+                              _handleStart();
+                            }
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -475,7 +482,12 @@ class _IntroBodyState extends State<_IntroBody> {
                             shadowColor: t.textPrimary,
                             textColor: t.primaryContent,
                             isLoading: _isRestarting,
-                            onTap: _hasLives ? () => _handleStart(force: true) : null,
+                            onTap: _hasLives
+                                ? () {
+                                    widget.ref.read(soundProvider).playClick();
+                                    _handleStart(force: true);
+                                  }
+                                : null,
                           ),
                         ),
                       ),
@@ -488,7 +500,12 @@ class _IntroBodyState extends State<_IntroBody> {
                             color: t.bgSurface2,
                             shadowColor: t.textPrimary,
                             textColor: t.textPrimary,
-                            onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
+                            onTap: (_isStarting || _isRestarting)
+                                ? null
+                                : () {
+                                    widget.ref.read(soundProvider).playClick();
+                                    context.pop();
+                                  },
                           ),
                         ),
                       ),
@@ -508,7 +525,12 @@ class _IntroBodyState extends State<_IntroBody> {
                       shadowColor: t.textPrimary,
                       textColor: t.primaryContent,
                       isLoading: _isStarting,
-                      onTap: _hasLives ? () => _handleStart() : null,
+                      onTap: _hasLives
+                          ? () {
+                              widget.ref.read(soundProvider).playClick();
+                              _handleStart();
+                            }
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -523,7 +545,12 @@ class _IntroBodyState extends State<_IntroBody> {
                             shadowColor: t.textPrimary,
                             textColor: t.primaryContent,
                             isLoading: _isRestarting,
-                            onTap: _hasLives ? () => _handleStart(force: true) : null,
+                            onTap: _hasLives
+                                ? () {
+                                    widget.ref.read(soundProvider).playClick();
+                                    _handleStart(force: true);
+                                  }
+                                : null,
                           ),
                         ),
                       ),
@@ -536,7 +563,12 @@ class _IntroBodyState extends State<_IntroBody> {
                             color: t.bgSurface2,
                             shadowColor: t.textPrimary,
                             textColor: t.textPrimary,
-                            onTap: (_isStarting || _isRestarting) ? null : () => context.pop(),
+                            onTap: (_isStarting || _isRestarting)
+                                ? null
+                                : () {
+                                    widget.ref.read(soundProvider).playClick();
+                                    context.pop();
+                                  },
                           ),
                         ),
                       ),
@@ -554,7 +586,12 @@ class _IntroBodyState extends State<_IntroBody> {
                   color: t.bgSurface2,
                   shadowColor: t.textPrimary,
                   textColor: t.textPrimary,
-                  onTap: _isStarting ? null : () => context.pop(),
+                  onTap: _isStarting
+                      ? null
+                      : () {
+                          widget.ref.read(soundProvider).playClick();
+                          context.pop();
+                        },
                 ),
                 _ActionBtnData(
                   label: _mainButtonLabel,
@@ -562,7 +599,12 @@ class _IntroBodyState extends State<_IntroBody> {
                   shadowColor: t.textPrimary,
                   textColor: _hasLives ? t.primaryContent : t.mutedText,
                   isLoading: _isStarting || _isRestarting,
-                  onTap: _hasLives ? () => _handleStart(force: _isInProgress) : null,
+                  onTap: _hasLives
+                      ? () {
+                          widget.ref.read(soundProvider).playClick();
+                          _handleStart(force: _isInProgress);
+                        }
+                      : null,
                 ),
               ],
             );
