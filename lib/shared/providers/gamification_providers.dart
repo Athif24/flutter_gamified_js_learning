@@ -21,7 +21,6 @@ void invalidateGamificationProviders(
   if (!skip.contains('leaderboard')) ref.invalidate(leaderboardProvider);
   if (!skip.contains('xpHistory')) ref.invalidate(xpHistoryProvider);
   if (!skip.contains('levels')) ref.invalidate(levelsProvider);
-  if (!skip.contains('events')) ref.invalidate(eventsProvider);
   if (!skip.contains('enrolledCourses')) ref.invalidate(enrolledCoursesProvider);
   if (courseId != null && !skip.contains('courseDetail')) {
     ref.invalidate(courseDetailProvider(courseId));

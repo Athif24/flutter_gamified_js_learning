@@ -7,10 +7,6 @@ final leaderboardDsProvider = Provider(
   (ref) => LeaderboardRemoteDatasource(ref.read(apiClientProvider)),
 );
 
-final leaderboardPageProvider = StateProvider<int>((ref) => 1);
-
 final leaderboardProvider = FutureProvider<LeaderboardResponse>(
-  (ref) => ref
-      .read(leaderboardDsProvider)
-      .getLeaderboard(page: ref.watch(leaderboardPageProvider)),
+  (ref) => ref.read(leaderboardDsProvider).getLeaderboard(),
 );

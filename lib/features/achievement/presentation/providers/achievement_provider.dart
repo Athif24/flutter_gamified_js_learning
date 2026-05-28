@@ -2,9 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../data/datasources/achievement_remote_datasource.dart';
-import '../../data/datasources/event_remote_datasource.dart';
 import '../../data/models/achievement_model.dart';
-import '../../data/models/event_model.dart';
 
 final achievementDsProvider = Provider(
   (ref) => AchievementRemoteDatasource(ref.read(apiClientProvider)),
@@ -80,6 +78,7 @@ class XpHistoryState {
   final bool hasMore;
   final bool isLoading;
   final bool isLoadingMore;
+  final String? error;
 
   const XpHistoryState({
     this.entries = const [],
@@ -87,6 +86,7 @@ class XpHistoryState {
     this.hasMore = false,
     this.isLoading = false,
     this.isLoadingMore = false,
+    this.error,
   });
 
   XpHistoryState copyWith({
@@ -95,12 +95,14 @@ class XpHistoryState {
     bool? hasMore,
     bool? isLoading,
     bool? isLoadingMore,
+    String? error,
   }) => XpHistoryState(
     entries: entries ?? this.entries,
     cursor: cursor ?? this.cursor,
     hasMore: hasMore ?? this.hasMore,
     isLoading: isLoading ?? this.isLoading,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    error: error ?? this.error,
   );
 }
 
@@ -110,7 +112,7 @@ class XpHistoryNotifier extends StateNotifier<XpHistoryState> {
 
 Future<void> fetchInitial() async {
   if (!mounted) return;
-  state = state.copyWith(isLoading: true);
+  state = state.copyWith(isLoading: true, error: null);
   try {
     final result = await _ds.getXpHistory();
     if (!mounted) return;
@@ -121,7 +123,7 @@ Future<void> fetchInitial() async {
     );
   } catch (_) {
     if (!mounted) return;
-    state = state.copyWith(isLoading: false);
+    state = state.copyWith(isLoading: false, error: 'Gagal memuat riwayat XP');
   }
 }
 
@@ -139,7 +141,7 @@ Future<void> loadMore() async {
     );
   } catch (_) {
     if (!mounted) return;
-    state = state.copyWith(isLoadingMore: false);
+    state = state.copyWith(isLoadingMore: false, error: 'Gagal memuat riwayat XP');
   }
 }
 }
@@ -153,14 +155,6 @@ final xpHistoryProvider =
 
 final levelsProvider = FutureProvider<List<LevelModel>>(
   (ref) => ref.read(achievementDsProvider).getLevels(),
-);
-
-final eventDsProvider = Provider(
-  (ref) => EventRemoteDatasource(ref.read(apiClientProvider)),
-);
-
-final eventsProvider = FutureProvider<List<EventModel>>(
-  (ref) => ref.read(eventDsProvider).getEvents(),
 );
 
 final livesProvider = FutureProvider<LivesModel>((ref) async {

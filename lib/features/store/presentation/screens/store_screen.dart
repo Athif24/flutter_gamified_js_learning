@@ -49,7 +49,8 @@ String _fmtDateId(String iso) {
     ];
     return '${d.day} ${m[d.month - 1]} ${d.year}';
   } catch (_) {
-    return iso.substring(0, 10);
+    final len = iso.length < 10 ? iso.length : 10;
+    return iso.substring(0, len);
   }
 }
 
@@ -1268,20 +1269,19 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
       return;
     }
 
-    final selectedPool = pool;
     final buildContext = context;
 
     Future<void> showOverlay() async {
       final result = await ref
           .read(rewardPoolDsProvider)
-          .openPool(selectedPool.id);
+          .openPool(pool.id);
       if (!buildContext.mounted) return;
 
       // Invalidate inventory to get updated quantity
       ref.invalidate(inventoryProvider);
 
       // Check if user can open again based on updated quantity
-      final canOpenAgain = await _checkCanOpenAgain(selectedPool.name);
+      final canOpenAgain = await _checkCanOpenAgain(pool.name);
 
       if (!buildContext.mounted) return;
 
@@ -1290,8 +1290,8 @@ class _InventoryTabState extends ConsumerState<_InventoryTab> {
         PageRouteBuilder(
           pageBuilder: (_, __, ___) => MysteryBoxRevealOverlay(
             result: result,
-            poolName: selectedPool.name,
-            poolIcon: selectedPool.icon,
+            poolName: pool.name,
+            poolIcon: pool.icon,
             onDismiss: () => Navigator.of(buildContext).pop(),
             onOpenAgain: showOverlay,
             canOpenAgain: canOpenAgain,

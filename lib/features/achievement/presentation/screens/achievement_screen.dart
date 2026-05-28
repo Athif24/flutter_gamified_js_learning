@@ -16,6 +16,7 @@ import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/achievement_provider.dart';
 import '../../data/models/achievement_model.dart';
+import '../utils/date_utils.dart';
 
 import '../widgets/level_roadmap.dart';
 import '../widgets/xp_history_list.dart';
@@ -64,6 +65,24 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
         ref.invalidate(levelsProvider);
         ref.invalidate(xpHistoryProvider);
         _silentRefresh();
+      }
+    });
+
+    ref.listen<String?>(xpHistoryProvider.select((s) => s.error), (_, err) {
+      if (err != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              err,
+              style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: ref.read(currentThemeProvider).error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
       }
     });
 
@@ -1313,21 +1332,7 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
     if (dateStr == null) return '';
     final d = DateTime.tryParse(dateStr);
     if (d == null) return '';
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
-    return '${d.day} ${months[d.month - 1]} ${d.year}';
+    return '${d.day} ${monthsId[d.month - 1]} ${d.year}';
   }
 
   @override

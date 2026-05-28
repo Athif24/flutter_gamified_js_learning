@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../data/models/achievement_model.dart';
+import '../utils/date_utils.dart';
 
 class XpHistoryList extends ConsumerStatefulWidget {
   final List<XpHistoryEntry> entries;
@@ -85,21 +86,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     if (dateDay == today) return 'Hari Ini';
     if (dateDay == yesterday) return 'Kemarin';
 
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+    return '${date.day} ${monthsId[date.month - 1]} ${date.year}';
   }
 
   @override

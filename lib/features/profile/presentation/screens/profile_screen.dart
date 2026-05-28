@@ -916,16 +916,14 @@ class _RecentActivity extends StatelessWidget {
   const _RecentActivity({required this.t, required this.entries});
 
   static const _sourceConfig = {
-    'quiz': {'icon': Icons.code_rounded, 'label': 'Quiz', 'color': null},
+    'quiz': {'icon': Icons.code_rounded, 'label': 'Quiz'},
     'lesson': {
       'icon': Icons.menu_book_rounded,
       'label': 'Lesson',
-      'color': null,
     },
     'bonus': {
       'icon': Icons.card_giftcard_rounded,
       'label': 'Bonus',
-      'color': null,
     },
   };
 
@@ -1072,7 +1070,7 @@ class _RecentActivity extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.zero,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
@@ -2237,6 +2235,27 @@ Future<void> _showChangePassword(
                                         }
                                       } catch (_) {
                                         setState(() => isLoading = false);
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Terjadi kesalahan. Silakan coba lagi.',
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              backgroundColor: t.error,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                          );
+                                        }
                                       }
                                     },
                               isLoading: isLoading,

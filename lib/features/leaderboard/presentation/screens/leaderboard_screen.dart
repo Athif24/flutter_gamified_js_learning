@@ -16,7 +16,6 @@ import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/leaderboard_provider.dart';
 import '../widgets/leaderboard_skeleton.dart';
 import '../../data/models/leaderboard_model.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -83,7 +82,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
   Widget build(BuildContext context) {
     ref.listen<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 2 && next == 2) {
-        ref.read(leaderboardPageProvider.notifier).state = 1;
         ref.invalidate(leaderboardProvider);
         _silentRefresh();
       }
@@ -128,7 +126,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     final currentUserRank = res.currentUserRank;
     final currentUserXp = res.currentUserXp;
     final topXp = entries.isNotEmpty ? entries[0].xpTotal : 0;
-    final currentUserId = int.tryParse(ref.read(authProvider).user?.id ?? '');
     final filtered = _searchQuery.isEmpty
         ? entries
         : entries
@@ -140,7 +137,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.read(leaderboardPageProvider.notifier).state = 1;
         await _silentRefresh();
       },
       child: ListView(
@@ -194,7 +190,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
             entries: filtered,
             isSearchActive: _searchQuery.isNotEmpty,
             currentUserRank: currentUserRank,
-            currentUserId: currentUserId,
             topXp: topXp,
           ).animate().fadeIn(delay: 300.ms),
 
@@ -782,7 +777,6 @@ class _LeaderboardTable extends StatelessWidget {
   final List<LeaderboardEntry> entries;
   final bool isSearchActive;
   final int? currentUserRank;
-  final int? currentUserId;
   final int topXp;
   const _LeaderboardTable({
     required this.t,
@@ -790,7 +784,6 @@ class _LeaderboardTable extends StatelessWidget {
     required this.entries,
     this.isSearchActive = false,
     this.currentUserRank,
-    this.currentUserId,
     required this.topXp,
   });
 

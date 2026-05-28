@@ -98,7 +98,6 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
       case 'item':
         return Icons.card_giftcard_rounded;
       default:
-        Icons.star_rounded;
         return Icons.star_rounded;
     }
   }
