@@ -14,6 +14,7 @@ import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/celebration_screen.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../data/models/course_model.dart';
 import '../providers/course_provider.dart';
 import 'quiz/question_card.dart';
@@ -96,7 +97,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           children: [
             SlowLoadingIndicator(visible: true, t: t),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              padding: EdgeInsets.fromLTRB(S.scale(context, 12), S.scale(context, 8), S.scale(context, 12), 0),
               child: Row(
                 children: [
                   backButton,
@@ -106,7 +107,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       'Memuat Kuis...',
                       style: GoogleFonts.nunito(
                         color: t.textPrimary,
-                        fontSize: 15,
+                        fontSize: S.font(context, 15),
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -131,7 +132,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           children: [
             SlowLoadingIndicator(visible: false, t: t),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              padding: EdgeInsets.fromLTRB(S.scale(context, 12), S.scale(context, 8), S.scale(context, 12), 0),
               child: Row(
                 children: [
                   backButton,
@@ -141,7 +142,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       'Kuis',
                       style: GoogleFonts.nunito(
                         color: t.textPrimary,
-                        fontSize: 15,
+                        fontSize: S.font(context, 15),
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -152,7 +153,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             Expanded(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.all(S.scale(context, 32)),
                   child: ErrorBody(
                     t: t,
                     icon: iconForError(quiz.error!),
@@ -229,14 +230,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 'Belum ada soal',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontSize: S.font(context, 16),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Soal untuk kuis ini belum ditambahkan.',
-                style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
+                  'Soal untuk kuis ini belum ditambahkan.',
+                  style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
               ),
               const SizedBox(height: 22),
               Semantics(
@@ -266,7 +267,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), 0),
               child: Row(
                 children: [
                   Semantics(
@@ -296,7 +297,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       quiz.quiz!.title,
                       style: GoogleFonts.nunito(
                         color: t.textPrimary,
-                        fontSize: 14,
+                        fontSize: S.font(context, 14),
                         fontWeight: FontWeight.w800,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -311,9 +312,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     const SizedBox(width: 10),
                   ],
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: S.scale(context, 10),
+                      vertical: S.scale(context, 5),
                     ),
                     decoration: BoxDecoration(
                       color: t.primary.withValues(alpha: 0.15),
@@ -325,7 +326,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       style: GoogleFonts.nunito(
                         color: t.primary,
                         fontWeight: FontWeight.w800,
-                        fontSize: 11,
+                        fontSize: S.font(context, 11),
                       ),
                     ),
                   ),
@@ -333,7 +334,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), 0),
               child: Row(
                 children: [
                   Text(
@@ -341,14 +342,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     style: GoogleFonts.nunito(
                       color: t.primary,
                       fontWeight: FontWeight.w900,
-                      fontSize: 14,
+                      fontSize: S.font(context, 14),
                     ),
                   ),
                   Text(
                     '/${questions.length}',
                     style: GoogleFonts.nunito(
                       color: t.mutedText,
-                      fontSize: 14,
+                      fontSize: S.font(context, 14),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -368,30 +369,35 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    QuestionCard(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: S.isTablet(context) ? 600 : double.infinity),
+                  child: SingleChildScrollView(
+                padding: EdgeInsets.all(S.scale(context, 20)),
+                child: OrientationBuilder(
+                  builder: (context, orientation) {
+                    final isLandscape = orientation == Orientation.landscape;
+
+                    Widget questionWidget = QuestionCard(
                       type: current.type,
                       arrangeVariant: current.arrangeVariant,
                       text: current.text,
                       codeSnippet: current.codeSnippet,
                       t: t,
-                    ).animate().fadeIn().slideY(begin: -0.05),
-                    const SizedBox(height: 18),
-                    if (current.type == 'choice')
-                      ChoiceQuestion(
+                    ).animate().fadeIn().slideY(begin: -0.05);
+
+                    Widget answersWidget;
+                    if (current.type == 'choice') {
+                      answersWidget = ChoiceQuestion(
                         options: current.optionObjects,
                         selectedId: quiz.answers[current.id]?.toString(),
                         t: t,
                         onSelect: (optionId) => ref
                             .read(quizProvider.notifier)
                             .answer(current.id, optionId),
-                      )
-                    else if (current.type == 'arrange' || current.type == 'complete_word')
-                      ArrangeQuestion(
+                      );
+                    } else if (current.type == 'arrange' || current.type == 'complete_word') {
+                      answersWidget = ArrangeQuestion(
                         questionId: current.id,
                         variant: current.type == 'complete_word' ? 'complete_word' : current.arrangeVariant,
                         options: current.optionObjects,
@@ -401,17 +407,39 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         onAnswer: (answer) => ref
                             .read(quizProvider.notifier)
                             .answer(current.id, answer),
-                      )
-                    else
-                      EssayQuestion(
+                      );
+                    } else {
+                      answersWidget = EssayQuestion(
                         key: ValueKey(current.id),
                         t: t,
                         onChanged: (v) => ref
                             .read(quizProvider.notifier)
                             .answer(current.id, v),
-                      ),
-                    const SizedBox(height: 32),
-                  ],
+                      );
+                    }
+
+                    if (isLandscape) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 2, child: questionWidget),
+                          const SizedBox(width: 16),
+                          Expanded(flex: 3, child: answersWidget),
+                        ],
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        questionWidget,
+                        const SizedBox(height: 18),
+                        answersWidget,
+                        const SizedBox(height: 32),
+                      ],
+                    );
+                  },
+                ),
+                  ),
                 ),
               ),
             ),
@@ -474,7 +502,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           children: [
             Text(
               'Nyawa kamu habis. Beli nyawa di Store untuk melanjutkan kuis.',
-              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
             ),
             const SizedBox(height: 20),
             Row(
@@ -548,7 +576,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           children: [
             Text(
               'Progres kuis sudah tersimpan. Kamu dapat melanjutkan kuis ini kapan saja.',
-              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
             ),
             const SizedBox(height: 20),
             Row(

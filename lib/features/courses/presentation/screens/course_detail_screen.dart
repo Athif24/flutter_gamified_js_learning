@@ -12,6 +12,7 @@ import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 
@@ -169,7 +170,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
         children: [
           // Back button + Course title (app bar region)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 8), S.scale(context, 16), 0),
             child: Row(
               children: [
                 Semantics(
@@ -209,7 +210,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                     'Detail Kursus',
                     style: GoogleFonts.nunito(
                       color: t.textPrimary,
-                      fontSize: 18,
+                      fontSize: S.font(context, 18),
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -225,7 +226,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
               t: t),
           // Peta Belajar title (fixed — never scrolls)
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            padding: EdgeInsets.fromLTRB(S.scale(context, 24), S.scale(context, 16), S.scale(context, 24), 0),
             child: Row(
               children: [
                 Icon(Icons.menu_book, size: 24, color: t.primary),
@@ -233,7 +234,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                 Text('Peta Belajar',
                     style: GoogleFonts.nunito(
                         color: t.textPrimary,
-                        fontSize: 20,
+                        fontSize: S.font(context, 20),
                         fontWeight: FontWeight.w900)),
               ],
             ),
@@ -260,8 +261,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                     child: shouldShow
                         ? Container(
                             key: ValueKey('banner-$name'),
-                            margin: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            margin: EdgeInsets.fromLTRB(S.scale(context, 24), S.scale(context, 10), S.scale(context, 24), 0),
+                            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 6)),
                             decoration: BoxDecoration(
                               color: t.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(50),
@@ -278,7 +279,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                                 Text(name.toUpperCase(),
                                     style: GoogleFonts.nunito(
                                       color: t.primary,
-                                      fontSize: 11,
+                                      fontSize: S.font(context, 11),
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 1.5,
                                     )),
@@ -295,9 +296,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
           Expanded(
             child: items.isEmpty
                 ? Center(
-                    child: Text('Belum ada bab',
+                        child: Text('Belum ada bab',
                         style: GoogleFonts.nunito(
-                            color: t.mutedText, fontSize: 14)))
+                            color: t.mutedText, fontSize: S.font(context, 14))))
                 : RefreshIndicator(
                     onRefresh: () async {
                       ref.invalidate(courseDetailProvider(widget.courseId));
@@ -404,7 +405,7 @@ class _HeaderCard extends StatelessWidget {
     final cFg = t.primaryContent;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      margin: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), 0),
       decoration: BoxDecoration(
         color: cBg,
         borderRadius: BorderRadius.circular(24),
@@ -414,7 +415,7 @@ class _HeaderCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(S.scale(context, 24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -426,7 +427,7 @@ class _HeaderCard extends StatelessWidget {
                       child: Text(course.title,
                           style: GoogleFonts.nunito(
                               color: cFg,
-                              fontSize: 24,
+                              fontSize: S.font(context, 24),
                               fontWeight: FontWeight.w900)),
                     ),
                   ),
@@ -436,13 +437,16 @@ class _HeaderCard extends StatelessWidget {
                     Text(course.description!,
                         style: GoogleFonts.nunito(
                             color: cFg.withValues(alpha: 0.8),
-                            fontSize: 13)),
+                            fontSize: S.font(context, 13))),
                   ],
                   const SizedBox(height: 16),
                   // Stats row (3-pill layout like Achievement Hero Card)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: EdgeInsets.symmetric(
+                      vertical: S.scale(context, 12),
+                      horizontal: S.isTablet(context) ? S.scale(context, 32) : S.scale(context, 16),
+                    ),
                     decoration: BoxDecoration(
                       color: cFg.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
@@ -465,9 +469,9 @@ class _HeaderCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text('${course.totalLessons}', style: GoogleFonts.nunito(
-                                  color: cFg, fontSize: 18, fontWeight: FontWeight.w900)),
+                                  color: cFg, fontSize: S.font(context, 18), fontWeight: FontWeight.w900)),
                               Text('LESSON', style: GoogleFonts.nunito(
-                                  color: cFg.withValues(alpha: 0.8), fontSize: 10,
+                                  color: cFg.withValues(alpha: 0.8), fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                             ],
                           ),
@@ -487,9 +491,9 @@ class _HeaderCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text('$completedUnits/${course.units.length}', style: GoogleFonts.nunito(
-                                  color: cFg, fontSize: 18, fontWeight: FontWeight.w900)),
+                                  color: cFg, fontSize: S.font(context, 18), fontWeight: FontWeight.w900)),
                               Text('UNIT SELESAI', style: GoogleFonts.nunito(
-                                  color: cFg.withValues(alpha: 0.8), fontSize: 10,
+                                  color: cFg.withValues(alpha: 0.8), fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                             ],
                           ),
@@ -509,9 +513,9 @@ class _HeaderCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text('$progressPct%', style: GoogleFonts.nunito(
-                                  color: cFg, fontSize: 18, fontWeight: FontWeight.w900)),
+                                  color: cFg, fontSize: S.font(context, 18), fontWeight: FontWeight.w900)),
                               Text('PROGRES', style: GoogleFonts.nunito(
-                                  color: cFg.withValues(alpha: 0.8), fontSize: 10,
+                                  color: cFg.withValues(alpha: 0.8), fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                             ],
                           ),
@@ -556,6 +560,11 @@ class _PetaBelajar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        final isLandscape = orientation == Orientation.landscape;
+        final unitH = isLandscape ? 48.0 : 72.0;
+
     return LayoutBuilder(
       builder: (ctx, constraints) {
         final centerX = constraints.maxWidth / 2;
@@ -565,21 +574,23 @@ class _PetaBelajar extends StatelessWidget {
           for (int i = 0; i < items.length; i++) {
             final item = items[i];
             if (item.isLesson) {
-              final lessonH = item.isFirstActive ? 192.0 : 152.0;
-              final offsetX = item.lessonMapIndex.isEven ? -70.0 : 70.0;
+              final h = isLandscape ? 128.0 : (item.isFirstActive ? 192.0 : 152.0);
+              final offsetX = item.lessonMapIndex.isEven
+                  ? -S.scale(ctx, 70.0) * (S.isTablet(ctx) ? 1.5 : 1.0)
+                  : S.scale(ctx, 70.0) * (S.isTablet(ctx) ? 1.5 : 1.0);
               positions.add(_NodePos(
                 x: centerX + offsetX,
-                y: y + lessonH / 2,
+                y: y + h / 2,
               ));
-              y += lessonH;
+              y += h;
             } else {
-            y += 72;
+            y += unitH;
           }
         }
 
         return SingleChildScrollView(
           controller: scrollCtrl,
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: EdgeInsets.only(bottom: S.scale(context, 24)),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -597,6 +608,7 @@ class _PetaBelajar extends StatelessWidget {
                     return _UnitHeader(
                       name: item.unitName ?? '',
                       t: t,
+                      compact: isLandscape,
                     );
                   }
                   return Semantics(
@@ -611,7 +623,7 @@ class _PetaBelajar extends StatelessWidget {
                               '/lesson/${item.lessonId}?courseId=$courseId'),
                       child: Container(
                       key: itemKeys[i],
-                      height: item.isFirstActive ? 192 : 152,
+                      height: isLandscape ? 128 : (item.isFirstActive ? 192 : 152),
                       alignment: Alignment.center,
                       child: _LessonBubble(
                         name: item.lessonName ?? '',
@@ -631,6 +643,8 @@ class _PetaBelajar extends StatelessWidget {
         );
       },
     );
+      },
+    );
   }
 }
 
@@ -645,12 +659,13 @@ class _NodePos {
 class _UnitHeader extends StatelessWidget {
   final String name;
   final BloomTheme t;
-  const _UnitHeader({required this.name, required this.t});
+  final bool compact;
+  const _UnitHeader({required this.name, required this.t, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 72,
+      height: compact ? 48 : 72,
       child: Row(
         children: [
           const Expanded(child: SizedBox()),
@@ -659,10 +674,10 @@ class _UnitHeader extends StatelessWidget {
             child: Divider(color: t.border.withValues(alpha: 0.15)),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12)),
             child: Container(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                  EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 5)),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(
@@ -683,7 +698,7 @@ class _UnitHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.nunito(
                   color: t.mutedText,
-                  fontSize: 11,
+                  fontSize: S.font(context, 11),
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
                 ),
@@ -722,12 +737,13 @@ class _LessonBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final offsetX = mapIndex.isEven ? -70.0 : 70.0;
+    final offsetX = mapIndex.isEven ? -S.scale(context, 70.0) : S.scale(context, 70.0);
 
     // Circle widget shared between animated and static states
+    final bubbleSize = S.scale(context, 64.0);
     Widget circle = Container(
-      width: 64,
-      height: 64,
+      width: bubbleSize,
+      height: bubbleSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
       color: isCompleted
@@ -754,7 +770,7 @@ class _LessonBubble extends StatelessWidget {
           if (!isLocked)
             Positioned.fill(
               child: Container(
-                margin: const EdgeInsets.all(6),
+                margin: EdgeInsets.all(bubbleSize * 0.09),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: t.primaryContent.withValues(alpha: 0.15),
@@ -764,13 +780,13 @@ class _LessonBubble extends StatelessWidget {
           Center(
             child: isCompleted
                 ? Icon(Icons.check,
-                    size: 24, color: t.success)
+                    size: bubbleSize * 0.375, color: t.success)
                 : isLocked
                     ? Icon(Icons.lock_outline,
-                        size: 20,
+                        size: bubbleSize * 0.31,
                         color: t.mutedText.withValues(alpha: 0.5))
                     : Icon(Icons.menu_book_rounded,
-                        size: 22, color: t.primaryContent),
+                        size: bubbleSize * 0.34, color: t.primaryContent),
           ),
         ],
       ),
@@ -792,10 +808,10 @@ class _LessonBubble extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               circle,
-              const SizedBox(height: 8),
+              SizedBox(height: S.isTablet(context) ? S.scale(context, 16) : S.scale(context, 8)),
               // Label
               SizedBox(
-                width: 120,
+                width: S.scale(context, 120.0).clamp(80.0, 180.0),
                 child: Text(
                   name,
                   textAlign: TextAlign.center,
@@ -805,7 +821,7 @@ class _LessonBubble extends StatelessWidget {
                     color: isLocked
                         ? t.mutedText.withValues(alpha: 0.5)
                         : t.textPrimary.withValues(alpha: 0.8),
-                    fontSize: 11,
+                    fontSize: S.font(context, 11),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -842,7 +858,7 @@ class _StartHereLabel extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 6)),
           decoration: BoxDecoration(
             color: t.textPrimary,
             borderRadius: BorderRadius.circular(12),
@@ -852,7 +868,7 @@ class _StartHereLabel extends StatelessWidget {
             'Mulai di sini!',
             style: GoogleFonts.nunito(
               color: t.bgPrimary,
-              fontSize: 11,
+              fontSize: S.font(context, 11),
               fontWeight: FontWeight.w900,
             ),
           ),

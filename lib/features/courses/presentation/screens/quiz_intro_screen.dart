@@ -18,6 +18,7 @@ import '../../../achievement/data/models/achievement_model.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 
 class QuizIntroScreen extends ConsumerStatefulWidget {
@@ -82,40 +83,37 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: SafeArea(
-              child: Center(
-                child: RefreshIndicator(
-                  onRefresh: _silentRefresh,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(28),
-                    child: previewAsync.when(
-                      loading: () => LoadingCircle(t: t),
-                      error: (e, _) => ErrorBody(
-                        t: t,
-                        icon: iconForError(e),
-                        title: AppStrings.errLoadQuiz,
-                        message: sanitizeErrorMessage(e),
-                        onRetry: () {
-                          setShowSlowIndicator(true);
-                          _silentRefresh();
-                        },
-                      ),
-                      data: (preview) => _IntroBody(
-                        preview: preview,
-                        myResult: myResultAsync.asData?.value,
-                        attempt: attemptAsync.asData?.value,
-                        lives: livesAsync.asData?.value,
-                        course: courseDetailAsync?.asData?.value,
-                        t: t,
-                        ref: ref,
-                        quizId: widget.quizId,
-                        courseId: widget.courseId,
-                        lessonId: widget.lessonId,
-                      ),
-                    ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: S.isTablet(context) ? 500 : double.infinity),
+                child: SingleChildScrollView(
+                padding: EdgeInsets.all(S.scale(context, 28)),
+                child: previewAsync.when(
+                  loading: () => LoadingCircle(t: t),
+                  error: (e, _) => ErrorBody(
+                    t: t,
+                    icon: iconForError(e),
+                    title: AppStrings.errLoadQuiz,
+                    message: sanitizeErrorMessage(e),
+                    onRetry: () {
+                      setShowSlowIndicator(true);
+                      _silentRefresh();
+                    },
+                  ),
+                  data: (preview) => _IntroBody(
+                    preview: preview,
+                    myResult: myResultAsync.asData?.value,
+                    attempt: attemptAsync.asData?.value,
+                    lives: livesAsync.asData?.value,
+                    course: courseDetailAsync?.asData?.value,
+                    t: t,
+                    ref: ref,
+                    quizId: widget.quizId,
+                    courseId: widget.courseId,
+                    lessonId: widget.lessonId,
                   ),
                 ),
+              ),
               ),
             ),
           ),
@@ -279,13 +277,13 @@ class _IntroBodyState extends State<_IntroBody> {
         Column(
           children: [
             Container(
-              width: 80, height: 80,
+              width: S.scale(context, 80), height: S.scale(context, 80),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: t.primary, width: 4),
                 color: t.primary.withValues(alpha: 0.1),
               ),
-              child: Icon(Icons.quiz_rounded, color: t.primary, size: 40),
+              child: Icon(Icons.quiz_rounded, color: t.primary, size: S.scale(context, 40)),
             ).animate().scale(
               begin: const Offset(0, 0),
               end: const Offset(1, 1),
@@ -297,14 +295,14 @@ class _IntroBodyState extends State<_IntroBody> {
               preview.title,
               style: GoogleFonts.nunito(
                 color: t.textPrimary,
-                fontSize: 22,
+                fontSize: S.font(context, 22),
                 fontWeight: FontWeight.w900,
               ),
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 200.ms),
             const SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              padding: EdgeInsets.symmetric(horizontal: S.scale(context, 16), vertical: S.scale(context, 5)),
               decoration: BoxDecoration(
                 color: _difficultyColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(50),
@@ -314,7 +312,7 @@ class _IntroBodyState extends State<_IntroBody> {
                 preview.difficulty,
                 style: GoogleFonts.nunito(
                   color: _difficultyColor,
-                  fontSize: 11,
+                  fontSize: S.font(context, 11),
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -323,20 +321,20 @@ class _IntroBodyState extends State<_IntroBody> {
         ),
         const SizedBox(height: 28),
         Wrap(
-          spacing: 4,
-          runSpacing: 4,
+          spacing: S.scale(context, 4),
+          runSpacing: S.scale(context, 4),
           alignment: WrapAlignment.center,
           children: [
             Text('Nyawa: ',
                 style: GoogleFonts.nunito(
-                    color: t.mutedText, fontSize: 12, fontWeight: FontWeight.w700)),
+                    color: t.mutedText, fontSize: S.font(context, 12), fontWeight: FontWeight.w700)),
             ...List.generate(_maxLives, (i) {
               final filled = i < _currentLives;
               return Padding(
                 padding: const EdgeInsets.only(right: 2),
                 child: Icon(
                   Icons.favorite_rounded,
-                  size: 20,
+                  size: S.scale(context, 20),
                   color: filled ? t.error : t.bgSurface3,
                 ),
               );
@@ -345,7 +343,7 @@ class _IntroBodyState extends State<_IntroBody> {
             Text(
               '$_currentLives/$_maxLives',
               style: GoogleFonts.nunito(
-                fontSize: 12,
+                fontSize: S.font(context, 12),
                 fontWeight: FontWeight.w800,
                 color: _currentLives > 0 ? t.success : t.error,
               ),
@@ -358,7 +356,7 @@ class _IntroBodyState extends State<_IntroBody> {
                     'Nyawa berikutnya dalam ${_formatCountdown(_countdownSeconds!)}',
                     style: GoogleFonts.nunito(
                       color: t.mutedText,
-                      fontSize: 11,
+                      fontSize: S.font(context, 11),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -374,7 +372,7 @@ class _IntroBodyState extends State<_IntroBody> {
                     'Beli Nyawa di Store',
                     style: GoogleFonts.nunito(
                       color: t.primary,
-                      fontSize: 11,
+                      fontSize: S.font(context, 11),
                       fontWeight: FontWeight.w700,
                       decoration: TextDecoration.underline,
                     ),
@@ -386,8 +384,8 @@ class _IntroBodyState extends State<_IntroBody> {
         ).animate().fadeIn(delay: 400.ms),
         const SizedBox(height: 20),
         Wrap(
-          spacing: 10,
-          runSpacing: 10,
+          spacing: S.scale(context, 10),
+          runSpacing: S.scale(context, 10),
           alignment: WrapAlignment.center,
           children: [
             _InfoChip(t, Icons.menu_book_rounded, '${preview.totalQuestions} Soal', t.textPrimary),
@@ -402,7 +400,7 @@ class _IntroBodyState extends State<_IntroBody> {
         if (myResult != null && myResult.attempted)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20), vertical: S.scale(context, 12)),
             decoration: BoxDecoration(
               color: myResult.isPassed
                   ? t.success.withValues(alpha: 0.1)
@@ -419,12 +417,12 @@ class _IntroBodyState extends State<_IntroBody> {
               children: [
                 Text('Nilai terakhirmu',
                     style: GoogleFonts.nunito(
-                        color: t.mutedText, fontSize: 13, fontWeight: FontWeight.w600)),
+                        color: t.mutedText,                     fontSize: S.font(context, 13), fontWeight: FontWeight.w600)),
                 Text(
                   '${myResult.percentageScore}% ${myResult.isPassed ? '✓ Lulus' : '✗ Belum Lulus'}',
                   style: GoogleFonts.nunito(
                     color: myResult.isPassed ? t.success : t.error,
-                    fontSize: 14,
+                    fontSize: S.font(context, 14),
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -436,7 +434,7 @@ class _IntroBodyState extends State<_IntroBody> {
           'Nilai minimum kelulusan: ',
           style: GoogleFonts.nunito(
             color: t.mutedText,
-            fontSize: 12,
+            fontSize: S.font(context, 12),
             fontWeight: FontWeight.w500,
           ),
         ).animate().fadeIn(delay: 700.ms),
@@ -444,8 +442,8 @@ class _IntroBodyState extends State<_IntroBody> {
           '${preview.passingScore}%',
           style: GoogleFonts.nunito(
             color: t.textPrimary,
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
+              fontSize: S.font(context, 20),
+              fontWeight: FontWeight.w900,
           ),
         ).animate().fadeIn(delay: 700.ms),
         const SizedBox(height: 32),
@@ -627,7 +625,7 @@ class _BuildSingleButton extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text('Nyawa Habis',
                       style: GoogleFonts.nunito(
-                          color: Color(0xFF666666), fontWeight: FontWeight.w800, fontSize: 14)),
+                          color: Color(0xFF666666), fontWeight: FontWeight.w800, fontSize: S.font(context, 14))),
                 ],
               )
           : null,
@@ -675,7 +673,7 @@ class _BuildButtons extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text('Nyawa Habis',
                         style: GoogleFonts.nunito(
-                            color: t.mutedText, fontWeight: FontWeight.w800, fontSize: 14)),
+                            color: t.mutedText, fontWeight: FontWeight.w800, fontSize: S.font(context, 14))),
                   ],
                 )
               : null,
@@ -706,7 +704,7 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 7)),
       decoration: BoxDecoration(
         color: t.bgSurface2,
         borderRadius: BorderRadius.circular(50),
@@ -715,11 +713,11 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
+          Icon(icon, size: S.scale(context, 16), color: color),
           const SizedBox(width: 6),
           Text(label,
               style: GoogleFonts.nunito(
-                  color: t.textPrimary, fontSize: 12, fontWeight: FontWeight.w700)),
+                  color: t.textPrimary, fontSize: S.font(context, 12), fontWeight: FontWeight.w700)),
         ],
       ),
     );

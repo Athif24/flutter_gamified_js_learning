@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
 import '../../../../../shared/providers/gamification_providers.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../providers/course_provider.dart';
 import '../../../data/models/course_model.dart';
 import 'quiz_review_dialog.dart';
@@ -106,15 +107,18 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
         child: SafeArea(
           child: Stack(
             children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.all(28),
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: S.isTablet(context) ? 600 : double.infinity),
+                  child: SingleChildScrollView(
+                padding: EdgeInsets.all(S.scale(context, 28)),
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
 
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(22),
+                      padding: EdgeInsets.all(S.scale(context, 22)),
                       decoration: BoxDecoration(
                         color: widget.result.passed
                             ? (_isSuperResult
@@ -150,8 +154,8 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           Semantics(
                             label: widget.result.passed ? 'Lulus' : 'Belum lulus',
                             child: Container(
-                              width: 88,
-                              height: 88,
+                              width: S.scale(context, 88),
+                              height: S.scale(context, 88),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: widget.result.passed
@@ -172,7 +176,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 widget.result.passed
                                     ? Icons.emoji_events_rounded
                                     : Icons.close_rounded,
-                                size: 44,
+                                size: S.scale(context, 44),
                                 color: widget.result.passed
                                     ? (_isSuperResult
                                         ? widget.t.warning
@@ -196,7 +200,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 : 'Belum Lulus 😢',
                             style: GoogleFonts.nunito(
                               color: widget.t.textPrimary,
-                              fontSize: 24,
+                              fontSize: S.font(context, 24),
                               fontWeight: FontWeight.w900,
                             ),
                           )
@@ -210,7 +214,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 : 'Nilai minimum: ${widget.result.passingScore}%. Coba lagi!',
                             style: GoogleFonts.nunito(
                               color: widget.t.textSecondary,
-                              fontSize: 13,
+                              fontSize: S.font(context, 13),
                             ),
                             textAlign: TextAlign.center,
                           )
@@ -223,7 +227,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                               'Lesson selesai! Kamu bisa lanjut ke lesson berikutnya.',
                               style: GoogleFonts.nunito(
                                 color: widget.t.success,
-                                fontSize: 13,
+                                fontSize: S.font(context, 13),
                                 fontWeight: FontWeight.w700,
                               ),
                               textAlign: TextAlign.center,
@@ -238,6 +242,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                             isSuper: _isSuperResult,
                             t: widget.t,
                             ringBgColor: widget.t.bgSurface2,
+                            size: S.isTablet(context) ? 160 : 112,
                           )
                               .animate()
                               .fadeIn(delay: 350.ms)
@@ -320,7 +325,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 style: GoogleFonts.nunito(
                                   color: widget.t.primary,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 14,
+                                  fontSize: S.font(context, 14),
                                 ),
                               ),
                             ],
@@ -364,7 +369,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 'Kembali ke Peta Belajar',
                                 style: GoogleFonts.nunito(
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 15,
+                                  fontSize: S.font(context, 15),
                                   color: widget.t.primaryContent,
                                 ),
                               ),
@@ -378,6 +383,8 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                   ],
                 ),
               ),
+              ),
+            ),
 
               if (_isSuperResult) ..._buildMiniConfetti(widget.t),
             ],
@@ -417,7 +424,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
 
   Widget _buildLegendaryBadge(BloomTheme t) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 4)),
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(50),
@@ -427,7 +434,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
         'LEGENDARY SCORE',
         style: GoogleFonts.nunito(
           color: t.warning,
-          fontSize: 10,
+          fontSize: S.font(context, 10),
           fontWeight: FontWeight.w900,
           letterSpacing: 1.8,
         ),
@@ -445,6 +452,7 @@ class _ScoreRing extends StatelessWidget {
   final bool isSuper;
   final BloomTheme t;
   final Color ringBgColor;
+  final double size;
 
   const _ScoreRing({
     required this.pct,
@@ -452,13 +460,14 @@ class _ScoreRing extends StatelessWidget {
     required this.isSuper,
     required this.t,
     required this.ringBgColor,
+    this.size = 112,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 112,
-      height: 112,
+      width: size,
+      height: size,
       child: CustomPaint(
         painter: _RingPainter(
           pct: pct / 100.0,
@@ -474,7 +483,7 @@ class _ScoreRing extends StatelessWidget {
                 '$pct%',
                 style: GoogleFonts.nunito(
                   color: t.textPrimary,
-                  fontSize: 24,
+                  fontSize: S.font(context, 24),
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -482,7 +491,7 @@ class _ScoreRing extends StatelessWidget {
                 'SKOR',
                 style: GoogleFonts.nunito(
             color: t.textSecondary,
-                  fontSize: 10,
+                  fontSize: S.font(context, 10),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -571,7 +580,7 @@ class _StatBadge extends StatelessWidget {
               value,
               style: GoogleFonts.nunito(
                 color: color,
-                fontSize: 18,
+                fontSize: S.font(context, 18),
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -582,7 +591,7 @@ class _StatBadge extends StatelessWidget {
           label.toUpperCase(),
           style: GoogleFonts.nunito(
             color: t.mutedText,
-            fontSize: 10,
+            fontSize: S.font(context, 10),
             fontWeight: FontWeight.w900,
             letterSpacing: 1.5,
           ),

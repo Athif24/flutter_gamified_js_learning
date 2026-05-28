@@ -15,6 +15,7 @@ import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/course_provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../widgets/prose_mirror_renderer.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
@@ -63,14 +64,17 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: SafeArea(
-        child: Column(
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            final isLandscape = orientation == Orientation.landscape;
+        return Column(
         children: [
           SlowLoadingIndicator(
             visible: showSlowIndicator,
             t: t,
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            padding: EdgeInsets.fromLTRB(isLandscape ? 12 : 12, isLandscape ? 4 : 8, isLandscape ? 12 : 12, 0),
               child: Row(children: [
                 Semantics(
                   button: true,
@@ -111,13 +115,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                           label: '${lesson.title}, ${lesson.type}',
                           child: Text(lesson.title,
                               style: GoogleFonts.nunito(
-                                  color: t.textPrimary, fontSize: 15,
+                                  color: t.textPrimary, fontSize: S.font(context, 15),
                                   fontWeight: FontWeight.w800),
                               overflow: TextOverflow.ellipsis),
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 5)),
                           decoration: BoxDecoration(
                             color: t.primary.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(50),
@@ -125,7 +129,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                           ),
                           child: Text(lesson.type.toUpperCase(),
                               style: GoogleFonts.nunito(
-                                  color: t.primary, fontSize: 10,
+                                  color: t.primary, fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w800)),
                         ),
                       ],
@@ -159,18 +163,21 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                       child: LayoutBuilder(
                         builder: (_, constraints) => SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
+                          padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 16), S.scale(context, 20), S.scale(context, 20)),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: S.isTablet(context) ? 600 : double.infinity,
                                 minHeight: constraints.maxHeight),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (lesson.content != null)
-                                  ProseMirrorRenderer(content: lesson.content!, t: t)
-                                      .animate().fadeIn(delay: 100.ms),
-                                const SizedBox(height: 32),
-                              ],
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (lesson.content != null)
+                                    ProseMirrorRenderer(content: lesson.content!, t: t)
+                                        .animate().fadeIn(delay: 100.ms),
+                                  const SizedBox(height: 32),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -180,7 +187,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
 
                   // ── Bottom button ─────────────────────────────────────────────
                   Container(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+                    padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 12), S.scale(context, 20), S.scale(context, 28)),
                     decoration: BoxDecoration(
                       color: t.bgSurface,
                       border: Border(top: BorderSide(color: t.textPrimary, width: 2)),
@@ -204,7 +211,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                               context, ref, t, effectiveQuizId),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            padding: EdgeInsets.symmetric(vertical: S.scale(context, 15)),
                             decoration: BoxDecoration(
                               color: t.primary,
                               borderRadius: BorderRadius.circular(10),
@@ -239,7 +246,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                                         ? 'Kerjakan Quiz →'
                                         : AppStrings.markComplete,
                                     style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w800, fontSize: 15,
+                                        fontWeight: FontWeight.w800, fontSize: S.font(context, 15),
                                         color: t.primaryContent),
                                   ),
                                 ],
@@ -255,9 +262,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
             ),
           ),
         ],
-      ),
-      ),
-    );
+      );
+      },
+    ),
+  ));
   }
 
 
