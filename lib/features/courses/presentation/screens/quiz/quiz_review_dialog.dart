@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../../data/models/course_model.dart';
 
 class ReviewDialog extends StatelessWidget {
@@ -25,7 +26,7 @@ class ReviewDialog extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.8,
         maxWidth: MediaQuery.of(context).size.width * 0.9,
       ),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(S.scale(context, 20)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -33,7 +34,7 @@ class ReviewDialog extends StatelessWidget {
             children: [
               Text('Lihat Jawaban',
                   style: GoogleFonts.nunito(
-                      color: t.textPrimary, fontSize: 18,
+                      color: t.textPrimary, fontSize: S.font(context, 18),
                       fontWeight: FontWeight.w900)),
               const Spacer(),
               Semantics(
@@ -82,8 +83,8 @@ class ReviewDialog extends StatelessWidget {
                             'Soal ${i + 1}',
                             style: GoogleFonts.nunito(
                               color: t.textPrimary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
+                    fontSize: S.font(context, 14),
+                    fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
@@ -91,7 +92,7 @@ class ReviewDialog extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(q.text,
                           style: GoogleFonts.nunito(
-                              color: t.textPrimary, fontSize: 13,
+                              color: t.textPrimary, fontSize: S.font(context, 13),
                               fontWeight: FontWeight.w700)),
                       const SizedBox(height: 10),
                       Row(
@@ -101,7 +102,7 @@ class ReviewDialog extends StatelessWidget {
                             'Skor: ${qr.score}/${qr.maxScore}',
                             style: GoogleFonts.nunito(
                               color: qr.isCorrect ? t.success : t.error,
-                              fontSize: 13,
+                              fontSize: S.font(context, 13),
                               fontWeight: FontWeight.w800,
                             ),
                           ),

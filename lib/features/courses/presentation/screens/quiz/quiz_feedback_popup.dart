@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../../data/models/course_model.dart';
 
 class QuizFeedbackPopup extends StatelessWidget {
@@ -102,7 +103,7 @@ class QuizFeedbackPopup extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+      padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 16), S.scale(context, 20), S.scale(context, 28)),
       decoration: BoxDecoration(
         color: bgColor,
         border: Border(top: BorderSide(color: t.border.withValues(alpha: 0.4))),
@@ -118,7 +119,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      _buildAnimatedIcon(isCorrect),
+                      _buildAnimatedIcon(context, isCorrect),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -131,7 +132,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                                   : _getWrongMessage(),
                               style: GoogleFonts.nunito(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 16,
+                                fontSize: S.font(context, 16),
                                 color: t.textPrimary,
                               ),
                             ),
@@ -140,7 +141,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                               Text(
                                 'Kamu menjawab dengan benar',
                                 style: GoogleFonts.nunito(
-                                  fontSize: 12,
+                                  fontSize: S.font(context, 12),
                                   color: t.textSecondary,
                                 ),
                               )
@@ -148,7 +149,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                               Text(
                                 _getWrongAnswerSubtext(),
                                 style: GoogleFonts.nunito(
-                                  fontSize: 12,
+                                  fontSize: S.font(context, 12),
                                   color: t.textSecondary,
                                 ),
                               ),
@@ -177,12 +178,12 @@ class QuizFeedbackPopup extends StatelessWidget {
 
             if (currentStreak >= 3) ...[
               const SizedBox(height: 12),
-              _buildStreakBadge(),
+              _buildStreakBadge(context),
             ],
 
             if (!isCorrect && livesRemaining != null) ...[
               const SizedBox(height: 12),
-              _buildLivesIndicator(),
+              _buildLivesIndicator(context),
             ],
           ],
         ),
@@ -190,11 +191,11 @@ class QuizFeedbackPopup extends StatelessWidget {
     ).animate().slideY(begin: 1, end: 0, duration: 300.ms, curve: Curves.easeOut);
   }
 
-  Widget _buildAnimatedIcon(bool isCorrect) {
+  Widget _buildAnimatedIcon(BuildContext context, bool isCorrect) {
     final color = isCorrect ? t.success : t.error;
     final icon = Container(
-      width: 40,
-      height: 40,
+      width: S.scale(context, 40),
+      height: S.scale(context, 40),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         shape: BoxShape.circle,
@@ -215,7 +216,7 @@ class QuizFeedbackPopup extends StatelessWidget {
         : icon.animate().shakeX(duration: 300.ms);
   }
 
-  Widget _buildStreakBadge() {
+  Widget _buildStreakBadge(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -232,8 +233,8 @@ class QuizFeedbackPopup extends StatelessWidget {
             '$currentStreak beruntun!',
             style: GoogleFonts.nunito(
               color: t.warning,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
+                fontSize: S.font(context, 12),
+                fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -241,7 +242,7 @@ class QuizFeedbackPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildLivesIndicator() {
+  Widget _buildLivesIndicator(BuildContext context) {
     final lives = result.livesRemaining ?? 0;
     final isCritical = lives > 0 && lives <= 2;
     final lifeLost = previousLivesRemaining != null && lives < previousLivesRemaining!;
@@ -256,7 +257,7 @@ class QuizFeedbackPopup extends StatelessWidget {
             'Nyawa tersisa: ',
             style: GoogleFonts.nunito(
               color: t.textSecondary,
-              fontSize: 12,
+              fontSize: S.font(context, 12),
               fontWeight: FontWeight.w600,
             ),
           ),

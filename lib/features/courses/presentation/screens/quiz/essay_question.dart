@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 
 class EssayQuestion extends StatefulWidget {
   final BloomTheme t;
@@ -42,7 +43,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
                 'Tulis jawabanmu dengan jelas dan lengkap',
                 style: GoogleFonts.nunito(
                   color: widget.t.info,
-                  fontSize: 12,
+                  fontSize: S.font(context, 12),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -59,7 +60,8 @@ class _EssayQuestionState extends State<EssayQuestion> {
         ),
         child: TextField(
           controller: _controller,
-          maxLines: 8,
+          minLines: 4,
+          maxLines: MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 8,
           maxLength: _maxChars,
           buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
           onChanged: (v) {
@@ -69,7 +71,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
             widget.onChanged(v);
           },
           style: GoogleFonts.nunito(
-            fontSize: 14,
+            fontSize: S.font(context, 14),
             color: widget.t.textPrimary,
             height: 1.6,
           ),
@@ -77,7 +79,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
             hintText: 'Tulis jawaban essay di sini...\n\nContoh: var dapat di-reassign dan di-redeclare, sedangkan let hanya bisa di-reassign...',
             hintStyle: GoogleFonts.nunito(
               color: widget.t.mutedText,
-              fontSize: 13,
+              fontSize: S.font(context, 13),
               height: 1.6,
             ),
             border: InputBorder.none,
@@ -94,7 +96,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
             color: _charCount > _maxChars * 0.9
                 ? widget.t.error
                 : widget.t.mutedText,
-            fontSize: 11,
+            fontSize: S.font(context, 11),
           ),
         ),
       ),

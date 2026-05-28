@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 
 class QuestionCard extends StatelessWidget {
   final String type;
@@ -47,7 +48,7 @@ class QuestionCard extends StatelessWidget {
     final style = _style;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(S.scale(context, 18)),
       decoration: BoxDecoration(
         color: style.darkBg ? t.bgSurface2 : t.bgSurface,
         borderRadius: BorderRadius.circular(20),
@@ -71,7 +72,7 @@ class QuestionCard extends StatelessWidget {
                   style.label,
                   style: GoogleFonts.nunito(
                     color: style.accent,
-                    fontSize: 11,
+                    fontSize: S.font(context, 11),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -83,7 +84,7 @@ class QuestionCard extends StatelessWidget {
             text,
             style: GoogleFonts.nunito(
               color: style.darkBg ? t.info : t.textPrimary,
-              fontSize: 15,
+              fontSize: S.font(context, 15),
               fontWeight: FontWeight.w700,
               height: 1.5,
             ),
@@ -102,7 +103,7 @@ class QuestionCard extends StatelessWidget {
                 codeSnippet!,
                 style: GoogleFonts.jetBrainsMono(
                   color: t.info,
-                  fontSize: 13,
+                  fontSize: S.font(context, 13),
                   height: 1.6,
                 ),
               ),

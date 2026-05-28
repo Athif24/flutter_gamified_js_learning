@@ -14,6 +14,7 @@ import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/course_provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 import '../../data/models/course_model.dart';
 
@@ -91,8 +92,11 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _silentRefresh,
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: S.isTablet(context) ? 600 : double.infinity),
+                    child: CustomScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     // ── Header banner ─────────────────────────────────────────────
                     SliverToBoxAdapter(child: _HeaderBanner(
@@ -138,7 +142,9 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
                         );
                       },
                     ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -158,7 +164,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
       return SliverFillRemaining(child: _EmptyState(t: t));
     }
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      padding: EdgeInsets.fromLTRB(S.scale(context, 20), 0, S.scale(context, 20), S.scale(context, 32)),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (_, i) {
@@ -185,7 +191,7 @@ class _HeaderBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), 0),
       child: Container(
         decoration: BoxDecoration(
           color: t.primary,
@@ -200,7 +206,7 @@ class _HeaderBanner extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(S.scale(context, 24)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -212,7 +218,7 @@ class _HeaderBanner extends StatelessWidget {
                     child: Text('Pilih Kursusmu',
                         style: GoogleFonts.nunito(
                             color: t.primaryContent,
-                            fontSize: 22,
+                            fontSize: S.font(context, 22),
                             fontWeight: FontWeight.w900)),
                   ),
                 ],
@@ -221,11 +227,11 @@ class _HeaderBanner extends StatelessWidget {
               Text('Mulai perjalanan belajarmu dan kuasai skill baru!',
                   style: GoogleFonts.nunito(
                       color: t.primaryContent.withValues(alpha: 0.8),
-                      fontSize: 13,
+                      fontSize: S.font(context, 13),
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 7)),
                 decoration: BoxDecoration(
                   color: t.primaryContent.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(16),
@@ -239,7 +245,7 @@ class _HeaderBanner extends StatelessWidget {
                     Text('$courseCount Kursus Tersedia',
                         style: GoogleFonts.nunito(
                             color: t.primaryContent.withValues(alpha: 0.9),
-                            fontSize: 12,
+                            fontSize: S.font(context, 12),
                             fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -259,10 +265,10 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(S.scale(context, 32)),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 80),
+        padding: EdgeInsets.symmetric(vertical: S.scale(context, 80)),
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(24),
@@ -280,10 +286,10 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text('Belum ada kursus nih',
               style: GoogleFonts.nunito(color: t.textPrimary.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w700, fontSize: 16)),
+                  fontWeight: FontWeight.w700, fontSize: S.font(context, 16))),
           const SizedBox(height: 4),
           Text('Sabar ya, admin lagi nyiapin kursus kece buat kamu!',
-              style: GoogleFonts.nunito(color: t.mutedText, fontSize: 13),
+              style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
               textAlign: TextAlign.center),
         ]),
       ),
@@ -354,7 +360,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
     final (headerBg, headerFg) = palettes[index % palettes.length];
 
     Widget card = Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: S.scale(context, 16)),
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(24),
@@ -397,7 +403,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                   Positioned(
                     right: 12, top: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
                       decoration: BoxDecoration(
                         color: t.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(50),
@@ -410,7 +416,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                           const SizedBox(width: 4),
                           Text('Selesai',
                               style: GoogleFonts.nunito(
-                                  color: t.primary, fontSize: 10,
+                                  color: t.primary, fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700)),
                         ],
                       ),
@@ -420,7 +426,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                   Positioned(
                     right: 12, top: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
                       decoration: BoxDecoration(
                         color: t.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(50),
@@ -428,7 +434,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                       ),
                       child: Text('Enrolled',
                           style: GoogleFonts.nunito(
-                              color: t.primary, fontSize: 10,
+                              color: t.primary, fontSize: S.font(context, 10),
                               fontWeight: FontWeight.w700)),
                     ),
                   ),
@@ -438,17 +444,17 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
           ), // Hero
           // Body
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Hero(
-                  tag: 'course-title-${course.id}',
+          padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), S.scale(context, 16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Hero(
+                tag: 'course-title-${course.id}',
                   child: Material(
                     color: Colors.transparent,
                     child: Text(course.title,
                         style: GoogleFonts.nunito(
-                            color: t.textPrimary, fontSize: 16,
+                            color: t.textPrimary, fontSize: S.font(context, 16),
                             fontWeight: FontWeight.w800),
                         maxLines: 2, overflow: TextOverflow.ellipsis),
                   ),
@@ -457,13 +463,13 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                   const SizedBox(height: 4),
                   Text(course.description!,
                       style: GoogleFonts.nunito(
-                          color: t.mutedText, fontSize: 12),
+                          color: t.mutedText, fontSize: S.font(context, 12)),
                       maxLines: 2, overflow: TextOverflow.ellipsis),
                 ],
                 const SizedBox(height: 4),
                 Text('${course.totalLessons} lesson',
                     style: GoogleFonts.nunito(
-                        color: t.mutedText, fontSize: 12,
+                        color: t.mutedText, fontSize: S.font(context, 12),
                         fontWeight: FontWeight.w600)),
                 if (isEnrolled) ...[
                   const SizedBox(height: 10),
@@ -472,10 +478,10 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                     children: [
                       Text('Progress',
                           style: GoogleFonts.nunito(
-                              color: t.mutedText, fontSize: 11)),
+                              color: t.mutedText, fontSize: S.font(context, 11))),
                       Text('$progressPct%',
                           style: GoogleFonts.nunito(
-                              color: t.textPrimary, fontSize: 11,
+                              color: t.textPrimary, fontSize: S.font(context, 11),
                               fontWeight: FontWeight.w700)),
                     ],
                   ),
@@ -500,7 +506,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                       child: Container(
                         width: double.infinity,
                         constraints: const BoxConstraints(minHeight: 48),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.symmetric(vertical: S.scale(context, 8)),
                         decoration: BoxDecoration(
                           color: t.bgSurface,
                           borderRadius: BorderRadius.circular(16),
@@ -522,7 +528,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                               Text(
                                 isCompleted ? ' Ulangi' : 'Lanjutkan',
                                 style: GoogleFonts.nunito(
-                                    color: t.textPrimary, fontSize: 13,
+                                    color: t.textPrimary, fontSize: S.font(context, 13),
                                     fontWeight: FontWeight.w800),
                               ),
                               if (!isCompleted) ...[
@@ -543,7 +549,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                       child: Container(
                         width: double.infinity,
                         constraints: const BoxConstraints(minHeight: 48),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.symmetric(vertical: S.scale(context, 8)),
                         decoration: BoxDecoration(
                           color: t.primary,
                           borderRadius: BorderRadius.circular(16),
@@ -570,7 +576,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                                   children: [
                                     Text('Mulai',
                                         style: GoogleFonts.nunito(
-                                            color: t.primaryContent, fontSize: 13,
+                                            color: t.primaryContent, fontSize: S.font(context, 13),
                                             fontWeight: FontWeight.w800)),
                                     const SizedBox(width: 4),
                                     Icon(Icons.arrow_forward, size: 16, color: t.primaryContent),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../../data/models/course_model.dart';
 
 class ArrangeQuestion extends StatelessWidget {
@@ -162,7 +163,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(S.scale(context, 16)),
           decoration: BoxDecoration(
             color: const Color(0xFF1A1D23),
             borderRadius: BorderRadius.circular(16),
@@ -180,17 +181,17 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                 '$remaining TERSISA',
                 style: GoogleFonts.nunito(
                   color: widget.t.warning,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontSize: S.font(context, 12),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-        ],
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: S.scale(context, 8),
+          runSpacing: S.scale(context, 8),
           children: widget.options.map((opt) {
             final filledCount = _filledBlanks.values.where((id) => id == opt.id).length;
             final optOccurrences = widget.options.where((o) => o.id == opt.id).length;
@@ -206,10 +207,10 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                   duration: const Duration(milliseconds: 200),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: S.scale(context, 14),
+                        vertical: S.scale(context, 8),
+                      ),
                     decoration: BoxDecoration(
                       color: isUsed
                           ? widget.t.success.withValues(alpha: 0.1)
@@ -227,7 +228,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                         color: isUsed
                             ? widget.t.success
                             : const Color(0xFF4ECDC4),
-                        fontSize: 13,
+                        fontSize: S.font(context, 13),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -240,7 +241,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
         if (remaining <= 0 && blankCount > 0) ...[
           const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 10)),
             decoration: BoxDecoration(
               color: widget.t.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
@@ -249,19 +250,20 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.check_circle_rounded,
-                    color: widget.t.success, size: 16),
+                    color: widget.t.success, size: S.scale(context, 16)),
                 const SizedBox(width: 8),
                 Text(
                   'Semua bagian sudah terisi',
                   style: GoogleFonts.nunito(
                     color: widget.t.success,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontSize: S.font(context, 12),
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: 10),
         ],
       ],
     );
@@ -277,11 +279,11 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
         text,
         style: GoogleFonts.firaCode(
           color: const Color(0xFF4ECDC4),
-          fontSize: 13,
-          height: 1.6,
-        ),
-      );
-    }
+        fontSize: S.font(context, 13),
+        height: 1.6,
+      ),
+    );
+  }
 
     final widgets = <Widget>[];
     int blankIndex = 0;
@@ -304,10 +306,10 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
             child: Bounceable(
               onTap: () => _onBlankTap(capturedBlankIndex),
               child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                margin: EdgeInsets.symmetric(vertical: S.scale(context, 4), horizontal: S.scale(context, 4)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: S.scale(context, 16),
+                  vertical: S.scale(context, 8),
                 ),
                 decoration: BoxDecoration(
                   color: isFilled
@@ -327,7 +329,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                     color: isFilled
                         ? const Color(0xFF4ECDC4)
                         : Colors.white.withValues(alpha: 0.3),
-                    fontSize: 13,
+                    fontSize: S.font(context, 13),
                     fontWeight:
                         isFilled ? FontWeight.w600 : FontWeight.w400,
                   ),
@@ -343,7 +345,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
             block,
             style: GoogleFonts.firaCode(
               color: const Color(0xFF4ECDC4),
-              fontSize: 13,
+              fontSize: S.font(context, 13),
               height: 1.6,
             ),
           ),
@@ -476,9 +478,9 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               ? (_lineMode ? 'Baris tersedia:' : 'Token tersedia:')
               : 'Kata tersedia:',
           style: GoogleFonts.nunito(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: widget.t.mutedText,
+          fontSize: S.font(context, 11),
+          fontWeight: FontWeight.w500,
+          color: widget.t.mutedText,
           ),
         ),
         const SizedBox(height: 8),
@@ -492,8 +494,8 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   Widget _buildWordAnswerArea() {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 60),
-      padding: const EdgeInsets.all(12),
+      constraints: BoxConstraints(minHeight: S.scale(context, 60)),
+      padding: EdgeInsets.all(S.scale(context, 12)),
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
         borderRadius: BorderRadius.circular(12),
@@ -506,7 +508,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
           ? Text(
               'Ketuk kata di bawah untuk menyusun jawaban...',
               style: GoogleFonts.nunito(
-                fontSize: 12,
+                fontSize: S.font(context, 12),
                 fontStyle: FontStyle.italic,
                 color: widget.t.mutedText.withValues(alpha: 0.7),
               ),
@@ -529,7 +531,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       child: Bounceable(
         onTap: () => _removeAt(index),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 6)),
           decoration: BoxDecoration(
             color: widget.t.primary,
             borderRadius: BorderRadius.circular(20),
@@ -540,7 +542,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               Text(
                 word.text,
                 style: GoogleFonts.nunito(
-                  fontSize: 13,
+                  fontSize: S.font(context, 13),
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -554,8 +556,8 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
 
   Widget _buildWordChips() {
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: S.scale(context, 8),
+      runSpacing: S.scale(context, 8),
       children: _options.map((opt) {
         final used = _isOptionUsed(opt);
         return Semantics(
@@ -567,7 +569,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               opacity: used ? 0.2 : 1.0,
               duration: const Duration(milliseconds: 150),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 7)),
                 decoration: BoxDecoration(
                   color: widget.t.bgSurface2,
                   border: Border.all(
@@ -579,9 +581,9 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                 child: Text(
                   opt.text,
                   style: GoogleFonts.nunito(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: used ? widget.t.mutedText : widget.t.textPrimary,
+                  fontSize: S.font(context, 13),
+                  fontWeight: FontWeight.w600,
+                  color: used ? widget.t.mutedText : widget.t.textPrimary,
                   ),
                 ),
               ),
@@ -606,7 +608,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
         children: [
           _buildEditorTopBar(),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(S.scale(context, 12)),
             child: _placed.isEmpty
                 ? _buildCodePlaceholder()
                 : _lineMode ? _buildCodeLines() : _buildCodeTokenLine(),
@@ -618,7 +620,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
 
   Widget _buildEditorTopBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 11), vertical: S.scale(context, 7)),
       color: const Color(0xFF161B22),
       child: Row(
         children: [
@@ -631,8 +633,8 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
           Text(
             'script.js',
             style: GoogleFonts.firaCode(
-              fontSize: 10,
-              color: const Color(0xFF8B949E),
+            fontSize: S.font(context, 10),
+            color: const Color(0xFF8B949E),
             ),
           ),
         ],
@@ -652,9 +654,9 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
     return Text(
       '// ketuk token di bawah...',
       style: GoogleFonts.firaCode(
-        fontSize: 11,
-        color: const Color(0xFF3D444D),
-        fontStyle: FontStyle.italic,
+      fontSize: S.font(context, 11),
+      color: const Color(0xFF3D444D),
+      fontStyle: FontStyle.italic,
       ),
     );
   }
@@ -671,16 +673,16 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
 
   Widget _buildCodeLine(QuizOption option, int index) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(bottom: S.scale(context, 6)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 24,
+            width: S.scale(context, 24),
             child: Text(
               '${index + 1}',
               style: GoogleFonts.firaCode(
-                fontSize: 11,
+                fontSize: S.font(context, 11),
                 color: const Color(0xFF3D444D),
                 height: 1.6,
               ),
@@ -699,7 +701,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                   child: Text(
                     option.text,
                     style: GoogleFonts.firaCode(
-                      fontSize: 12,
+                      fontSize: S.font(context, 12),
                       color: const Color(0xFFE6EDF3),
                       height: 1.6,
                     ),
@@ -721,11 +723,11 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 4, right: 8),
+            padding: EdgeInsets.only(top: S.scale(context, 4), right: S.scale(context, 8)),
             child: Text(
               '1',
               style: GoogleFonts.firaCode(
-                fontSize: 11,
+                fontSize: S.font(context, 11),
                 color: const Color(0xFF3D444D),
               ),
             ),
@@ -745,9 +747,9 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       child: Bounceable(
         onTap: () => _removeAt(index),
         child: Container(
-          height: 26,
-          margin: const EdgeInsets.only(right: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          height: S.scale(context, 26),
+          margin: EdgeInsets.only(right: S.scale(context, 2)),
+          padding: EdgeInsets.symmetric(horizontal: S.scale(context, 6)),
           decoration: BoxDecoration(
             color: const Color(0xFF21262D),
             border: Border.all(color: const Color(0xFF30363D)),
@@ -758,7 +760,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
             child: Text(
               token.text,
               style: GoogleFonts.firaCode(
-                fontSize: 12,
+                fontSize: S.font(context, 12),
                 color: _getSyntaxColor(token.text),
               ),
             ),
@@ -770,8 +772,8 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
 
   Widget _buildCodeChips() {
     return Wrap(
-      spacing: 7,
-      runSpacing: 7,
+      spacing: S.scale(context, 7),
+      runSpacing: S.scale(context, 7),
       children: _options.map((opt) {
         final used = _isOptionUsed(opt);
         return Semantics(
@@ -783,7 +785,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               opacity: used ? 0.25 : 1.0,
               duration: const Duration(milliseconds: 150),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 11), vertical: S.scale(context, 7)),
                 decoration: BoxDecoration(
                   color: const Color(0xFF161B22),
                   border: Border.all(color: const Color(0xFF30363D)),
@@ -792,7 +794,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                 child: Text(
                   opt.text,
                   style: GoogleFonts.firaCode(
-                    fontSize: 12,
+                    fontSize: S.font(context, 12),
                     color: used ? const Color(0xFF8B949E) : _getSyntaxColor(opt.text),
                   ),
                 ),
@@ -862,7 +864,7 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
       Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
             decoration: BoxDecoration(
               color: const Color(0xFF4ECDC4).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
@@ -871,7 +873,7 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
               'JAVASCRIPT',
               style: GoogleFonts.firaCode(
                 color: const Color(0xFF4ECDC4),
-                fontSize: 10,
+                fontSize: S.font(context, 10),
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.2,
               ),
@@ -897,7 +899,7 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
           final block = _orderedBlocks[i];
           return Container(
             key: ValueKey(block.id),
-            margin: const EdgeInsets.only(bottom: 8),
+            margin: EdgeInsets.only(bottom: S.scale(context, 8)),
             decoration: BoxDecoration(
               color: const Color(0xFF1A1D23),
               borderRadius: BorderRadius.circular(14),
@@ -910,25 +912,25 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
                 ReorderableDragStartListener(
                   index: i,
                   child: Container(
-                    width: 56,
-                    height: 50,
+                    width: S.scale(context, 56),
+                    height: S.scale(context, 50),
                     alignment: Alignment.center,
                     child: Icon(
                       Icons.drag_handle_rounded,
                       color: Colors.white30,
-                      size: 28,
+                      size: S.scale(context, 28),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 12, 12, 12),
+                    padding: EdgeInsets.fromLTRB(S.scale(context, 4), S.scale(context, 12), S.scale(context, 12), S.scale(context, 12)),
                     child: Text(
                       block.text,
                       style: GoogleFonts.firaCode(
                         color: const Color(0xFF4ECDC4),
-                        fontSize: 12,
-                        height: 1.6,
+                      fontSize: S.font(context, 12),
+                      height: 1.6,
                       ),
                     ),
                   ),
