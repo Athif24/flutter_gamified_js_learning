@@ -71,7 +71,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           }
         },
         child: Container(
-          width: 38, height: 38,
+          width: S.scale(context, 38), height: S.scale(context, 38),
           decoration: BoxDecoration(
             color: t.bgSurface2, shape: BoxShape.circle,
             border: Border.all(color: t.textPrimary, width: 2),
@@ -276,8 +276,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     child: Bounceable(
                       onTap: () => _confirmExit(context, t),
                       child: Container(
-                        width: 36,
-                        height: 36,
+                        width: S.scale(context, 36),
+                        height: S.scale(context, 36),
                         decoration: BoxDecoration(
                           color: t.bgSurface2,
                           shape: BoxShape.circle,
@@ -516,8 +516,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       color: t.bgSurface2,
                       shadowColor: t.textPrimary,
                       textColor: t.textPrimary,
-                      horizontalPadding: 16,
-                      verticalPadding: 10,
+                      horizontalPadding: S.scale(context, 16),
+                      verticalPadding: S.scale(context, 10),
                       onTap: () {
                         Navigator.pop(context);
                         ref.read(quizProvider.notifier).reset();
@@ -536,8 +536,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       color: t.error,
                       shadowColor: t.textPrimary,
                       textColor: Colors.white,
-                      horizontalPadding: 16,
-                      verticalPadding: 10,
+                      horizontalPadding: S.scale(context, 16),
+                      verticalPadding: S.scale(context, 10),
                       onTap: () {
                         Navigator.pop(context);
                         ref.read(quizProvider.notifier).clearLastAnswerResult();
@@ -590,8 +590,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       color: t.primary,
                       shadowColor: t.textPrimary,
                       textColor: t.primaryContent,
-                      horizontalPadding: 16,
-                      verticalPadding: 10,
+                      horizontalPadding: S.scale(context, 16),
+                      verticalPadding: S.scale(context, 10),
                       onTap: () => Navigator.pop(context),
                     ),
                   ),
@@ -606,8 +606,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       color: t.error,
                       shadowColor: darken(t.error, 0.25),
                       textColor: Colors.white,
-                      horizontalPadding: 16,
-                      verticalPadding: 10,
+                      horizontalPadding: S.scale(context, 16),
+                      verticalPadding: S.scale(context, 10),
                       onTap: () {
                         Navigator.pop(context);
                         context.pop();

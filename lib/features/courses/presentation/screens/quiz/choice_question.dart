@@ -52,7 +52,7 @@ class ChoiceQuestion extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             margin: EdgeInsets.only(bottom: S.scale(context, 10)),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 12)),
             decoration: BoxDecoration(
               color: isSel ? color.withValues(alpha: 0.12) : t.bgSurface,
               borderRadius: BorderRadius.circular(16),

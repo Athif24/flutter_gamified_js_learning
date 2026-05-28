@@ -380,7 +380,7 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
           Hero(
             tag: 'course-thumb-${course.id}',
             child: Container(
-              height: 144,
+              height: S.scale(context, 144),
               decoration: BoxDecoration(
                 color: headerBg,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(23)),

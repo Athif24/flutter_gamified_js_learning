@@ -331,7 +331,7 @@ class _IntroBodyState extends State<_IntroBody> {
             ...List.generate(_maxLives, (i) {
               final filled = i < _currentLives;
               return Padding(
-                padding: const EdgeInsets.only(right: 2),
+                padding: EdgeInsets.only(right: S.scale(context, 2)),
                 child: Icon(
                   Icons.favorite_rounded,
                   size: S.scale(context, 20),
@@ -351,7 +351,7 @@ class _IntroBodyState extends State<_IntroBody> {
             if (!_hasLives) ...[
               if (_countdownSeconds != null && _countdownSeconds! > 0)
                 Padding(
-                  padding: const EdgeInsets.only(top: 6),
+                  padding: EdgeInsets.only(top: S.scale(context, 6)),
                   child: Text(
                     'Nyawa berikutnya dalam ${_formatCountdown(_countdownSeconds!)}',
                     style: GoogleFonts.nunito(
@@ -362,7 +362,7 @@ class _IntroBodyState extends State<_IntroBody> {
                   ),
                 ),
               Padding(
-                padding: const EdgeInsets.only(top: 4),
+                padding: EdgeInsets.only(top: S.scale(context, 4)),
                 child: GestureDetector(
                   onTap: () {
                     widget.ref.read(navIndexProvider.notifier).state = 3;
@@ -471,7 +471,7 @@ class _IntroBodyState extends State<_IntroBody> {
                           t: t,
                           btn: _ActionBtnData(
                             label: 'Mulai Ulang',
-                            color: t.error.withAlpha(200),
+                            color: t.error.withValues(alpha: 0.78),
                             shadowColor: t.textPrimary,
                             textColor: t.primaryContent,
                             isLoading: _isRestarting,
@@ -519,7 +519,7 @@ class _IntroBodyState extends State<_IntroBody> {
                           t: t,
                           btn: _ActionBtnData(
                             label: 'Mulai Ulang',
-                            color: t.error.withAlpha(200),
+                            color: t.error.withValues(alpha: 0.78),
                             shadowColor: t.textPrimary,
                             textColor: t.primaryContent,
                             isLoading: _isRestarting,
@@ -613,8 +613,8 @@ class _BuildSingleButton extends StatelessWidget {
       color: btn.color,
       shadowColor: btn.shadowColor,
       textColor: btn.textColor,
-      horizontalPadding: 16,
-      verticalPadding: 15,
+      horizontalPadding: S.scale(context, 16),
+      verticalPadding: S.scale(context, 15),
       isLoading: btn.isLoading,
       onTap: btn.onTap,
       child: noLives
@@ -661,8 +661,8 @@ class _BuildButtons extends StatelessWidget {
         color: btn.color,
         shadowColor: btn.shadowColor,
         textColor: btn.textColor,
-        horizontalPadding: 16,
-        verticalPadding: 15,
+        horizontalPadding: S.scale(context, 16),
+        verticalPadding: S.scale(context, 15),
         isLoading: btn.isLoading,
         onTap: btn.onTap,
         child: noLives

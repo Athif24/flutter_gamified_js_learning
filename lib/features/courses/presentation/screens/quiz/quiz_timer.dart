@@ -52,7 +52,7 @@ class QuizTimer extends StatefulWidget {
   State<QuizTimer> createState() => _QuizTimerState();
 }
 
-class _QuizTimerState extends State<QuizTimer> with TickerProviderStateMixin {
+class _QuizTimerState extends State<QuizTimer> with SingleTickerProviderStateMixin {
   late int _remainingSeconds;
   Timer? _timer;
   late AnimationController _pulseController;
@@ -102,13 +102,17 @@ class _QuizTimerState extends State<QuizTimer> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final color = _isWarning ? widget.t.error : widget.t.primary;
-    return _pulseController.isAnimating
+    return Semantics(
+      label: 'Waktu tersisa $_display',
+      liveRegion: true,
+      child: _pulseController.isAnimating
         ? ScaleTransition(
             scale: Tween<double>(begin: 1.0, end: 1.15).animate(
               CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
             ),
             child: TimerChip(display: _display, color: color, t: widget.t),
           )
-        : TimerChip(display: _display, color: color, t: widget.t);
+        : TimerChip(display: _display, color: color, t: widget.t),
+    );
   }
 }

@@ -168,8 +168,8 @@ class QuizFeedbackPopup extends StatelessWidget {
                   color: btnColor,
                   shadowColor: t.textPrimary,
                   textColor: isCorrect ? t.successContent : t.errorContent,
-                  horizontalPadding: 28,
-                  verticalPadding: 13,
+                  horizontalPadding: S.scale(context, 28),
+                  verticalPadding: S.scale(context, 13),
                   onTap: onLanjut,
                 ),
                 ),
@@ -218,7 +218,7 @@ class QuizFeedbackPopup extends StatelessWidget {
 
   Widget _buildStreakBadge(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 6)),
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(50),
@@ -282,7 +282,7 @@ class QuizFeedbackPopup extends StatelessWidget {
               animated = heart;
             }
             return Padding(
-              padding: const EdgeInsets.only(right: 2),
+              padding: EdgeInsets.only(right: S.scale(context, 2)),
               child: animated,
             );
           }),
@@ -291,7 +291,7 @@ class QuizFeedbackPopup extends StatelessWidget {
     );
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 6)),
       decoration: BoxDecoration(
         color: isCritical ? t.error.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),

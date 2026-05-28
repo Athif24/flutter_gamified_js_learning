@@ -302,8 +302,8 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                             color: widget.t.bgSurface2,
                             shadowColor: widget.t.textPrimary,
                             textColor: widget.t.primary,
-                            horizontalPadding: 20,
-                            verticalPadding: 13,
+                            horizontalPadding: S.scale(context, 20),
+                            verticalPadding: S.scale(context, 13),
                             onTap: () {
                               showDialog(
                                 context: context,
@@ -346,8 +346,8 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           color: widget.t.primary,
                           shadowColor: widget.t.textPrimary,
                           textColor: widget.t.primaryContent,
-                          horizontalPadding: 20,
-                          verticalPadding: 15,
+                          horizontalPadding: S.scale(context, 20),
+                          verticalPadding: S.scale(context, 15),
                           onTap: () {
                             ref.read(quizProvider.notifier).reset();
                             if (widget.courseId != null) {

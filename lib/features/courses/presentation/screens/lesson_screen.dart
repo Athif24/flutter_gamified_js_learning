@@ -90,7 +90,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                       }
                     },
                     child: Container(
-                      width: 38, height: 38,
+                      width: S.scale(context, 38), height: S.scale(context, 38),
                       decoration: BoxDecoration(
                           color: t.bgSurface2, shape: BoxShape.circle,
                           border: Border.all(color: t.textPrimary, width: 2),

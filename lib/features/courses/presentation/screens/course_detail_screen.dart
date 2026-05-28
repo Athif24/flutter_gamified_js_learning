@@ -185,8 +185,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                       }
                     },
                     child: Container(
-                      width: 38,
-                      height: 38,
+                      width: S.scale(context, 38),
+                      height: S.scale(context, 38),
                       decoration: BoxDecoration(
                         color: t.bgSurface2,
                         shape: BoxShape.circle,
@@ -425,6 +425,8 @@ class _HeaderCard extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: Text(course.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.nunito(
                               color: cFg,
                               fontSize: S.font(context, 24),
@@ -435,6 +437,8 @@ class _HeaderCard extends StatelessWidget {
                       course.description!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(course.description!,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.nunito(
                             color: cFg.withValues(alpha: 0.8),
                             fontSize: S.font(context, 13))),

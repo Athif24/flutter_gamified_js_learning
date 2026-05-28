@@ -29,7 +29,7 @@ class _EssayQuestionState extends State<EssayQuestion> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 8)),
         decoration: BoxDecoration(
           color: widget.t.info.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
@@ -83,13 +83,13 @@ class _EssayQuestionState extends State<EssayQuestion> {
               height: 1.6,
             ),
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.all(16),
+            contentPadding: EdgeInsets.all(S.scale(context, 16)),
             counterText: '',
           ),
         ),
       ),
       Padding(
-        padding: const EdgeInsets.only(top: 8, left: 4),
+        padding: EdgeInsets.only(top: S.scale(context, 8), left: S.scale(context, 4)),
         child: Text(
           '$_charCount/$_maxChars',
           style: GoogleFonts.nunito(

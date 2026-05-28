@@ -60,7 +60,7 @@ class ReviewDialog extends StatelessWidget {
                   orElse: () => QuestionModel(id: qr.questionId, text: 'Soal #$i', type: 'choice', points: 10),
                 );
                 return Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: EdgeInsets.all(S.scale(context, 14)),
                   decoration: BoxDecoration(
                     color: qr.isCorrect ? t.success.withValues(alpha: 0.08) : t.error.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(14),

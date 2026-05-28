@@ -165,10 +165,10 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
           width: double.infinity,
           padding: EdgeInsets.all(S.scale(context, 16)),
           decoration: BoxDecoration(
-            color: const Color(0xFF1A1D23),
+            color: widget.t.bgSurface2,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF4ECDC4).withValues(alpha: 0.3),
+              color: widget.t.info.withValues(alpha: 0.3),
             ),
           ),
           child: _buildCodeWithBlanks(),
@@ -213,21 +213,21 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                       ),
                     decoration: BoxDecoration(
                       color: isUsed
-                          ? widget.t.success.withValues(alpha: 0.1)
-                          : const Color(0xFF4ECDC4).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isUsed
-                            ? widget.t.success.withValues(alpha: 0.5)
-                            : const Color(0xFF4ECDC4).withValues(alpha: 0.4),
+                      ? widget.t.success.withValues(alpha: 0.1)
+                      : widget.t.info.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isUsed
+                          ? widget.t.success.withValues(alpha: 0.5)
+                          : widget.t.info.withValues(alpha: 0.4),
                       ),
                     ),
                     child: Text(
                       opt.text,
                       style: GoogleFonts.firaCode(
                         color: isUsed
-                            ? widget.t.success
-                            : const Color(0xFF4ECDC4),
+                      ? widget.t.success
+                      : widget.t.info,
                         fontSize: S.font(context, 13),
                         fontWeight: FontWeight.w600,
                       ),
@@ -278,7 +278,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
       return Text(
         text,
         style: GoogleFonts.firaCode(
-          color: const Color(0xFF4ECDC4),
+          color: widget.t.info,
         fontSize: S.font(context, 13),
         height: 1.6,
       ),
@@ -313,12 +313,12 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                 ),
                 decoration: BoxDecoration(
                   color: isFilled
-                      ? const Color(0xFF4ECDC4).withValues(alpha: 0.2)
-                      : Colors.transparent,
+              ? widget.t.info.withValues(alpha: 0.2)
+              : Colors.transparent,
                   border: Border.all(
                     color: isFilled
-                        ? const Color(0xFF4ECDC4)
-                        : Colors.white.withValues(alpha: 0.3),
+                        ? widget.t.info
+                        : widget.t.textPrimary.withValues(alpha: 0.3),
                     style: BorderStyle.solid,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -327,8 +327,8 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
                   isFilled ? filledText : '___',
                   style: GoogleFonts.firaCode(
                     color: isFilled
-                        ? const Color(0xFF4ECDC4)
-                        : Colors.white.withValues(alpha: 0.3),
+                        ? widget.t.info
+                        : widget.t.textPrimary.withValues(alpha: 0.3),
                     fontSize: S.font(context, 13),
                     fontWeight:
                         isFilled ? FontWeight.w600 : FontWeight.w400,
@@ -344,7 +344,7 @@ class _CompleteWordWidgetState extends State<CompleteWordWidget> {
           Text(
             block,
             style: GoogleFonts.firaCode(
-              color: const Color(0xFF4ECDC4),
+              color: widget.t.info,
               fontSize: S.font(context, 13),
               height: 1.6,
             ),
@@ -451,19 +451,20 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   }
 
   Color _getSyntaxColor(String token) {
-    const keywords = {
+    final keywords = {
       'const', 'let', 'var', 'function', 'return', 'if', 'else',
       'for', 'while', 'class', 'cout', 'cin', 'int', 'void',
       'true', 'false', 'null', 'undefined',
     };
+    final t = widget.t;
     final trimmed = token.trim();
-    if (keywords.contains(trimmed)) return const Color(0xFFFF7B72);
-    if (trimmed.startsWith('"') || trimmed.startsWith("'")) return const Color(0xFFA5D6FF);
-    if (RegExp(r'^[+\-*/%=!<>&|^~]+$').hasMatch(trimmed)) return const Color(0xFF79C0FF);
-    if (RegExp(r'^\d+(\.\d+)?$').hasMatch(trimmed)) return const Color(0xFF79C0FF);
-    if (RegExp(r'^[(){}\[\];,]$').hasMatch(trimmed)) return const Color(0xFFE6EDF3);
-    if (trimmed.contains('.')) return const Color(0xFFD2A8FF);
-    return const Color(0xFFFFA657);
+    if (keywords.contains(trimmed)) return t.error;
+    if (trimmed.startsWith('"') || trimmed.startsWith("'")) return t.info;
+    if (RegExp(r'^[+\-*/%=!<>&|^~]+$').hasMatch(trimmed)) return t.info;
+    if (RegExp(r'^\d+(\.\d+)?$').hasMatch(trimmed)) return t.info;
+    if (RegExp(r'^[(){}\[\];,]$').hasMatch(trimmed)) return t.textPrimary;
+    if (trimmed.contains('.')) return t.accent;
+    return t.warning;
   }
 
   @override
@@ -544,7 +545,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                 style: GoogleFonts.nunito(
                   fontSize: S.font(context, 13),
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: widget.t.primaryContent,
                 ),
               ),
             ],
@@ -599,7 +600,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   Widget _buildCodeAnswerArea() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1117),
+        color: widget.t.bgSurface2,
         borderRadius: BorderRadius.circular(10),
       ),
       clipBehavior: Clip.hardEdge,
@@ -621,20 +622,20 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
   Widget _buildEditorTopBar() {
     return Container(
                 padding: EdgeInsets.symmetric(horizontal: S.scale(context, 11), vertical: S.scale(context, 7)),
-      color: const Color(0xFF161B22),
+      color: widget.t.bgSurface,
       child: Row(
         children: [
-          _dot(const Color(0xFFFF5F56)),
+          _dot(widget.t.error),
           const SizedBox(width: 5),
-          _dot(const Color(0xFFFFBD2E)),
+          _dot(widget.t.warning),
           const SizedBox(width: 5),
-          _dot(const Color(0xFF27C93F)),
+          _dot(widget.t.success),
           const SizedBox(width: 8),
           Text(
             'script.js',
             style: GoogleFonts.firaCode(
             fontSize: S.font(context, 10),
-            color: const Color(0xFF8B949E),
+            color: widget.t.mutedText,
             ),
           ),
         ],
@@ -655,7 +656,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       '// ketuk token di bawah...',
       style: GoogleFonts.firaCode(
       fontSize: S.font(context, 11),
-      color: const Color(0xFF3D444D),
+      color: widget.t.border,
       fontStyle: FontStyle.italic,
       ),
     );
@@ -683,7 +684,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               '${index + 1}',
               style: GoogleFonts.firaCode(
                 fontSize: S.font(context, 11),
-                color: const Color(0xFF3D444D),
+                color: widget.t.border,
                 height: 1.6,
               ),
             ),
@@ -702,7 +703,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                     option.text,
                     style: GoogleFonts.firaCode(
                       fontSize: S.font(context, 12),
-                      color: const Color(0xFFE6EDF3),
+                      color: widget.t.textPrimary,
                       height: 1.6,
                     ),
                   ),
@@ -728,7 +729,7 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               '1',
               style: GoogleFonts.firaCode(
                 fontSize: S.font(context, 11),
-                color: const Color(0xFF3D444D),
+                color: widget.t.border,
               ),
             ),
           ),
@@ -751,8 +752,8 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
           margin: EdgeInsets.only(right: S.scale(context, 2)),
           padding: EdgeInsets.symmetric(horizontal: S.scale(context, 6)),
           decoration: BoxDecoration(
-            color: const Color(0xFF21262D),
-            border: Border.all(color: const Color(0xFF30363D)),
+            color: widget.t.bgSurface2,
+            border: Border.all(color: widget.t.border),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Align(
@@ -787,15 +788,15 @@ class _ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               child: Container(
       padding: EdgeInsets.symmetric(horizontal: S.scale(context, 11), vertical: S.scale(context, 7)),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF161B22),
-                  border: Border.all(color: const Color(0xFF30363D)),
+                  color: widget.t.bgSurface,
+                  border: Border.all(color: widget.t.border),
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
                   opt.text,
                   style: GoogleFonts.firaCode(
                     fontSize: S.font(context, 12),
-                    color: used ? const Color(0xFF8B949E) : _getSyntaxColor(opt.text),
+                    color: used ? widget.t.mutedText : _getSyntaxColor(opt.text),
                   ),
                 ),
               ),
@@ -866,13 +867,13 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
             decoration: BoxDecoration(
-              color: const Color(0xFF4ECDC4).withValues(alpha: 0.15),
+              color: widget.t.info.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               'JAVASCRIPT',
               style: GoogleFonts.firaCode(
-                color: const Color(0xFF4ECDC4),
+                color: widget.t.info,
                 fontSize: S.font(context, 10),
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.2,
@@ -901,10 +902,10 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
             key: ValueKey(block.id),
             margin: EdgeInsets.only(bottom: S.scale(context, 8)),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A1D23),
+              color: widget.t.bgSurface2,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: const Color(0xFF4ECDC4).withValues(alpha: 0.3),
+                color: widget.t.info.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -917,7 +918,7 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
                     alignment: Alignment.center,
                     child: Icon(
                       Icons.drag_handle_rounded,
-                      color: Colors.white30,
+                      color: widget.t.mutedText.withValues(alpha: 0.3),
                       size: S.scale(context, 28),
                     ),
                   ),
@@ -928,7 +929,7 @@ class _DragBlocksWidgetState extends State<DragBlocksWidget> {
                     child: Text(
                       block.text,
                       style: GoogleFonts.firaCode(
-                        color: const Color(0xFF4ECDC4),
+                        color: widget.t.info,
                       fontSize: S.font(context, 12),
                       height: 1.6,
                       ),

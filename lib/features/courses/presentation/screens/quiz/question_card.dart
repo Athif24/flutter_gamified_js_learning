@@ -58,7 +58,7 @@ class QuestionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 5)),
             decoration: BoxDecoration(
               color: style.accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(50),
@@ -93,7 +93,7 @@ class QuestionCard extends StatelessWidget {
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(S.scale(context, 14)),
               decoration: BoxDecoration(
                 color: t.bgSurface2,
                 borderRadius: BorderRadius.circular(12),
