@@ -1,8 +1,7 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../../../shared/services/sound_service.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
 
 class SoundStep extends ConsumerStatefulWidget {
@@ -12,47 +11,10 @@ class SoundStep extends ConsumerStatefulWidget {
 }
 
 class _SoundStepState extends ConsumerState<SoundStep> {
-  final _player = AudioPlayer();
-  bool _muted = false;
-  double _volume = 0.7;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPrefs();
-  }
-
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _muted = prefs.getBool('sound_muted') ?? false;
-        _volume = prefs.getDouble('sound_volume') ?? 0.7;
-      });
-    }
-  }
-
-  Future<void> _savePrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('sound_muted', _muted);
-    await prefs.setDouble('sound_volume', _volume);
-  }
-
-  Future<void> _preview(String asset) async {
-    if (_muted) return;
-    await _player.setVolume(_volume);
-    await _player.play(AssetSource(asset));
-  }
-
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
+    final sound = ref.watch(soundProvider);
     final w = MediaQuery.of(context).size.width;
     double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
@@ -63,9 +25,9 @@ class _SoundStepState extends ConsumerState<SoundStep> {
         children: [
           const Spacer(flex: 2),
           Icon(
-            _muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+            sound.isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
             size: rs(56),
-            color: _muted ? t.mutedText : t.primary,
+            color: sound.isMuted ? t.mutedText : t.primary,
           ),
           SizedBox(height: rs(16)),
           Text(
@@ -114,20 +76,23 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => setState(() {
-                        _muted = !_muted;
-                        _savePrefs();
-                      }),
+                      onTap: () {
+                        final s = ref.read(soundProvider);
+                        if (s.isMuted) {
+                          s.playClick();
+                        }
+                        s.setMuted(!s.isMuted);
+                      },
                       child: Container(
                         width: rs(48),
                         height: rs(26),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(13),
-                          color: _muted ? t.border : t.primary,
+                          color: sound.isMuted ? t.border : t.primary,
                         ),
                         child: AnimatedAlign(
                           duration: const Duration(milliseconds: 200),
-                          alignment: _muted
+                          alignment: sound.isMuted
                               ? Alignment.centerLeft
                               : Alignment.centerRight,
                           child: Container(
@@ -154,16 +119,15 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                     ),
                     Expanded(
                       child: Slider(
-                        value: _volume,
+                        value: sound.volume,
                         min: 0,
                         max: 1,
                         activeColor: t.primary,
                         inactiveColor: t.border,
-                        onChanged: _muted
+                        onChanged: sound.isMuted
                             ? null
                             : (v) {
-                                setState(() => _volume = v);
-                                _savePrefs();
+                                ref.read(soundProvider).setVolume(v);
                               },
                       ),
                     ),
@@ -185,14 +149,14 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                 t: t,
                 label: 'Benar',
                 color: t.success,
-                onTap: () => _preview('sounds/correct.wav'),
+                onTap: () => ref.read(soundProvider).playCorrect(),
               ),
               SizedBox(width: rs(16)),
               _PreviewButton(
                 t: t,
                 label: 'Reward',
                 color: t.warning,
-                onTap: () => _preview('sounds/reward.wav'),
+                onTap: () => ref.read(soundProvider).playReward(),
               ),
             ],
           ),

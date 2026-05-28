@@ -16,6 +16,7 @@ import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/leaderboard_provider.dart';
 import '../widgets/leaderboard_skeleton.dart';
 import '../../data/models/leaderboard_model.dart';
+import '../../../../shared/services/sound_service.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -106,6 +107,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
                   title: AppStrings.errLoadLeaderboardDetail,
                   message: sanitizeErrorMessage(e),
                   onRetry: () {
+                    ref.read(soundProvider).playClick();
                     setShowSlowIndicator(true);
                     _silentRefresh();
                   },

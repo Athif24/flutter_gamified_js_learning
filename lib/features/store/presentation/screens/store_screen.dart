@@ -23,6 +23,7 @@ import '../../data/models/reward_pool_model.dart';
 import '../widgets/mystery_box_card.dart';
 import '../widgets/mystery_box_buy_dialog.dart';
 import '../widgets/mystery_box_reveal_overlay.dart';
+import '../../../../shared/services/sound_service.dart';
 import '../widgets/store_skeleton.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -426,7 +427,10 @@ class _TabBtn extends ConsumerWidget {
     double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final sel = idx == cur;
     return Bounceable(
-      onTap: () => ref.read(storeTabProvider.notifier).state = idx,
+      onTap: () {
+        ref.read(soundProvider).playClick();
+        ref.read(storeTabProvider.notifier).state = idx;
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(horizontal: rs(16), vertical: rs(8)),
@@ -826,7 +830,10 @@ class _CompactShopCard extends ConsumerWidget {
               Semantics(
                 label: canAfford ? 'Beli ${item.name}' : 'Saldo Tidak Cukup',
                 child: Bounceable(
-                  onTap: canAfford ? () => onBuy(item) : null,
+                  onTap: canAfford ? () {
+                    ref.read(soundProvider).playClick();
+                    onBuy(item);
+                  } : null,
                   child: Container(
                     constraints: BoxConstraints(
                       minWidth: rs(36),

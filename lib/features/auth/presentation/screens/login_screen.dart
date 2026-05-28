@@ -9,6 +9,7 @@ import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../courses/presentation/providers/course_provider.dart';
 import '../providers/auth_provider.dart';
+import '../../../../shared/services/sound_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -243,8 +244,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         color: t.mutedText,
                                         size: r(20),
                                       ),
-                                      onPressed: () =>
-                                          setState(() => _obscure = !_obscure),
+                                      onPressed: () {
+                                        ref.read(soundProvider).playClick();
+                                        setState(() => _obscure = !_obscure);
+                                      },
                                     ),
                                   ),
                               validator: (v) => (v == null || v.length < 6)
@@ -304,7 +307,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => context.push('/register'),
+                          onTap: () {
+                            ref.read(soundProvider).playClick();
+                            context.push('/register');
+                          },
                           child: Text(
                             'Daftar Sekarang',
                             style: GoogleFonts.nunito(

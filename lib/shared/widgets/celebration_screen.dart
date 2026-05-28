@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/theme_provider.dart';
 import '../providers/gamification_providers.dart';
+import '../services/sound_service.dart';
 import '../../features/courses/data/models/course_model.dart';
 
 class CelebrationScreen extends ConsumerStatefulWidget {
@@ -77,6 +78,15 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _confettiController.forward();
+
+      final sound = ref.read(soundProvider);
+      sound.playReward().catchError((e) => debugPrint('[Celebration] playReward: $e'));
+      if (_hasLevelUp) {
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) sound.playLevelUp().catchError((e) => debugPrint('[Celebration] playLevelUp: $e'));
+        });
+      }
+
       Future.delayed(const Duration(milliseconds: 400), () {
         if (mounted) setState(() => _showContent = true);
       });

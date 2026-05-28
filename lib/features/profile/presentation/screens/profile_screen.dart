@@ -21,6 +21,7 @@ import '../../../store/presentation/providers/reward_pool_provider.dart';
 import '../widgets/theme_picker_sheet.dart';
 import '../widgets/profile_skeleton.dart';
 import '../../../../shared/widgets/main_screen.dart';
+import '../../../../shared/services/sound_service.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
@@ -293,7 +294,10 @@ class _ProfileHeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Bounceable(
-                onTap: () => _showEditProfile(context, ref, t, profile),
+                onTap: () {
+                  ref.read(soundProvider).playClick();
+                  _showEditProfile(context, ref, t, profile);
+                },
                 hitTestBehavior: HitTestBehavior.opaque,
                 child: Container(
                   width: double.infinity,
@@ -375,7 +379,10 @@ class _ProfileHeroCard extends StatelessWidget {
           right: 12,
           top: 12,
           child: Bounceable(
-            onTap: () => showThemePicker(context, ref),
+            onTap: () {
+              ref.read(soundProvider).playClick();
+              showThemePicker(context, ref);
+            },
             hitTestBehavior: HitTestBehavior.opaque,
             child: Container(
               width: rs(36),
@@ -1237,6 +1244,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
     final w = MediaQuery.of(context).size.width;
     double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final t = widget.t;
+    final sound = ref.watch(soundProvider);
 
     return Container(
       width: double.infinity,
@@ -1393,12 +1401,115 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
             ),
           ),
           const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: t.bgSurface2.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: t.textPrimary.withValues(alpha: 0.15),
+                width: 2,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: rs(40),
+                      height: rs(40),
+                      decoration: BoxDecoration(
+                        color: t.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: t.textPrimary.withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Icon(
+                        sound.isMuted
+                            ? Icons.volume_off_rounded
+                            : Icons.volume_up_rounded,
+                        color: t.primary,
+                        size: rs(20),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Suara Efek',
+                            style: GoogleFonts.nunito(
+                              color: t.textPrimary,
+                              fontSize: rs(14),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            'Feedback suara aplikasi',
+                            style: GoogleFonts.nunito(
+                              color: t.textHint,
+                              fontSize: rs(12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: !sound.isMuted,
+                      onChanged: (v) {
+                        if (sound.isMuted) {
+                          ref.read(soundProvider).playClick();
+                        }
+                        ref.read(soundProvider).setMuted(!v);
+                      },
+                      thumbColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected)) {
+                          return t.primary;
+                        }
+                        return t.textHint;
+                      }),
+                    ),
+                  ],
+                ),
+                if (!sound.isMuted) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.volume_down_rounded,
+                          color: t.mutedText, size: rs(16)),
+                      Expanded(
+                        child: Slider(
+                          value: sound.volume,
+                          min: 0,
+                          max: 1,
+                          activeColor: t.primary,
+                          inactiveColor: t.border,
+                          onChanged: (v) {
+                            ref.read(soundProvider).setVolume(v);
+                          },
+                        ),
+                      ),
+                      Icon(Icons.volume_up_rounded,
+                          color: t.mutedText, size: rs(16)),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
           Column(
             children: [
               SizedBox(
                 width: double.infinity,
                 child: Bounceable(
-                  onTap: () => _showChangePassword(context, ref, t),
+                  onTap: () {
+                    ref.read(soundProvider).playClick();
+                    _showChangePassword(context, ref, t);
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
@@ -1443,7 +1554,10 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
                 child: Semantics(
                   label: 'Keluar dari aplikasi',
                   child: Bounceable(
-                    onTap: () => _showLogoutConfirm(context, ref, t),
+                    onTap: () {
+                      ref.read(soundProvider).playClick();
+                      _showLogoutConfirm(context, ref, t);
+                    },
                     child: Container(
                       constraints: const BoxConstraints(minHeight: 48),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1606,10 +1720,13 @@ Future<void> _showEditProfile(
                                 right: -4,
                                 top: -4,
                                 child: GestureDetector(
-                                  onTap: () => setState(() {
-                                    avatarFile = null;
-                                    avatarUrl = null;
-                                  }),
+                                  onTap: () {
+                                    ref.read(soundProvider).playClick();
+                                    setState(() {
+                                      avatarFile = null;
+                                      avatarUrl = null;
+                                    });
+                                  },
                                   child: Container(
                                     width: 28,
                                     height: 28,
@@ -1636,6 +1753,7 @@ Future<void> _showEditProfile(
                         const SizedBox(height: 12),
                         Bounceable(
                           onTap: () async {
+                            ref.read(soundProvider).playClick();
                             final result = await AssetPicker.pickAssets(
                               ctx,
                               pickerConfig: const AssetPickerConfig(
@@ -1985,7 +2103,10 @@ Future<void> _showChangePassword(
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => Navigator.of(ctx).pop(),
+                            onTap: () {
+                              ref.read(soundProvider).playClick();
+                              Navigator.of(ctx).pop();
+                            },
                             child: Semantics(
                               label: 'Tutup dialog',
                               child: Container(

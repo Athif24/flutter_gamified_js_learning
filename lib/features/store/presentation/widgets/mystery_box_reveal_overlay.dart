@@ -3,8 +3,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../shared/services/sound_service.dart';
 import '../../../../core/utils/accessibility.dart';
 import '../../data/models/reward_pool_model.dart';
 
@@ -383,6 +385,7 @@ class _RewardRevealState extends State<_RewardReveal> {
         if (widget.canOpenAgain) ...[
           Bounceable(
             onTap: () {
+              ProviderScope.containerOf(context).read(soundProvider).playClick();
               Navigator.of(context).pop();
               widget.onOpenAgain();
             },
@@ -420,7 +423,10 @@ class _RewardRevealState extends State<_RewardReveal> {
 
         // Button TUTUP
         Bounceable(
-              onTap: widget.onDismiss,
+              onTap: () {
+                ProviderScope.containerOf(context).read(soundProvider).playClick();
+                widget.onDismiss();
+              },
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: rs(16)),

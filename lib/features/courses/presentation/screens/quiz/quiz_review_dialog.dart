@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../core/utils/responsive_utils.dart';
+import '../../../../../shared/services/sound_service.dart';
 import '../../../data/models/course_model.dart';
 
-class ReviewDialog extends StatelessWidget {
+class ReviewDialog extends ConsumerWidget {
   final List<QuestionResultModel> questionResults;
   final List<QuestionModel> questions;
   final BloomTheme t;
@@ -18,7 +20,7 @@ class ReviewDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Dialog(
+  Widget build(BuildContext context, WidgetRef ref) => Dialog(
     backgroundColor: t.bgSurface,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
     child: Container(
@@ -41,7 +43,10 @@ class ReviewDialog extends StatelessWidget {
                 button: true,
                 label: 'Tutup',
                 child: Bounceable(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    ref.read(soundProvider).playClick();
+                    Navigator.pop(context);
+                  },
                   child: Icon(Icons.close_rounded, color: t.mutedText, size: 22),
                 ),
               ),

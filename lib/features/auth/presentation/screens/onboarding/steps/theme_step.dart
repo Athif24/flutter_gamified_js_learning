@@ -3,6 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../shared/services/sound_service.dart';
 
 class ThemeStep extends ConsumerStatefulWidget {
   const ThemeStep({super.key});
@@ -48,7 +49,10 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
           _TabBar(
             t: t,
             isLight: _showLight,
-            onToggle: (v) => setState(() => _showLight = v),
+            onToggle: (v) {
+              ref.read(soundProvider).playClick();
+              setState(() => _showLight = v);
+            },
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -68,8 +72,10 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
                   t: t,
                   theme: theme,
                   selected: selected,
-                  onTap: () =>
-                      ref.read(themeProvider.notifier).setTheme(theme.id),
+                  onTap: () {
+                    ref.read(soundProvider).playClick();
+                    ref.read(themeProvider.notifier).setTheme(theme.id);
+                  },
                 );
               },
             ),

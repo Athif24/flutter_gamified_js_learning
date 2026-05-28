@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../providers/auth_provider.dart';
+import '../../../../shared/services/sound_service.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -315,7 +316,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => context.pop(),
+                          onTap: () {
+                            ref.read(soundProvider).playClick();
+                            context.pop();
+                          },
                           child: Text(
                             'Masuk',
                             style: GoogleFonts.nunito(
@@ -405,7 +409,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 color: t.mutedText,
                 size: r(20),
               ),
-              onPressed: toggle,
+              onPressed: () {
+                ref.read(soundProvider).playClick();
+                toggle();
+              },
             ),
           ),
           validator: validator,

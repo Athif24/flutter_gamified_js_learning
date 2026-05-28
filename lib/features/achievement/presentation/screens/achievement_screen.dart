@@ -20,6 +20,7 @@ import '../utils/date_utils.dart';
 
 import '../widgets/level_roadmap.dart';
 import '../widgets/xp_history_list.dart';
+import '../../../../shared/services/sound_service.dart';
 
 class AchievementScreen extends ConsumerStatefulWidget {
   const AchievementScreen({super.key});
@@ -110,6 +111,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                       t: t,
                       title: AppStrings.errLoadAchievementDetail,
                       onRetry: () {
+                        ref.read(soundProvider).playClick();
                         setShowSlowIndicator(true);
                         _silentRefresh();
                       },
@@ -1432,7 +1434,10 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                       label: 'Semua',
                       count: badges.length,
                       isActive: _activeTab == 'all',
-                      onTap: () => setState(() => _activeTab = 'all'),
+                      onTap: () {
+                        ref.read(soundProvider).playClick();
+                        setState(() => _activeTab = 'all');
+                      },
                       t: t,
                     ),
                     const SizedBox(width: 8),
@@ -1440,7 +1445,10 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                       label: 'Diraih',
                       count: earnedCount,
                       isActive: _activeTab == 'earned',
-                      onTap: () => setState(() => _activeTab = 'earned'),
+                      onTap: () {
+                        ref.read(soundProvider).playClick();
+                        setState(() => _activeTab = 'earned');
+                      },
                       t: t,
                     ),
                     const SizedBox(width: 8),
@@ -1448,7 +1456,10 @@ class _BadgeCollectionState extends ConsumerState<_BadgeCollection> {
                       label: 'Terkunci',
                       count: lockedCount,
                       isActive: _activeTab == 'locked',
-                      onTap: () => setState(() => _activeTab = 'locked'),
+                      onTap: () {
+                        ref.read(soundProvider).playClick();
+                        setState(() => _activeTab = 'locked');
+                      },
                       t: t,
                     ),
                   ],

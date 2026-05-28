@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/services/cloudinary_service.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
+import '../../../../../shared/services/sound_service.dart';
 import '../../providers/auth_provider.dart';
 import 'steps/welcome_step.dart';
 import 'steps/profile_step.dart';
@@ -103,7 +104,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       _isFirst
                           ? const SizedBox(width: 36, height: 36)
                           : GestureDetector(
-                              onTap: _prev,
+                              onTap: () {
+                                ref.read(soundProvider).playClick();
+                                _prev();
+                              },
                               behavior: HitTestBehavior.opaque,
                               child: SizedBox(
                                 width: 36,
@@ -118,7 +122,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       const Spacer(),
                       if (!_isLast)
                         GestureDetector(
-                          onTap: _next,
+                          onTap: () {
+                            ref.read(soundProvider).playClick();
+                            _next();
+                          },
                           behavior: HitTestBehavior.opaque,
                           child: SizedBox(
                             width: 36,

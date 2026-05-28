@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import '../../../../../../features/profile/presentation/widgets/crop_screen.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../shared/services/sound_service.dart';
 
 class ProfileStep extends ConsumerWidget {
   final File? avatarFile;
@@ -71,7 +72,10 @@ class ProfileStep extends ConsumerWidget {
           ),
           const SizedBox(height: 28),
           GestureDetector(
-            onTap: () => _pickImage(context, ref.read(currentThemeProvider)),
+            onTap: () {
+              ref.read(soundProvider).playClick();
+              _pickImage(context, ref.read(currentThemeProvider));
+            },
             child: Stack(
               children: [
                 Container(

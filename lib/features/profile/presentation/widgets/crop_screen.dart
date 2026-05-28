@@ -3,19 +3,21 @@ import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
+import '../../../../shared/services/sound_service.dart';
 
-class CropScreen extends StatefulWidget {
+class CropScreen extends ConsumerStatefulWidget {
   final File imageFile;
   final BloomTheme t;
   const CropScreen({super.key, required this.imageFile, required this.t});
 
   @override
-  State<CropScreen> createState() => _CropScreenState();
+  ConsumerState<CropScreen> createState() => _CropScreenState();
 }
 
-class _CropScreenState extends State<CropScreen> {
+class _CropScreenState extends ConsumerState<CropScreen> {
   late Uint8List _imageData;
   final _controller = CropController();
   bool _isCropping = false;
@@ -36,7 +38,10 @@ class _CropScreenState extends State<CropScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: t.textPrimary),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            ref.read(soundProvider).playClick();
+            Navigator.pop(context);
+          },
         ),
       ),
       body: SafeArea(
