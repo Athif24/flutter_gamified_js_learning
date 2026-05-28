@@ -197,13 +197,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         lessonId: widget.lessonId,
         onRetry: () {
           ref.read(quizProvider.notifier).reset();
-          final queryParams = <String, String>{};
-          if (widget.courseId != null) queryParams['courseId'] = widget.courseId!;
-          if (widget.lessonId != null) queryParams['lessonId'] = widget.lessonId!;
-          final queryString = queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
-          context.pushReplacement(
-            '/quiz-intro/${widget.quizId}${queryString.isNotEmpty ? '?$queryString' : ''}',
-          );
+          final uri = Uri(path: '/quiz-intro/${widget.quizId}', queryParameters: {
+            if (widget.courseId != null) 'courseId': widget.courseId,
+            if (widget.lessonId != null) 'lessonId': widget.lessonId,
+          });
+          context.pushReplacement(uri.toString());
         },
         onBackToMap: () {
           ref.read(quizProvider.notifier).reset();

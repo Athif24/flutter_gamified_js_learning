@@ -68,7 +68,8 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(sanitizeErrorMessage(e)),
+                content: Text(sanitizeErrorMessage(e),
+                    style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                 backgroundColor: t.error,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -313,7 +314,13 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal enroll: ${sanitizeErrorMessage(e)}')),
+          SnackBar(
+              content: Text('Gagal enroll: ${sanitizeErrorMessage(e)}',
+                  style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
+              backgroundColor: widget.t.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
         );
       }
     } finally {

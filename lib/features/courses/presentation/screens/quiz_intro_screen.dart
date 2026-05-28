@@ -245,13 +245,11 @@ class _IntroBodyState extends State<_IntroBody> {
       final quizData = QuizDetailModel.fromStartResponse(startData);
       widget.ref.read(quizProvider.notifier).loadFromData(quizData);
       if (!mounted) return;
-      final queryParams = <String, String>{};
-      if (widget.courseId != null) queryParams['courseId'] = widget.courseId!;
-      if (widget.lessonId != null) queryParams['lessonId'] = widget.lessonId!;
-      final queryString = queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
-      context.pushReplacement(
-        '/quiz/${widget.quizId}${queryString.isNotEmpty ? '?$queryString' : ''}',
-      );
+      final uri = Uri(path: '/quiz/${widget.quizId}', queryParameters: {
+        if (widget.courseId != null) 'courseId': widget.courseId,
+        if (widget.lessonId != null) 'lessonId': widget.lessonId,
+      });
+      context.pushReplacement(uri.toString());
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -673,11 +671,11 @@ class _BuildButtons extends StatelessWidget {
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                    Icon(Icons.lock_rounded, size: 14, color: Color(0xFF666666)),
+                    Icon(Icons.lock_rounded, size: 14, color: t.mutedText),
                     const SizedBox(width: 6),
                     Text('Nyawa Habis',
                         style: GoogleFonts.nunito(
-                            color: Color(0xFF666666), fontWeight: FontWeight.w800, fontSize: 14)),
+                            color: t.mutedText, fontWeight: FontWeight.w800, fontSize: 14)),
                   ],
                 )
               : null,

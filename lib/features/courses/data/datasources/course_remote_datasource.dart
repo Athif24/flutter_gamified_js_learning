@@ -26,33 +26,29 @@ class CourseRemoteDatasource {
   }
 
   Future<Map<String, dynamic>> getMyEnrollments() async {
-    try {
-      // user-courses returns 403; use auth/profile instead which has courses.details
-      final res = await _api.get(Api.authProfile);
-      final data = extractMap(res.data);
-      final coursesData = data['courses'] as Map? ?? {};
-      final details = coursesData['details'] as List? ?? [];
-      final enrollmentMap = <String, dynamic>{};
-      for (final item in details) {
-        final m = item as Map;
-        final courseId = m['id']?.toString() ?? '';
-        if (courseId.isEmpty) {
-          continue;
-        }
-        final rawProgress = m['progress'] ?? 0;
-        final progress = rawProgress is num
-            ? (rawProgress > 1 ? rawProgress / 100.0 : rawProgress.toDouble())
-            : 0.0;
-        enrollmentMap[courseId] = <String, dynamic>{
-          'progress': progress,
-          'is_completed': m['is_completed'] ?? m['isCompleted'] ?? false,
-          'name': m['name'] ?? '',
-        };
+    // user-courses returns 403; use auth/profile instead which has courses.details
+    final res = await _api.get(Api.authProfile);
+    final data = extractMap(res.data);
+    final coursesData = data['courses'] as Map? ?? {};
+    final details = coursesData['details'] as List? ?? [];
+    final enrollmentMap = <String, dynamic>{};
+    for (final item in details) {
+      final m = item as Map;
+      final courseId = m['id']?.toString() ?? '';
+      if (courseId.isEmpty) {
+        continue;
       }
-      return enrollmentMap;
-    } on DioException {
-      return <String, dynamic>{};
+      final rawProgress = m['progress'] ?? 0;
+      final progress = rawProgress is num
+          ? (rawProgress > 1 ? rawProgress / 100.0 : rawProgress.toDouble())
+          : 0.0;
+      enrollmentMap[courseId] = <String, dynamic>{
+        'progress': progress,
+        'is_completed': m['is_completed'] ?? m['isCompleted'] ?? false,
+        'name': m['name'] ?? '',
+      };
     }
+    return enrollmentMap;
   }
 
   Future<CourseModel> getCourseById(String id) async {
@@ -152,17 +148,13 @@ class CourseRemoteDatasource {
   }
 
   Future<QuizRefModel?> getQuizByLessonId(String lessonId) async {
-    try {
-      final res = await _api.get(Api.quizzes, query: {
-        'lesson_id': lessonId,
-        'device': deviceType,
-      });
-      final list = extractList(res.data);
-      if (list.isEmpty) return null;
-      return QuizRefModel.fromJson(list[0] as Map<String, dynamic>);
-    } on DioException {
-      return null;
-    }
+    final res = await _api.get(Api.quizzes, query: {
+      'lesson_id': lessonId,
+      'device': deviceType,
+    });
+    final list = extractList(res.data);
+    if (list.isEmpty) return null;
+    return QuizRefModel.fromJson(list[0] as Map<String, dynamic>);
   }
 
   Future<LessonCompleteResponse> completeLesson(String id) async {

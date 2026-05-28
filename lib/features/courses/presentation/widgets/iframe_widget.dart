@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class IframeWidget extends StatefulWidget {
   final String src;
@@ -12,6 +13,7 @@ class IframeWidget extends StatefulWidget {
 class _IframeWidgetState extends State<IframeWidget> {
   late final WebViewController _controller;
   bool _loading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -20,7 +22,13 @@ class _IframeWidgetState extends State<IframeWidget> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
         onPageFinished: (_) {
-          if (mounted) setState(() => _loading = false);
+          if (mounted) { setState(() => _loading = false); }
+        },
+        onWebResourceError: (_) {
+          if (mounted) { setState(() {
+            _loading = false;
+            _hasError = true;
+          }); }
         },
       ))
       ..loadRequest(Uri.parse(widget.src));
@@ -28,6 +36,29 @@ class _IframeWidgetState extends State<IframeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_hasError) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.videocam_off_rounded, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              Text(
+                'Konten tidak dapat dimuat',
+                style: GoogleFonts.nunito(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Stack(children: [
       WebViewWidget(controller: _controller),
       if (_loading)

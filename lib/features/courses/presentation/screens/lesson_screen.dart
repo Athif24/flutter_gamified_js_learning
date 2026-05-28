@@ -69,11 +69,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
             visible: showSlowIndicator,
             t: t,
           ),
-          // inner SafeArea for header — harmless nesting
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: Row(children: [
                 Semantics(
                   button: true,
@@ -137,7 +134,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
                 ) ?? const Spacer(),
               ]),
             ),
-          ),
           Expanded(
           child: lessonAsync.when(
               loading: () => LoadingCircle(t: t),
@@ -281,7 +277,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> with SilentRefreshM
           courseId: widget.courseId,
         );
         if (context.mounted) {
-          context.push('/quiz-intro/$effectiveQuizId?courseId=${widget.courseId ?? ''}&lessonId=${widget.lessonId}');
+          context.push(Uri(path: '/quiz-intro/$effectiveQuizId', queryParameters: {
+            if (widget.courseId != null) 'courseId': widget.courseId,
+            'lessonId': widget.lessonId,
+          }).toString());
         }
         return;
       }
