@@ -18,6 +18,7 @@ import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/shared/presentation/providers/fetch_state_providers.dart';
 import '../../features/shared/presentation/widgets/post_register_tutorial.dart';
+import '../services/sound_service.dart';
 
 final navIndexProvider = StateProvider<int>((_) => 0);
 
@@ -197,7 +198,10 @@ class _BottomNav extends ConsumerWidget {
               return Expanded(
                 child: Bounceable(
                   key: navKeys[i],
-                  onTap: () => ref.read(navIndexProvider.notifier).state = i,
+                  onTap: () {
+                    ref.read(soundProvider).playClick();
+                    ref.read(navIndexProvider.notifier).state = i;
+                  },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

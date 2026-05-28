@@ -13,6 +13,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../shared/services/sound_service.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 
@@ -178,6 +179,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> with Si
                   label: 'Kembali',
                   child: Bounceable(
                     onTap: () {
+                      ref.read(soundProvider).playClick();
                       if (context.canPop()) {
                         context.pop();
                       } else {
@@ -547,7 +549,7 @@ class _HeaderCard extends StatelessWidget {
 
 // ── Peta Belajar ──────────────────────────────────────────────────────────
 
-class _PetaBelajar extends StatelessWidget {
+class _PetaBelajar extends ConsumerWidget {
   final List<_MapItem> items;
   final ScrollController scrollCtrl;
   final List<GlobalKey> itemKeys;
@@ -563,7 +565,7 @@ class _PetaBelajar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return OrientationBuilder(
       builder: (context, orientation) {
         final isLandscape = orientation == Orientation.landscape;
@@ -623,8 +625,11 @@ class _PetaBelajar extends StatelessWidget {
                     child: Bounceable(
                       onTap: item.isLocked
                           ? null
-                          : () => context.push(
-                              '/lesson/${item.lessonId}?courseId=$courseId'),
+                          : () {
+                              ref.read(soundProvider).playClick();
+                              context.push(
+                                  '/lesson/${item.lessonId}?courseId=$courseId');
+                            },
                       child: Container(
                       key: itemKeys[i],
                       height: isLandscape ? 128 : (item.isFirstActive ? 192 : 152),

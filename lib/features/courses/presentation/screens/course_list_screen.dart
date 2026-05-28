@@ -15,6 +15,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/course_provider.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../shared/services/sound_service.dart';
 
 import '../../data/models/course_model.dart';
 
@@ -502,7 +503,10 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                   Semantics(
                     label: isCompleted ? 'Ulangi kursus ${course.title}' : 'Lanjutkan kursus ${course.title}',
                     child: Bounceable(
-                      onTap: () => context.push('/course/${course.id}'),
+                      onTap: () {
+                        ref.read(soundProvider).playClick();
+                        context.push('/course/${course.id}');
+                      },
                       child: Container(
                         width: double.infinity,
                         constraints: const BoxConstraints(minHeight: 48),
@@ -545,7 +549,10 @@ class _CourseCardState extends ConsumerState<_CourseCard> {
                   Semantics(
                     label: _isEnrolling ? 'Memproses pendaftaran' : 'Mulai kursus ${course.title}',
                     child: Bounceable(
-                      onTap: _isEnrolling ? null : _enroll,
+                      onTap: _isEnrolling ? null : () {
+                        ref.read(soundProvider).playClick();
+                        _enroll();
+                      },
                       child: Container(
                         width: double.infinity,
                         constraints: const BoxConstraints(minHeight: 48),
