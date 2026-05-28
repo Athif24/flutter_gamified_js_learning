@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 
 class TimerChip extends StatelessWidget {
   final String display;
@@ -11,7 +12,7 @@ class TimerChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 5)),
     decoration: BoxDecoration(
       color: color.withValues(alpha: 0.15),
       borderRadius: BorderRadius.circular(50),
@@ -20,14 +21,14 @@ class TimerChip extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.timer_outlined, color: color, size: 14),
+        Icon(Icons.timer_outlined, color: color, size: S.scale(context, 14)),
         const SizedBox(width: 4),
         Text(
           display,
           style: GoogleFonts.firaCode(
             color: color,
             fontWeight: FontWeight.w800,
-            fontSize: 12,
+            fontSize: S.font(context, 12),
           ),
         ),
       ],

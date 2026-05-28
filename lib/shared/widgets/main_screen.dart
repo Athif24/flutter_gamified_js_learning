@@ -3,6 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/theme_provider.dart';
+import '../../core/utils/responsive_utils.dart';
 import 'offline_banner.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../core/providers/connectivity_provider.dart';
@@ -186,7 +187,7 @@ class _BottomNav extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 64,
+          height: S.scale(context, 64),
           child: Row(
             children: items.asMap().entries.map((e) {
               final i = e.key;
@@ -202,9 +203,9 @@ class _BottomNav extends ConsumerWidget {
                     children: [
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: S.scale(context, 12),
+                          vertical: S.scale(context, 4),
                         ),
                         decoration: BoxDecoration(
                           color: sel
@@ -214,7 +215,7 @@ class _BottomNav extends ConsumerWidget {
                         ),
                         child: Icon(
                           sel ? activeI : inactiveI,
-                          size: 22,
+                          size: S.scale(context, 22),
                           color: sel ? t.accent : t.mutedText,
                         ),
                       ),
@@ -222,7 +223,7 @@ class _BottomNav extends ConsumerWidget {
                       Text(
                         label,
                         style: GoogleFonts.nunito(
-                          fontSize: 9,
+                          fontSize: S.font(context, 9),
                           fontWeight: FontWeight.w700,
                           color: sel ? t.accent : t.mutedText,
                         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../providers/course_provider.dart';
 
 class BottomBar extends ConsumerWidget {
@@ -18,7 +19,7 @@ class BottomBar extends ConsumerWidget {
     final popupShowing = quiz.lastAnswerResult != null;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+      padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 12), S.scale(context, 20), S.scale(context, 28)),
       decoration: BoxDecoration(
         color: t.bgSurface,
         border: Border(top: BorderSide(color: t.border)),
@@ -35,8 +36,8 @@ class BottomBar extends ConsumerWidget {
               color: t.bgSurface2,
               shadowColor: t.textPrimary,
               textColor: t.mutedText,
-              horizontalPadding: 20,
-              verticalPadding: 12,
+              horizontalPadding: S.scale(context, 20),
+              verticalPadding: S.scale(context, 12),
               onTap: popupShowing || quiz.isSubmitting || quiz.isSubmittingAnswer
                   ? null
                   : () async {

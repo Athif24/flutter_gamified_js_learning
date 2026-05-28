@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/utils/responsive_utils.dart';
 
 Color darken(Color c, double amt) {
   final h = HSLColor.fromColor(c);
@@ -103,7 +104,7 @@ class _Game3DButtonState extends State<Game3DButton> {
                         widget.label ?? '',
                         style: GoogleFonts.nunito(
                           fontWeight: FontWeight.w800,
-                          fontSize: 14,
+                          fontSize: S.font(context, 14),
                           color: txtColor,
                           letterSpacing: 0.5,
                         ),
@@ -115,15 +116,15 @@ class _Game3DButtonState extends State<Game3DButton> {
             : (widget.child ??
                   FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(
-                      widget.label!,
-                      style: GoogleFonts.nunito(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                        color: txtColor,
-                        letterSpacing: 0.5,
+                      child: Text(
+                        widget.label!,
+                        style: GoogleFonts.nunito(
+                          fontWeight: FontWeight.w800,
+                          fontSize: S.font(context, 14),
+                          color: txtColor,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
                   )),
       ),
     );
