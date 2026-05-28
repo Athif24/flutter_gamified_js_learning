@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/utils/responsive_utils.dart';
+import '../services/sound_service.dart';
 
 Color darken(Color c, double amt) {
   final h = HSLColor.fromColor(c);
   return h.withLightness((h.lightness - amt).clamp(0.0, 1.0)).toColor();
 }
 
-class Game3DButton extends StatefulWidget {
+class Game3DButton extends ConsumerStatefulWidget {
   final String? label;
   final Widget? child;
   final Color color;
@@ -35,10 +37,10 @@ class Game3DButton extends StatefulWidget {
        );
 
   @override
-  State<Game3DButton> createState() => _Game3DButtonState();
+  ConsumerState<Game3DButton> createState() => _Game3DButtonState();
 }
 
-class _Game3DButtonState extends State<Game3DButton> {
+class _Game3DButtonState extends ConsumerState<Game3DButton> {
   bool _pressed = false;
 
   @override
@@ -55,6 +57,7 @@ class _Game3DButtonState extends State<Game3DButton> {
       onTapUp: widget.onTap != null
           ? (_) {
               setState(() => _pressed = false);
+              ref.read(soundProvider).playClick();
               widget.onTap?.call();
             }
           : null,

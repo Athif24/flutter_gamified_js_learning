@@ -61,6 +61,8 @@ class LessonModel {
   final int order;
   final bool isCompleted;
   final bool isLocked;
+  final int xpReward;
+  final int jewelReward;
 
   const LessonModel({
     required this.id,
@@ -70,6 +72,8 @@ class LessonModel {
     required this.order,
     this.isCompleted = false,
     this.isLocked    = false,
+    this.xpReward    = 0,
+    this.jewelReward = 0,
   });
 
   factory LessonModel.fromJson(Map<String, dynamic> j) => LessonModel(
@@ -84,6 +88,8 @@ class LessonModel {
     order      : (j['sequence'] ?? j['order'] ?? j['position'] ?? 0) as int,
     isCompleted: j['is_completed'] ?? j['isCompleted'] ?? j['completed'] ?? false,
     isLocked   : j['is_locked'] ?? j['isLocked'] ?? j['locked'] ?? false,
+    xpReward   : (j['xp_reward'] ?? j['xpReward'] ?? 0) as int,
+    jewelReward: (j['jewel_reward'] ?? j['jewelReward'] ?? 0) as int,
   );
 }
 

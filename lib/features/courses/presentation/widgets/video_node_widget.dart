@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
+import '../../../../shared/services/sound_service.dart';
 import '../../../../shared/themes/theme_provider.dart';
 
 class VideoNodeWidget extends StatefulWidget {
@@ -61,6 +63,7 @@ class _VideoNodeWidgetState extends State<VideoNodeWidget> {
             label: _playing ? 'Jeda video' : 'Putar video',
             child: GestureDetector(
               onTap: () {
+                ProviderScope.containerOf(context).read(soundProvider).playClick();
                 setState(() => _playing = !_playing);
                 _playing ? _controller!.play() : _controller!.pause();
               },
