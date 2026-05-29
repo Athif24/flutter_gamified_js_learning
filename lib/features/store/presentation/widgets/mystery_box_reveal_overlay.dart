@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/services/sound_service.dart';
 import '../../../../core/utils/accessibility.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../data/models/reward_pool_model.dart';
 
 enum _RevealPhase { box, reveal }
@@ -106,8 +107,6 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -146,7 +145,7 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
             // Main content
             Center(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: rs(24)),
+                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -155,23 +154,29 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
                       Column(
                         children: [
                           _boxIcon.startsWith('http')
-                              ?                               CachedNetworkImage(
+                              ? CachedNetworkImage(
                                   imageUrl: _boxIcon,
-                                  width: rs(128),
-                                  height: rs(128),
+                                  width: S.scale(context, 128),
+                                  height: S.scale(context, 128),
                                   fit: BoxFit.contain,
                                   placeholder: (_, __) => Text(
                                     _boxIcon,
-                                    style: TextStyle(fontSize: rs(128)),
+                                    style: TextStyle(
+                                      fontSize: S.scale(context, 128),
+                                    ),
                                   ),
                                   errorWidget: (_, __, ___) => Text(
                                     _boxIcon,
-                                    style: TextStyle(fontSize: rs(128)),
+                                    style: TextStyle(
+                                      fontSize: S.scale(context, 128),
+                                    ),
                                   ),
                                 )
                               : Text(
                                       _boxIcon,
-                                      style: TextStyle(fontSize: rs(128)),
+                                      style: TextStyle(
+                                        fontSize: S.scale(context, 128),
+                                      ),
                                     )
                                     .animate(
                                       onPlay: (c) => a11yReduceMotion(context)
@@ -186,14 +191,14 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
                                       rotation: 0.15,
                                       curve: Curves.easeInOut,
                                     ),
-                          SizedBox(height: rs(16)),
+                          SizedBox(height: S.scale(context, 16)),
                           Text(
                             widget.poolName,
                             style: GoogleFonts.nunito(
                               color: widget.t.textPrimary.withValues(
                                 alpha: 0.8,
                               ),
-                              fontSize: rs(18),
+                              fontSize: S.scale(context, 18),
                               fontWeight: FontWeight.w800,
                             ),
                           ).animate().fadeIn(delay: 300.ms),
@@ -288,23 +293,19 @@ class _RewardRevealState extends State<_RewardReveal> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final w = size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Emoji
-        Text('🎉', style: TextStyle(fontSize: rs(48)))
+        Text('🎉', style: TextStyle(fontSize: S.scale(context, 48)))
             .animate()
             .scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
-        SizedBox(height: rs(24)),
+        SizedBox(height: S.scale(context, 24)),
 
         // Reward icon circle
         Container(
-          width: rs(128),
-          height: rs(128),
+          width: S.scale(context, 128),
+          height: S.scale(context, 128),
           decoration: BoxDecoration(
             color: widget.rewardColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
@@ -317,23 +318,27 @@ class _RewardRevealState extends State<_RewardReveal> {
             child:
                 widget.result.rewardType == 'item' &&
                     widget.result.itemIcon != null
-                ?                     CachedNetworkImage(
+                ? CachedNetworkImage(
                     imageUrl: widget.result.itemIcon!,
-                    width: rs(80),
-                    height: rs(80),
+                    width: S.scale(context, 80),
+                    height: S.scale(context, 80),
                     fit: BoxFit.contain,
                     placeholder: (_, __) => Icon(
                       widget.rewardIcon,
-                    size: rs(64),
-                    color: widget.rewardColor,
-                  ),
-                  errorWidget: (_, __, ___) => Icon(
-                    widget.rewardIcon,
-                    size: rs(64),
+                      size: S.scale(context, 64),
+                      color: widget.rewardColor,
+                    ),
+                    errorWidget: (_, __, ___) => Icon(
+                      widget.rewardIcon,
+                      size: S.scale(context, 64),
                       color: widget.rewardColor,
                     ),
                   )
-                : Icon(widget.rewardIcon, size: rs(64), color: widget.rewardColor),
+                : Icon(
+                    widget.rewardIcon,
+                    size: S.scale(context, 64),
+                    color: widget.rewardColor,
+                  ),
           ),
         ).animate().scale(
           delay: 300.ms,
@@ -341,60 +346,62 @@ class _RewardRevealState extends State<_RewardReveal> {
           curve: Curves.easeOutBack,
         ),
 
-        SizedBox(height: rs(16)),
+        SizedBox(height: S.scale(context, 16)),
 
         // "Kamu mendapatkan"
         Text(
           'Kamu mendapatkan',
           style: GoogleFonts.nunito(
             color: widget.t.mutedText,
-            fontSize: rs(12),
+            fontSize: S.scale(context, 12),
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
           ),
         ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2),
 
-        SizedBox(height: rs(4)),
+        SizedBox(height: S.scale(context, 4)),
 
         // Reward display label
         Text(
           widget.result.displayLabel,
           style: GoogleFonts.nunito(
             color: widget.rewardColor,
-            fontSize: rs(28),
+            fontSize: S.scale(context, 28),
             fontWeight: FontWeight.w900,
           ),
           textAlign: TextAlign.center,
         ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2),
 
-        SizedBox(height: rs(8)),
+        SizedBox(height: S.scale(context, 8)),
 
         // Animated counter
         Text(
           '+$_displayAmount ${widget.result.rewardLabel}',
           style: GoogleFonts.nunito(
             color: widget.t.textSecondary,
-            fontSize: rs(18),
+            fontSize: S.scale(context, 18),
             fontWeight: FontWeight.w800,
           ),
         ).animate().fadeIn(delay: 800.ms),
 
-        SizedBox(height: rs(32)),
+        SizedBox(height: S.scale(context, 32)),
 
         // Buttons
         if (widget.canOpenAgain) ...[
           Bounceable(
             onTap: () {
-              ProviderScope.containerOf(context).read(soundProvider).playClick();
+              ProviderScope.containerOf(
+                context,
+              ).read(soundProvider).playClick();
               Navigator.of(context).pop();
               widget.onOpenAgain();
             },
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: rs(16)),
+              padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
               decoration: BoxDecoration(
                 color: widget.t.primary,
-                borderRadius: BorderRadius.circular(rs(10)),
+                borderRadius: BorderRadius.circular(S.scale(context, 10)),
                 border: Border.all(
                   color: widget.t.primary.withValues(alpha: 0.5),
                   width: 2,
@@ -412,27 +419,29 @@ class _RewardRevealState extends State<_RewardReveal> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.nunito(
                   color: widget.t.primaryContent,
-                  fontSize: rs(16),
+                  fontSize: S.scale(context, 16),
                   fontWeight: FontWeight.w900,
                 ),
               ),
             ),
           ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
-          SizedBox(height: rs(12)),
+          SizedBox(height: S.scale(context, 12)),
         ],
 
         // Button TUTUP
         Bounceable(
               onTap: () {
-                ProviderScope.containerOf(context).read(soundProvider).playClick();
+                ProviderScope.containerOf(
+                  context,
+                ).read(soundProvider).playClick();
                 widget.onDismiss();
               },
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: rs(16)),
+                padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
                 decoration: BoxDecoration(
                   color: widget.t.bgSurface2,
-                  borderRadius: BorderRadius.circular(rs(10)),
+                  borderRadius: BorderRadius.circular(S.scale(context, 10)),
                   border: Border.all(
                     color: widget.t.primary.withValues(alpha: 0.5),
                     width: 2,
@@ -450,7 +459,7 @@ class _RewardRevealState extends State<_RewardReveal> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.nunito(
                     color: widget.t.primaryContent,
-                    fontSize: rs(14),
+                    fontSize: S.scale(context, 14),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -460,7 +469,7 @@ class _RewardRevealState extends State<_RewardReveal> {
             .fadeIn(delay: widget.canOpenAgain ? 1100.ms : 1000.ms)
             .slideY(begin: 0.3),
 
-        SizedBox(height: rs(24)),
+        SizedBox(height: S.scale(context, 24)),
       ],
     );
   }

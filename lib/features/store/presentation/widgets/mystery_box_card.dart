@@ -7,6 +7,7 @@ import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../core/utils/accessibility.dart';
 import '../../../../core/utils/color_parser.dart';
 import '../../../../core/utils/number_formatter.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../data/models/reward_pool_model.dart';
 
 class MysteryBoxCard extends StatelessWidget {
@@ -46,8 +47,6 @@ class MysteryBoxCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     final bgCol = _bgColor;
 
     return Container(
@@ -115,7 +114,12 @@ class MysteryBoxCard extends StatelessWidget {
 
             // Content
             Padding(
-              padding: EdgeInsets.fromLTRB(rs(16), rs(16), rs(16), rs(16)),
+              padding: EdgeInsets.fromLTRB(
+                S.scale(context, 16),
+                S.scale(context, 16),
+                S.scale(context, 16),
+                S.scale(context, 16),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,8 +135,8 @@ class MysteryBoxCard extends StatelessWidget {
                         children: [
                           // Icon
                           Container(
-                                width: rs(40),
-                                height: rs(40),
+                                width: S.scale(context, 40),
+                                height: S.scale(context, 40),
                                 decoration: BoxDecoration(
                                   color: t.bgSurface.withValues(alpha: 0.8),
                                   borderRadius: BorderRadius.circular(10),
@@ -145,34 +149,37 @@ class MysteryBoxCard extends StatelessWidget {
                                   child: _icon.startsWith('http')
                                       ? CachedNetworkImage(
                                           imageUrl: _icon,
-                                          width: rs(24),
-                                          height: rs(24),
+                                          width: S.scale(context, 24),
+                                          height: S.scale(context, 24),
                                           fit: BoxFit.contain,
                                           placeholder: (_, __) => Icon(
                                             Icons.card_giftcard,
-                                            size: rs(24),
+                                            size: S.scale(context, 24),
                                             color: t.mutedText,
                                           ),
                                           errorWidget: (_, __, ___) => Icon(
                                             Icons.card_giftcard,
-                                            size: rs(24),
+                                            size: S.scale(context, 24),
                                             color: t.mutedText,
                                           ),
                                         )
                                       : SizedBox(
-                                          width: rs(24),
-                                          height: rs(24),
+                                          width: S.scale(context, 24),
+                                          height: S.scale(context, 24),
                                           child: Center(
                                             child: Text(
                                               _icon,
-                                              style: TextStyle(fontSize: rs(20)),
+                                              style: TextStyle(
+                                                fontSize: S.scale(context, 20),
+                                              ),
                                             ),
                                           ),
                                         ),
                                 ),
                               )
                               .animate(
-                                onPlay: (controller) => a11yReduceMotion(context)
+                                onPlay: (controller) =>
+                                    a11yReduceMotion(context)
                                     ? null
                                     : controller.repeat(),
                               )
@@ -195,8 +202,8 @@ class MysteryBoxCard extends StatelessWidget {
                               pool.badgeLabel!.isNotEmpty)
                             Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: rs(7),
-                                vertical: rs(2),
+                                horizontal: S.scale(context, 7),
+                                vertical: S.scale(context, 2),
                               ),
                               decoration: BoxDecoration(
                                 color: t.bgSurface.withValues(alpha: 0.3),
@@ -211,7 +218,7 @@ class MysteryBoxCard extends StatelessWidget {
                                   pool.badgeLabel!,
                                   style: GoogleFonts.nunito(
                                     color: t.textPrimary,
-                                    fontSize: rs(10),
+                                    fontSize: S.scale(context, 10),
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -228,18 +235,21 @@ class MysteryBoxCard extends StatelessWidget {
                           style: GoogleFonts.nunito(
                             color: t.textPrimary,
                             fontWeight: FontWeight.w800,
-                            fontSize: rs(14),
+                            fontSize: S.scale(context, 14),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(height: rs(3)),
+                      SizedBox(height: S.scale(context, 3)),
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
                           'Buka untuk mendapatkan hadiah acak!',
-                          style: GoogleFonts.nunito(color: t.mutedText, fontSize: rs(11)),
+                          style: GoogleFonts.nunito(
+                            color: t.mutedText,
+                            fontSize: S.scale(context, 11),
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -259,13 +269,13 @@ class MysteryBoxCard extends StatelessWidget {
                             'Kemungkinan Hadiah',
                             style: GoogleFonts.nunito(
                               color: t.mutedText,
-                              fontSize: rs(9),
+                              fontSize: S.scale(context, 9),
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1,
                             ),
                           ),
                         ),
-                        SizedBox(height: rs(4)),
+                        SizedBox(height: S.scale(context, 4)),
                         Wrap(
                           spacing: 4,
                           runSpacing: 4,
@@ -273,8 +283,8 @@ class MysteryBoxCard extends StatelessWidget {
                             final color = _parseColor(reward.color);
                             return Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: rs(6),
-                                vertical: rs(2),
+                                horizontal: S.scale(context, 6),
+                                vertical: S.scale(context, 2),
                               ),
                               decoration: BoxDecoration(
                                 color: color != null
@@ -293,7 +303,7 @@ class MysteryBoxCard extends StatelessWidget {
                                   '${reward.displayLabel} ${reward.percentage}%',
                                   style: GoogleFonts.nunito(
                                     color: color ?? t.textPrimary,
-                                    fontSize: rs(9),
+                                    fontSize: S.scale(context, 9),
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -313,14 +323,18 @@ class MysteryBoxCard extends StatelessWidget {
                         height: 1,
                         color: t.textPrimary.withValues(alpha: 0.1),
                       ),
-                      SizedBox(height: rs(6)),
+                      SizedBox(height: S.scale(context, 6)),
                       // Footer: Price + Buy button
                       Row(
                         children: [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.diamond, size: rs(16), color: t.info),
+                              Icon(
+                                Icons.diamond,
+                                size: S.scale(context, 16),
+                                color: t.info,
+                              ),
                               const SizedBox(width: 4),
                               FittedBox(
                                 fit: BoxFit.scaleDown,
@@ -329,7 +343,7 @@ class MysteryBoxCard extends StatelessWidget {
                                   style: GoogleFonts.nunito(
                                     color: t.textPrimary,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: rs(14),
+                                    fontSize: S.scale(context, 14),
                                   ),
                                 ),
                               ),
@@ -394,14 +408,20 @@ class _BuyButton extends StatelessWidget {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.card_giftcard, size: 14,
-                      color: canAfford ? t.primaryContent : t.mutedText),
-                  const SizedBox(width: 4),
-                  Text('Beli', style: GoogleFonts.nunito(
+                  Icon(
+                    Icons.card_giftcard,
+                    size: 14,
                     color: canAfford ? t.primaryContent : t.mutedText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  )),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Beli',
+                    style: GoogleFonts.nunito(
+                      color: canAfford ? t.primaryContent : t.mutedText,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
       ),
