@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 String? extractYoutubeId(String url) {
   final uri = Uri.parse(url);
@@ -40,7 +41,7 @@ class YoutubePlayerWidget extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: t.bgSurface2,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(S.scale(context, 12)),
           ),
           clipBehavior: Clip.antiAlias,
           child: AspectRatio(
@@ -58,20 +59,20 @@ class YoutubePlayerWidget extends StatelessWidget {
                 ),
 
                 Positioned(
-                  top: 8, left: 8,
+                  top: S.scale(context, 8), left: S.scale(context, 8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(S.scale(context, 6)),
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Icon(Icons.play_circle_fill_rounded,
-                          color: Color(0xFFFF0000), size: 16),
-                      const SizedBox(width: 4),
+                          color: const Color(0xFFFF0000), size: S.scale(context, 16)),
+                      SizedBox(width: S.scale(context, 4)),
                       Text('YouTube',
                           style: GoogleFonts.nunito(
-                              color: Colors.white, fontSize: 11,
+                              color: Colors.white, fontSize: S.font(context, 11),
                               fontWeight: FontWeight.w700)),
                     ]),
                   ),
@@ -79,20 +80,20 @@ class YoutubePlayerWidget extends StatelessWidget {
 
                 Center(
                   child: Container(
-                    width: 64, height: 64,
+                    width: S.scale(context, 64), height: S.scale(context, 64),
                     decoration: const BoxDecoration(
                       color: Color(0xFFF5C518),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.play_arrow_rounded,
-                        color: Color(0xFF1A1A1A), size: 38),
+                    child: Icon(Icons.play_arrow_rounded,
+                        color: const Color(0xFF1A1A1A), size: S.scale(context, 38)),
                   ),
                 ),
 
                 Positioned(
                   left: 0, right: 0, bottom: 0,
                   child: Container(
-                    height: 72,
+                    height: S.scale(context, 72),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
@@ -103,20 +104,20 @@ class YoutubePlayerWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
+                    padding: EdgeInsets.fromLTRB(S.scale(context, 12), S.scale(context, 20), S.scale(context, 12), S.scale(context, 10)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(title ?? 'Tonton Video',
                             style: GoogleFonts.nunito(
-                                color: Colors.white, fontSize: 13,
+                                color: Colors.white, fontSize: S.font(context, 13),
                                 fontWeight: FontWeight.w700),
                             maxLines: 1, overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 2),
+                        SizedBox(height: S.scale(context, 2)),
                         Text('Ketuk untuk menonton di YouTube',
                             style: GoogleFonts.nunito(
-                                color: Colors.white70, fontSize: 10)),
+                                color: Colors.white70, fontSize: S.font(context, 10))),
                       ],
                     ),
                   ),

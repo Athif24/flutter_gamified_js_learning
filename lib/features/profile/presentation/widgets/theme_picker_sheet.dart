@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/services/sound_service.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 void showThemePicker(BuildContext context, WidgetRef ref) {
   final t = ref.read(currentThemeProvider);
@@ -52,45 +53,45 @@ class _ThemePickerSheetState extends ConsumerState<_ThemePickerSheet> {
         return Container(
           decoration: BoxDecoration(
             color: t.bgSurface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: t.textPrimary, width: 2),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(S.scale(context, 24))),
+            border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
           ),
           child: Column(
             children: [
               Container(
-                height: 48,
+                height: S.scale(context, 48),
                 alignment: Alignment.center,
                 child: Container(
-                  width: 48,
-                  height: 6,
+                  width: S.scale(context, 48),
+                  height: S.scale(context, 6),
                   decoration: BoxDecoration(
                     color: t.mutedText,
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(S.scale(context, 3)),
                     boxShadow: [
                       BoxShadow(
                         color: t.mutedText.withValues(alpha: 0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                        blurRadius: S.scale(context, 4),
+                        offset: Offset(0, S.scale(context, 2)),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: S.scale(context, 8)),
               _TabBar(
                 isLight: _showLight,
                 onToggle: (v) => setState(() => _showLight = v),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               Expanded(
                 child: GridView.builder(
                   controller: scrollController,
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.85,
+                  padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 8), S.scale(context, 16), S.scale(context, 24)),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: S.isTablet(context) ? 5 : 4,
+                    mainAxisSpacing: S.scale(context, 12),
+                    crossAxisSpacing: S.scale(context, 12),
+                    childAspectRatio: S.isTablet(context) ? 0.9 : 0.85,
                   ),
                   itemCount: themes.length,
                   itemBuilder: (_, i) => _ThemeCard(
@@ -123,11 +124,11 @@ class _TabBar extends ConsumerWidget {
     final t = ref.watch(currentThemeProvider);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: S.scale(context, 16)),
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.textPrimary, width: 2),
+        borderRadius: BorderRadius.circular(S.scale(context, 12)),
+        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       child: Row(
         children: [
@@ -175,16 +176,16 @@ class _TabButton extends ConsumerWidget {
     return Bounceable(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: S.scale(context, 10)),
         decoration: BoxDecoration(
           color: selected ? t.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          border: selected ? Border.all(color: t.textPrimary, width: 2) : null,
+          borderRadius: BorderRadius.circular(S.scale(context, 10)),
+          border: selected ? Border.all(color: t.textPrimary, width: S.scale(context, 2)) : null,
           boxShadow: selected
               ? [
                   BoxShadow(
                     color: t.textPrimary,
-                    offset: const Offset(2, 2),
+                    offset: Offset(S.scale(context, 2), S.scale(context, 2)),
                     blurRadius: 0,
                   ),
                 ]
@@ -196,7 +197,7 @@ class _TabButton extends ConsumerWidget {
           style: GoogleFonts.nunito(
             color: selected ? t.primaryContent : t.mutedText,
             fontWeight: FontWeight.w800,
-            fontSize: 14,
+            fontSize: S.font(context, 14),
           ),
         ),
       ),
@@ -229,16 +230,16 @@ class _ThemeCard extends ConsumerWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: theme.bgPrimary,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(S.scale(context, 12)),
                 border: Border.all(
                   color: isActive ? t.textPrimary : theme.border,
-                  width: isActive ? 2.5 : 1,
+                  width: isActive ? S.scale(context, 2.5) : S.scale(context, 1),
                 ),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
                           color: t.textPrimary,
-                          offset: const Offset(3, 3),
+                          offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                           blurRadius: 0,
                         ),
                       ]
@@ -250,8 +251,8 @@ class _ThemeCard extends ConsumerWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: theme.bgSurface,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(10),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(S.scale(context, 10)),
                         ),
                       ),
                     ),
@@ -260,8 +261,8 @@ class _ThemeCard extends ConsumerWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: theme.bgSurface3,
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(10),
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(S.scale(context, 10)),
                         ),
                       ),
                     ),
@@ -270,12 +271,12 @@ class _ThemeCard extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: S.scale(context, 6)),
           Text(
             theme.name,
             style: GoogleFonts.nunito(
               color: t.mutedText,
-              fontSize: 11,
+              fontSize: S.font(context, 11),
               fontWeight: FontWeight.w700,
             ),
             maxLines: 1,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/themes/theme_provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 class ProfileSkeleton extends StatelessWidget {
   final BloomTheme t;
@@ -8,39 +9,39 @@ class ProfileSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+      padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 20), S.scale(context, 20), S.scale(context, 40)),
       child: Column(
         children: [
-          _buildHeroSkeleton(),
-          const SizedBox(height: 16),
-          _buildStatsSkeleton(),
-          const SizedBox(height: 16),
-          _buildLearningSkeleton(),
-          const SizedBox(height: 16),
-          _buildRecentActivitySkeleton(),
-          const SizedBox(height: 16),
-          _buildAccountSkeleton(),
+          _buildHeroSkeleton(context),
+          SizedBox(height: S.scale(context, 16)),
+          _buildStatsSkeleton(context),
+          SizedBox(height: S.scale(context, 16)),
+          _buildLearningSkeleton(context),
+          SizedBox(height: S.scale(context, 16)),
+          _buildRecentActivitySkeleton(context),
+          SizedBox(height: S.scale(context, 16)),
+          _buildAccountSkeleton(context),
         ],
       ),
     );
   }
 
-  Widget _buildHeroSkeleton() {
+  Widget _buildHeroSkeleton(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: S.scale(context, 180),
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(S.scale(context, 24)),
         border: Border.all(
           color: t.textPrimary.withValues(alpha: 0.15),
-          width: 2,
+          width: S.scale(context, 2),
         ),
       ),
     );
   }
 
-  Widget _buildStatsSkeleton() {
+  Widget _buildStatsSkeleton(BuildContext context) {
     return LayoutBuilder(
       builder: (_, constraints) {
         final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
@@ -49,19 +50,19 @@ class ProfileSkeleton extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisSpacing: S.scale(context, 12),
+            mainAxisSpacing: S.scale(context, 12),
             childAspectRatio: 1.1,
           ),
           itemCount: 4,
           itemBuilder: (_, __) => Container(
-            height: 96,
+            height: S.scale(context, 96),
             decoration: BoxDecoration(
               color: t.bgSurface2,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(
                 color: t.textPrimary.withValues(alpha: 0.15),
-                width: 2,
+                width: S.scale(context, 2),
               ),
             ),
           ),
@@ -70,7 +71,7 @@ class ProfileSkeleton extends StatelessWidget {
     );
   }
 
-  Widget _buildLearningSkeleton() {
+  Widget _buildLearningSkeleton(BuildContext context) {
     return LayoutBuilder(
       builder: (_, constraints) {
         final isTablet = constraints.maxWidth > 600;
@@ -80,27 +81,27 @@ class ProfileSkeleton extends StatelessWidget {
             children: [
               Expanded(
                 child: Container(
-                  height: 200,
+                  height: S.scale(context, 200),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(S.scale(context, 24)),
                     border: Border.all(
                       color: t.textPrimary.withValues(alpha: 0.15),
-                      width: 2,
+                      width: S.scale(context, 2),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: S.scale(context, 16)),
               Expanded(
                 child: Container(
-                  height: 200,
+                  height: S.scale(context, 200),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(S.scale(context, 24)),
                     border: Border.all(
                       color: t.textPrimary.withValues(alpha: 0.15),
-                      width: 2,
+                      width: S.scale(context, 2),
                     ),
                   ),
                 ),
@@ -110,13 +111,13 @@ class ProfileSkeleton extends StatelessWidget {
         }
         return Container(
           width: double.infinity,
-          height: 200,
+          height: S.scale(context, 200),
           decoration: BoxDecoration(
             color: t.bgSurface2,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(S.scale(context, 24)),
             border: Border.all(
               color: t.textPrimary.withValues(alpha: 0.15),
-              width: 2,
+              width: S.scale(context, 2),
             ),
           ),
         );
@@ -124,7 +125,7 @@ class ProfileSkeleton extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentActivitySkeleton() {
+  Widget _buildRecentActivitySkeleton(BuildContext context) {
     return LayoutBuilder(
       builder: (_, constraints) {
         final isTablet = constraints.maxWidth > 600;
@@ -134,27 +135,27 @@ class ProfileSkeleton extends StatelessWidget {
             children: [
               Expanded(
                 child: Container(
-                  height: 180,
+                  height: S.scale(context, 180),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(S.scale(context, 24)),
                     border: Border.all(
                       color: t.textPrimary.withValues(alpha: 0.15),
-                      width: 2,
+                      width: S.scale(context, 2),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: S.scale(context, 16)),
               Expanded(
                 child: Container(
-                  height: 180,
+                  height: S.scale(context, 180),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(S.scale(context, 24)),
                     border: Border.all(
                       color: t.textPrimary.withValues(alpha: 0.15),
-                      width: 2,
+                      width: S.scale(context, 2),
                     ),
                   ),
                 ),
@@ -164,13 +165,13 @@ class ProfileSkeleton extends StatelessWidget {
         }
         return Container(
           width: double.infinity,
-          height: 180,
+          height: S.scale(context, 180),
           decoration: BoxDecoration(
             color: t.bgSurface2,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(S.scale(context, 24)),
             border: Border.all(
               color: t.textPrimary.withValues(alpha: 0.15),
-              width: 2,
+              width: S.scale(context, 2),
             ),
           ),
         );
@@ -178,16 +179,16 @@ class ProfileSkeleton extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountSkeleton() {
+  Widget _buildAccountSkeleton(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 120,
+      height: S.scale(context, 120),
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(S.scale(context, 24)),
         border: Border.all(
           color: t.textPrimary.withValues(alpha: 0.15),
-          width: 2,
+          width: S.scale(context, 2),
         ),
       ),
     );
