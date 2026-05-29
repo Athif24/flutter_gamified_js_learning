@@ -94,13 +94,12 @@ class _ThemePickerSheetState extends ConsumerState<_ThemePickerSheet> {
                     childAspectRatio: S.isTablet(context) ? 0.9 : 0.85,
                   ),
                   itemCount: themes.length,
-                  itemBuilder: (_, i) => _ThemeCard(
+                  itemBuilder: (_, i) => _CirclePreview(
                     theme: themes[i],
                     isActive: themes[i].id == widget.currentThemeId,
                     onTap: () {
                       ref.read(soundProvider).playClick();
                       ref.read(themeProvider.notifier).setTheme(themes[i].id);
-                      Navigator.of(context).pop();
                     },
                   ),
                 ),
@@ -134,7 +133,7 @@ class _TabBar extends ConsumerWidget {
         children: [
           Expanded(
             child: _TabButton(
-              label: 'Light',
+              label: '☀️  Light',
               selected: isLight,
               onTap: () {
                 ref.read(soundProvider).playClick();
@@ -144,7 +143,7 @@ class _TabBar extends ConsumerWidget {
           ),
           Expanded(
             child: _TabButton(
-              label: 'Dark',
+              label: '🌚  Dark',
               selected: !isLight,
               onTap: () {
                 ref.read(soundProvider).playClick();
@@ -205,12 +204,12 @@ class _TabButton extends ConsumerWidget {
   }
 }
 
-class _ThemeCard extends ConsumerWidget {
+class _CirclePreview extends ConsumerWidget {
   final BloomTheme theme;
   final bool isActive;
   final VoidCallback onTap;
 
-  const _ThemeCard({
+  const _CirclePreview({
     required this.theme,
     required this.isActive,
     required this.onTap,
@@ -225,50 +224,22 @@ class _ThemeCard extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: theme.bgPrimary,
-                borderRadius: BorderRadius.circular(S.scale(context, 12)),
-                border: Border.all(
-                  color: isActive ? t.textPrimary : theme.border,
-                  width: isActive ? S.scale(context, 2.5) : S.scale(context, 1),
-                ),
-                boxShadow: isActive
-                    ? [
-                        BoxShadow(
-                          color: t.textPrimary,
-                          offset: Offset(S.scale(context, 3), S.scale(context, 3)),
-                          blurRadius: 0,
-                        ),
-                      ]
-                    : null,
+          Container(
+            width: S.scale(context, 56),
+            height: S.scale(context, 56),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [theme.primary, theme.secondary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.bgSurface,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(S.scale(context, 10)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.bgSurface3,
-                        borderRadius: BorderRadius.vertical(
-                          bottom: Radius.circular(S.scale(context, 10)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              border: isActive
+                  ? Border.all(
+                      color: t.textPrimary,
+                      width: S.scale(context, 2.5),
+                    )
+                  : null,
             ),
           ),
           SizedBox(height: S.scale(context, 6)),
@@ -279,9 +250,9 @@ class _ThemeCard extends ConsumerWidget {
               fontSize: S.font(context, 11),
               fontWeight: FontWeight.w700,
             ),
+            textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
           ),
         ],
       ),
