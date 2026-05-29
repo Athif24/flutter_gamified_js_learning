@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/api_client.dart';
@@ -136,7 +137,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (enabled) {
         unawaited(FcmService.registerToken(_api));
       }
-    } catch (_) {}
+    } catch (e) {
+      if (!kReleaseMode) debugPrint('[AuthProvider] registerToken error: $e');
+    }
   }
 
   Future<String?> changePassword(String oldPassword, String newPassword) async {
@@ -152,7 +155,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final user = await _ds.getMe();
       state = state.copyWith(user: user);
-    } catch (_) {}
+    } catch (e) {
+      if (!kReleaseMode) debugPrint('[AuthProvider] refreshMe error: $e');
+    }
   }
 
   Future<void> updateProfile({String? avatar}) async {

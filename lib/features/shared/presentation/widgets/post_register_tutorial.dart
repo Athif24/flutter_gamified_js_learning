@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/bloom_theme.dart';
@@ -72,7 +73,8 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
             center = Offset(pos.dx + s.width / 2, pos.dy + s.height / 2);
             radius = (s.width > s.height ? s.width : s.height) / 2 + 28;
           }
-        } catch (_) {
+        } catch (e) {
+          if (!kReleaseMode) debugPrint('[PostRegisterTutorial] findRenderObject error: $e');
         }
       }
     }

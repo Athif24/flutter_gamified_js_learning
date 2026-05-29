@@ -1968,7 +1968,7 @@ Future<void> _showEditProfile(
                                         .read(profileDsProvider)
                                         .updateProfile(updateData);
                                     ref.invalidate(profileProvider);
-                                    ref.read(authProvider.notifier).refreshMe();
+                                    await ref.read(authProvider.notifier).refreshMe();
                                     if (ctx.mounted) Navigator.of(ctx).pop();
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(
