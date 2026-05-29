@@ -58,6 +58,41 @@ class AppStrings {
   // ── Error: Events ──────────────────────────────────────────────────────
   static const errLoadEvents = 'Gagal memuat events';
 
+  // ── Misc ───────────────────────────────────────────────────────────────
+  static const cancel = 'Batal';
+  static const useItem = 'Gunakan';
+  static const buy = 'Beli';
+  static const open = 'Buka';
+  static const done = 'Selesai';
+  static const next = 'Berikutnya';
+
+  // ── Onboarding ─────────────────────────────────────────────────────────
+  static const choosePhoto = 'Pilih Foto Profil';
+  static const choosePhotoDesc = 'Tambahkan foto agar teman-temanmu bisa mengenalimu';
+  static const tapToChange = 'Tap untuk ganti foto';
+  static const tapToUpload = 'Tap untuk upload foto';
+  static const chooseTheme = 'Pilih Tema Favorit';
+
+  // ── Store ──────────────────────────────────────────────────────────────
+  static const store = 'Store';
+  static const storeDesc = 'Tukarkan jewels kamu dengan item-item berguna!';
+  static const shopTab = 'Shop';
+  static const inventoryTab = 'Inventory';
+  static const jewelHistoryTab = 'Jewel History';
+
+  // ── Inventory ──────────────────────────────────────────────────────────
+  static const inventoryEmpty = 'Inventori kosong';
+  static const inventoryEmptyDesc = 'Beli item di Shop untuk mulai mengumpulkan!';
+
+  // ── Jewel History ──────────────────────────────────────────────────────
+  static const noHistory = 'Belum ada riwayat transaksi';
+  static const noHistoryDesc = 'Transaksi jewels kamu akan muncul di sini';
+
+  // ── Video ──────────────────────────────────────────────────────────────
+  static const videoLoadError = 'Video tidak dapat dimuat';
+  static const contentLoadError = 'Konten tidak dapat dimuat';
+  static const watchOnYoutube = 'Ketuk untuk menonton di YouTube';
+
   // ── Error: Misc ────────────────────────────────────────────────────────
   static const errLoadImage = 'Gagal memuat gambar';
 }
