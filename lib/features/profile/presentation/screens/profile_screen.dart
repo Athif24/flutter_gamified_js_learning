@@ -2471,7 +2471,17 @@ Future<void> _showLogoutConfirm(
                           ? null
                           : () async {
                               setState(() => isLoading = true);
-                              await ref.read(authProvider.notifier).logout();
+                              try {
+                                await ref.read(authProvider.notifier).logout();
+                              } catch (e) {
+                                setState(() => isLoading = false);
+                                if (ctx.mounted) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    SnackBar(content: Text('Gagal keluar: $e')),
+                                  );
+                                }
+                                return;
+                              }
 
                               invalidateGamificationProviders(ref);
                               ref.invalidate(coursesProvider);

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
 import '../../../../../../shared/services/sound_service.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class ThemeStep extends ConsumerStatefulWidget {
   const ThemeStep({super.key});
@@ -22,30 +23,30 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
     final themes = allThemes.where((x) => x.isLight == _showLight).toList();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 16),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)).copyWith(bottom: S.scale(context, 16)),
       child: Column(
         children: [
-          const SizedBox(height: 64),
-          Icon(Icons.palette_rounded, size: 48, color: t.primary),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 64)),
+          Icon(Icons.palette_rounded, size: S.scale(context, 48), color: t.primary),
+          SizedBox(height: S.scale(context, 12)),
           Text(
             'Pilih Tema Favorit',
             style: GoogleFonts.nunito(
-              fontSize: 22,
+              fontSize: S.font(context, 22),
               fontWeight: FontWeight.w900,
               color: t.textPrimary,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: S.scale(context, 6)),
           Text(
             '${allThemes.length} tema tersedia',
             style: GoogleFonts.nunito(
-              fontSize: 12,
+              fontSize: S.font(context, 12),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: S.scale(context, 16)),
           _TabBar(
             t: t,
             isLight: _showLight,
@@ -54,15 +55,15 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
               setState(() => _showLight = v);
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: S.scale(context, 16)),
           Expanded(
             child: GridView.builder(
               physics: const BouncingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.85,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: S.isTablet(context) ? 5 : 4,
+                mainAxisSpacing: S.scale(context, 12),
+                crossAxisSpacing: S.scale(context, 12),
+                childAspectRatio: S.isTablet(context) ? 0.9 : 0.85,
               ),
               itemCount: themes.length,
               itemBuilder: (_, i) {
@@ -101,8 +102,8 @@ class _TabBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.textPrimary, width: 2),
+        borderRadius: BorderRadius.circular(S.scale(context, 12)),
+        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       child: Row(
         children: [
@@ -145,16 +146,16 @@ class _TabButton extends StatelessWidget {
     return Bounceable(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: S.scale(context, 10)),
         decoration: BoxDecoration(
           color: selected ? t.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          border: selected ? Border.all(color: t.textPrimary, width: 2) : null,
+          borderRadius: BorderRadius.circular(S.scale(context, 10)),
+          border: selected ? Border.all(color: t.textPrimary, width: S.scale(context, 2)) : null,
           boxShadow: selected
               ? [
                   BoxShadow(
                     color: t.textPrimary,
-                    offset: const Offset(2, 2),
+                    offset: Offset(S.scale(context, 2), S.scale(context, 2)),
                     blurRadius: 0,
                   ),
                 ]
@@ -166,7 +167,7 @@ class _TabButton extends StatelessWidget {
           style: GoogleFonts.nunito(
             color: selected ? t.primaryContent : t.mutedText,
             fontWeight: FontWeight.w800,
-            fontSize: 14,
+            fontSize: S.font(context, 14),
           ),
         ),
       ),
@@ -193,10 +194,9 @@ class _CircleThemePreview extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Lingkaran dengan gradasi primary → secondary
           Container(
-            width: 56,
-            height: 56,
+            width: S.scale(context, 56),
+            height: S.scale(context, 56),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -207,17 +207,17 @@ class _CircleThemePreview extends StatelessWidget {
               border: selected
                   ? Border.all(
                       color: t.textPrimary.withValues(alpha: 0.7),
-                      width: 2,
+                      width: S.scale(context, 2),
                     )
                   : null,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: S.scale(context, 6)),
           Text(
             theme.name,
             style: GoogleFonts.nunito(
               color: t.mutedText,
-              fontSize: 11,
+              fontSize: S.font(context, 11),
               fontWeight: FontWeight.w700,
             ),
             textAlign: TextAlign.center,

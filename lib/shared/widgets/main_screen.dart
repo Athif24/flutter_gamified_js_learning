@@ -104,7 +104,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     return PostRegisterTutorial(
       theme: t,
       onComplete: () {
-        ref.read(authProvider.notifier).completeOnboarding().catchError((_) {});
+        ref.read(authProvider.notifier).completeOnboarding().catchError(
+          (e) => debugPrint('[MainScreen] completeOnboarding error: $e'),
+        );
       },
       steps: [
         TutorialStep(

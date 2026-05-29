@@ -3,125 +3,106 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import '../../../../../../features/profile/presentation/widgets/crop_screen.dart';
-import '../../../../../../shared/themes/theme_provider.dart';
 import '../../../../../../shared/services/sound_service.dart';
+import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
+import '../../../../../../features/profile/presentation/widgets/crop_screen.dart';
 
 class ProfileStep extends ConsumerWidget {
   final File? avatarFile;
-  final ValueChanged<File> onAvatarPicked;
-
-  const ProfileStep({
-    super.key,
-    required this.avatarFile,
-    required this.onAvatarPicked,
-  });
-
-  Future<void> _pickImage(BuildContext context, BloomTheme t) async {
-    final result = await AssetPicker.pickAssets(
-      context,
-      pickerConfig: const AssetPickerConfig(
-        maxAssets: 1,
-        requestType: RequestType.image,
-      ),
-    );
-    final asset = result?.firstOrNull;
-    if (asset == null) return;
-    final file = await asset.file;
-    if (file == null || !context.mounted) return;
-
-    final cropped = await Navigator.of(context).push<File>(
-      MaterialPageRoute(
-        builder: (_) => CropScreen(imageFile: file, t: t),
-      ),
-    );
-    if (cropped != null && context.mounted) {
-      onAvatarPicked(cropped);
-    }
-  }
+  final ValueChanged<File?> onAvatarPicked;
+  const ProfileStep({super.key, required this.avatarFile, required this.onAvatarPicked});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(currentThemeProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(Icons.face_rounded, size: 56, color: t.primary),
-          const SizedBox(height: 16),
+          Icon(Icons.face_rounded, size: S.scale(context, 56), color: t.primary),
+          SizedBox(height: S.scale(context, 16)),
           Text(
             'Pilih Foto Profil',
             style: GoogleFonts.nunito(
-              fontSize: 22,
+              fontSize: S.font(context, 22),
               fontWeight: FontWeight.w900,
               color: t.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: S.scale(context, 8)),
           Text(
-            'Tambahkan avatar biar profil kamu makin kece',
+            'Tambahkan foto agar teman-temanmu bisa mengenalimu',
             textAlign: TextAlign.center,
             style: GoogleFonts.nunito(
-              fontSize: 13,
+              fontSize: S.font(context, 13),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: S.scale(context, 24)),
           GestureDetector(
             onTap: () {
               ref.read(soundProvider).playClick();
-              _pickImage(context, ref.read(currentThemeProvider));
+              _pickAvatar(context, ref, t);
             },
-            child: Stack(
-              children: [
-                Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: t.bgSurface2,
-                    border: Border.all(color: t.primary, width: 3),
-                    image: avatarFile != null
-                        ? DecorationImage(
-                            image: FileImage(avatarFile!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child: avatarFile == null
-                      ? Icon(Icons.person_rounded, size: 48, color: t.mutedText)
-                      : null,
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 36,
-                    height: 36,
+            child: Semantics(
+              button: true,
+              label: 'Pilih avatar',
+              child: Stack(
+                children: [
+                  Container(
+                    width: S.scale(context, 110),
+                    height: S.scale(context, 110),
                     decoration: BoxDecoration(
-                      color: t.primary,
                       shape: BoxShape.circle,
-                      border: Border.all(color: t.bgPrimary, width: 3),
+                      color: t.bgSurface2,
+                      border: Border.all(color: t.textPrimary, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: t.textPrimary,
+                          offset: const Offset(3, 3),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
-                    child: Icon(
-                      Icons.camera_alt_rounded,
-                      color: t.primaryContent,
-                      size: 18,
+                    child: avatarFile != null
+                        ? ClipOval(
+                            child: Image.file(
+                              avatarFile!,
+                              fit: BoxFit.cover,
+                              width: S.scale(context, 110),
+                              height: S.scale(context, 110),
+                            ),
+                          )
+                        : Icon(Icons.person_rounded, size: S.scale(context, 48), color: t.mutedText),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: S.scale(context, 36),
+                      height: S.scale(context, 36),
+                      decoration: BoxDecoration(
+                        color: t.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: t.textPrimary, width: 2),
+                      ),
+                      child: Icon(Icons.camera_alt_rounded, size: S.scale(context, 18), color: t.primaryContent),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: S.scale(context, 8)),
           Text(
-            'Klik avatar untuk upload foto',
+            avatarFile != null ? 'Tap untuk ganti foto' : 'Tap untuk upload foto',
             style: GoogleFonts.nunito(
-              fontSize: 12,
+              fontSize: S.font(context, 12),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
@@ -130,5 +111,34 @@ class ProfileStep extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _pickAvatar(BuildContext context, WidgetRef ref, BloomTheme t) async {
+    try {
+      final result = await AssetPicker.pickAssets(
+        context,
+        pickerConfig: const AssetPickerConfig(
+          maxAssets: 1,
+          requestType: RequestType.image,
+        ),
+      );
+      final asset = result?.firstOrNull;
+      if (asset == null) return;
+      final file = await asset.file;
+      if (file == null || !context.mounted) return;
+      final cropped = await Navigator.push<File>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CropScreen(imageFile: file, t: t),
+        ),
+      );
+      if (cropped != null) onAvatarPicked(cropped);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memuat gambar: $e')),
+        );
+      }
+    }
   }
 }

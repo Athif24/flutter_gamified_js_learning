@@ -18,19 +18,32 @@ class CropScreen extends ConsumerStatefulWidget {
 }
 
 class _CropScreenState extends ConsumerState<CropScreen> {
-  late Uint8List _imageData;
+  Uint8List? _imageData;
   final _controller = CropController();
   bool _isCropping = false;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _imageData = widget.imageFile.readAsBytesSync();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      final bytes = await widget.imageFile.readAsBytes();
+      if (mounted) setState(() => _imageData = bytes);
+    } catch (e) {
+      if (mounted) setState(() => _hasError = true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.t;
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+
     return Scaffold(
       backgroundColor: t.bgPrimary,
       appBar: AppBar(
@@ -45,60 +58,92 @@ class _CropScreenState extends ConsumerState<CropScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Crop(
-                image: _imageData,
-                controller: _controller,
-                withCircleUi: true,
-                baseColor: t.bgPrimary,
-                onCropped: (cropped) async {
-                  final dir = Directory.systemTemp;
-                  final file = File(
-                    '${dir.path}/avatar_cropped_${DateTime.now().millisecondsSinceEpoch}.jpg',
-                  );
-                  await file.writeAsBytes(cropped);
-                  if (context.mounted) Navigator.pop(context, file);
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Game3DButton(
-                      label: 'Ulangi',
-                      color: t.bgSurface,
-                      shadowColor: t.textPrimary,
-                      textColor: t.textPrimary,
-                      horizontalPadding: 16,
-                      verticalPadding: 13,
-                      onTap: () => Navigator.pop(context),
+        child: _hasError
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.broken_image_rounded, color: t.mutedText, size: 48),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Gagal memuat gambar',
+                      style: TextStyle(color: t.mutedText, fontSize: 14),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Game3DButton(
-                      label: 'Simpan',
+                    const SizedBox(height: 16),
+                    Game3DButton(
+                      label: 'Kembali',
                       color: t.primary,
                       shadowColor: t.textPrimary,
                       textColor: t.primaryContent,
-                      horizontalPadding: 16,
-                      verticalPadding: 13,
-                      isLoading: _isCropping,
-                      onTap: _isCropping ? null : () {
-                        setState(() => _isCropping = true);
-                        _controller.crop();
-                      },
+                      onTap: () => Navigator.pop(context),
                     ),
+                  ],
+                ),
+              )
+            : _imageData == null
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Crop(
+                          image: _imageData!,
+                          controller: _controller,
+                          withCircleUi: true,
+                          baseColor: t.bgPrimary,
+                          onCropped: (cropped) async {
+                            final scaffold = ScaffoldMessenger.of(context);
+                            try {
+                              final dir = Directory.systemTemp;
+                              final file = File(
+                                '${dir.path}/avatar_cropped_${DateTime.now().millisecondsSinceEpoch}.jpg',
+                              );
+                              await file.writeAsBytes(cropped);
+                              if (context.mounted) Navigator.pop(context, file);
+                            } catch (e) {
+                              setState(() => _isCropping = false);
+                              scaffold.showSnackBar(
+                                SnackBar(content: Text('Gagal menyimpan gambar: $e')),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(rs(24), rs(16), rs(24), rs(24)),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Game3DButton(
+                                label: 'Ulangi',
+                                color: t.bgSurface,
+                                shadowColor: t.textPrimary,
+                                textColor: t.textPrimary,
+                                horizontalPadding: 16,
+                                verticalPadding: 13,
+                                onTap: () => Navigator.pop(context),
+                              ),
+                            ),
+                            SizedBox(width: rs(16)),
+                            Expanded(
+                              child: Game3DButton(
+                                label: 'Simpan',
+                                color: t.primary,
+                                shadowColor: t.textPrimary,
+                                textColor: t.primaryContent,
+                                horizontalPadding: 16,
+                                verticalPadding: 13,
+                                isLoading: _isCropping,
+                                onTap: _isCropping ? null : () {
+                                  setState(() => _isCropping = true);
+                                  _controller.crop();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

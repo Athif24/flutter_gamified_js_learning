@@ -89,6 +89,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
     final progress = (_current + 1) / _steps.length;
+    final w = MediaQuery.of(context).size.width;
+    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
@@ -96,13 +98,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              padding: EdgeInsets.fromLTRB(rs(20), rs(12), rs(20), 0),
               child: Column(
                 children: [
                   Row(
                     children: [
                       _isFirst
-                          ? const SizedBox(width: 36, height: 36)
+                          ? SizedBox(width: rs(36), height: rs(36))
                           : GestureDetector(
                               onTap: () {
                                 ref.read(soundProvider).playClick();
@@ -110,12 +112,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               },
                               behavior: HitTestBehavior.opaque,
                               child: SizedBox(
-                                width: 36,
-                                height: 36,
+                                width: rs(36),
+                                height: rs(36),
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
                                   color: t.textPrimary,
-                                  size: 14,
+                                  size: rs(14),
                                 ),
                               ),
                             ),
@@ -128,38 +130,38 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           },
                           behavior: HitTestBehavior.opaque,
                           child: SizedBox(
-                            width: 36,
-                            height: 36,
+                            width: rs(36),
+                            height: rs(36),
                             child: Icon(
                               Icons.arrow_forward_ios_rounded,
                               color: t.textPrimary,
-                              size: 14,
+                              size: rs(14),
                             ),
                           ),
                         )
                       else
-                        const SizedBox(width: 36),
+                        SizedBox(width: rs(36)),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: rs(16)),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: LinearProgressIndicator(
                       value: progress,
-                      minHeight: 6,
+                      minHeight: rs(6),
                       backgroundColor: t.bgSurface2,
                       valueColor: AlwaysStoppedAnimation(t.primary),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: rs(8)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(_steps.length, (i) {
                       final active = i <= _current;
                       return Container(
-                        width: 8,
-                        height: 8,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        width: rs(8),
+                        height: rs(8),
+                        margin: EdgeInsets.symmetric(horizontal: rs(3)),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: active ? t.primary : t.border,
@@ -170,7 +172,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: rs(8)),
             Expanded(
               child: PageView(
                 controller: _pageCtrl,
@@ -181,7 +183,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             if (_isLast)
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                padding: EdgeInsets.fromLTRB(rs(20), 0, rs(20), rs(16)),
                 child: SizedBox(
                   width: double.infinity,
                   child: Game3DButton(
@@ -189,7 +191,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     color: t.primary,
                     shadowColor: t.textPrimary,
                     textColor: t.primaryContent,
-                    horizontalPadding: 16,
+                    horizontalPadding: rs(16),
                     isLoading: _isLoading,
                     onTap: _isLoading ? null : _finish,
                   ),
@@ -197,7 +199,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               )
             else
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                padding: EdgeInsets.fromLTRB(rs(20), 0, rs(20), rs(16)),
                 child: SizedBox(
                   width: double.infinity,
                   child: Game3DButton(
@@ -205,7 +207,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     color: t.primary,
                     shadowColor: t.textPrimary,
                     textColor: t.primaryContent,
-                    horizontalPadding: 16,
+                    horizontalPadding: rs(16),
                     onTap: _next,
                   ),
                 ),
