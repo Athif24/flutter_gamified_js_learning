@@ -58,6 +58,13 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> with SilentRe
         if (widget.courseId != null) {
           ref.invalidate(courseDetailProvider(widget.courseId!));
         }
+        await ref.read(quizPreviewProvider(widget.quizId).future);
+        await ref.read(myQuizResultProvider(widget.quizId).future);
+        await ref.read(quizAttemptProvider(widget.quizId).future);
+        await ref.read(livesProvider.future);
+        if (widget.courseId != null) {
+          await ref.read(courseDetailProvider(widget.courseId!).future);
+        }
       },
       fetchState: fetchState,
     );
@@ -463,10 +470,7 @@ class _IntroBodyState extends State<_IntroBody> {
                       textColor: t.primaryContent,
                       isLoading: _isStarting,
                       onTap: _hasLives
-                          ? () {
-                              widget.ref.read(soundProvider).playClick();
-                              _handleStart();
-                            }
+                          ? () => _handleStart()
                           : null,
                     ),
                   ),

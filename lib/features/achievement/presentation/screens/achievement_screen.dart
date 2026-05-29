@@ -50,6 +50,10 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
         ref.invalidate(levelsProvider);
         ref.invalidate(xpHistoryProvider);
         await ref.read(xpProvider.future);
+        await ref.read(streakProvider.future);
+        await ref.read(mergedBadgesProvider.future);
+        await ref.read(livesProvider.future);
+        await ref.read(levelsProvider.future);
       },
       fetchState: fetchState,
     );

@@ -119,6 +119,10 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
         ref.invalidate(jewelHistoryProvider);
         ref.invalidate(rewardPoolsProvider);
         await ref.read(storeItemsProvider.future);
+        await ref.read(inventoryProvider.future);
+        await ref.read(jewelBalanceProvider.future);
+        await ref.read(jewelHistoryProvider.future);
+        await ref.read(rewardPoolsProvider.future);
       },
       fetchState: fetchState,
     );
