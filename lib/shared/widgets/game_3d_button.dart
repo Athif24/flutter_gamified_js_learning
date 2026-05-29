@@ -64,7 +64,7 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 80),
-        transform: Matrix4.translationValues(0, _pressed ? 2.0 : 0.0, 0),
+        transform: Matrix4.translationValues(0, _pressed ? S.scale(context, 2.0) : 0.0, 0),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(
           horizontal: widget.horizontalPadding,
@@ -72,7 +72,7 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
         ),
         decoration: BoxDecoration(
           color: faceColor,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(S.scale(context, 10)),
           border: Border.all(
             color: _pressed ? Colors.transparent : shadow,
             width: 2,
@@ -82,7 +82,7 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
               : [
                   BoxShadow(
                     color: shadow,
-                    offset: const Offset(3, 3),
+                    offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                     blurRadius: 0,
                   ),
                 ],
@@ -92,14 +92,14 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    width: 20,
-                    height: 20,
+                    width: S.scale(context, 20),
+                    height: S.scale(context, 20),
                     child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
+                      strokeWidth: S.scale(context, 2.5),
                       color: txtColor,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: S.scale(context, 10)),
                   Flexible(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,

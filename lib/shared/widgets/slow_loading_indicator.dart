@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../shared/themes/theme_provider.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../themes/theme_provider.dart';
 
 class SlowLoadingIndicator extends StatelessWidget {
   final bool visible;
@@ -19,7 +20,7 @@ class SlowLoadingIndicator extends StatelessWidget {
       child: IgnorePointer(
         ignoring: !visible,
         child: LinearProgressIndicator(
-          minHeight: 4,
+          minHeight: S.scale(context, 4),
           backgroundColor: t.bgSurface2,
           valueColor: AlwaysStoppedAnimation<Color>(t.accent),
         ),

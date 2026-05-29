@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../shared/themes/theme_provider.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../themes/theme_provider.dart';
 
-/// A reusable label-value row widget used in dialogs and info sections.
 class InfoRow extends StatelessWidget {
   final String label;
   final Widget value;
@@ -25,7 +25,7 @@ class InfoRow extends StatelessWidget {
           style: GoogleFonts.nunito(
             color: t.mutedText,
             fontWeight: FontWeight.w600,
-            fontSize: 13,
+            fontSize: S.font(context, 13),
           ),
         ),
         value,

@@ -91,13 +91,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
-                offset: const Offset(3, 3),
+                offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                 blurRadius: 0,
               ),
             ],
           ),
           child: Icon(Icons.arrow_back_ios_rounded,
-              color: t.textPrimary, size: 15),
+              color: t.textPrimary, size: S.scale(context, 15)),
         ),
       ),
     );
@@ -114,7 +114,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               child: Row(
                 children: [
                   backButton,
-                  const SizedBox(width: 12),
+                  SizedBox(width: S.scale(context, 12)),
                   Expanded(
                     child: Text(
                       'Memuat Kuis...',
@@ -149,7 +149,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               child: Row(
                 children: [
                   backButton,
-                  const SizedBox(width: 12),
+                  SizedBox(width: S.scale(context, 12)),
                   Expanded(
                     child: Text(
                       'Kuis',
@@ -237,8 +237,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.assignment_outlined, size: 56, color: t.mutedText),
-              const SizedBox(height: 12),
+              Icon(Icons.assignment_outlined, size: S.scale(context, 56), color: t.mutedText),
+              SizedBox(height: S.scale(context, 12)),
               Text(
                 'Belum ada soal',
                 style: GoogleFonts.nunito(
@@ -247,12 +247,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     fontSize: S.font(context, 16),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: S.scale(context, 8)),
               Text(
                   'Soal untuk kuis ini belum ditambahkan.',
                   style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: S.scale(context, 22)),
               Semantics(
                 button: true,
                 label: 'Kembali',
@@ -302,12 +302,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         child: Icon(
                           Icons.close_rounded,
                           color: t.textPrimary,
-                          size: 18,
+                          size: S.scale(context, 18),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: S.scale(context, 12)),
                   Expanded(
                     child: Text(
                       quiz.quiz!.title,
@@ -325,7 +325,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       t: t,
                       onTimeUp: () => ref.read(quizProvider.notifier).submit(widget.quizId),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: S.scale(context, 10)),
                   ],
                   Container(
                     padding: EdgeInsets.symmetric(
@@ -334,7 +334,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: t.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(50),
+                      borderRadius: BorderRadius.circular(S.scale(context, 50)),
                       border: Border.all(color: t.primary.withValues(alpha: 0.3)),
                     ),
                     child: Text(
@@ -368,14 +368,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       fontSize: S.font(context, 14),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: S.scale(context, 10)),
                   Expanded(
                     child: LinearPercentIndicator(
                       percent: progress,
-                      lineHeight: 10,
+                      lineHeight: S.scale(context, 10),
                       backgroundColor: t.bgSurface3,
                       progressColor: t.primary,
-                      barRadius: const Radius.circular(5),
+                      barRadius: Radius.circular(S.scale(context, 5)),
                       padding: EdgeInsets.zero,
                       animation: true,
                       animateFromLastPercent: true,
@@ -439,7 +439,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(flex: 2, child: questionWidget),
-                          const SizedBox(width: 16),
+                          SizedBox(width: S.scale(context, 16)),
                           Expanded(flex: 3, child: answersWidget),
                         ],
                       );
@@ -448,9 +448,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         questionWidget,
-                        const SizedBox(height: 18),
+                        SizedBox(height: S.scale(context, 18)),
                         answersWidget,
-                        const SizedBox(height: 32),
+                        SizedBox(height: S.scale(context, 32)),
                       ],
                     );
                   },
@@ -498,13 +498,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: t.bgSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(S.scale(context, 16)),
           side: BorderSide(color: t.textPrimary, width: 2),
         ),
         title: Row(
           children: [
-            Icon(Icons.favorite_rounded, color: t.error, size: 24),
-            const SizedBox(width: 8),
+            Icon(Icons.favorite_rounded, color: t.error, size: S.scale(context, 24)),
+            SizedBox(width: S.scale(context, 8)),
             Text(
               'Nyawa Habis!',
               style: GoogleFonts.nunito(
@@ -521,7 +521,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               'Nyawa kamu habis. Beli nyawa di Store untuk melanjutkan kuis.',
               style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: S.scale(context, 20)),
             Row(
               children: [
                 Expanded(
@@ -543,7 +543,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: S.scale(context, 12)),
                 Expanded(
                   child: Semantics(
                     button: true,
@@ -578,7 +578,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: t.bgSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(S.scale(context, 16)),
           side: BorderSide(color: t.textPrimary, width: 2),
         ),
         title: Text(
@@ -595,7 +595,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               'Progres kuis sudah tersimpan. Kamu dapat melanjutkan kuis ini kapan saja.',
               style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: S.scale(context, 20)),
             Row(
               children: [
                 Expanded(
@@ -613,7 +613,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: S.scale(context, 12)),
                 Expanded(
                   child: Semantics(
                     button: true,

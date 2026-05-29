@@ -114,7 +114,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                 padding: EdgeInsets.all(S.scale(context, 28)),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
+                    SizedBox(height: S.scale(context, 20)),
 
                     Container(
                       width: double.infinity,
@@ -125,7 +125,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 ? widget.t.warning.withValues(alpha: 0.15)
                                 : widget.t.success.withValues(alpha: 0.15))
                             : widget.t.error.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(S.scale(context, 24)),
                         border: Border.all(
                           color: widget.result.passed
                               ? (_isSuperResult
@@ -141,7 +141,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                     ? widget.t.warning.withValues(alpha: 0.3)
                                     : widget.t.success.withValues(alpha: 0.3))
                                 : widget.t.error.withValues(alpha: 0.3),
-                            offset: const Offset(3, 3),
+                            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                             blurRadius: 0,
                           ),
                         ],
@@ -149,7 +149,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                       child: Column(
                         children: [
                           if (_isSuperResult) _buildLegendaryBadge(widget.t),
-                          if (_isSuperResult) const SizedBox(height: 12),
+                          if (_isSuperResult) SizedBox(height: S.scale(context, 12)),
 
                           Semantics(
                             label: widget.result.passed ? 'Lulus' : 'Belum lulus',
@@ -192,7 +192,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                 duration: 700.ms,
                                 curve: Curves.elasticOut,
                               ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: S.scale(context, 12)),
 
                           Text(
                             widget.result.passed
@@ -206,7 +206,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           )
                               .animate()
                               .fadeIn(delay: 300.ms),
-                          const SizedBox(height: 8),
+                          SizedBox(height: S.scale(context, 8)),
 
                           Text(
                             widget.result.passed
@@ -222,7 +222,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                               .fadeIn(delay: 400.ms),
 
                           if (widget.result.passed) ...[
-                            const SizedBox(height: 8),
+                            SizedBox(height: S.scale(context, 8)),
                             Text(
                               'Lesson selesai! Kamu bisa lanjut ke lesson berikutnya.',
                               style: GoogleFonts.nunito(
@@ -234,7 +234,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                             ).animate().fadeIn(delay: 500.ms),
                           ],
 
-                          const SizedBox(height: 24),
+                          SizedBox(height: S.scale(context, 24)),
 
                           _ScoreRing(
                             pct: _displayPct,
@@ -248,7 +248,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                               .fadeIn(delay: 350.ms)
                               .scale(begin: const Offset(0.8, 0.8)),
 
-                          const SizedBox(height: 24),
+                          SizedBox(height: S.scale(context, 24)),
 
                           Row(
                             children: [
@@ -290,7 +290,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    SizedBox(height: S.scale(context, 24)),
 
                     if (widget.result.questionResults.isNotEmpty)
                       Semantics(
@@ -318,8 +318,8 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.assignment_turned_in_rounded,
-                                  color: widget.t.primary, size: 18),
-                              const SizedBox(width: 8),
+                                  color: widget.t.primary, size: S.scale(context, 18)),
+                              SizedBox(width: S.scale(context, 8)),
                               Text(
                                 'Lihat Jawaban',
                                 style: GoogleFonts.nunito(
@@ -335,7 +335,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                     ),
 
                     if (widget.result.questionResults.isNotEmpty)
-                      const SizedBox(height: 12),
+                      SizedBox(height: S.scale(context, 12)),
 
                     Semantics(
                       button: true,
@@ -363,8 +363,8 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.map_outlined, color: widget.t.primaryContent, size: 18),
-                              const SizedBox(width: 8),
+                              Icon(Icons.map_outlined, color: widget.t.primaryContent, size: S.scale(context, 18)),
+                              SizedBox(width: S.scale(context, 8)),
                               Text(
                                 'Kembali ke Peta Belajar',
                                 style: GoogleFonts.nunito(
@@ -379,14 +379,14 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    SizedBox(height: S.scale(context, 32)),
                   ],
                 ),
               ),
-              ),
             ),
+          ),
 
-              if (_isSuperResult) ..._buildMiniConfetti(widget.t),
+          if (_isSuperResult) ..._buildMiniConfetti(widget.t),
             ],
           ),
         ),
@@ -427,7 +427,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
       padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 4)),
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: BorderRadius.circular(S.scale(context, 50)),
         border: Border.all(color: t.textPrimary, width: 2),
       ),
       child: Text(
@@ -472,7 +472,7 @@ class _ScoreRing extends StatelessWidget {
         painter: _RingPainter(
           pct: pct / 100.0,
           color: isPassed ? t.success : t.error,
-          strokeWidth: 10,
+          strokeWidth: S.scale(context, 10),
           ringBgColor: ringBgColor,
         ),
         child: Center(
@@ -574,8 +574,8 @@ class _StatBadge extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: 4),
+            Icon(icon, size: S.scale(context, 18), color: color),
+            SizedBox(width: S.scale(context, 4)),
             Text(
               value,
               style: GoogleFonts.nunito(
@@ -586,7 +586,7 @@ class _StatBadge extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: S.scale(context, 4)),
         Text(
           label.toUpperCase(),
           style: GoogleFonts.nunito(

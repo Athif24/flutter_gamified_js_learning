@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/providers/connectivity_provider.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../themes/theme_provider.dart';
 
 class OfflineBanner extends ConsumerWidget {
@@ -20,18 +21,18 @@ class OfflineBanner extends ConsumerWidget {
               bottom: false,
               child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: S.scale(context, 16), vertical: S.scale(context, 8)),
               color: t.error,
               child: Row(
                 children: [
-                  Icon(Icons.wifi_off_rounded, color: t.errorContent, size: 18),
-                  const SizedBox(width: 10),
+                  Icon(Icons.wifi_off_rounded, color: t.errorContent, size: S.font(context, 18)),
+                  SizedBox(width: S.scale(context, 10)),
                   Expanded(
                     child: Text(
                       'Koneksi terputus',
                       style: GoogleFonts.nunito(
                         color: t.errorContent,
-                        fontSize: 13,
+                        fontSize: S.font(context, 13),
                         fontWeight: FontWeight.w700,
                       ),
                     ),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../themes/bloom_theme.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/error_helper.dart';
+import '../../core/utils/responsive_utils.dart';
 import 'game_3d_button.dart';
 
 IconData iconForError(Object e) {
@@ -40,33 +41,33 @@ class ErrorBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 56, color: t.mutedText),
-          const SizedBox(height: 12),
+          Icon(icon, size: S.scale(context, 56), color: t.mutedText),
+          SizedBox(height: S.scale(context, 12)),
           Text(
             displayTitle,
             style: GoogleFonts.nunito(
               color: t.textPrimary,
               fontWeight: FontWeight.w700,
-              fontSize: 16,
+              fontSize: S.font(context, 16),
             ),
             textAlign: TextAlign.center,
           ),
           if (message != null && message!.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: S.scale(context, 8)),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: EdgeInsets.symmetric(horizontal: S.scale(context, 32)),
               child: Text(
                 message!,
                 style: GoogleFonts.nunito(
                   color: t.mutedText,
-                  fontSize: 12,
+                  fontSize: S.font(context, 12),
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
           ],
           if (onRetry != null) ...[
-            const SizedBox(height: 22),
+            SizedBox(height: S.scale(context, 22)),
             Semantics(
               button: true,
               label: AppStrings.retry,
@@ -75,7 +76,7 @@ class ErrorBody extends StatelessWidget {
                 color: t.primary,
                 shadowColor: t.textPrimary,
                 textColor: t.primaryContent,
-                horizontalPadding: 16,
+                horizontalPadding: S.scale(context, 16),
                 onTap: onRetry,
               ),
             ),

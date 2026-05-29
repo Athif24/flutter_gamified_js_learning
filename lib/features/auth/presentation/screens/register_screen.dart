@@ -59,15 +59,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       filled: true,
       fillColor: t.bgSurface2,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(r(10)),
         borderSide: BorderSide(color: t.textPrimary, width: 2),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(r(10)),
         borderSide: BorderSide(color: t.border, width: 2),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(r(10)),
         borderSide: BorderSide(color: t.primary, width: 2),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
@@ -108,7 +108,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                     ),
                                     decoration: BoxDecoration(
                                       color: t.primary.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(r(20)),
                                       border: Border.all(
                                         color: t.primary.withValues(
                                           alpha: 0.35,
@@ -135,7 +135,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                         decoration: BoxDecoration(
                                           color: t.primary,
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            r(12),
                                           ),
                                           border: Border.all(
                                             color: t.textPrimary,
@@ -144,7 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                           boxShadow: [
                                             BoxShadow(
                                               color: t.textPrimary,
-                                              offset: const Offset(2, 2),
+                                              offset: Offset(r(2), r(2)),
                                               blurRadius: 0,
                                             ),
                                           ],
@@ -181,12 +181,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       padding: EdgeInsets.all(r(22)),
                       decoration: BoxDecoration(
                         color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(r(10)),
                         border: Border.all(color: t.textPrimary, width: 2),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
-                            offset: const Offset(3, 3),
+                            offset: Offset(r(3), r(3)),
                             blurRadius: 0,
                           ),
                         ],
@@ -249,7 +249,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 padding: EdgeInsets.all(r(12)),
                                 decoration: BoxDecoration(
                                   color: t.error.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(r(10)),
                                   border: Border.all(color: t.error, width: 2),
                                 ),
                                 child: Text(

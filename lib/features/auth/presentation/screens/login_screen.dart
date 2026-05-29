@@ -79,15 +79,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       filled: true,
       fillColor: t.bgSurface2,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(r(10)),
         borderSide: BorderSide(color: t.textPrimary, width: 2),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(r(10)),
         borderSide: BorderSide(color: t.border, width: 2),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(r(10)),
         borderSide: BorderSide(color: t.primary, width: 2),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
@@ -128,7 +128,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 boxShadow: [
                                   BoxShadow(
                                     color: t.textPrimary,
-                                    offset: const Offset(3, 3),
+                                    offset: Offset(r(3), r(3)),
                                     blurRadius: 0,
                                   ),
                                 ],
@@ -192,12 +192,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       padding: EdgeInsets.all(r(22)),
                       decoration: BoxDecoration(
                         color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(r(10)),
                         border: Border.all(color: t.textPrimary, width: 2),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
-                            offset: const Offset(3, 3),
+                            offset: Offset(r(3), r(3)),
                             blurRadius: 0,
                           ),
                         ],
@@ -262,7 +262,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 padding: EdgeInsets.all(r(12)),
                                 decoration: BoxDecoration(
                                   color: t.error.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(r(10)),
                                   border: Border.all(color: t.error, width: 2),
                                 ),
                                 child: Text(
