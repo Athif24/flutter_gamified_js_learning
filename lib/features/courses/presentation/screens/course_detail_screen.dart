@@ -387,7 +387,7 @@ class _MapItem {
 
 // ── Header Card ─────────────────────────────────────────────────────────────
 
-class _HeaderCard extends StatelessWidget {
+class _HeaderCard extends StatefulWidget {
   final CourseModel course;
   final double progress;
   final int progressPct;
@@ -402,18 +402,25 @@ class _HeaderCard extends StatelessWidget {
   });
 
   @override
+  State<_HeaderCard> createState() => _HeaderCardState();
+}
+
+class _HeaderCardState extends State<_HeaderCard> {
+  bool _isExpanded = true;
+
+  @override
   Widget build(BuildContext context) {
-    final cBg = t.primary;
-    final cFg = t.primaryContent;
+    final cBg = widget.t.primary;
+    final cFg = widget.t.primaryContent;
 
     return Container(
       margin: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), 0),
       decoration: BoxDecoration(
         color: cBg,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: t.textPrimary, width: 2),
+        border: Border.all(color: widget.t.textPrimary, width: 2),
         boxShadow: [
-          BoxShadow(color: t.textPrimary, offset: const Offset(3, 3), blurRadius: 0),
+          BoxShadow(color: widget.t.textPrimary, offset: const Offset(3, 3), blurRadius: 0),
         ],
       ),
       child: Padding(
@@ -421,24 +428,61 @@ class _HeaderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title Hero
-            Hero(
-                    tag: 'course-title-${course.id}',
+            // Title row with toggle button
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Hero(
+                    tag: 'course-title-${widget.course.id}',
                     child: Material(
                       color: Colors.transparent,
-                      child: Text(course.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.nunito(
-                              color: cFg,
-                              fontSize: S.font(context, 24),
-                              fontWeight: FontWeight.w900)),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(widget.course.title,
+                            style: GoogleFonts.nunito(
+                                color: cFg,
+                                fontSize: S.font(context, 24),
+                                fontWeight: FontWeight.w900)),
+                      ),
                     ),
                   ),
-                  if (course.description != null &&
-                      course.description!.isNotEmpty) ...[
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    ProviderScope.containerOf(context).read(soundProvider).playClick();
+                    setState(() => _isExpanded = !_isExpanded);
+                  },
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: cFg.withValues(alpha: 0.15),
+                    child: Icon(
+                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      color: cFg,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Animated detail section
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              firstCurve: Curves.easeInOut,
+              secondCurve: Curves.easeInOut,
+              crossFadeState: _isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              firstChild: const SizedBox.shrink(),
+              secondChild: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.course.description != null &&
+                      widget.course.description!.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text(course.description!,
+                    Text(widget.course.description!,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.nunito(
@@ -456,7 +500,7 @@ class _HeaderCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: cFg.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: t.textPrimary.withValues(alpha: 0.5), width: 2),
+                      border: Border.all(color: widget.t.textPrimary.withValues(alpha: 0.5), width: 2),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -474,7 +518,7 @@ class _HeaderCard extends StatelessWidget {
                                 child: Center(child: Icon(Icons.menu_book, color: cFg, size: 16)),
                               ),
                               const SizedBox(height: 8),
-                              Text('${course.totalLessons}', style: GoogleFonts.nunito(
+                              Text('${widget.course.totalLessons}', style: GoogleFonts.nunito(
                                   color: cFg, fontSize: S.font(context, 18), fontWeight: FontWeight.w900)),
                               Text('LESSON', style: GoogleFonts.nunito(
                                   color: cFg.withValues(alpha: 0.8), fontSize: S.font(context, 10),
@@ -482,7 +526,7 @@ class _HeaderCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Container(width: 1, height: 40, color: t.textPrimary.withValues(alpha: 0.2)),
+                        Container(width: 1, height: 40, color: widget.t.textPrimary.withValues(alpha: 0.2)),
                         Expanded(
                           child: Column(
                             children: [
@@ -496,7 +540,7 @@ class _HeaderCard extends StatelessWidget {
                                 child: Center(child: Icon(Icons.check, color: cFg, size: 16)),
                               ),
                               const SizedBox(height: 8),
-                              Text('$completedUnits/${course.units.length}', style: GoogleFonts.nunito(
+                              Text('${widget.completedUnits}/${widget.course.units.length}', style: GoogleFonts.nunito(
                                   color: cFg, fontSize: S.font(context, 18), fontWeight: FontWeight.w900)),
                               Text('UNIT SELESAI', style: GoogleFonts.nunito(
                                   color: cFg.withValues(alpha: 0.8), fontSize: S.font(context, 10),
@@ -504,7 +548,7 @@ class _HeaderCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Container(width: 1, height: 40, color: t.textPrimary.withValues(alpha: 0.2)),
+                        Container(width: 1, height: 40, color: widget.t.textPrimary.withValues(alpha: 0.2)),
                         Expanded(
                           child: Column(
                             children: [
@@ -518,7 +562,7 @@ class _HeaderCard extends StatelessWidget {
                                 child: Center(child: Icon(Icons.percent_rounded, color: cFg, size: 16)),
                               ),
                               const SizedBox(height: 8),
-                              Text('$progressPct%', style: GoogleFonts.nunito(
+                              Text('${widget.progressPct}%', style: GoogleFonts.nunito(
                                   color: cFg, fontSize: S.font(context, 18), fontWeight: FontWeight.w900)),
                               Text('PROGRES', style: GoogleFonts.nunito(
                                   color: cFg.withValues(alpha: 0.8), fontSize: S.font(context, 10),
@@ -534,12 +578,15 @@ class _HeaderCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: LinearProgressIndicator(
-                      value: progress.clamp(0.0, 1.0),
+                      value: widget.progress.clamp(0.0, 1.0),
                       backgroundColor: cFg.withValues(alpha: 0.3),
                       valueColor: AlwaysStoppedAnimation(cFg),
                       minHeight: 12,
                     ),
                   ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -617,7 +664,7 @@ class _PetaBelajar extends ConsumerWidget {
                       compact: isLandscape,
                     );
                   }
-                  return Semantics(
+                  final bubble = Semantics(
                     button: true,
                     label: item.isLocked
                         ? '${item.lessonName} (terkunci)'
@@ -644,7 +691,14 @@ class _PetaBelajar extends ConsumerWidget {
                       ),
                     ),
                   ),
-                );
+                  );
+                  if (item.isFirstActive) {
+                    return Padding(
+                      padding: EdgeInsets.only(top: S.scale(context, 40)),
+                      child: bubble,
+                    );
+                  }
+                  return bubble;
                 }),
               ),
             ],
