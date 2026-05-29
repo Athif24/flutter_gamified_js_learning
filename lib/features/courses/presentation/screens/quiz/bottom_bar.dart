@@ -4,7 +4,6 @@ import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
 import '../../../../../core/utils/responsive_utils.dart';
 import '../../providers/course_provider.dart';
-import '../../../../../shared/services/sound_service.dart';
 
 class BottomBar extends ConsumerWidget {
   final QuizState quiz;
@@ -42,7 +41,6 @@ class BottomBar extends ConsumerWidget {
               onTap: popupShowing || quiz.isSubmitting || quiz.isSubmittingAnswer
                   ? null
                   : () async {
-                      ref.read(soundProvider).playClick();
                       if (isLast) {
                         if (hasAns) {
                           await ref.read(quizProvider.notifier).submitCurrentAnswer();
@@ -67,7 +65,6 @@ class BottomBar extends ConsumerWidget {
               isLoading: quiz.isSubmitting || quiz.isSubmittingAnswer,
               onTap: (hasAns && !quiz.isSubmitting && !quiz.isSubmittingAnswer && !popupShowing)
                   ? () async {
-                      ref.read(soundProvider).playClick();
                       await ref.read(quizProvider.notifier).submitCurrentAnswer();
                     }
                   : null,

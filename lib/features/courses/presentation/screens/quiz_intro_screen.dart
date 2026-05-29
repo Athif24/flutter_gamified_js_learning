@@ -483,10 +483,7 @@ class _IntroBodyState extends State<_IntroBody> {
                             textColor: t.primaryContent,
                             isLoading: _isRestarting,
                             onTap: _hasLives
-                                ? () {
-                                    widget.ref.read(soundProvider).playClick();
-                                    _handleStart(force: true);
-                                  }
+                                ? () => _handleStart(force: true)
                                 : null,
                           ),
                         ),
@@ -502,10 +499,7 @@ class _IntroBodyState extends State<_IntroBody> {
                             textColor: t.textPrimary,
                             onTap: (_isStarting || _isRestarting)
                                 ? null
-                                : () {
-                                    widget.ref.read(soundProvider).playClick();
-                                    context.pop();
-                                  },
+                                : () => context.pop(),
                           ),
                         ),
                       ),
@@ -526,10 +520,7 @@ class _IntroBodyState extends State<_IntroBody> {
                       textColor: t.primaryContent,
                       isLoading: _isStarting,
                       onTap: _hasLives
-                          ? () {
-                              widget.ref.read(soundProvider).playClick();
-                              _handleStart();
-                            }
+                          ? () => _handleStart()
                           : null,
                     ),
                   ),
@@ -546,10 +537,7 @@ class _IntroBodyState extends State<_IntroBody> {
                             textColor: t.primaryContent,
                             isLoading: _isRestarting,
                             onTap: _hasLives
-                                ? () {
-                                    widget.ref.read(soundProvider).playClick();
-                                    _handleStart(force: true);
-                                  }
+                                ? () => _handleStart(force: true)
                                 : null,
                           ),
                         ),
@@ -565,10 +553,7 @@ class _IntroBodyState extends State<_IntroBody> {
                             textColor: t.textPrimary,
                             onTap: (_isStarting || _isRestarting)
                                 ? null
-                                : () {
-                                    widget.ref.read(soundProvider).playClick();
-                                    context.pop();
-                                  },
+                                : () => context.pop(),
                           ),
                         ),
                       ),
@@ -588,10 +573,7 @@ class _IntroBodyState extends State<_IntroBody> {
                   textColor: t.textPrimary,
                   onTap: _isStarting
                       ? null
-                      : () {
-                          widget.ref.read(soundProvider).playClick();
-                          context.pop();
-                        },
+                      : () => context.pop(),
                 ),
                 _ActionBtnData(
                   label: _mainButtonLabel,
@@ -600,10 +582,7 @@ class _IntroBodyState extends State<_IntroBody> {
                   textColor: _hasLives ? t.primaryContent : t.mutedText,
                   isLoading: _isStarting || _isRestarting,
                   onTap: _hasLives
-                      ? () {
-                          widget.ref.read(soundProvider).playClick();
-                          _handleStart(force: _isInProgress);
-                        }
+                      ? () => _handleStart(force: _isInProgress)
                       : null,
                 ),
               ],

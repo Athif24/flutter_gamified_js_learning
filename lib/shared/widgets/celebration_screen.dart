@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../themes/theme_provider.dart';
 import '../providers/gamification_providers.dart';
 import '../services/sound_service.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../features/courses/data/models/course_model.dart';
 
 class CelebrationScreen extends ConsumerStatefulWidget {
@@ -724,6 +725,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
     return Bounceable(
       onTap: () {
+        ref.read(soundProvider).playClick();
         invalidateGamificationProviders(
           ref,
           courseId: widget.courseId,
@@ -733,17 +735,17 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
         decoration: BoxDecoration(
           color: _isSuperCelebration ? t.warning : t.accent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: const Color(0xFF2D2D2D),
+            color: t.textPrimary,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF2D2D2D),
+              color: t.textPrimary,
               offset: const Offset(2, 2),
               blurRadius: 0,
             ),
@@ -754,7 +756,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
           textAlign: TextAlign.center,
           style: GoogleFonts.nunito(
             color: t.bgPrimary,
-            fontSize: 16,
+            fontSize: S.font(context, 16),
             fontWeight: FontWeight.w900,
           ),
         ),

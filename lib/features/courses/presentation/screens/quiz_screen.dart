@@ -76,6 +76,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       label: 'Kembali',
       child: Bounceable(
         onTap: () {
+          sound.playClick();
           if (context.canPop()) {
             context.pop();
           } else {
@@ -286,7 +287,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     button: true,
                     label: 'Tutup kuis',
                     child: Bounceable(
-                      onTap: () => _confirmExit(context, t),
+                      onTap: () {
+                        sound.playClick();
+                        _confirmExit(context, t);
+                      },
                       child: Container(
                         width: S.scale(context, 36),
                         height: S.scale(context, 36),

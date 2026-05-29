@@ -11,7 +11,6 @@ import '../../../../../core/utils/responsive_utils.dart';
 import '../../providers/course_provider.dart';
 import '../../../data/models/course_model.dart';
 import 'quiz_review_dialog.dart';
-import '../../../../../shared/services/sound_service.dart';
 
 class QuizResultScreen extends ConsumerStatefulWidget {
   final QuizResultModel result;
@@ -306,7 +305,6 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                             horizontalPadding: S.scale(context, 20),
                             verticalPadding: S.scale(context, 13),
                             onTap: () {
-                              ref.read(soundProvider).playClick();
                               showDialog(
                                 context: context,
                                 builder: (_) => ReviewDialog(
@@ -351,7 +349,6 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                           horizontalPadding: S.scale(context, 20),
                           verticalPadding: S.scale(context, 15),
                           onTap: () {
-                            ref.read(soundProvider).playClick();
                             ref.read(quizProvider.notifier).reset();
                             if (widget.courseId != null) {
                               context.go('/course/${widget.courseId}');
