@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/services/sound_service.dart';
@@ -41,8 +42,6 @@ class _CropScreenState extends ConsumerState<CropScreen> {
   @override
   Widget build(BuildContext context) {
     final t = widget.t;
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
@@ -63,13 +62,13 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.broken_image_rounded, color: t.mutedText, size: 48),
-                    const SizedBox(height: 16),
+                    Icon(Icons.broken_image_rounded, color: t.mutedText, size: S.scale(context, 48)),
+                    SizedBox(height: S.scale(context, 16)),
                     Text(
                       'Gagal memuat gambar',
-                      style: TextStyle(color: t.mutedText, fontSize: 14),
+                      style: TextStyle(color: t.mutedText, fontSize: S.font(context, 14)),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: S.scale(context, 16)),
                     Game3DButton(
                       label: 'Kembali',
                       color: t.primary,
@@ -109,7 +108,7 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.fromLTRB(rs(24), rs(16), rs(24), rs(24)),
+                        padding: EdgeInsets.fromLTRB(S.scale(context, 24), S.scale(context, 16), S.scale(context, 24), S.scale(context, 24)),
                         child: Row(
                           children: [
                             Expanded(
@@ -123,7 +122,7 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                                 onTap: () => Navigator.pop(context),
                               ),
                             ),
-                            SizedBox(width: rs(16)),
+                            SizedBox(width: S.scale(context, 16)),
                             Expanded(
                               child: Game3DButton(
                                 label: 'Simpan',
