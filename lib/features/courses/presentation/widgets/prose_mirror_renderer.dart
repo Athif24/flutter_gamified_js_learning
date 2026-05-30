@@ -218,7 +218,7 @@ class ProseMirrorRenderer extends StatelessWidget {
       case 'horizontalRule':
         return Padding(
           padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
-          child: Divider(color: t.border, thickness: 1),
+          child: Divider(color: t.border, thickness: S.scale(context, 1)),
         );
 
       case 'blockquote':
@@ -333,7 +333,7 @@ class ProseMirrorRenderer extends StatelessWidget {
           final cells = (row as Map)['content'] as List? ?? [];
           return TableRow(
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: t.border, width: 1)),
+              border: Border(bottom: BorderSide(color: t.border, width: S.scale(context, 1))),
             ),
             children: cells.map((cell) {
               final cellContent = (cell as Map)['content'] as List? ?? [];
@@ -368,8 +368,8 @@ class ProseMirrorRenderer extends StatelessWidget {
             ),
             child: Table(
               border: TableBorder(
-                horizontalInside: BorderSide(color: t.border, width: 1),
-                verticalInside: BorderSide(color: t.border, width: 1),
+                horizontalInside: BorderSide(color: t.border, width: S.scale(context, 1)),
+                verticalInside: BorderSide(color: t.border, width: S.scale(context, 1)),
               ),
               defaultColumnWidth: const IntrinsicColumnWidth(),
               children: rows,
@@ -599,7 +599,7 @@ class CodeBlock extends StatelessWidget {
               color: Colors.white30, fontSize: S.font(context, 10))),
         ]),
       ),
-      const Divider(color: Colors.white12, height: 1),
+      Divider(color: Colors.white12, height: S.scale(context, 1)),
       Padding(
         padding: EdgeInsets.all(S.scale(context, 14)),
         child: SingleChildScrollView(

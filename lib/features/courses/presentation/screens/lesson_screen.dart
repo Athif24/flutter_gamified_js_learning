@@ -74,9 +74,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                 SlowLoadingIndicator(visible: showSlowIndicator, t: t),
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    isLandscape ? 12 : 12,
-                    isLandscape ? 4 : 8,
-                    isLandscape ? 12 : 12,
+                    S.scale(context, 12),
+                    S.scale(context, isLandscape ? 4 : 8),
+                    S.scale(context, 12),
                     0,
                   ),
                   child: Row(
@@ -103,12 +103,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: t.textPrimary,
-                                width: 2,
+                                width: S.scale(context, 2),
                               ),
                               boxShadow: [
                                 BoxShadow(
                                   color: t.textPrimary,
-                                  offset: const Offset(3, 3),
+                                  offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                                   blurRadius: 0,
                                 ),
                               ],
@@ -116,7 +116,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                             child: Icon(
                               Icons.arrow_back_ios_rounded,
                               color: t.textPrimary,
-                              size: 15,
+                              size: S.scale(context, 15),
                             ),
                           ),
                         ),
@@ -125,7 +125,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                             data: (lesson) => Expanded(
                               child: Row(
                                 children: [
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: S.scale(context, 12)),
                                   Semantics(
                                     label: '${lesson.title}, ${lesson.type}',
                                     child: Text(
@@ -140,7 +140,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                   ),
                                   const Spacer(),
                                   VolumeButton(t: t),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: S.scale(context, 8)),
                                   Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: S.scale(context, 10),
@@ -148,10 +148,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                     ),
                                     decoration: BoxDecoration(
                                       color: t.primary.withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(50),
+                                      borderRadius: BorderRadius.circular(S.scale(context, 50)),
                                       border: Border.all(
                                         color: t.textPrimary,
-                                        width: 2,
+                                        width: S.scale(context, 2),
                                       ),
                                     ),
                                     child: Text(
@@ -233,7 +233,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                                 )
                                               else
                                                 _buildEmptyContent(t),
-                                              const SizedBox(height: 32),
+                                              SizedBox(height: S.scale(context, 32)),
                                             ],
                                           ),
                                         ),
@@ -254,12 +254,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                             decoration: BoxDecoration(
                               color: t.bgSurface,
                               border: Border(
-                                top: BorderSide(color: t.textPrimary, width: 2),
+                                top: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
                               ),
                               boxShadow: [
                                 BoxShadow(
                                   color: t.textPrimary,
-                                  offset: const Offset(0, -3),
+                                  offset: Offset(0, S.scale(context, -3)),
                                   blurRadius: 0,
                                 ),
                               ],
@@ -294,19 +294,19 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                       color: isCompleted
                                           ? t.success.withValues(alpha: 0.2)
                                           : t.primary,
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(S.scale(context, 10)),
                                       border: Border.all(
                                         color: isCompleted
                                             ? t.success.withValues(alpha: 0.4)
                                             : t.textPrimary,
-                                        width: 2,
+                                        width: S.scale(context, 2),
                                       ),
                                       boxShadow: isCompleted
                                           ? []
                                           : [
                                               BoxShadow(
                                                 color: t.textPrimary,
-                                                offset: const Offset(3, 3),
+                                                offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                                                 blurRadius: 0,
                                               ),
                                             ],
@@ -317,10 +317,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                       children: [
                                         if (_isProcessing)
                                           SizedBox(
-                                            width: 18,
-                                            height: 18,
+                                            width: S.scale(context, 18),
+                                            height: S.scale(context, 18),
                                             child: CircularProgressIndicator(
-                                              strokeWidth: 2,
+                                              strokeWidth: S.scale(context, 2),
                                               color: t.primaryContent,
                                             ),
                                           )
@@ -334,9 +334,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                             color: isCompleted
                                                 ? t.success
                                                 : t.primaryContent,
-                                            size: 18,
+                                            size: S.scale(context, 18),
                                           ),
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: S.scale(context, 8)),
                                           Text(
                                             isCompleted
                                                 ? 'Selesai!'
@@ -421,8 +421,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
+        borderRadius: BorderRadius.circular(S.scale(context, 50)),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: S.scale(context, 1.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -454,7 +454,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
               size: S.scale(context, 48),
               color: t.mutedText.withValues(alpha: 0.2),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: S.scale(context, 16)),
             Text(
               'Konten materi belum tersedia.',
               style: GoogleFonts.nunito(
@@ -537,7 +537,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
             backgroundColor: t.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
           ),
         );
