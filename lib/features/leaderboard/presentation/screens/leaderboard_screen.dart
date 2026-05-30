@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
@@ -128,7 +129,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
         await _silentRefresh();
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        padding: EdgeInsets.fromLTRB(
+          S.scale(context, 20),
+          S.scale(context, 20),
+          S.scale(context, 20),
+          S.scale(context, 32),
+        ),
         children: [
           HeaderCard(
             t: t,
@@ -136,7 +142,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
             currentUserXp: currentUserXp,
           ).animate().fadeIn(),
 
-          const SizedBox(height: 16),
+          SizedBox(height: S.scale(context, 16)),
 
           if (currentUserRank != null && currentUserXp != null)
             UserRankCard(
@@ -146,7 +152,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
             ).animate().fadeIn(delay: 100.ms),
 
           if (currentUserRank != null && currentUserXp != null)
-            const SizedBox(height: 16),
+            SizedBox(height: S.scale(context, 16)),
 
           if (entries.length >= 3)
             Podium(
@@ -154,14 +160,14 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
               entries: entries.take(3).toList(),
             ).animate().fadeIn(delay: 180.ms),
 
-          if (entries.length >= 3) const SizedBox(height: 16),
+          if (entries.length >= 3) SizedBox(height: S.scale(context, 16)),
 
           SearchCard(
             t: t,
             onChanged: (v) => setState(() => _searchQuery = v),
           ).animate().fadeIn(delay: 250.ms),
 
-          const SizedBox(height: 16),
+          SizedBox(height: S.scale(context, 16)),
 
           LeaderboardTable(
             t: t,
@@ -171,7 +177,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
             topXp: topXp,
           ).animate().fadeIn(delay: 300.ms),
 
-          const SizedBox(height: 16),
+          SizedBox(height: S.scale(context, 16)),
 
           if (entries.isNotEmpty)
             FooterStats(
