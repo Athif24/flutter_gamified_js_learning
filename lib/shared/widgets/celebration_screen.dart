@@ -130,65 +130,68 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
               if (_showContent)
                 Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildHeroIcon(t),
-                        const SizedBox(height: 20),
+                        SizedBox(height: S.scale(context, 20)),
                         if (_isSuperCelebration) _buildSuperBadge(t),
                         Text(
                           _title,
                           style: GoogleFonts.nunito(
                             color: Colors.white,
-                            fontSize: 32,
+                            fontSize: S.font(context, 32),
                             fontWeight: FontWeight.w900,
                           ),
                         )
                             .animate()
                             .fadeIn(delay: 300.ms)
                             .slideY(begin: 0.2),
-                        const SizedBox(height: 8),
-                        Text(
-                          _subtitle,
-                          style: GoogleFonts.nunito(
-                            color: Colors.white.withAlpha(200),
-                            fontSize: 13,
+                        SizedBox(height: S.scale(context, 8)),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _subtitle,
+                            style: GoogleFonts.nunito(
+                              color: Colors.white.withAlpha(200),
+                              fontSize: S.font(context, 13),
+                            ),
                           ),
                         )
                             .animate()
                             .fadeIn(delay: 400.ms),
-                        const SizedBox(height: 32),
+                        SizedBox(height: S.scale(context, 32)),
 
                         if (widget.xpEarned > 0 || widget.jewelsEarned > 0)
                           _buildRewardRow(t),
                         if (widget.xpEarned > 0 || widget.jewelsEarned > 0)
-                          const SizedBox(height: 12),
+                          SizedBox(height: S.scale(context, 12)),
 
                         if (_hasLevelUp) ...[
                           _buildLevelUpCard(t),
-                          const SizedBox(height: 12),
+                          SizedBox(height: S.scale(context, 12)),
                         ],
 
                         if (_hasStreakMilestone && widget.streak != null) ...[
                           _buildStreakMilestoneCard(t),
-                          const SizedBox(height: 12),
+                          SizedBox(height: S.scale(context, 12)),
                         ],
                         if (!_hasStreakMilestone &&
                             widget.streak != null &&
                             widget.streak!.currentStreak > 1) ...[
                           _buildStreakSimpleCard(t),
-                          const SizedBox(height: 12),
+                          SizedBox(height: S.scale(context, 12)),
                         ],
 
                         if (_hasBadges) ...[
                           _buildBadgesSection(t),
-                          const SizedBox(height: 12),
+                          SizedBox(height: S.scale(context, 12)),
                         ],
 
-                        const SizedBox(height: 40),
+                        SizedBox(height: S.scale(context, 40)),
                         _buildContinueButton(t),
-                        const SizedBox(height: 32),
+                        SizedBox(height: S.scale(context, 32)),
                       ],
                     ),
                   ),
@@ -324,28 +327,28 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
   Widget _buildHeroIcon(BloomTheme t) {
     return Container(
-      width: 96,
-      height: 96,
+      width: S.scale(context, 96),
+      height: S.scale(context, 96),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
           color: _isSuperCelebration ? t.warning : t.accent,
-          width: 4,
+          width: S.scale(context, 4),
         ),
         color: (_isSuperCelebration ? t.warning : t.accent).withAlpha(25),
         boxShadow: _isSuperCelebration
             ? [
                 BoxShadow(
                   color: t.warning.withAlpha(150),
-                  blurRadius: 30,
-                  spreadRadius: 5,
+                  blurRadius: S.scale(context, 30),
+                  spreadRadius: S.scale(context, 5),
                 ),
               ]
             : null,
       ),
       child: Icon(
         _hasLevelUp ? Icons.auto_awesome_rounded : Icons.emoji_events_rounded,
-        size: 48,
+        size: S.scale(context, 48),
         color: _hasLevelUp ? t.warning : t.accent,
       ),
     )
@@ -360,19 +363,19 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
   Widget _buildSuperBadge(BloomTheme t) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 4)),
       decoration: BoxDecoration(
         color: t.warning.withAlpha(40),
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: BorderRadius.circular(S.scale(context, 50)),
         border: Border.all(color: t.warning.withAlpha(100)),
       ),
       child: Text(
         'SUPER CELEBRATION',
         style: GoogleFonts.nunito(
           color: t.warning,
-          fontSize: 10,
+          fontSize: S.font(context, 10),
           fontWeight: FontWeight.w900,
-          letterSpacing: 1.8,
+          letterSpacing: S.scale(context, 1.8),
         ),
       ),
     )
@@ -397,7 +400,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
             ),
           ),
         if (widget.xpEarned > 0 && widget.jewelsEarned > 0)
-          const SizedBox(width: 12),
+          SizedBox(width: S.scale(context, 12)),
         if (widget.jewelsEarned > 0)
           Expanded(
             child: _AnimatedRewardCard(
@@ -417,27 +420,27 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   Widget _buildLevelUpCard(BloomTheme t) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20), vertical: S.scale(context, 14)),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [t.accent.withAlpha(60), t.info.withAlpha(40)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(S.scale(context, 16)),
         border: Border.all(color: t.accent.withAlpha(100)),
         boxShadow: _isSuperCelebration
             ? [
                 BoxShadow(
                   color: t.accent.withAlpha(100),
-                  blurRadius: 20,
-                  spreadRadius: 2,
+                  blurRadius: S.scale(context, 20),
+                  spreadRadius: S.scale(context, 2),
                 ),
               ]
             : [
                 BoxShadow(
                   color: t.accent.withAlpha(50),
-                  offset: const Offset(4, 4),
+                  offset: Offset(S.scale(context, 4), S.scale(context, 4)),
                   blurRadius: 0,
                 ),
               ],
@@ -448,12 +451,12 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
             'LEVEL UP',
             style: GoogleFonts.nunito(
               color: t.accent.withAlpha(150),
-              fontSize: 10,
+              fontSize: S.font(context, 10),
               fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
+              letterSpacing: S.scale(context, 1.5),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -463,45 +466,51 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                     'Sebelumnya',
                     style: GoogleFonts.nunito(
                       color: Colors.white.withAlpha(100),
-                      fontSize: 11,
+                      fontSize: S.font(context, 11),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Text(
-                    widget.levelUp!.previousLevelName ?? '—',
-                    style: GoogleFonts.nunito(
-                      color: Colors.white.withAlpha(150),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      decoration: TextDecoration.lineThrough,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.levelUp!.previousLevelName ?? '—',
+                      style: GoogleFonts.nunito(
+                        color: Colors.white.withAlpha(150),
+                        fontSize: S.font(context, 14),
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.lineThrough,
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: S.scale(context, 16)),
               Text('→',
                   style: GoogleFonts.nunito(
                     color: t.accent,
-                    fontSize: 24,
+                    fontSize: S.font(context, 24),
                     fontWeight: FontWeight.w900,
                   )),
-              const SizedBox(width: 16),
+              SizedBox(width: S.scale(context, 16)),
               Column(
                 children: [
                   Text(
                     'Sekarang',
                     style: GoogleFonts.nunito(
                       color: Colors.white.withAlpha(100),
-                      fontSize: 11,
+                      fontSize: S.font(context, 11),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Text(
-                    widget.levelUp!.newLevelName ?? '—',
-                    style: GoogleFonts.nunito(
-                      color: t.accent,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.levelUp!.newLevelName ?? '—',
+                      style: GoogleFonts.nunito(
+                        color: t.accent,
+                        fontSize: S.font(context, 18),
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ],
@@ -509,19 +518,19 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
             ],
           ),
           if (widget.levelUp!.jewelsAwarded > 0) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: S.scale(context, 12)),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 4)),
               decoration: BoxDecoration(
                 color: t.info.withAlpha(25),
-                borderRadius: BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(S.scale(context, 50)),
                 border: Border.all(color: t.info.withAlpha(100)),
               ),
               child: Text(
                 '+${widget.levelUp!.jewelsAwarded} Jewel Bonus',
                 style: GoogleFonts.nunito(
                   color: t.info,
-                  fontSize: 12,
+                  fontSize: S.font(context, 12),
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -538,41 +547,47 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   Widget _buildStreakMilestoneCard(BloomTheme t) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20), vertical: S.scale(context, 14)),
       decoration: BoxDecoration(
         color: t.accent.withAlpha(25),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(S.scale(context, 16)),
         border: Border.all(color: t.accent.withAlpha(100)),
         boxShadow: [
           BoxShadow(
             color: t.accent.withAlpha(50),
-            offset: const Offset(4, 4),
+            offset: Offset(S.scale(context, 4), S.scale(context, 4)),
             blurRadius: 0,
           ),
         ],
       ),
       child: Row(
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 40)),
-          const SizedBox(width: 16),
+          Text('🔥', style: TextStyle(fontSize: S.font(context, 40))),
+          SizedBox(width: S.scale(context, 16)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${widget.streak!.currentStreak} hari berturut-turut!',
-                  style: GoogleFonts.nunito(
-                    color: t.accent,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '${widget.streak!.currentStreak} hari berturut-turut!',
+                    style: GoogleFonts.nunito(
+                      color: t.accent,
+                      fontSize: S.font(context, 16),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
-                Text(
-                  'Streak terpanjangmu: ${widget.streak!.longestStreak} hari',
-                  style: GoogleFonts.nunito(
-                    color: Colors.white.withAlpha(130),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Streak terpanjangmu: ${widget.streak!.longestStreak} hari',
+                    style: GoogleFonts.nunito(
+                      color: Colors.white.withAlpha(130),
+                      fontSize: S.font(context, 12),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
@@ -589,21 +604,21 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   Widget _buildStreakSimpleCard(BloomTheme t) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20), vertical: S.scale(context, 12)),
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(20),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(S.scale(context, 16)),
         border: Border.all(color: Colors.white.withAlpha(30)),
       ),
       child: Row(
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 20)),
-          const SizedBox(width: 12),
+          Text('🔥', style: TextStyle(fontSize: S.font(context, 20))),
+          SizedBox(width: S.scale(context, 12)),
           Text(
             'Streak: ${widget.streak!.currentStreak} hari',
             style: GoogleFonts.nunito(
               color: Colors.white.withAlpha(180),
-              fontSize: 14,
+              fontSize: S.font(context, 14),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -623,24 +638,24 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
           'Lencana Baru',
           style: GoogleFonts.nunito(
             color: Colors.white.withAlpha(100),
-            fontSize: 10,
+            fontSize: S.font(context, 10),
             fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
+            letterSpacing: S.scale(context, 1.5),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: S.scale(context, 8)),
         ...widget.badges.asMap().entries.map((e) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.only(bottom: S.scale(context, 8)),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 16), vertical: S.scale(context, 12)),
                 decoration: BoxDecoration(
                   color: t.info.withAlpha(25),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(S.scale(context, 16)),
                   border: Border.all(color: t.info.withAlpha(60)),
                   boxShadow: [
                     BoxShadow(
                       color: t.info.withAlpha(25),
-                      offset: const Offset(4, 4),
+                      offset: Offset(S.scale(context, 4), S.scale(context, 4)),
                       blurRadius: 0,
                     ),
                   ],
@@ -648,8 +663,8 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                 child: Row(
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: S.scale(context, 44),
+                      height: S.scale(context, 44),
                       decoration: BoxDecoration(
                         color: t.warning.withAlpha(25),
                         shape: BoxShape.circle,
@@ -657,51 +672,57 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                       ),
                       child: Center(
                         child: e.value.jewelsEarned > 0
-                            ? const Text('🏅', style: TextStyle(fontSize: 22))
-                            : const Text('🏅', style: TextStyle(fontSize: 22)),
+                            ? Text('🏅', style: TextStyle(fontSize: S.font(context, 22)))
+                            : Text('🏅', style: TextStyle(fontSize: S.font(context, 22))),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: S.scale(context, 12)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            e.value.name,
-                            style: GoogleFonts.nunito(
-                              color: t.info,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              e.value.name,
+                              style: GoogleFonts.nunito(
+                                color: t.info,
+                                fontSize: S.font(context, 14),
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
                           if (e.value.description != null)
-                            Text(
-                              e.value.description!,
-                              style: GoogleFonts.nunito(
-                                color: Colors.white.withAlpha(130),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                e.value.description!,
+                                style: GoogleFonts.nunito(
+                                  color: Colors.white.withAlpha(130),
+                                  fontSize: S.font(context, 11),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
                         ],
                       ),
                     ),
                     if (e.value.jewelsEarned > 0)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
                         decoration: BoxDecoration(
                           color: t.info.withAlpha(25),
-                          borderRadius: BorderRadius.circular(50),
+                          borderRadius: BorderRadius.circular(S.scale(context, 50)),
                           border: Border.all(color: t.info.withAlpha(80)),
                         ),
                         child: Text(
                           '+${e.value.jewelsEarned}',
                           style: GoogleFonts.nunito(
                             color: t.info,
-                            fontSize: 12,
+                            fontSize: S.font(context, 12),
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -738,15 +759,15 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
         padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
         decoration: BoxDecoration(
           color: _isSuperCelebration ? t.warning : t.accent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(S.scale(context, 10)),
           border: Border.all(
             color: t.textPrimary,
-            width: 2,
+            width: S.scale(context, 2),
           ),
           boxShadow: [
             BoxShadow(
               color: t.textPrimary,
-              offset: const Offset(2, 2),
+              offset: Offset(S.scale(context, 2), S.scale(context, 2)),
               blurRadius: 0,
             ),
           ],
@@ -824,23 +845,23 @@ class _AnimatedRewardCardState extends State<_AnimatedRewardCard>
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20), vertical: S.scale(context, 14)),
       decoration: BoxDecoration(
         color: widget.color.withAlpha(25),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(S.scale(context, 16)),
         border: Border.all(color: widget.color.withAlpha(80)),
         boxShadow: widget.isSuper
             ? [
                 BoxShadow(
                   color: widget.color.withAlpha(100),
-                  blurRadius: 20,
-                  spreadRadius: 2,
+                  blurRadius: S.scale(context, 20),
+                  spreadRadius: S.scale(context, 2),
                 ),
               ]
             : [
                 BoxShadow(
                   color: widget.color.withAlpha(50),
-                  offset: const Offset(4, 4),
+                  offset: Offset(S.scale(context, 4), S.scale(context, 4)),
                   blurRadius: 0,
                 ),
               ],
@@ -851,28 +872,31 @@ class _AnimatedRewardCardState extends State<_AnimatedRewardCard>
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(widget.emoji, style: const TextStyle(fontSize: 24)),
-              const SizedBox(width: 8),
+              Text(widget.emoji, style: TextStyle(fontSize: S.font(context, 24))),
+              SizedBox(width: S.scale(context, 8)),
               Text(
                 widget.label,
                 style: GoogleFonts.nunito(
                   color: Colors.white.withAlpha(180),
-                  fontSize: 12,
+                  fontSize: S.font(context, 12),
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: S.scale(context, 8)),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
-              return Text(
-                '+${_animation.value}',
-                style: GoogleFonts.nunito(
-                  color: widget.color,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '+${_animation.value}',
+                  style: GoogleFonts.nunito(
+                    color: widget.color,
+                    fontSize: S.font(context, 22),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               );
             },
