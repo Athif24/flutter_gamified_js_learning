@@ -40,10 +40,23 @@ class RankBadgeSmall extends StatelessWidget {
         color: _bg,
         borderRadius: BorderRadius.circular(S.scale(context, 6)),
         border: _isTop3
-            ? Border.all(color: _fg.withValues(alpha: 0.3))
-            : Border.all(color: t.border),
+            ? Border.all(
+                color: _fg.withValues(alpha: 0.3),
+                width: S.scale(context, 1),
+              )
+            : Border.all(
+                color: t.border,
+                width: S.scale(context, 1),
+              ),
         boxShadow: _isTop3
-            ? [BoxShadow(color: _bg, offset: const Offset(2, 2), blurRadius: 0)]
+            ? [BoxShadow(
+                color: _bg,
+                offset: Offset(
+                  S.scale(context, 2),
+                  S.scale(context, 2),
+                ),
+                blurRadius: 0,
+              )]
             : null,
       ),
       child: Text(

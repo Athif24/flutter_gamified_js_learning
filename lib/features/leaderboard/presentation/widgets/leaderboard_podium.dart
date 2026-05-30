@@ -113,13 +113,18 @@ class PodiumUser extends StatelessWidget {
             height: rank == 1 ? S.scale(context, 56) : S.scale(context, 44),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: _color, width: rank == 1 ? 3 : 2),
+              border: Border.all(
+                color: _color,
+                width: S.scale(context, rank == 1 ? 3 : 2),
+              ),
               color: _color.withValues(alpha: 0.2),
             ),
             child: Center(
               child: entry.avatar != null && entry.avatar!.isNotEmpty
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
+                      borderRadius: BorderRadius.circular(
+                        S.scale(context, 50),
+                      ),
                       child: CachedNetworkImage(
                         imageUrl: entry.avatar!,
                         width: rank == 1 ? S.scale(context, 50) : S.scale(context, 38),
@@ -178,20 +183,26 @@ class PodiumUser extends StatelessWidget {
         ),
       ),
       SizedBox(height: S.scale(context, 4)),
-      Text(
-        '${fmtCompact(entry.xpTotal)} XP',
-        style: GoogleFonts.nunito(
-          color: t.mutedText,
-          fontWeight: FontWeight.w700,
-          fontSize: S.font(context, 10),
+      FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          '${fmtCompact(entry.xpTotal)} XP',
+          style: GoogleFonts.nunito(
+            color: t.mutedText,
+            fontWeight: FontWeight.w700,
+            fontSize: S.font(context, 10),
+          ),
         ),
       ),
       if (entry.levelName != null)
-        Text(
-          entry.levelName!,
-          style: GoogleFonts.nunito(
-            color: t.mutedText.withValues(alpha: 0.7),
-            fontSize: S.font(context, 9),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            entry.levelName!,
+            style: GoogleFonts.nunito(
+              color: t.mutedText.withValues(alpha: 0.7),
+              fontSize: S.font(context, 9),
+            ),
           ),
         ),
       SizedBox(height: S.scale(context, 4)),
@@ -206,7 +217,10 @@ class PodiumUser extends StatelessWidget {
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(S.scale(context, 12)),
           ),
-          border: Border.all(color: _color, width: 3),
+          border: Border.all(
+            color: _color,
+            width: S.scale(context, 3),
+          ),
         ),
         child: Center(
           child: Text(
