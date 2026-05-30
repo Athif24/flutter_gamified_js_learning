@@ -35,12 +35,12 @@ class _EssayQuestionState extends State<EssayQuestion> {
         ),
         decoration: BoxDecoration(
           color: widget.t.info.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(S.scale(context, 12)),
         ),
         child: Row(
           children: [
-            Icon(Icons.edit_rounded, color: widget.t.info, size: 16),
-            const SizedBox(width: 8),
+            Icon(Icons.edit_rounded, color: widget.t.info, size: S.scale(context, 16)),
+            SizedBox(width: S.scale(context, 8)),
             Expanded(
               child: Text(
                 'Tulis jawabanmu dengan jelas dan lengkap',
@@ -54,11 +54,11 @@ class _EssayQuestionState extends State<EssayQuestion> {
           ],
         ),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: S.scale(context, 12)),
       Container(
         decoration: BoxDecoration(
           color: widget.t.bgSurface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(S.scale(context, 16)),
           border: Border.all(color: widget.t.border),
         ),
         child: TextField(

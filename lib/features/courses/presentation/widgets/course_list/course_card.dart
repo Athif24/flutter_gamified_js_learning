@@ -46,7 +46,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
             backgroundColor: widget.t.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
           ),
         );
@@ -85,7 +85,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(S.scale(context, 24)),
-        border: Border.all(color: t.textPrimary, width: 2),
+        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
@@ -137,7 +137,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                           borderRadius: BorderRadius.circular(
                             S.scale(context, 50),
                           ),
-                          border: Border.all(color: t.textPrimary, width: 2),
+                          border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -174,7 +174,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                           borderRadius: BorderRadius.circular(
                             S.scale(context, 50),
                           ),
-                          border: Border.all(color: t.textPrimary, width: 2),
+                          border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         ),
                         child: Text(
                           'Enrolled',
@@ -295,7 +295,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                           borderRadius: BorderRadius.circular(
                             S.scale(context, 16),
                           ),
-                          border: Border.all(color: t.textPrimary, width: 2),
+                          border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                           boxShadow: [
                             BoxShadow(
                               color: t.textPrimary,
@@ -364,7 +364,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                           borderRadius: BorderRadius.circular(
                             S.scale(context, 16),
                           ),
-                          border: Border.all(color: t.textPrimary, width: 2),
+                          border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                           boxShadow: [
                             BoxShadow(
                               color: t.textPrimary,

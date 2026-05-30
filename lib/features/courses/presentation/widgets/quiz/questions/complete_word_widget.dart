@@ -110,12 +110,12 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
           padding: EdgeInsets.all(S.scale(context, 16)),
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(S.scale(context, 16)),
             border: Border.all(color: widget.t.info.withValues(alpha: 0.3)),
           ),
           child: _buildCodeWithBlanks(),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: S.scale(context, 16)),
         if (blankCount > 0) ...[
           Row(
             children: [
@@ -129,7 +129,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: S.scale(context, 10)),
         ],
         Wrap(
           spacing: S.scale(context, 8),
@@ -161,7 +161,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
                       color: isUsed
                           ? widget.t.success.withValues(alpha: 0.1)
                           : widget.t.info.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(S.scale(context, 8)),
                       border: Border.all(
                         color: isUsed
                             ? widget.t.success.withValues(alpha: 0.5)
@@ -183,7 +183,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
           }).toList(),
         ),
         if (remaining <= 0 && blankCount > 0) ...[
-          const SizedBox(height: 10),
+          SizedBox(height: S.scale(context, 10)),
           Container(
             padding: EdgeInsets.symmetric(
               horizontal: S.scale(context, 14),
@@ -191,7 +191,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
             ),
             decoration: BoxDecoration(
               color: widget.t.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -201,7 +201,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
                   color: widget.t.success,
                   size: S.scale(context, 16),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: S.scale(context, 8)),
                 Text(
                   'Semua bagian sudah terisi',
                   style: GoogleFonts.nunito(
@@ -213,7 +213,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: S.scale(context, 10)),
         ],
       ],
     );
@@ -274,7 +274,7 @@ class CompleteWordWidgetState extends State<CompleteWordWidget> {
                         : widget.t.textPrimary.withValues(alpha: 0.3),
                     style: BorderStyle.solid,
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(S.scale(context, 8)),
                 ),
                 child: Text(
                   isFilled ? filledText : '___',

@@ -20,14 +20,14 @@ class InfoChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: BorderRadius.circular(S.scale(context, 50)),
         border: Border.all(color: t.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: S.scale(context, 16), color: color),
-          const SizedBox(width: 6),
+          SizedBox(width: S.scale(context, 6)),
           Text(
             label,
             style: GoogleFonts.nunito(

@@ -163,7 +163,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_isCodeMode) _buildCodeAnswerArea() else _buildWordAnswerArea(),
-        const SizedBox(height: 12),
+        SizedBox(height: S.scale(context, 12)),
         Text(
           _isCodeMode
               ? (_lineMode ? 'Baris tersedia:' : 'Token tersedia:')
@@ -174,7 +174,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
             color: widget.t.mutedText,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: S.scale(context, 8)),
         if (_isCodeMode) _buildCodeChips() else _buildWordChips(),
       ],
     );
@@ -187,10 +187,10 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       padding: EdgeInsets.all(S.scale(context, 12)),
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(S.scale(context, 12)),
         border: Border.all(
           color: widget.t.border.withValues(alpha: 0.5),
-          width: 1.5,
+          width: S.scale(context, 1.5),
         ),
       ),
       child: _placed.isEmpty
@@ -203,8 +203,8 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               ),
             )
           : Wrap(
-              spacing: 7,
-              runSpacing: 7,
+              spacing: S.scale(context, 7),
+              runSpacing: S.scale(context, 7),
               children: [
                 for (int i = 0; i < _placed.length; i++)
                   _buildPlacedWordChip(_placed[i], i),
@@ -226,7 +226,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
           ),
           decoration: BoxDecoration(
             color: widget.t.primary,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(S.scale(context, 20)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -269,9 +269,9 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                   color: widget.t.bgSurface2,
                   border: Border.all(
                     color: widget.t.border.withValues(alpha: 0.6),
-                    width: 1.5,
+                    width: S.scale(context, 1.5),
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(S.scale(context, 20)),
                 ),
                 child: Text(
                   opt.text,
@@ -293,7 +293,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
     return Container(
       decoration: BoxDecoration(
         color: widget.t.bgSurface2,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(
@@ -323,11 +323,11 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
       child: Row(
         children: [
           _dot(widget.t.error),
-          const SizedBox(width: 5),
+          SizedBox(width: S.scale(context, 5)),
           _dot(widget.t.warning),
-          const SizedBox(width: 5),
+          SizedBox(width: S.scale(context, 5)),
           _dot(widget.t.success),
-          const SizedBox(width: 8),
+          SizedBox(width: S.scale(context, 8)),
           Text(
             'script.js',
             style: GoogleFonts.firaCode(
@@ -342,8 +342,8 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
 
   Widget _dot(Color color) {
     return Container(
-      width: 9,
-      height: 9,
+      width: S.scale(context, 9),
+      height: S.scale(context, 9),
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
@@ -385,7 +385,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: S.scale(context, 12)),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -453,7 +453,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
           decoration: BoxDecoration(
             color: widget.t.bgSurface2,
             border: Border.all(color: widget.t.border),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(S.scale(context, 4)),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
@@ -492,7 +492,7 @@ class ReorderWordsWidgetState extends State<ReorderWordsWidget> {
                 decoration: BoxDecoration(
                   color: widget.t.bgSurface,
                   border: Border.all(color: widget.t.border),
-                  borderRadius: BorderRadius.circular(7),
+                  borderRadius: BorderRadius.circular(S.scale(context, 7)),
                 ),
                 child: Text(
                   opt.text,

@@ -60,26 +60,26 @@ class ChoiceQuestion extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: isSel ? color.withValues(alpha: 0.12) : t.bgSurface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(
                 color: isSel ? color : t.textPrimary,
-                width: 2,
+                width: S.scale(context, 2),
               ),
               boxShadow: isSel
-                  ? [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.4),
-                        offset: const Offset(0, 4),
-                        blurRadius: 0,
-                      ),
-                    ]
-                  : [
-                      BoxShadow(
-                        color: t.textPrimary,
-                        offset: const Offset(3, 3),
-                        blurRadius: 0,
-                      ),
-                    ],
+                ? [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.4),
+                      offset: Offset(0, S.scale(context, 4)),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: t.textPrimary,
+                      offset: Offset(S.scale(context, 3), S.scale(context, 3)),
+                      blurRadius: 0,
+                    ),
+                  ],
             ),
             child: Row(
               children: [
@@ -90,11 +90,11 @@ class ChoiceQuestion extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSel ? color : color.withValues(alpha: 0.1),
-                    border: Border.all(color: t.textPrimary, width: 2),
+                    border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                     boxShadow: [
                       BoxShadow(
                         color: t.textPrimary,
-                        offset: const Offset(3, 3),
+                        offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                         blurRadius: 0,
                       ),
                     ],
@@ -110,7 +110,7 @@ class ChoiceQuestion extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: S.scale(context, 14)),
                 Expanded(
                   child: Text(
                     opt.text,
@@ -122,7 +122,7 @@ class ChoiceQuestion extends StatelessWidget {
                   ),
                 ),
                 if (isSel)
-                  Icon(Icons.check_circle_rounded, color: color, size: 20),
+                  Icon(Icons.check_circle_rounded, color: color, size: S.scale(context, 20)),
               ],
             ),
           ),

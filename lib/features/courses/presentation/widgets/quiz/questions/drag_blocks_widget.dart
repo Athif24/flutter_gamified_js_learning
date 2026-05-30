@@ -71,7 +71,7 @@ class DragBlocksWidgetState extends State<DragBlocksWidget> {
             ),
             decoration: BoxDecoration(
               color: widget.t.info.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(S.scale(context, 6)),
             ),
             child: Text(
               'JAVASCRIPT',
@@ -79,13 +79,13 @@ class DragBlocksWidgetState extends State<DragBlocksWidget> {
                 color: widget.t.info,
                 fontSize: S.font(context, 10),
                 fontWeight: FontWeight.w800,
-                letterSpacing: 1.2,
+                letterSpacing: S.scale(context, 1.2),
               ),
             ),
           ),
         ],
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: S.scale(context, 12)),
       ReorderableListView.builder(
         buildDefaultDragHandles: false,
         shrinkWrap: true,
@@ -106,7 +106,7 @@ class DragBlocksWidgetState extends State<DragBlocksWidget> {
             margin: EdgeInsets.only(bottom: S.scale(context, 8)),
             decoration: BoxDecoration(
               color: widget.t.bgSurface2,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(S.scale(context, 14)),
               border: Border.all(color: widget.t.info.withValues(alpha: 0.3)),
             ),
             child: Row(

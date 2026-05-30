@@ -80,7 +80,7 @@ class QuestionCard extends StatelessWidget {
       padding: EdgeInsets.all(S.scale(context, 18)),
       decoration: BoxDecoration(
         color: style.darkBg ? t.bgSurface2 : t.bgSurface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(S.scale(context, 20)),
         border: Border.all(color: style.accent.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -93,13 +93,13 @@ class QuestionCard extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: style.accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(S.scale(context, 50)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(style.icon, color: style.accent, size: 14),
-                const SizedBox(width: 5),
+                Icon(style.icon, color: style.accent, size: S.scale(context, 14)),
+                SizedBox(width: S.scale(context, 5)),
                 Text(
                   style.label,
                   style: GoogleFonts.nunito(
@@ -111,7 +111,7 @@ class QuestionCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           Text(
             text,
             style: GoogleFonts.nunito(
@@ -122,13 +122,13 @@ class QuestionCard extends StatelessWidget {
             ),
           ),
           if (codeSnippet != null && codeSnippet!.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: S.scale(context, 12)),
             Container(
               width: double.infinity,
               padding: EdgeInsets.all(S.scale(context, 14)),
               decoration: BoxDecoration(
                 color: t.bgSurface2,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(S.scale(context, 12)),
                 border: Border.all(color: style.accent.withValues(alpha: 0.2)),
               ),
               child: Text(

@@ -17,7 +17,7 @@ class EmptyState extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(S.scale(context, 24)),
-          border: Border.all(color: t.textPrimary, width: 2),
+          border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
           boxShadow: [
             BoxShadow(
               color: t.textPrimary,
