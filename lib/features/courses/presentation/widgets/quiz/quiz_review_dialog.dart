@@ -34,10 +34,14 @@ class ReviewDialog extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text('Lihat Jawaban',
-                  style: GoogleFonts.nunito(
-                      color: t.textPrimary, fontSize: S.font(context, 18),
-                      fontWeight: FontWeight.w900)),
+              Text(
+                'Lihat Jawaban',
+                style: GoogleFonts.nunito(
+                  color: t.textPrimary,
+                  fontSize: S.font(context, 18),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
               const Spacer(),
               Semantics(
                 button: true,
@@ -47,7 +51,11 @@ class ReviewDialog extends ConsumerWidget {
                     ref.read(soundProvider).playClick();
                     Navigator.pop(context);
                   },
-                  child: Icon(Icons.close_rounded, color: t.mutedText, size: 22),
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: t.mutedText,
+                    size: 22,
+                  ),
                 ),
               ),
             ],
@@ -62,15 +70,24 @@ class ReviewDialog extends ConsumerWidget {
                 final qr = questionResults[i];
                 final q = questions.firstWhere(
                   (qq) => qq.id == qr.questionId,
-                  orElse: () => QuestionModel(id: qr.questionId, text: 'Soal #$i', type: 'choice', points: 10),
+                  orElse: () => QuestionModel(
+                    id: qr.questionId,
+                    text: 'Soal #$i',
+                    type: 'choice',
+                    points: 10,
+                  ),
                 );
                 return Container(
                   padding: EdgeInsets.all(S.scale(context, 14)),
                   decoration: BoxDecoration(
-                    color: qr.isCorrect ? t.success.withValues(alpha: 0.08) : t.error.withValues(alpha: 0.08),
+                    color: qr.isCorrect
+                        ? t.success.withValues(alpha: 0.08)
+                        : t.error.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: qr.isCorrect ? t.success.withValues(alpha: 0.3) : t.error.withValues(alpha: 0.3),
+                      color: qr.isCorrect
+                          ? t.success.withValues(alpha: 0.3)
+                          : t.error.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
@@ -79,7 +96,9 @@ class ReviewDialog extends ConsumerWidget {
                       Row(
                         children: [
                           Icon(
-                            qr.isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                            qr.isCorrect
+                                ? Icons.check_circle_rounded
+                                : Icons.cancel_rounded,
                             color: qr.isCorrect ? t.success : t.error,
                             size: 18,
                           ),
@@ -88,17 +107,21 @@ class ReviewDialog extends ConsumerWidget {
                             'Soal ${i + 1}',
                             style: GoogleFonts.nunito(
                               color: t.textPrimary,
-                    fontSize: S.font(context, 14),
-                    fontWeight: FontWeight.w800,
+                              fontSize: S.font(context, 14),
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Text(q.text,
-                          style: GoogleFonts.nunito(
-                              color: t.textPrimary, fontSize: S.font(context, 13),
-                              fontWeight: FontWeight.w700)),
+                      Text(
+                        q.text,
+                        style: GoogleFonts.nunito(
+                          color: t.textPrimary,
+                          fontSize: S.font(context, 13),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

@@ -8,11 +8,19 @@ class TimerChip extends StatelessWidget {
   final String display;
   final Color color;
   final BloomTheme t;
-  const TimerChip({super.key, required this.display, required this.color, required this.t});
+  const TimerChip({
+    super.key,
+    required this.display,
+    required this.color,
+    required this.t,
+  });
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 5)),
+    padding: EdgeInsets.symmetric(
+      horizontal: S.scale(context, 10),
+      vertical: S.scale(context, 5),
+    ),
     decoration: BoxDecoration(
       color: color.withValues(alpha: 0.15),
       borderRadius: BorderRadius.circular(50),
@@ -52,7 +60,8 @@ class QuizTimer extends StatefulWidget {
   State<QuizTimer> createState() => _QuizTimerState();
 }
 
-class _QuizTimerState extends State<QuizTimer> with SingleTickerProviderStateMixin {
+class _QuizTimerState extends State<QuizTimer>
+    with SingleTickerProviderStateMixin {
   late int _remainingSeconds;
   Timer? _timer;
   late AnimationController _pulseController;
@@ -106,13 +115,16 @@ class _QuizTimerState extends State<QuizTimer> with SingleTickerProviderStateMix
       label: 'Waktu tersisa $_display',
       liveRegion: true,
       child: _pulseController.isAnimating
-        ? ScaleTransition(
-            scale: Tween<double>(begin: 1.0, end: 1.15).animate(
-              CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-            ),
-            child: TimerChip(display: _display, color: color, t: widget.t),
-          )
-        : TimerChip(display: _display, color: color, t: widget.t),
+          ? ScaleTransition(
+              scale: Tween<double>(begin: 1.0, end: 1.15).animate(
+                CurvedAnimation(
+                  parent: _pulseController,
+                  curve: Curves.easeInOut,
+                ),
+              ),
+              child: TimerChip(display: _display, color: color, t: widget.t),
+            )
+          : TimerChip(display: _display, color: color, t: widget.t),
     );
   }
 }

@@ -103,7 +103,12 @@ class QuizFeedbackPopup extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 16), S.scale(context, 20), S.scale(context, 28)),
+      padding: EdgeInsets.fromLTRB(
+        S.scale(context, 20),
+        S.scale(context, 16),
+        S.scale(context, 20),
+        S.scale(context, 28),
+      ),
       decoration: BoxDecoration(
         color: bgColor,
         border: Border(top: BorderSide(color: t.border.withValues(alpha: 0.4))),
@@ -165,13 +170,13 @@ class QuizFeedbackPopup extends StatelessWidget {
                   label: isLast ? 'Selesai' : 'Lanjut',
                   child: Game3DButton(
                     label: isLast ? 'SELESAI' : 'LANJUT',
-                  color: btnColor,
-                  shadowColor: t.textPrimary,
-                  textColor: isCorrect ? t.successContent : t.errorContent,
-                  horizontalPadding: S.scale(context, 28),
-                  verticalPadding: S.scale(context, 13),
-                  onTap: onLanjut,
-                ),
+                    color: btnColor,
+                    shadowColor: t.textPrimary,
+                    textColor: isCorrect ? t.successContent : t.errorContent,
+                    horizontalPadding: S.scale(context, 28),
+                    verticalPadding: S.scale(context, 13),
+                    onTap: onLanjut,
+                  ),
                 ),
               ],
             ),
@@ -188,7 +193,12 @@ class QuizFeedbackPopup extends StatelessWidget {
           ],
         ),
       ),
-    ).animate().slideY(begin: 1, end: 0, duration: 300.ms, curve: Curves.easeOut);
+    ).animate().slideY(
+      begin: 1,
+      end: 0,
+      duration: 300.ms,
+      curve: Curves.easeOut,
+    );
   }
 
   Widget _buildAnimatedIcon(BuildContext context, bool isCorrect) {
@@ -218,7 +228,10 @@ class QuizFeedbackPopup extends StatelessWidget {
 
   Widget _buildStreakBadge(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 6)),
+      padding: EdgeInsets.symmetric(
+        horizontal: S.scale(context, 12),
+        vertical: S.scale(context, 6),
+      ),
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(50),
@@ -233,8 +246,8 @@ class QuizFeedbackPopup extends StatelessWidget {
             '$currentStreak beruntun!',
             style: GoogleFonts.nunito(
               color: t.warning,
-                fontSize: S.font(context, 12),
-                fontWeight: FontWeight.w800,
+              fontSize: S.font(context, 12),
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -245,7 +258,8 @@ class QuizFeedbackPopup extends StatelessWidget {
   Widget _buildLivesIndicator(BuildContext context) {
     final lives = result.livesRemaining ?? 0;
     final isCritical = lives > 0 && lives <= 2;
-    final lifeLost = previousLivesRemaining != null && lives < previousLivesRemaining!;
+    final lifeLost =
+        previousLivesRemaining != null && lives < previousLivesRemaining!;
 
     final hearts = FittedBox(
       fit: BoxFit.scaleDown,
@@ -262,12 +276,20 @@ class QuizFeedbackPopup extends StatelessWidget {
             ),
           ),
           ...List.generate(lives, (i) {
-            final heart = Icon(Icons.favorite_rounded, color: t.error, size: 16);
+            final heart = Icon(
+              Icons.favorite_rounded,
+              color: t.error,
+              size: 16,
+            );
             Widget animated;
             if (lifeLost) {
               animated = heart
                   .animate()
-                  .scaleXY(begin: 1.4, duration: 200.ms, curve: Curves.bounceOut)
+                  .scaleXY(
+                    begin: 1.4,
+                    duration: 200.ms,
+                    curve: Curves.bounceOut,
+                  )
                   .then()
                   .shakeX(duration: 300.ms);
             } else if (isCritical) {
@@ -291,9 +313,14 @@ class QuizFeedbackPopup extends StatelessWidget {
     );
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 6)),
+      padding: EdgeInsets.symmetric(
+        horizontal: S.scale(context, 10),
+        vertical: S.scale(context, 6),
+      ),
       decoration: BoxDecoration(
-        color: isCritical ? t.error.withValues(alpha: 0.12) : Colors.transparent,
+        color: isCritical
+            ? t.error.withValues(alpha: 0.12)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: hearts,
