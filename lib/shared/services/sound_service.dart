@@ -1,14 +1,15 @@
+import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SoundService extends ChangeNotifier {
-  final AudioPlayer _sfxPlayer = AudioPlayer();
-  final AudioPlayer _altPlayer = AudioPlayer();
+  final Set<AudioPlayer> _activePlayers = {};
   bool _muted = false;
   double _volume = 0.7;
   bool _initialized = false;
+  final _initCompleter = Completer<void>();
 
   bool get isMuted => _muted;
   double get volume => _volume;
@@ -21,6 +22,7 @@ class SoundService extends ChangeNotifier {
     _muted = prefs.getBool('sound_muted') ?? false;
     _volume = prefs.getDouble('sound_volume') ?? 0.7;
     notifyListeners();
+    _initCompleter.complete();
   }
 
   Future<void> setMuted(bool value) async {
@@ -38,22 +40,52 @@ class SoundService extends ChangeNotifier {
   }
 
   Future<void> play(String asset) async {
+    await _initCompleter.future;
     if (_muted) return;
+    final player = AudioPlayer();
+    _activePlayers.add(player);
+
+    unawaited(
+      player.onPlayerComplete.first.then((_) {
+        _activePlayers.remove(player);
+        player.dispose();
+      }).catchError((_) {
+        _activePlayers.remove(player);
+        player.dispose();
+      }),
+    );
+
     try {
-      await _sfxPlayer.setVolume(_volume);
-      await _sfxPlayer.play(AssetSource(asset));
+      await player.setVolume(_volume);
+      await player.play(AssetSource(asset));
     } catch (e) {
-      debugPrint('[SoundService] play $asset error: $e');
+      _activePlayers.remove(player);
+      await player.dispose();
     }
   }
 
   Future<void> playOverlapping(String asset) async {
+    await _initCompleter.future;
     if (_muted) return;
+    final player = AudioPlayer();
+    _activePlayers.add(player);
+
+    unawaited(
+      player.onPlayerComplete.first.then((_) {
+        _activePlayers.remove(player);
+        player.dispose();
+      }).catchError((_) {
+        _activePlayers.remove(player);
+        player.dispose();
+      }),
+    );
+
     try {
-      await _altPlayer.setVolume(_volume);
-      await _altPlayer.play(AssetSource(asset));
+      await player.setVolume(_volume);
+      await player.play(AssetSource(asset));
     } catch (e) {
-      debugPrint('[SoundService] playOverlapping $asset error: $e');
+      _activePlayers.remove(player);
+      await player.dispose();
     }
   }
 
@@ -67,8 +99,10 @@ class SoundService extends ChangeNotifier {
 
   @override
   void dispose() {
-    _sfxPlayer.dispose();
-    _altPlayer.dispose();
+    for (final p in _activePlayers.toList()) {
+      p.dispose();
+    }
+    _activePlayers.clear();
     super.dispose();
   }
 }
