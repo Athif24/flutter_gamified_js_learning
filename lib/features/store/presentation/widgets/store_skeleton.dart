@@ -101,8 +101,11 @@ class _StoreSkeletonState extends State<StoreSkeleton>
                   height: S.scale(c, 300),
                   decoration: BoxDecoration(
                     color: widget.t.bgSurface,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: widget.t.textPrimary, width: 2),
+                    borderRadius: BorderRadius.circular(S.scale(c, 18)),
+                    border: Border.all(
+                      color: widget.t.textPrimary,
+                      width: S.scale(c, 2),
+                    ),
                   ),
                 ),
               ),
@@ -212,8 +215,11 @@ class _StoreSkeletonState extends State<StoreSkeleton>
               height: S.scale(c, 36),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: widget.t.textPrimary, width: 1.5),
+                borderRadius: BorderRadius.circular(S.scale(c, 12)),
+                border: Border.all(
+                  color: widget.t.textPrimary,
+                  width: S.scale(c, 1.5),
+                ),
               ),
             ),
           ],
@@ -224,8 +230,11 @@ class _StoreSkeletonState extends State<StoreSkeleton>
         Container(
           decoration: BoxDecoration(
             color: widget.t.bgSurface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: widget.t.textPrimary, width: 2),
+            borderRadius: BorderRadius.circular(S.scale(c, 16)),
+            border: Border.all(
+              color: widget.t.textPrimary,
+              width: S.scale(c, 2),
+            ),
           ),
           child: Column(
             children: [

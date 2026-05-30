@@ -47,12 +47,18 @@ class StoreBuyDialog extends ConsumerWidget {
           constraints: BoxConstraints(maxWidth: S.scale(context, 400)),
           decoration: BoxDecoration(
             color: t.bgSurface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: t.textPrimary, width: 2),
+            borderRadius: BorderRadius.circular(S.scale(context, 20)),
+            border: Border.all(
+              color: t.textPrimary,
+              width: S.scale(context, 2),
+            ),
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
-                offset: const Offset(3, 3),
+                offset: Offset(
+                  S.scale(context, 3),
+                  S.scale(context, 3),
+                ),
                 blurRadius: 0,
               ),
             ],
@@ -100,12 +106,19 @@ class StoreBuyDialog extends ConsumerWidget {
                         padding: EdgeInsets.all(S.scale(context, 16)),
                         decoration: BoxDecoration(
                           color: t.bgPrimary,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.textPrimary, width: 1.5),
+                          borderRadius:
+                              BorderRadius.circular(S.scale(context, 12)),
+                          border: Border.all(
+                            color: t.textPrimary,
+                            width: S.scale(context, 1.5),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: t.textPrimary,
-                              offset: const Offset(2, 2),
+                              offset: Offset(
+                                S.scale(context, 2),
+                                S.scale(context, 2),
+                              ),
                               blurRadius: 0,
                             ),
                           ],
@@ -119,10 +132,11 @@ class StoreBuyDialog extends ConsumerWidget {
                                   height: S.scale(context, 48),
                                   decoration: BoxDecoration(
                                     color: t.bgSurface,
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius:
+                                        BorderRadius.circular(S.scale(context, 10)),
                                     border: Border.all(
                                       color: t.textPrimary,
-                                      width: 1.5,
+                                      width: S.scale(context, 1.5),
                                     ),
                                   ),
                                   child: Center(
@@ -189,7 +203,7 @@ class StoreBuyDialog extends ConsumerWidget {
                                     size: S.scale(context, 14),
                                     color: t.info,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: S.scale(context, 4)),
                                   Text(
                                     '-${formatNumber(item.price)}',
                                     style: GoogleFonts.nunito(
@@ -216,7 +230,7 @@ class StoreBuyDialog extends ConsumerWidget {
                               context,
                             ),
                             Divider(
-                              height: 20,
+                              height: S.scale(context, 20),
                               color: t.textPrimary.withValues(alpha: 0.1),
                             ),
                             _infoRow(
@@ -266,12 +280,12 @@ class StoreBuyDialog extends ConsumerWidget {
                         color: t.secondary,
                         shadowColor: t.textPrimary,
                         textColor: t.secondaryContent,
-                        horizontalPadding: 14,
-                        verticalPadding: 10,
+                        horizontalPadding: S.scale(context, 14),
+                        verticalPadding: S.scale(context, 10),
                         onTap: onDismiss,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: S.scale(context, 12)),
                     Expanded(
                       child: Game3DButton(
                         label: remaining >= 0
@@ -282,8 +296,8 @@ class StoreBuyDialog extends ConsumerWidget {
                         textColor: remaining >= 0
                             ? t.primaryContent
                             : t.mutedText,
-                        horizontalPadding: 14,
-                        verticalPadding: 10,
+                        horizontalPadding: S.scale(context, 14),
+                        verticalPadding: S.scale(context, 10),
                         isLoading: _isBuying.value,
                         onTap: remaining < 0 || _isBuying.value
                             ? null
@@ -315,7 +329,7 @@ class StoreBuyDialog extends ConsumerWidget {
                                         behavior: SnackBarBehavior.floating,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            S.scale(context, 12),
                                           ),
                                         ),
                                       ),
@@ -339,7 +353,7 @@ class StoreBuyDialog extends ConsumerWidget {
                                         behavior: SnackBarBehavior.floating,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            S.scale(context, 12),
                                           ),
                                         ),
                                       ),
@@ -376,7 +390,7 @@ class StoreBuyDialog extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: S.scale(c, 8)),
         Flexible(child: value),
       ],
     );
@@ -412,12 +426,18 @@ class StoreUseDialog extends ConsumerWidget {
           constraints: BoxConstraints(maxWidth: S.scale(context, 400)),
           decoration: BoxDecoration(
             color: t.bgSurface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: t.textPrimary, width: 2),
+            borderRadius: BorderRadius.circular(S.scale(context, 20)),
+            border: Border.all(
+              color: t.textPrimary,
+              width: S.scale(context, 2),
+            ),
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
-                offset: const Offset(3, 3),
+                offset: Offset(
+                  S.scale(context, 3),
+                  S.scale(context, 3),
+                ),
                 blurRadius: 0,
               ),
             ],
@@ -465,12 +485,19 @@ class StoreUseDialog extends ConsumerWidget {
                         padding: EdgeInsets.all(S.scale(context, 16)),
                         decoration: BoxDecoration(
                           color: t.bgPrimary,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.textPrimary, width: 1.5),
+                          borderRadius:
+                              BorderRadius.circular(S.scale(context, 12)),
+                          border: Border.all(
+                            color: t.textPrimary,
+                            width: S.scale(context, 1.5),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: t.textPrimary,
-                              offset: const Offset(2, 2),
+                              offset: Offset(
+                                S.scale(context, 2),
+                                S.scale(context, 2),
+                              ),
                               blurRadius: 0,
                             ),
                           ],
@@ -484,10 +511,11 @@ class StoreUseDialog extends ConsumerWidget {
                                   height: S.scale(context, 48),
                                   decoration: BoxDecoration(
                                     color: t.bgSurface,
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius:
+                                        BorderRadius.circular(S.scale(context, 10)),
                                     border: Border.all(
                                       color: t.textPrimary,
-                                      width: 1.5,
+                                      width: S.scale(context, 1.5),
                                     ),
                                   ),
                                   child: Center(
@@ -559,7 +587,7 @@ class StoreUseDialog extends ConsumerWidget {
                               context,
                             ),
                             Divider(
-                              height: 20,
+                              height: S.scale(context, 20),
                               color: t.textPrimary.withValues(alpha: 0.1),
                             ),
                             _infoRow(
@@ -611,14 +639,14 @@ class StoreUseDialog extends ConsumerWidget {
                         color: t.secondary,
                         shadowColor: t.textPrimary,
                         textColor: t.secondaryContent,
-                        horizontalPadding: 14,
-                        verticalPadding: 10,
+                        horizontalPadding: S.scale(context, 14),
+                        verticalPadding: S.scale(context, 10),
                         onTap: _isUsing.value
                             ? null
                             : () => Navigator.of(context).pop(),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: S.scale(context, 12)),
                     if (remaining >= 0)
                       Expanded(
                         child: Game3DButton(
@@ -657,7 +685,7 @@ class StoreUseDialog extends ConsumerWidget {
                                           behavior: SnackBarBehavior.floating,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
-                                              12,
+                                              S.scale(context, 12),
                                             ),
                                           ),
                                         ),
@@ -681,7 +709,7 @@ class StoreUseDialog extends ConsumerWidget {
                                           behavior: SnackBarBehavior.floating,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
-                                              12,
+                                              S.scale(context, 12),
                                             ),
                                           ),
                                         ),
@@ -728,7 +756,7 @@ class StoreUseDialog extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: S.scale(c, 8)),
         Expanded(
           child: Align(alignment: Alignment.centerRight, child: value),
         ),
@@ -774,12 +802,18 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
           constraints: BoxConstraints(maxWidth: S.scale(context, 400)),
           decoration: BoxDecoration(
             color: t.bgSurface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: t.textPrimary, width: 2),
+            borderRadius: BorderRadius.circular(S.scale(context, 20)),
+            border: Border.all(
+              color: t.textPrimary,
+              width: S.scale(context, 2),
+            ),
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
-                offset: const Offset(3, 3),
+                offset: Offset(
+                  S.scale(context, 3),
+                  S.scale(context, 3),
+                ),
                 blurRadius: 0,
               ),
             ],
@@ -904,12 +938,19 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                         padding: EdgeInsets.all(S.scale(context, 16)),
                         decoration: BoxDecoration(
                           color: t.bgPrimary,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: t.textPrimary, width: 1.5),
+                          borderRadius:
+                              BorderRadius.circular(S.scale(context, 12)),
+                          border: Border.all(
+                            color: t.textPrimary,
+                            width: S.scale(context, 1.5),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: t.textPrimary,
-                              offset: const Offset(2, 2),
+                              offset: Offset(
+                                S.scale(context, 2),
+                                S.scale(context, 2),
+                              ),
                               blurRadius: 0,
                             ),
                           ],
@@ -978,7 +1019,7 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                           color: t.mutedText,
                           fontSize: S.scale(context, 10),
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
+                          letterSpacing: S.scale(context, 1),
                         ),
                       ),
                       SizedBox(height: S.scale(context, 8)),
@@ -1040,8 +1081,8 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                         color: t.secondary,
                         shadowColor: t.textPrimary,
                         textColor: t.secondaryContent,
-                        horizontalPadding: 14,
-                        verticalPadding: 10,
+                        horizontalPadding: S.scale(context, 14),
+                        verticalPadding: S.scale(context, 10),
                         onTap: isPending.value
                             ? null
                             : () => Navigator.of(context).pop(),
@@ -1058,8 +1099,8 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                         textColor: remaining >= 0
                             ? t.primaryContent
                             : t.mutedText,
-                        horizontalPadding: 14,
-                        verticalPadding: 10,
+                        horizontalPadding: S.scale(context, 14),
+                        verticalPadding: S.scale(context, 10),
                         isLoading: isPending.value,
                         onTap: remaining < 0 || isPending.value
                             ? null
@@ -1089,7 +1130,7 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                                         behavior: SnackBarBehavior.floating,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            S.scale(context, 12),
                                           ),
                                         ),
                                       ),
@@ -1112,7 +1153,7 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                                         behavior: SnackBarBehavior.floating,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            S.scale(context, 12),
                                           ),
                                         ),
                                       ),
