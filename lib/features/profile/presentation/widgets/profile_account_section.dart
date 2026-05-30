@@ -103,15 +103,19 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
                           color: t.textSecondary.withValues(alpha: 0.55),
                           fontSize: S.font(context, 11),
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
+                          letterSpacing: S.scale(context, 0.5),
                         ),
                       ),
-                      Text(
-                        widget.email,
-                        style: GoogleFonts.nunito(
-                          color: t.textPrimary,
-                          fontSize: S.font(context, 14),
-                          fontWeight: FontWeight.w700,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          widget.email,
+                          style: GoogleFonts.nunito(
+                            color: t.textPrimary,
+                            fontSize: S.font(context, 14),
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],

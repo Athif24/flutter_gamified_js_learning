@@ -44,7 +44,7 @@ class ProgressBlock extends StatelessWidget {
                   color: t.textSecondary.withValues(alpha: 0.6),
                   fontSize: S.font(context, 12),
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
+                  letterSpacing: S.scale(context, 0.5),
                 ),
               ),
               const Spacer(),
@@ -76,12 +76,16 @@ class ProgressBlock extends StatelessWidget {
             ),
           ),
           SizedBox(height: S.scale(context, 4)),
-          Text(
-            sub,
-            style: GoogleFonts.nunito(
-              color: t.textHint,
-              fontSize: S.font(context, 11),
-              fontWeight: FontWeight.w500,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              sub,
+              style: GoogleFonts.nunito(
+                color: t.textHint,
+                fontSize: S.font(context, 11),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -149,7 +153,7 @@ class MiniStat extends StatelessWidget {
                       color: t.textSecondary.withValues(alpha: 0.55),
                       fontSize: S.font(context, 10),
                       fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
+                      letterSpacing: S.scale(context, 0.5),
                     ),
                   ),
                 ),

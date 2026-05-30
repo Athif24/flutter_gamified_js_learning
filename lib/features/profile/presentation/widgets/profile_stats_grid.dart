@@ -70,7 +70,7 @@ class StatCard extends StatelessWidget {
               color: t.mutedText,
               fontSize: S.font(context, 11),
               fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
+              letterSpacing: S.scale(context, 0.5),
             ),
           ),
           SizedBox(height: S.scale(context, 2)),
@@ -156,11 +156,12 @@ class ProfileStatsGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (_, constraints) {
         final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
-        final gutter = 12 * (crossAxisCount - 1);
+        final s = S.scale(context, 12);
+        final gutter = s * (crossAxisCount - 1);
         final childWidth = (constraints.maxWidth - gutter) / crossAxisCount;
         return Wrap(
-          spacing: 12,
-          runSpacing: 12,
+          spacing: s,
+          runSpacing: s,
           children: stats
               .map(
                 (s) => SizedBox(

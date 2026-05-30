@@ -117,8 +117,8 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                                 color: t.bgSurface,
                                 shadowColor: t.textPrimary,
                                 textColor: t.textPrimary,
-                                horizontalPadding: 16,
-                                verticalPadding: 13,
+                                horizontalPadding: S.scale(context, 16),
+                                verticalPadding: S.scale(context, 13),
                                 onTap: () => Navigator.pop(context),
                               ),
                             ),
@@ -129,8 +129,8 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                                 color: t.primary,
                                 shadowColor: t.textPrimary,
                                 textColor: t.primaryContent,
-                                horizontalPadding: 16,
-                                verticalPadding: 13,
+                                horizontalPadding: S.scale(context, 16),
+                                verticalPadding: S.scale(context, 13),
                                 isLoading: _isCropping,
                                 onTap: _isCropping ? null : () {
                                   setState(() => _isCropping = true);
