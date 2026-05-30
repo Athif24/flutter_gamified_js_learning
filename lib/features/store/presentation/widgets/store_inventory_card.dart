@@ -74,12 +74,18 @@ class StoreInventoryCard extends ConsumerWidget {
                 ],
               )
             : null,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: t.textPrimary, width: 2),
+        borderRadius: BorderRadius.circular(S.scale(context, 18)),
+        border: Border.all(
+          color: t.textPrimary,
+          width: S.scale(context, 2),
+        ),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
-            offset: const Offset(3, 3),
+            offset: Offset(
+              S.scale(context, 3),
+              S.scale(context, 3),
+            ),
             blurRadius: 0,
           ),
         ],
@@ -95,8 +101,12 @@ class StoreInventoryCard extends ConsumerWidget {
                 height: S.scale(context, 56),
                 decoration: BoxDecoration(
                   color: t.bgSurface2,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: t.textPrimary, width: 1.5),
+                  borderRadius:
+                      BorderRadius.circular(S.scale(context, 12)),
+                  border: Border.all(
+                    color: t.textPrimary,
+                    width: S.scale(context, 1.5),
+                  ),
                 ),
                 child: Center(
                   child: storeItem.icon.startsWith('http')
@@ -133,7 +143,8 @@ class StoreInventoryCard extends ConsumerWidget {
                     ),
                     decoration: BoxDecoration(
                       color: typeColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius:
+                          BorderRadius.circular(S.scale(context, 6)),
                       border: Border.all(
                         color: typeColor.withValues(alpha: 0.5),
                       ),
@@ -157,7 +168,8 @@ class StoreInventoryCard extends ConsumerWidget {
                       vertical: S.scale(context, 2),
                     ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius:
+                          BorderRadius.circular(S.scale(context, 6)),
                       border: Border.all(
                         color: t.textPrimary.withValues(alpha: 0.5),
                       ),
@@ -201,7 +213,10 @@ class StoreInventoryCard extends ConsumerWidget {
             ),
           ),
           SizedBox(height: S.scale(context, 12)),
-          Divider(height: 1, color: t.textPrimary.withValues(alpha: 0.1)),
+          Divider(
+            height: S.scale(context, 1),
+            color: t.textPrimary.withValues(alpha: 0.1),
+          ),
           SizedBox(height: S.scale(context, 10)),
           Row(
             children: [
@@ -227,8 +242,8 @@ class StoreInventoryCard extends ConsumerWidget {
                     color: t.primary,
                     shadowColor: t.textPrimary,
                     textColor: t.primaryContent,
-                    horizontalPadding: 14,
-                    verticalPadding: 6,
+                    horizontalPadding: S.scale(context, 14),
+                    verticalPadding: S.scale(context, 6),
                     onTap: () => isMysteryBox
                         ? _onOpenMysteryBox(context)
                         : _onUse(context),
@@ -242,8 +257,12 @@ class StoreInventoryCard extends ConsumerWidget {
                   ),
                   decoration: BoxDecoration(
                     color: t.bgSurface2,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: t.textPrimary, width: 2),
+                    borderRadius:
+                        BorderRadius.circular(S.scale(context, 10)),
+                    border: Border.all(
+                      color: t.textPrimary,
+                      width: S.scale(context, 2),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -253,7 +272,7 @@ class StoreInventoryCard extends ConsumerWidget {
                         size: S.scale(context, 14),
                         color: t.mutedText,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: S.scale(context, 4)),
                       Text(
                         storeItem.isConsumable
                             ? 'Habis'

@@ -42,12 +42,18 @@ class StoreCompactCard extends ConsumerWidget {
       padding: EdgeInsets.all(S.scale(context, 14)),
       decoration: BoxDecoration(
         color: t.bgSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: t.textPrimary, width: 2),
+        borderRadius: BorderRadius.circular(S.scale(context, 16)),
+        border: Border.all(
+          color: t.textPrimary,
+          width: S.scale(context, 2),
+        ),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
-            offset: const Offset(3, 3),
+            offset: Offset(
+              S.scale(context, 3),
+              S.scale(context, 3),
+            ),
             blurRadius: 0,
           ),
         ],
@@ -63,8 +69,11 @@ class StoreCompactCard extends ConsumerWidget {
                 height: S.scale(context, 44),
                 decoration: BoxDecoration(
                   color: t.bgSurface2,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: t.textPrimary, width: 1.5),
+                  borderRadius: BorderRadius.circular(S.scale(context, 10)),
+                  border: Border.all(
+                    color: t.textPrimary,
+                    width: S.scale(context, 1.5),
+                  ),
                 ),
                 child: Center(
                   child: item.icon.startsWith('http')
@@ -99,7 +108,8 @@ class StoreCompactCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: (_typeBadgeColors[item.type] ?? t.mutedText)
                       .withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius:
+                      BorderRadius.circular(S.scale(context, 4)),
                   border: Border.all(
                     color: (_typeBadgeColors[item.type] ?? t.mutedText)
                         .withValues(alpha: 0.5),
@@ -171,7 +181,7 @@ class StoreCompactCard extends ConsumerWidget {
                     size: S.scale(context, 12),
                     color: t.info,
                   ),
-                  const SizedBox(width: 3),
+                  SizedBox(width: S.scale(context, 3)),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
@@ -207,13 +217,20 @@ class StoreCompactCard extends ConsumerWidget {
                     ),
                     decoration: BoxDecoration(
                       color: canAfford ? t.primary : t.bgSurface2,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: t.textPrimary, width: 2),
+                      borderRadius:
+                          BorderRadius.circular(S.scale(context, 10)),
+                      border: Border.all(
+                        color: t.textPrimary,
+                        width: S.scale(context, 2),
+                      ),
                       boxShadow: canAfford
                           ? [
                               BoxShadow(
                                 color: t.textPrimary,
-                                offset: const Offset(3, 3),
+                                offset: Offset(
+                                  S.scale(context, 3),
+                                  S.scale(context, 3),
+                                ),
                                 blurRadius: 0,
                               ),
                             ]
@@ -227,7 +244,7 @@ class StoreCompactCard extends ConsumerWidget {
                           size: S.scale(context, 14),
                           color: canAfford ? t.primaryContent : t.mutedText,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: S.scale(context, 4)),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(

@@ -51,12 +51,18 @@ class MysteryBoxCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: t.textPrimary, width: 2),
+        borderRadius: BorderRadius.circular(S.scale(context, 18)),
+        border: Border.all(
+          color: t.textPrimary,
+          width: S.scale(context, 2),
+        ),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
-            offset: const Offset(3, 3),
+            offset: Offset(
+              S.scale(context, 3),
+              S.scale(context, 3),
+            ),
             blurRadius: 0,
           ),
         ],
@@ -82,7 +88,7 @@ class MysteryBoxCard extends StatelessWidget {
               ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(S.scale(context, 16)),
         child: Stack(
           children: [
             // Shimmer overlay
@@ -139,10 +145,11 @@ class MysteryBoxCard extends StatelessWidget {
                                 height: S.scale(context, 40),
                                 decoration: BoxDecoration(
                                   color: t.bgSurface.withValues(alpha: 0.8),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(
+                                      S.scale(context, 10)),
                                   border: Border.all(
                                     color: t.textPrimary,
-                                    width: 1.5,
+                                    width: S.scale(context, 1.5),
                                   ),
                                 ),
                                 child: Center(
@@ -207,7 +214,8 @@ class MysteryBoxCard extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: t.bgSurface.withValues(alpha: 0.3),
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius:
+                                    BorderRadius.circular(S.scale(context, 5)),
                                 border: Border.all(
                                   color: t.textPrimary.withValues(alpha: 0.35),
                                 ),
@@ -226,7 +234,7 @@ class MysteryBoxCard extends StatelessWidget {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: S.scale(context, 8)),
                       // Name + description
                       FittedBox(
                         fit: BoxFit.scaleDown,
@@ -271,14 +279,14 @@ class MysteryBoxCard extends StatelessWidget {
                               color: t.mutedText,
                               fontSize: S.scale(context, 9),
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 1,
+                              letterSpacing: S.scale(context, 1),
                             ),
                           ),
                         ),
                         SizedBox(height: S.scale(context, 4)),
                         Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
+                          spacing: S.scale(context, 4),
+                          runSpacing: S.scale(context, 4),
                           children: pool.rewards.map((reward) {
                             final color = _parseColor(reward.color);
                             return Container(
@@ -290,7 +298,8 @@ class MysteryBoxCard extends StatelessWidget {
                                 color: color != null
                                     ? color.withValues(alpha: 0.15)
                                     : t.bgSurface2,
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(
+                                    S.scale(context, 4)),
                                 border: Border.all(
                                   color: color != null
                                       ? color.withValues(alpha: 0.35)
@@ -320,7 +329,7 @@ class MysteryBoxCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Divider(
-                        height: 1,
+                        height: S.scale(context, 1),
                         color: t.textPrimary.withValues(alpha: 0.1),
                       ),
                       SizedBox(height: S.scale(context, 6)),
@@ -335,7 +344,7 @@ class MysteryBoxCard extends StatelessWidget {
                                 size: S.scale(context, 16),
                                 color: t.info,
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: S.scale(context, 4)),
                               FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
@@ -399,8 +408,8 @@ class _BuyButton extends StatelessWidget {
         color: canAfford ? t.primary : t.bgSurface2,
         shadowColor: t.textPrimary,
         textColor: canAfford ? t.primaryContent : t.mutedText,
-        horizontalPadding: 14,
-        verticalPadding: 6,
+        horizontalPadding: S.scale(context, 14),
+        verticalPadding: S.scale(context, 6),
         isLoading: isLoading,
         onTap: canAfford && !isPending ? onTap : null,
         child: isLoading
@@ -408,18 +417,18 @@ class _BuyButton extends StatelessWidget {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                    Icon(
                     Icons.card_giftcard,
-                    size: 14,
+                    size: S.scale(context, 14),
                     color: canAfford ? t.primaryContent : t.mutedText,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: S.scale(context, 4)),
                   Text(
                     'Beli',
                     style: GoogleFonts.nunito(
                       color: canAfford ? t.primaryContent : t.mutedText,
                       fontWeight: FontWeight.w800,
-                      fontSize: 12,
+                      fontSize: S.scale(context, 12),
                     ),
                   ),
                 ],
