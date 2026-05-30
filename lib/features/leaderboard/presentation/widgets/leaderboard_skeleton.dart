@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 
 class LeaderboardSkeleton extends StatefulWidget {
   final BloomTheme t;
-  final double screenW;
-  const LeaderboardSkeleton({super.key, required this.t, required this.screenW});
+  const LeaderboardSkeleton({super.key, required this.t});
 
   @override
   State<LeaderboardSkeleton> createState() => _LeaderboardSkeletonState();
@@ -35,9 +35,8 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    double rs(double px) => S.scale(context, px);
     final t = widget.t;
-    final w = widget.screenW;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(rs(20), rs(20), rs(20), rs(32)),
       child: Column(
