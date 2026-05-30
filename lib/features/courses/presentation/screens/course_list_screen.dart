@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/course_list/header_banner.dart';
+import '../widgets/course_list/empty_state.dart';
+import '../widgets/course_list/course_card.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/loading_circle.dart';
@@ -15,8 +16,6 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/course_provider.dart';
 import '../../../../core/utils/responsive_utils.dart';
-import '../../../../shared/services/sound_service.dart';
-
 import '../../data/models/course_model.dart';
 
 class CourseListScreen extends ConsumerStatefulWidget {
@@ -26,7 +25,8 @@ class CourseListScreen extends ConsumerStatefulWidget {
   ConsumerState<CourseListScreen> createState() => _CourseListScreenState();
 }
 
-class _CourseListScreenState extends ConsumerState<CourseListScreen> with SilentRefreshMixin<CourseListScreen> {
+class _CourseListScreenState extends ConsumerState<CourseListScreen>
+    with SilentRefreshMixin<CourseListScreen> {
   @override
   void initState() {
     super.initState();
@@ -60,7 +60,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
       }
     });
 
-    final t            = ref.watch(currentThemeProvider);
+    final t = ref.watch(currentThemeProvider);
     final coursesAsync = ref.watch(coursesProvider);
     final enrolledAsync = ref.watch(enrolledCoursesProvider);
 
@@ -70,8 +70,10 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(sanitizeErrorMessage(e),
-                    style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
+                content: Text(
+                  sanitizeErrorMessage(e),
+                  style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                ),
                 backgroundColor: t.error,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -86,63 +88,65 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
       body: SafeArea(
         child: Column(
           children: [
-            SlowLoadingIndicator(
-              visible: showSlowIndicator,
-              t: t,
-            ),
+            SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _silentRefresh,
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: S.isTablet(context) ? 600 : double.infinity),
+                    constraints: BoxConstraints(
+                      maxWidth: S.isTablet(context) ? 600 : double.infinity,
+                    ),
                     child: CustomScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    // ── Header banner ─────────────────────────────────────────────
-                    SliverToBoxAdapter(child: _HeaderBanner(
-                      courseCount: coursesAsync.maybeWhen(
-                        data: (courses) => courses.length,
-                        orElse: () => 0,
-                      ),
-                      t: t,
-                    )),
-
-                    SliverToBoxAdapter(child: SizedBox(height: S.scale(context, 24))),
-
-                    // ── Courses list ───────────────────────────────────────────────
-                    coursesAsync.when(
-                        loading: () => SliverFillRemaining(
-                          child: LoadingCircle(t: t),
+                      slivers: [
+                        // ── Header banner ─────────────────────────────────────────────
+                        SliverToBoxAdapter(
+                          child: HeaderBanner(
+                            courseCount: coursesAsync.maybeWhen(
+                              data: (courses) => courses.length,
+                              orElse: () => 0,
+                            ),
+                            t: t,
+                          ),
                         ),
-                      error: (e, _) => SliverFillRemaining(
-                        child: ErrorBody(
-                          t: t,
-                          icon: iconForError(e),
-                          title: AppStrings.errLoadCourses,
-                          message: sanitizeErrorMessage(e),
-                          onRetry: () {
-                            setShowSlowIndicator(true);
-                            ref.invalidate(coursesProvider);
+
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: S.scale(context, 24)),
+                        ),
+
+                        // ── Courses list ───────────────────────────────────────────────
+                        coursesAsync.when(
+                          loading: () =>
+                              SliverFillRemaining(child: LoadingCircle(t: t)),
+                          error: (e, _) => SliverFillRemaining(
+                            child: ErrorBody(
+                              t: t,
+                              icon: iconForError(e),
+                              title: AppStrings.errLoadCourses,
+                              message: sanitizeErrorMessage(e),
+                              onRetry: () {
+                                setShowSlowIndicator(true);
+                                ref.invalidate(coursesProvider);
+                              },
+                            ),
+                          ),
+                          data: (courses) {
+                            return enrolledAsync.when(
+                              loading: () => SliverFillRemaining(
+                                child: LoadingCircle(t: t),
+                              ),
+                              error: (_, __) =>
+                                  _buildCourseList(context, ref, courses, t),
+                              data: (enrollmentMap) => _buildCourseList(
+                                context,
+                                ref,
+                                getEnrichedCourses(courses, enrollmentMap),
+                                t,
+                              ),
+                            );
                           },
                         ),
-                      ),
-                      data: (courses) {
-                        return enrolledAsync.when(
-                            loading: () => SliverFillRemaining(
-                              child: LoadingCircle(t: t),
-                            ),
-                          error: (_, __) => _buildCourseList(
-                            context, ref, courses, t,
-                          ),
-                          data: (enrollmentMap) => _buildCourseList(
-                            context, ref,
-                            getEnrichedCourses(courses, enrollmentMap),
-                            t,
-                          ),
-                        );
-                      },
-                    ),
                       ],
                     ),
                   ),
@@ -162,446 +166,25 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> with Silent
     BloomTheme t,
   ) {
     if (courses.isEmpty) {
-      return SliverFillRemaining(child: _EmptyState(t: t));
+      return SliverFillRemaining(child: EmptyState(t: t));
     }
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(S.scale(context, 20), 0, S.scale(context, 20), S.scale(context, 32)),
+      padding: EdgeInsets.fromLTRB(
+        S.scale(context, 20),
+        0,
+        S.scale(context, 20),
+        S.scale(context, 32),
+      ),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (_, i) {
-            final course = courses[i];
-            return _CourseCard(
-              course: course,
-              index: i,
-              t: t,
-            ).animate().fadeIn(delay: (60 * i).ms)
-             .slideY(begin: 0.08, end: 0);
-          },
-          childCount: courses.length,
-        ),
+        delegate: SliverChildBuilderDelegate((_, i) {
+          final course = courses[i];
+          return CourseCard(
+            course: course,
+            index: i,
+            t: t,
+          ).animate().fadeIn(delay: (60 * i).ms).slideY(begin: 0.08, end: 0);
+        }, childCount: courses.length),
       ),
     );
   }
 }
-
-class _HeaderBanner extends StatelessWidget {
-  final int courseCount;
-  final BloomTheme t;
-  const _HeaderBanner({required this.courseCount, required this.t});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), 0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: t.primary,
-          borderRadius: BorderRadius.circular(S.scale(context, 24)),
-          border: Border.all(color: t.textPrimary, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: t.textPrimary,
-              offset: Offset(S.scale(context, 3), S.scale(context, 3)),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(S.scale(context, 24)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.menu_book, size: S.scale(context, 24), color: t.primaryContent),
-                  SizedBox(width: S.scale(context, 8)),
-                  Expanded(
-                    child: Text('Pilih Kursusmu',
-                        style: GoogleFonts.nunito(
-                            color: t.primaryContent,
-                            fontSize: S.font(context, 22),
-                            fontWeight: FontWeight.w900)),
-                  ),
-                ],
-              ),
-              SizedBox(height: S.scale(context, 6)),
-              Text('Mulai perjalanan belajarmu dan kuasai skill baru!',
-                  style: GoogleFonts.nunito(
-                      color: t.primaryContent.withValues(alpha: 0.8),
-                      fontSize: S.font(context, 13),
-                      fontWeight: FontWeight.w600)),
-              SizedBox(height: S.scale(context, 14)),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 7)),
-                decoration: BoxDecoration(
-                  color: t.primaryContent.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(S.scale(context, 16)),
-                  border: Border.all(color: t.textPrimary, width: 2),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.auto_awesome, size: S.scale(context, 16), color: t.primaryContent.withValues(alpha: 0.9)),
-                    SizedBox(width: S.scale(context, 6)),
-                    Text('$courseCount Kursus Tersedia',
-                        style: GoogleFonts.nunito(
-                            color: t.primaryContent.withValues(alpha: 0.9),
-                            fontSize: S.font(context, 12),
-                            fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final BloomTheme t;
-  const _EmptyState({required this.t});
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: EdgeInsets.all(S.scale(context, 32)),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: S.scale(context, 80)),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          borderRadius: BorderRadius.circular(S.scale(context, 24)),
-          border: Border.all(color: t.textPrimary, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: t.textPrimary,
-              offset: Offset(S.scale(context, 3), S.scale(context, 3)),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.menu_book, size: S.scale(context, 64), color: t.mutedText.withValues(alpha: 0.5)),
-          SizedBox(height: S.scale(context, 16)),
-          Text('Belum ada kursus nih',
-              style: GoogleFonts.nunito(color: t.textPrimary.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w700, fontSize: S.font(context, 16))),
-          SizedBox(height: S.scale(context, 4)),
-          Text('Sabar ya, admin lagi nyiapin kursus kece buat kamu!',
-              style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
-              textAlign: TextAlign.center),
-        ]),
-      ),
-    ),
-  );
-}
-
-class _CourseCard extends ConsumerStatefulWidget {
-  final CourseModel course;
-  final int index;
-  final BloomTheme t;
-  const _CourseCard({required this.course, required this.index, required this.t});
-
-  @override
-  ConsumerState<_CourseCard> createState() => _CourseCardState();
-}
-
-class _CourseCardState extends ConsumerState<_CourseCard> {
-  bool _isEnrolling = false;
-
-  Future<void> _enroll() async {
-    setState(() => _isEnrolling = true);
-    try {
-      await ref.read(courseDsProvider).enrollCourse(widget.course.id);
-      ref.invalidate(coursesProvider);
-      ref.invalidate(enrolledCoursesProvider);
-      if (mounted) context.push('/course/${widget.course.id}');
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Gagal enroll: ${sanitizeErrorMessage(e)}',
-                  style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
-              backgroundColor: widget.t.error,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isEnrolling = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final course = widget.course;
-    final index = widget.index;
-    final t = widget.t;
-    final isEnrolled = course.isEnrolled;
-    final isCompleted = course.isCompleted;
-    final progress = course.progress > 0
-        ? course.progress
-        : (course.totalLessons > 0
-            ? course.completedLessons / course.totalLessons
-            : 0.0);
-    final progressPct = (progress * 100).toInt();
-
-    // DaisyUI cycling header colors
-    final palettes = <(Color, Color)>[
-      (t.primary, t.primaryContent),
-      (t.success, t.primaryContent),
-      (t.warning, Colors.white),
-      (t.info, t.primaryContent),
-      (t.success, Colors.white),
-      (t.info, t.primaryContent),
-    ];
-    final (headerBg, headerFg) = palettes[index % palettes.length];
-
-    Widget card = Container(
-      margin: EdgeInsets.only(bottom: S.scale(context, 16)),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: BorderRadius.circular(S.scale(context, 24)),
-        border: Border.all(color: t.textPrimary, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: t.textPrimary,
-            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
-            blurRadius: 0,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Thumbnail / Gradient header
-          Hero(
-            tag: 'course-thumb-${course.id}',
-            child: Container(
-              height: S.scale(context, 144),
-              decoration: BoxDecoration(
-                color: headerBg,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(S.scale(context, 23))),
-                image: course.thumbnail != null
-                    ? DecorationImage(
-                        image: NetworkImage(course.thumbnail!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-            child: Stack(
-              children: [
-                // Book icon
-                if (course.thumbnail == null)
-                  Center(
-                    child: Icon(Icons.menu_book, size: S.scale(context, 56), color: headerFg.withValues(alpha: 0.8)),
-                  ),
-                // Status badges top-right
-                if (isCompleted)
-                  Positioned(
-                    right: S.scale(context, 12), top: S.scale(context, 12),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
-                      decoration: BoxDecoration(
-                        color: t.primary.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.check, size: S.scale(context, 12), color: t.primary),
-                          SizedBox(width: S.scale(context, 4)),
-                          Text('Selesai',
-                              style: GoogleFonts.nunito(
-                                  color: t.primary, fontSize: S.font(context, 10),
-                                  fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (isEnrolled && !isCompleted)
-                  Positioned(
-                    right: S.scale(context, 12), top: S.scale(context, 12),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 4)),
-                      decoration: BoxDecoration(
-                        color: t.primary.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                        border: Border.all(color: t.textPrimary, width: 2),
-                      ),
-                      child: Text('Enrolled',
-                          style: GoogleFonts.nunito(
-                              color: t.primary, fontSize: S.font(context, 10),
-                              fontWeight: FontWeight.w700)),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          ), // Hero
-          // Body
-          Padding(
-          padding: EdgeInsets.fromLTRB(S.scale(context, 16), S.scale(context, 12), S.scale(context, 16), S.scale(context, 16)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Hero(
-                tag: 'course-title-${course.id}',
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Text(course.title,
-                        style: GoogleFonts.nunito(
-                            color: t.textPrimary, fontSize: S.font(context, 16),
-                            fontWeight: FontWeight.w800),
-                        maxLines: 2, overflow: TextOverflow.ellipsis),
-                  ),
-                ),
-                if (course.description != null && course.description!.isNotEmpty) ...[
-                  SizedBox(height: S.scale(context, 4)),
-                  Text(course.description!,
-                      style: GoogleFonts.nunito(
-                          color: t.mutedText, fontSize: S.font(context, 12)),
-                      maxLines: 2, overflow: TextOverflow.ellipsis),
-                ],
-                SizedBox(height: S.scale(context, 4)),
-                Text('${course.totalLessons} lesson',
-                    style: GoogleFonts.nunito(
-                        color: t.mutedText, fontSize: S.font(context, 12),
-                        fontWeight: FontWeight.w600)),
-                if (isEnrolled) ...[
-                  SizedBox(height: S.scale(context, 10)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Progress',
-                          style: GoogleFonts.nunito(
-                              color: t.mutedText, fontSize: S.font(context, 11))),
-                      Text('$progressPct%',
-                          style: GoogleFonts.nunito(
-                              color: t.textPrimary, fontSize: S.font(context, 11),
-                              fontWeight: FontWeight.w700)),
-                    ],
-                  ),
-                  SizedBox(height: S.scale(context, 4)),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
-                    child: LinearProgressIndicator(
-                      value: progress.clamp(0.0, 1.0),
-                      backgroundColor: t.bgSurface2,
-                      valueColor: AlwaysStoppedAnimation(t.primary),
-                      minHeight: S.scale(context, 10),
-                    ),
-                  ),
-                ],
-                SizedBox(height: S.scale(context, 12)),
-                // CTA
-                if (isEnrolled)
-                  Semantics(
-                    label: isCompleted ? 'Ulangi kursus ${course.title}' : 'Lanjutkan kursus ${course.title}',
-                    child: Bounceable(
-                      onTap: () {
-                        ref.read(soundProvider).playClick();
-                        context.push('/course/${course.id}');
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        constraints: BoxConstraints(minHeight: S.scale(context, 48)),
-                        padding: EdgeInsets.symmetric(vertical: S.scale(context, 8)),
-                        decoration: BoxDecoration(
-                          color: t.bgSurface,
-                          borderRadius: BorderRadius.circular(S.scale(context, 16)),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: Offset(S.scale(context, 3), S.scale(context, 3)),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isCompleted)
-                                Icon(Icons.check, size: S.scale(context, 16), color: t.success),
-                              Text(
-                                isCompleted ? ' Ulangi' : 'Lanjutkan',
-                                style: GoogleFonts.nunito(
-                                    color: t.textPrimary, fontSize: S.font(context, 13),
-                                    fontWeight: FontWeight.w800),
-                              ),
-                              if (!isCompleted) ...[
-                                SizedBox(width: S.scale(context, 4)),
-                                Icon(Icons.arrow_forward, size: S.scale(context, 16), color: t.textPrimary),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (!isEnrolled)
-                  Semantics(
-                    label: _isEnrolling ? 'Memproses pendaftaran' : 'Mulai kursus ${course.title}',
-                    child: Bounceable(
-                      onTap: _isEnrolling ? null : () {
-                        ref.read(soundProvider).playClick();
-                        _enroll();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        constraints: BoxConstraints(minHeight: S.scale(context, 48)),
-                        padding: EdgeInsets.symmetric(vertical: S.scale(context, 8)),
-                        decoration: BoxDecoration(
-                          color: t.primary,
-                          borderRadius: BorderRadius.circular(S.scale(context, 16)),
-                          border: Border.all(color: t.textPrimary, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.textPrimary,
-                              offset: Offset(S.scale(context, 3), S.scale(context, 3)),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: _isEnrolling
-                              ? SizedBox(
-                                  width: S.scale(context, 18), height: S.scale(context, 18),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: S.scale(context, 2),
-                                    color: t.primaryContent,
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('Mulai',
-                                        style: GoogleFonts.nunito(
-                                            color: t.primaryContent, fontSize: S.font(context, 13),
-                                            fontWeight: FontWeight.w800)),
-                                    SizedBox(width: S.scale(context, 4)),
-                                    Icon(Icons.arrow_forward, size: S.scale(context, 16), color: t.primaryContent),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-
-    return card;
-  }
-}
-
-
