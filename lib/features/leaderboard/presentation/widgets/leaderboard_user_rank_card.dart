@@ -26,7 +26,10 @@ class UserRankCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(S.scale(context, 24)),
-          border: Border.all(color: t.textPrimary, width: 2),
+          border: Border.all(
+            color: t.textPrimary,
+            width: S.scale(context, 2),
+          ),
           boxShadow: [
             BoxShadow(
               color: t.textPrimary,
@@ -74,7 +77,7 @@ class UserRankCard extends StatelessWidget {
                           color: t.mutedText,
                           fontWeight: FontWeight.w800,
                           fontSize: S.font(context, 10),
-                          letterSpacing: 1.5,
+                          letterSpacing: S.scale(context, 1.5),
                         ),
                       ),
                       SizedBox(height: S.scale(context, 4)),
@@ -105,19 +108,22 @@ class UserRankCard extends StatelessWidget {
                           color: t.mutedText,
                           fontWeight: FontWeight.w800,
                           fontSize: S.font(context, 10),
-                          letterSpacing: 1.5,
+                          letterSpacing: S.scale(context, 1.5),
                         ),
                       ),
                       SizedBox(height: S.scale(context, 4)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            formatNumber(xp),
-                            style: GoogleFonts.nunito(
-                              color: t.textPrimary,
-                              fontWeight: FontWeight.w900,
-                              fontSize: S.font(context, 36),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              formatNumber(xp),
+                              style: GoogleFonts.nunito(
+                                color: t.textPrimary,
+                                fontWeight: FontWeight.w900,
+                                fontSize: S.font(context, 36),
+                              ),
                             ),
                           ),
                           SizedBox(width: S.scale(context, 4)),

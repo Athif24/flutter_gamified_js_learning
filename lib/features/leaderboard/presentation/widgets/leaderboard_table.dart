@@ -30,7 +30,10 @@ class LeaderboardTable extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: BorderRadius.circular(S.scale(context, 24)),
-        border: Border.all(color: t.textPrimary, width: 2),
+        border: Border.all(
+          color: t.textPrimary,
+          width: S.scale(context, 2),
+        ),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
@@ -155,7 +158,10 @@ class LeaderboardRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: t.bgSurface2,
               borderRadius: BorderRadius.circular(S.scale(context, 8)),
-              border: Border.all(color: t.textPrimary, width: 1.5),
+              border: Border.all(
+                color: t.textPrimary,
+                width: S.scale(context, 1.5),
+              ),
             ),
             child: Center(
               child: entry.avatar != null && entry.avatar!.isNotEmpty

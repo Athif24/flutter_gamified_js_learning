@@ -27,7 +27,10 @@ class FooterStats extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.bgSurface,
           borderRadius: BorderRadius.circular(S.scale(context, 18)),
-          border: Border.all(color: t.textPrimary, width: 2),
+          border: Border.all(
+            color: t.textPrimary,
+            width: S.scale(context, 2),
+          ),
           boxShadow: [
             BoxShadow(
               color: t.textPrimary,
@@ -88,16 +91,19 @@ class StatItem extends StatelessWidget {
             color: t.mutedText,
             fontWeight: FontWeight.w800,
             fontSize: S.font(context, 10),
-            letterSpacing: 1.5,
+            letterSpacing: S.scale(context, 1.5),
           ),
         ),
         SizedBox(height: S.scale(context, 4)),
-        Text(
-          value,
-          style: GoogleFonts.nunito(
-            color: color,
-            fontWeight: FontWeight.w900,
-            fontSize: S.font(context, 20),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: GoogleFonts.nunito(
+              color: color,
+              fontWeight: FontWeight.w900,
+              fontSize: S.font(context, 20),
+            ),
           ),
         ),
       ],
