@@ -17,8 +17,13 @@ class Separator extends StatelessWidget {
         children: [
           Expanded(
             child: CustomPaint(
-              painter: DashedLinePainter(color: t.mutedText),
-              child: const SizedBox(height: 2),
+              painter: DashedLinePainter(
+                color: t.mutedText,
+                strokeWidth: S.scale(context, 1.5),
+                dash: S.scale(context, 6),
+                gap: S.scale(context, 4),
+              ),
+              child: SizedBox(height: S.scale(context, 2)),
             ),
           ),
           Padding(
@@ -40,8 +45,13 @@ class Separator extends StatelessWidget {
           ),
           Expanded(
             child: CustomPaint(
-              painter: DashedLinePainter(color: t.mutedText),
-              child: const SizedBox(height: 2),
+              painter: DashedLinePainter(
+                color: t.mutedText,
+                strokeWidth: S.scale(context, 1.5),
+                dash: S.scale(context, 6),
+                gap: S.scale(context, 4),
+              ),
+              child: SizedBox(height: S.scale(context, 2)),
             ),
           ),
         ],
@@ -52,16 +62,22 @@ class Separator extends StatelessWidget {
 
 class DashedLinePainter extends CustomPainter {
   final Color color;
-  const DashedLinePainter({required this.color});
+  final double strokeWidth;
+  final double dash;
+  final double gap;
+  const DashedLinePainter({
+    required this.color,
+    this.strokeWidth = 1.5,
+    this.dash = 6.0,
+    this.gap = 4.0,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 1.5
+      ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
-    const dash = 6.0;
-    const gap = 4.0;
     double x = 0;
     while (x < size.width) {
       final end = (x + dash).clamp(0, size.width).toDouble();
