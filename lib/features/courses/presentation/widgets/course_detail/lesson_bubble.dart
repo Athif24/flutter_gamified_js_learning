@@ -40,12 +40,12 @@ class LessonBubble extends StatelessWidget {
             : isLocked
             ? t.bgSurface2
             : t.primary,
-        border: Border.all(width: 2, color: t.textPrimary),
+        border: Border.all(width: S.scale(context, 2), color: t.textPrimary),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
             blurRadius: 0,
-            offset: const Offset(3, 3),
+            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
           ),
         ],
       ),
@@ -121,7 +121,7 @@ class LessonBubble extends StatelessWidget {
           ),
           if (isFirstActive)
             Positioned(
-              top: -40,
+              top: S.scale(context, -40),
               left: 0,
               right: 0,
               child: Center(child: StartHereLabel(t: t)),

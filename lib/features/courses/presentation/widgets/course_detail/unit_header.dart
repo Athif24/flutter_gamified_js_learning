@@ -17,7 +17,7 @@ class UnitHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: compact ? 48 : 72,
+      height: compact ? S.scale(context, 48) : S.scale(context, 72),
       child: Row(
         children: [
           const Expanded(child: SizedBox()),
@@ -33,13 +33,13 @@ class UnitHeader extends StatelessWidget {
                 vertical: S.scale(context, 5),
               ),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(width: 2, color: t.textPrimary),
+                borderRadius: BorderRadius.circular(S.scale(context, 50)),
+                border: Border.all(width: S.scale(context, 2), color: t.textPrimary),
                 color: t.bgSurface2,
                 boxShadow: [
                   BoxShadow(
                     color: t.textPrimary,
-                    offset: const Offset(3, 3),
+                    offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                     blurRadius: 0,
                   ),
                 ],
@@ -51,7 +51,7 @@ class UnitHeader extends StatelessWidget {
                   color: t.mutedText,
                   fontSize: S.font(context, 11),
                   fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
+                  letterSpacing: S.scale(context, 1.5),
                 ),
               ),
             ),

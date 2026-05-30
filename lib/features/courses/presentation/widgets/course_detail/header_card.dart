@@ -42,12 +42,12 @@ class _HeaderCardState extends State<HeaderCard> {
       ),
       decoration: BoxDecoration(
         color: cBg,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: widget.t.textPrimary, width: 2),
+        borderRadius: BorderRadius.circular(S.scale(context, 24)),
+        border: Border.all(color: widget.t.textPrimary, width: S.scale(context, 2)),
         boxShadow: [
           BoxShadow(
             color: widget.t.textPrimary,
-            offset: const Offset(3, 3),
+            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
             blurRadius: 0,
           ),
         ],
@@ -80,7 +80,7 @@ class _HeaderCardState extends State<HeaderCard> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: S.scale(context, 8)),
                 GestureDetector(
                   onTap: () {
                     ProviderScope.containerOf(
@@ -89,14 +89,14 @@ class _HeaderCardState extends State<HeaderCard> {
                     setState(() => _isExpanded = !_isExpanded);
                   },
                   child: CircleAvatar(
-                    radius: 16,
+                    radius: S.scale(context, 16),
                     backgroundColor: cFg.withValues(alpha: 0.15),
                     child: Icon(
                       _isExpanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
                       color: cFg,
-                      size: 20,
+                      size: S.scale(context, 20),
                     ),
                   ),
                 ),
@@ -115,7 +115,7 @@ class _HeaderCardState extends State<HeaderCard> {
                 children: [
                   if (widget.course.description != null &&
                       widget.course.description!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: S.scale(context, 4)),
                     Text(
                       widget.course.description!,
                       maxLines: 3,
@@ -126,7 +126,7 @@ class _HeaderCardState extends State<HeaderCard> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 16),
+                  SizedBox(height: S.scale(context, 16)),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(
@@ -137,10 +137,10 @@ class _HeaderCardState extends State<HeaderCard> {
                     ),
                     decoration: BoxDecoration(
                       color: cFg.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(S.scale(context, 16)),
                       border: Border.all(
                         color: widget.t.textPrimary.withValues(alpha: 0.5),
-                        width: 2,
+                        width: S.scale(context, 2),
                       ),
                     ),
                     child: Row(
@@ -150,25 +150,25 @@ class _HeaderCardState extends State<HeaderCard> {
                           child: Column(
                             children: [
                               Container(
-                                width: 32,
-                                height: 32,
+                                width: S.scale(context, 32),
+                                height: S.scale(context, 32),
                                 decoration: BoxDecoration(
                                   color: cFg.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: cFg.withValues(alpha: 0.3),
-                                    width: 1.5,
+                                    width: S.scale(context, 1.5),
                                   ),
                                 ),
                                 child: Center(
                                   child: Icon(
                                     Icons.menu_book,
                                     color: cFg,
-                                    size: 16,
+                                    size: S.scale(context, 16),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: S.scale(context, 8)),
                               Text(
                                 '${widget.course.totalLessons}',
                                 style: GoogleFonts.nunito(
@@ -183,40 +183,40 @@ class _HeaderCardState extends State<HeaderCard> {
                                   color: cFg.withValues(alpha: 0.8),
                                   fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
+                                  letterSpacing: S.scale(context, 0.5),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          width: 1,
-                          height: 40,
+                          width: S.scale(context, 1),
+                          height: S.scale(context, 40),
                           color: widget.t.textPrimary.withValues(alpha: 0.2),
                         ),
                         Expanded(
                           child: Column(
                             children: [
                               Container(
-                                width: 32,
-                                height: 32,
+                                width: S.scale(context, 32),
+                                height: S.scale(context, 32),
                                 decoration: BoxDecoration(
                                   color: cFg.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: cFg.withValues(alpha: 0.3),
-                                    width: 1.5,
+                                    width: S.scale(context, 1.5),
                                   ),
                                 ),
                                 child: Center(
                                   child: Icon(
                                     Icons.check,
                                     color: cFg,
-                                    size: 16,
+                                    size: S.scale(context, 16),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: S.scale(context, 8)),
                               Text(
                                 '${widget.completedUnits}/${widget.course.units.length}',
                                 style: GoogleFonts.nunito(
@@ -231,40 +231,40 @@ class _HeaderCardState extends State<HeaderCard> {
                                   color: cFg.withValues(alpha: 0.8),
                                   fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
+                                  letterSpacing: S.scale(context, 0.5),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          width: 1,
-                          height: 40,
+                          width: S.scale(context, 1),
+                          height: S.scale(context, 40),
                           color: widget.t.textPrimary.withValues(alpha: 0.2),
                         ),
                         Expanded(
                           child: Column(
                             children: [
                               Container(
-                                width: 32,
-                                height: 32,
+                                width: S.scale(context, 32),
+                                height: S.scale(context, 32),
                                 decoration: BoxDecoration(
                                   color: cFg.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: cFg.withValues(alpha: 0.3),
-                                    width: 1.5,
+                                    width: S.scale(context, 1.5),
                                   ),
                                 ),
                                 child: Center(
                                   child: Icon(
                                     Icons.percent_rounded,
                                     color: cFg,
-                                    size: 16,
+                                    size: S.scale(context, 16),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: S.scale(context, 8)),
                               Text(
                                 '${widget.progressPct}%',
                                 style: GoogleFonts.nunito(
@@ -279,7 +279,7 @@ class _HeaderCardState extends State<HeaderCard> {
                                   color: cFg.withValues(alpha: 0.8),
                                   fontSize: S.font(context, 10),
                                   fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
+                                  letterSpacing: S.scale(context, 0.5),
                                 ),
                               ),
                             ],
@@ -288,14 +288,14 @@ class _HeaderCardState extends State<HeaderCard> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: S.scale(context, 16)),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(S.scale(context, 6)),
                     child: LinearProgressIndicator(
                       value: widget.progress.clamp(0.0, 1.0),
                       backgroundColor: cFg.withValues(alpha: 0.3),
                       valueColor: AlwaysStoppedAnimation(cFg),
-                      minHeight: 12,
+                      minHeight: S.scale(context, 12),
                     ),
                   ),
                 ],

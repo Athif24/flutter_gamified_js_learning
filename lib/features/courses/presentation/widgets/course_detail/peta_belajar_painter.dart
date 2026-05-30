@@ -6,19 +6,25 @@ import 'map_item.dart';
 class PetaBelajarPainter extends CustomPainter {
   final List<NodePos> positions;
   final BloomTheme t;
+  final double strokeWidth;
+  final double dashWidth;
+  final double dashSpace;
 
-  PetaBelajarPainter({required this.positions, required this.t});
+  PetaBelajarPainter({
+    required this.positions,
+    required this.t,
+    this.strokeWidth = 4,
+    this.dashWidth = 10,
+    this.dashSpace = 8,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = t.border.withValues(alpha: 0.25)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-
-    final dashWidth = 10.0;
-    final dashSpace = 8.0;
 
     for (int i = 0; i < positions.length - 1; i++) {
       final a = positions[i];

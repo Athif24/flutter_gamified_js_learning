@@ -20,8 +20,8 @@ class StartHereLabel extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: t.textPrimary,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: t.textPrimary, width: 2),
+                borderRadius: BorderRadius.circular(S.scale(context, 12)),
+                border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
               ),
               child: Text(
                 'Mulai di sini!',
@@ -33,10 +33,10 @@ class StartHereLabel extends StatelessWidget {
               ),
             ),
             Transform.translate(
-              offset: const Offset(0, -6),
+              offset: Offset(0, S.scale(context, -6)),
               child: Transform.rotate(
                 angle: 0.7854,
-                child: Container(width: 10, height: 10, color: t.textPrimary),
+                child: Container(width: S.scale(context, 10), height: S.scale(context, 10), color: t.textPrimary),
               ),
             ),
           ],

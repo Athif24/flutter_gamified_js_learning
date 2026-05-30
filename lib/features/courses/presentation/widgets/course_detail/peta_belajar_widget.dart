@@ -31,7 +31,7 @@ class PetaBelajar extends ConsumerWidget {
     return OrientationBuilder(
       builder: (context, orientation) {
         final isLandscape = orientation == Orientation.landscape;
-        final unitH = isLandscape ? 48.0 : 72.0;
+        final unitH = isLandscape ? S.scale(context, 48.0) : S.scale(context, 72.0);
 
         return LayoutBuilder(
           builder: (ctx, constraints) {
@@ -43,8 +43,8 @@ class PetaBelajar extends ConsumerWidget {
               final item = items[i];
               if (item.isLesson) {
                 final h = isLandscape
-                    ? 128.0
-                    : (item.isFirstActive ? 192.0 : 152.0);
+                    ? S.scale(ctx, 128.0)
+                    : (item.isFirstActive ? S.scale(ctx, 192.0) : S.scale(ctx, 152.0));
                 final offsetX = item.lessonMapIndex.isEven
                     ? -S.scale(ctx, 70.0) * (S.isTablet(ctx) ? 1.5 : 1.0)
                     : S.scale(ctx, 70.0) * (S.isTablet(ctx) ? 1.5 : 1.0);
@@ -64,7 +64,13 @@ class PetaBelajar extends ConsumerWidget {
                   if (positions.length >= 2)
                     Positioned.fill(
                       child: CustomPaint(
-                        painter: PetaBelajarPainter(positions: positions, t: t),
+                        painter: PetaBelajarPainter(
+                          positions: positions,
+                          t: t,
+                          strokeWidth: S.scale(ctx, 4),
+                          dashWidth: S.scale(ctx, 10),
+                          dashSpace: S.scale(ctx, 8),
+                        ),
                       ),
                     ),
                   Column(
@@ -94,8 +100,8 @@ class PetaBelajar extends ConsumerWidget {
                           child: Container(
                             key: itemKeys[i],
                             height: isLandscape
-                                ? 128
-                                : (item.isFirstActive ? 192 : 152),
+                                ? S.scale(ctx, 128)
+                                : (item.isFirstActive ? S.scale(ctx, 192) : S.scale(ctx, 152)),
                             alignment: Alignment.center,
                             child: LessonBubble(
                               name: item.lessonName ?? '',

@@ -203,11 +203,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                       decoration: BoxDecoration(
                         color: t.bgSurface2,
                         shape: BoxShape.circle,
-                        border: Border.all(color: t.textPrimary, width: 2),
+                        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
-                            offset: const Offset(3, 3),
+                            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                             blurRadius: 0,
                           ),
                         ],
@@ -215,12 +215,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                       child: Icon(
                         Icons.arrow_back_ios_rounded,
                         color: t.textPrimary,
-                        size: 15,
+                        size: S.scale(context, 15),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: S.scale(context, 12)),
                 Flexible(
                   child: Text(
                     'Detail Kursus',
@@ -251,8 +251,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
             ),
             child: Row(
               children: [
-                Icon(Icons.menu_book, size: 24, color: t.primary),
-                const SizedBox(width: 8),
+                Icon(Icons.menu_book, size: S.scale(context, 24), color: t.primary),
+                SizedBox(width: S.scale(context, 8)),
                 Text(
                   'Peta Belajar',
                   style: GoogleFonts.nunito(
@@ -298,24 +298,24 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                             ),
                             decoration: BoxDecoration(
                               color: t.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(50),
+                              borderRadius: BorderRadius.circular(S.scale(context, 50)),
                               border: Border.all(
                                 color: t.textPrimary,
-                                width: 2,
+                                width: S.scale(context, 2),
                               ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.flag, size: 14, color: t.primary),
-                                const SizedBox(width: 6),
+                                Icon(Icons.flag, size: S.scale(context, 14), color: t.primary),
+                                SizedBox(width: S.scale(context, 6)),
                                 Text(
                                   name.toUpperCase(),
                                   style: GoogleFonts.nunito(
                                     color: t.primary,
                                     fontSize: S.font(context, 11),
                                     fontWeight: FontWeight.w900,
-                                    letterSpacing: 1.5,
+                                    letterSpacing: S.scale(context, 1.5),
                                   ),
                                 ),
                               ],
@@ -327,7 +327,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
               );
             },
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           Expanded(
             child: items.isEmpty
                 ? Center(
