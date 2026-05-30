@@ -101,7 +101,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           decoration: BoxDecoration(
             color: t.bgSurface2,
             shape: BoxShape.circle,
-            border: Border.all(color: t.textPrimary, width: 2),
+            border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
@@ -575,7 +575,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         backgroundColor: t.bgSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(S.scale(context, 16)),
-          side: BorderSide(color: t.textPrimary, width: 2),
+          side: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
         ),
         title: Row(
           children: [
@@ -662,7 +662,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         backgroundColor: t.bgSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(S.scale(context, 16)),
-          side: BorderSide(color: t.textPrimary, width: 2),
+          side: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
         ),
         title: Text(
           'Keluar dari Kuis?',

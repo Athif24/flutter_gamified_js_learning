@@ -23,14 +23,14 @@ class TimerChip extends StatelessWidget {
     ),
     decoration: BoxDecoration(
       color: color.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(50),
+      borderRadius: BorderRadius.circular(S.scale(context, 50)),
       border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.timer_outlined, color: color, size: S.scale(context, 14)),
-        const SizedBox(width: 4),
+        SizedBox(width: S.scale(context, 4)),
         Text(
           display,
           style: GoogleFonts.firaCode(

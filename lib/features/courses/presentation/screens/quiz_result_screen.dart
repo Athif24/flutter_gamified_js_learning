@@ -467,7 +467,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(S.scale(context, 50)),
-        border: Border.all(color: t.textPrimary, width: 2),
+        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       child: Text(
         'LEGENDARY SCORE',
@@ -475,7 +475,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
           color: t.warning,
           fontSize: S.font(context, 10),
           fontWeight: FontWeight.w900,
-          letterSpacing: 1.8,
+          letterSpacing: S.scale(context, 1.8),
         ),
       ),
     ).animate().fadeIn(delay: 160.ms).scale(begin: const Offset(0.8, 0.8));

@@ -125,7 +125,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                   child: Row(
                     children: [
                       _buildAnimatedIcon(context, isCorrect),
-                      const SizedBox(width: 12),
+                      SizedBox(width: S.scale(context, 12)),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +141,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                                 color: t.textPrimary,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: S.scale(context, 2)),
                             if (isCorrect)
                               Text(
                                 'Kamu menjawab dengan benar',
@@ -164,7 +164,7 @@ class QuizFeedbackPopup extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: S.scale(context, 12)),
                 Semantics(
                   button: true,
                   label: isLast ? 'Selesai' : 'Lanjut',
@@ -182,12 +182,12 @@ class QuizFeedbackPopup extends StatelessWidget {
             ),
 
             if (currentStreak >= 3) ...[
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               _buildStreakBadge(context),
             ],
 
             if (!isCorrect && livesRemaining != null) ...[
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               _buildLivesIndicator(context),
             ],
           ],
@@ -213,7 +213,7 @@ class QuizFeedbackPopup extends StatelessWidget {
       child: Icon(
         isCorrect ? Icons.check : Icons.close,
         color: color,
-        size: 24,
+        size: S.scale(context, 24),
       ),
     );
 
@@ -234,14 +234,14 @@ class QuizFeedbackPopup extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: BorderRadius.circular(S.scale(context, 50)),
         border: Border.all(color: t.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 16)),
-          const SizedBox(width: 6),
+          Text('🔥', style: TextStyle(fontSize: S.scale(context, 16))),
+          SizedBox(width: S.scale(context, 6)),
           Text(
             '$currentStreak beruntun!',
             style: GoogleFonts.nunito(
@@ -266,7 +266,7 @@ class QuizFeedbackPopup extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(width: 4),
+          SizedBox(width: S.scale(context, 4)),
           Text(
             'Nyawa tersisa: ',
             style: GoogleFonts.nunito(
@@ -279,7 +279,7 @@ class QuizFeedbackPopup extends StatelessWidget {
             final heart = Icon(
               Icons.favorite_rounded,
               color: t.error,
-              size: 16,
+              size: S.scale(context, 16),
             );
             Widget animated;
             if (lifeLost) {
@@ -321,7 +321,7 @@ class QuizFeedbackPopup extends StatelessWidget {
         color: isCritical
             ? t.error.withValues(alpha: 0.12)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(S.scale(context, 8)),
       ),
       child: hearts,
     );

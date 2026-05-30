@@ -79,7 +79,7 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen>
         child: Column(
           children: [
             SlowLoadingIndicator(visible: showSlowIndicator, t: t),
-            const SizedBox(height: 8),
+            SizedBox(height: S.scale(context, 8)),
             Expanded(
               child: Center(
                 child: ConstrainedBox(

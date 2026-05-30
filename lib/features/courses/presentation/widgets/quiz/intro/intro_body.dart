@@ -158,7 +158,7 @@ class IntroBodyState extends State<IntroBody> {
           backgroundColor: widget.t.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(S.scale(context, 12)),
           ),
         ),
       );
@@ -178,7 +178,7 @@ class IntroBodyState extends State<IntroBody> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
+        SizedBox(height: S.scale(context, 20)),
         Column(
           children: [
             Container(
@@ -186,7 +186,7 @@ class IntroBodyState extends State<IntroBody> {
               height: S.scale(context, 80),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: t.primary, width: 4),
+                border: Border.all(color: t.primary, width: S.scale(context, 4)),
                 color: t.primary.withValues(alpha: 0.1),
               ),
               child: Icon(
@@ -200,7 +200,7 @@ class IntroBodyState extends State<IntroBody> {
               duration: 600.ms,
               curve: Curves.elasticOut,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: S.scale(context, 16)),
             Text(
               preview.title,
               style: GoogleFonts.nunito(
@@ -210,7 +210,7 @@ class IntroBodyState extends State<IntroBody> {
               ),
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 200.ms),
-            const SizedBox(height: 10),
+            SizedBox(height: S.scale(context, 10)),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: S.scale(context, 16),
@@ -218,7 +218,7 @@ class IntroBodyState extends State<IntroBody> {
               ),
               decoration: BoxDecoration(
                 color: _difficultyColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(S.scale(context, 50)),
                 border: Border.all(
                   color: _difficultyColor.withValues(alpha: 0.4),
                 ),
@@ -234,7 +234,7 @@ class IntroBodyState extends State<IntroBody> {
             ).animate().fadeIn(delay: 300.ms),
           ],
         ),
-        const SizedBox(height: 28),
+        SizedBox(height: S.scale(context, 28)),
         Wrap(
           spacing: S.scale(context, 4),
           runSpacing: S.scale(context, 4),
@@ -259,7 +259,7 @@ class IntroBodyState extends State<IntroBody> {
                 ),
               );
             }),
-            const SizedBox(width: 6),
+            SizedBox(width: S.scale(context, 6)),
             Text(
               '$_currentLives/$_maxLives',
               style: GoogleFonts.nunito(
@@ -303,7 +303,7 @@ class IntroBodyState extends State<IntroBody> {
             ],
           ],
         ).animate().fadeIn(delay: 400.ms),
-        const SizedBox(height: 20),
+        SizedBox(height: S.scale(context, 20)),
         Wrap(
           spacing: S.scale(context, 10),
           runSpacing: S.scale(context, 10),
@@ -337,7 +337,7 @@ class IntroBodyState extends State<IntroBody> {
               ),
           ],
         ).animate().fadeIn(delay: 500.ms),
-        const SizedBox(height: 24),
+        SizedBox(height: S.scale(context, 24)),
         if (myResult != null && myResult.attempted)
           Container(
             width: double.infinity,
@@ -349,7 +349,7 @@ class IntroBodyState extends State<IntroBody> {
               color: myResult.isPassed
                   ? t.success.withValues(alpha: 0.1)
                   : t.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(
                 color: myResult.isPassed
                     ? t.success.withValues(alpha: 0.4)
@@ -378,7 +378,7 @@ class IntroBodyState extends State<IntroBody> {
               ],
             ),
           ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
-        const SizedBox(height: 16),
+        SizedBox(height: S.scale(context, 16)),
         Text(
           'Nilai minimum kelulusan: ',
           style: GoogleFonts.nunito(
@@ -395,7 +395,7 @@ class IntroBodyState extends State<IntroBody> {
             fontWeight: FontWeight.w900,
           ),
         ).animate().fadeIn(delay: 700.ms),
-        const SizedBox(height: 32),
+        SizedBox(height: S.scale(context, 32)),
         LayoutBuilder(
           builder: (context, constraints) {
             if (_isInProgress) {
@@ -412,7 +412,7 @@ class IntroBodyState extends State<IntroBody> {
                       onTap: _hasLives ? () => _handleStart() : null,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: S.scale(context, 12)),
                   Row(
                     children: [
                       Expanded(
@@ -430,7 +430,7 @@ class IntroBodyState extends State<IntroBody> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: S.scale(context, 12)),
                       Expanded(
                         child: BuildSingleButton(
                           t: t,
@@ -464,7 +464,7 @@ class IntroBodyState extends State<IntroBody> {
                       onTap: _hasLives ? () => _handleStart() : null,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: S.scale(context, 12)),
                   Row(
                     children: [
                       Expanded(
@@ -482,7 +482,7 @@ class IntroBodyState extends State<IntroBody> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: S.scale(context, 12)),
                       Expanded(
                         child: BuildSingleButton(
                           t: t,
@@ -527,7 +527,7 @@ class IntroBodyState extends State<IntroBody> {
             );
           },
         ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.15),
-        const SizedBox(height: 40),
+        SizedBox(height: S.scale(context, 40)),
       ],
     );
   }

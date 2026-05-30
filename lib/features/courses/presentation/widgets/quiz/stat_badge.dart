@@ -47,7 +47,7 @@ class StatBadge extends StatelessWidget {
                 color: t.mutedText,
                 fontSize: S.font(context, 10),
                 fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
+                letterSpacing: S.scale(context, 1.5),
               ),
             ),
           ],

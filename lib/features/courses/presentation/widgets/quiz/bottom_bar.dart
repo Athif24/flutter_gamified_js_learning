@@ -68,7 +68,7 @@ class BottomBar extends ConsumerWidget {
                       },
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: S.scale(context, 12)),
             const Spacer(),
             Semantics(
               button: true,

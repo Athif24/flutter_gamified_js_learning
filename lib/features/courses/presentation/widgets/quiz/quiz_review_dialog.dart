@@ -22,7 +22,7 @@ class ReviewDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => Dialog(
     backgroundColor: t.bgSurface,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(S.scale(context, 24))),
     child: Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -54,18 +54,18 @@ class ReviewDialog extends ConsumerWidget {
                   child: Icon(
                     Icons.close_rounded,
                     color: t.mutedText,
-                    size: 22,
+                    size: S.scale(context, 22),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           Flexible(
             child: ListView.separated(
               shrinkWrap: true,
               itemCount: questionResults.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, __) => SizedBox(height: S.scale(context, 8)),
               itemBuilder: (_, i) {
                 final qr = questionResults[i];
                 final q = questions.firstWhere(
@@ -83,7 +83,7 @@ class ReviewDialog extends ConsumerWidget {
                     color: qr.isCorrect
                         ? t.success.withValues(alpha: 0.08)
                         : t.error.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(S.scale(context, 14)),
                     border: Border.all(
                       color: qr.isCorrect
                           ? t.success.withValues(alpha: 0.3)
@@ -100,9 +100,9 @@ class ReviewDialog extends ConsumerWidget {
                                 ? Icons.check_circle_rounded
                                 : Icons.cancel_rounded,
                             color: qr.isCorrect ? t.success : t.error,
-                            size: 18,
+                            size: S.scale(context, 18),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: S.scale(context, 8)),
                           Text(
                             'Soal ${i + 1}',
                             style: GoogleFonts.nunito(
@@ -113,7 +113,7 @@ class ReviewDialog extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: S.scale(context, 6)),
                       Text(
                         q.text,
                         style: GoogleFonts.nunito(
@@ -122,7 +122,7 @@ class ReviewDialog extends ConsumerWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: S.scale(context, 10)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
