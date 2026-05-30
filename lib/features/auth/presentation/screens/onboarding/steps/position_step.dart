@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class PositionStep extends ConsumerWidget {
   const PositionStep({super.key});
@@ -9,8 +10,7 @@ class PositionStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(currentThemeProvider);
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: rs(24)),
@@ -74,7 +74,7 @@ class PositionStep extends ConsumerWidget {
             padding: EdgeInsets.all(rs(18)),
             decoration: BoxDecoration(
               color: t.bgSurface2,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(color: t.border),
             ),
             child: Row(
@@ -120,13 +120,12 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
     return Container(
       padding: EdgeInsets.symmetric(vertical: rs(16), horizontal: rs(4)),
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(S.scale(context, 14)),
         border: Border.all(color: t.border),
       ),
       child: Column(

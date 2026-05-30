@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class NotificationStep extends ConsumerStatefulWidget {
   const NotificationStep({super.key});
@@ -11,6 +12,8 @@ class NotificationStep extends ConsumerStatefulWidget {
 }
 
 class _NotificationStepState extends ConsumerState<NotificationStep> {
+  double rs(double px) => S.scale(context, px);
+
   bool _granted = false;
   bool _checked = false;
 
@@ -40,8 +43,6 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: rs(24)),
@@ -84,7 +85,7 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
                 color: _granted
                     ? t.success.withValues(alpha: 0.1)
                     : t.bgSurface2,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(S.scale(context, 14)),
                 border: Border.all(
                   color: _granted ? t.success.withValues(alpha: 0.3) : t.border,
                 ),
@@ -169,13 +170,12 @@ class _NotifCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
     return Container(
       padding: EdgeInsets.all(rs(14)),
       decoration: BoxDecoration(
         color: t.bgSurface2,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(S.scale(context, 14)),
         border: Border.all(color: t.border),
       ),
       child: Row(
@@ -185,7 +185,7 @@ class _NotifCard extends StatelessWidget {
             height: rs(42),
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
             child: Icon(icon, color: iconColor, size: rs(22)),
           ),

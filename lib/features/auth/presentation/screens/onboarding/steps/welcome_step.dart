@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class WelcomeStep extends ConsumerWidget {
   const WelcomeStep({super.key});
@@ -9,8 +10,7 @@ class WelcomeStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(currentThemeProvider);
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
 
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
@@ -32,7 +32,7 @@ class WelcomeStep extends ConsumerWidget {
                   'Selamat Datang, Developer Baru!',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.nunito(
-                    fontSize: 22,
+                    fontSize: S.font(context, 22),
                     fontWeight: FontWeight.w900,
                     color: t.textPrimary,
                   ),
@@ -42,7 +42,7 @@ class WelcomeStep extends ConsumerWidget {
                   'Siap-siap jadi master JavaScript bareng Bloom',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.nunito(
-                    fontSize: rs(16),
+                    fontSize: S.font(context, 16),
                     color: t.mutedText,
                     fontWeight: FontWeight.w500,
                   ),
@@ -109,8 +109,7 @@ class _BenefitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
     return Padding(
       padding: EdgeInsets.only(bottom: rs(12)),
       child: Row(
@@ -120,7 +119,7 @@ class _BenefitCard extends StatelessWidget {
             height: rs(44),
             decoration: BoxDecoration(
               color: t.bgSurface2,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
             child: Icon(icon, color: t.primary, size: rs(22)),
           ),
@@ -137,7 +136,7 @@ class _BenefitCard extends StatelessWidget {
                     color: t.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: S.scale(context, 2)),
                 Text(
                   desc,
                   style: GoogleFonts.nunito(

@@ -7,6 +7,7 @@ import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../providers/auth_provider.dart';
 import '../../../../shared/services/sound_service.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -32,10 +33,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  double r(double px) {
-    final w = MediaQuery.of(context).size.width;
-    return px * (w / 390).clamp(0.8, 1.3);
-  }
+  double r(double px) => S.scale(context, px);
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -54,21 +52,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   InputDecoration _inputDecoration(String hint, IconData icon, BloomTheme t) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: r(13)),
+      hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
       prefixIcon: Icon(icon, color: t.textPrimary, size: r(20)),
       filled: true,
       fillColor: t.bgSurface2,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(r(10)),
-        borderSide: BorderSide(color: t.textPrimary, width: 2),
+        borderSide: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(r(10)),
-        borderSide: BorderSide(color: t.border, width: 2),
+        borderSide: BorderSide(color: t.border, width: S.scale(context, 2)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(r(10)),
-        borderSide: BorderSide(color: t.primary, width: 2),
+        borderSide: BorderSide(color: t.primary, width: S.scale(context, 2)),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
     );
@@ -118,10 +116,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                     child: Text(
                                       'Welcome to Bloom',
                                       style: GoogleFonts.nunito(
-                                          fontSize: r(12),
+                                          fontSize: S.font(context, 12),
                                         fontWeight: FontWeight.w600,
                                         color: t.textPrimary,
-                                        letterSpacing: 0.5,
+                                        letterSpacing: S.scale(context, 0.5),
                                       ),
                                     ),
                                   ),
@@ -139,7 +137,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                           ),
                                           border: Border.all(
                                             color: t.textPrimary,
-                                            width: 2,
+                                            width: S.scale(context, 2),
                                           ),
                                           boxShadow: [
                                             BoxShadow(
@@ -152,7 +150,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                         child: Center(
                                           child: Text(
                                             '🌸',
-                                            style: TextStyle(fontSize: r(22)),
+                                            style: TextStyle(fontSize: S.font(context, 22)),
                                           ),
                                         ),
                                       ),
@@ -160,7 +158,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       Text(
                                         'Bloom',
                                         style: GoogleFonts.nunito(
-                                          fontSize: r(28),
+                                          fontSize: S.font(context, 28),
                                           fontWeight: FontWeight.w900,
                                           color: t.textPrimary,
                                         ),
@@ -182,7 +180,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       decoration: BoxDecoration(
                         color: t.bgSurface,
                         borderRadius: BorderRadius.circular(r(10)),
-                        border: Border.all(color: t.textPrimary, width: 2),
+                        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
@@ -250,14 +248,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 decoration: BoxDecoration(
                                   color: t.error.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(r(10)),
-                                  border: Border.all(color: t.error, width: 2),
+                                  border: Border.all(color: t.error, width: S.scale(context, 2)),
                                 ),
-                                child: Text(
-                                  auth.error!,
-                                  style: GoogleFonts.nunito(
-                                    color: t.error,
-                                    fontSize: r(12),
-                                    fontWeight: FontWeight.w600,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    auth.error!,
+                                    style: GoogleFonts.nunito(
+                                      color: t.error,
+                                      fontSize: S.font(context, 12),
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ).animate().fadeIn().shakeX(),
@@ -285,7 +286,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                             'Daftar & Mulai Belajar',
                                             style: GoogleFonts.nunito(
                                               fontWeight: FontWeight.w800,
-                                              fontSize: r(14),
+                                              fontSize: S.font(context, 14),
                                               color: t.primaryContent,
                                             ),
                                           ),
@@ -312,19 +313,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           'Sudah punya akun? ',
                           style: GoogleFonts.nunito(
                             color: t.mutedText,
-                            fontSize: r(14),
-                          ),
+                          fontSize: S.font(context, 14),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            ref.read(soundProvider).playClick();
-                            context.pop();
-                          },
-                          child: Text(
-                            'Masuk',
-                            style: GoogleFonts.nunito(
-                              color: t.primary,
-                              fontSize: r(14),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          ref.read(soundProvider).playClick();
+                          context.pop();
+                        },
+                        child: Text(
+                          'Masuk',
+                          style: GoogleFonts.nunito(
+                            color: t.primary,
+                            fontSize: S.font(context, 14),
                               fontWeight: FontWeight.w800,
                               decoration: TextDecoration.underline,
                               decorationColor: t.primary,
@@ -356,25 +357,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.nunito(
-            fontSize: r(13),
-            fontWeight: FontWeight.w700,
-            color: t.textPrimary,
+          Text(
+            label,
+            style: GoogleFonts.nunito(
+              fontSize: S.font(context, 13),
+              fontWeight: FontWeight.w700,
+              color: t.textPrimary,
+            ),
           ),
-        ),
-        SizedBox(height: r(8)),
-        TextFormField(
-          controller: ctrl,
-          keyboardType: keyboardType,
-          style: GoogleFonts.nunito(color: t.textPrimary),
-          decoration: _inputDecoration(hint, icon, t),
-          validator: validator,
-        ),
-      ],
-    );
-  }
+          SizedBox(height: r(8)),
+          TextFormField(
+            controller: ctrl,
+            keyboardType: keyboardType,
+            style: GoogleFonts.nunito(color: t.textPrimary),
+            decoration: _inputDecoration(hint, icon, t),
+            validator: validator,
+          ),
+        ],
+      );
+    }
 
   Widget _buildPasswordField(
     String label,
@@ -387,19 +388,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.nunito(
-            fontSize: r(13),
-            fontWeight: FontWeight.w700,
-            color: t.textPrimary,
+          Text(
+            label,
+            style: GoogleFonts.nunito(
+              fontSize: S.font(context, 13),
+              fontWeight: FontWeight.w700,
+              color: t.textPrimary,
+            ),
           ),
-        ),
-        SizedBox(height: r(8)),
-        TextFormField(
-          controller: ctrl,
-          obscureText: obscure,
-          style: GoogleFonts.nunito(color: t.textPrimary),
+          SizedBox(height: r(8)),
+          TextFormField(
+            controller: ctrl,
+            obscureText: obscure,
+            style: GoogleFonts.nunito(color: t.textPrimary),
           decoration: _passwordInputDecoration(t).copyWith(
             suffixIcon: IconButton(
               icon: Icon(

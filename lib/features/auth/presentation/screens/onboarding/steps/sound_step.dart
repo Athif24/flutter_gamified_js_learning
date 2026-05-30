@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/services/sound_service.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class SoundStep extends ConsumerStatefulWidget {
   const SoundStep({super.key});
@@ -15,8 +16,7 @@ class _SoundStepState extends ConsumerState<SoundStep> {
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
     final sound = ref.watch(soundProvider);
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: rs(24)),
@@ -53,7 +53,7 @@ class _SoundStepState extends ConsumerState<SoundStep> {
             padding: EdgeInsets.all(rs(20)),
             decoration: BoxDecoration(
               color: t.bgSurface2,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(color: t.border),
             ),
             child: Column(
@@ -87,7 +87,7 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                         width: rs(48),
                         height: rs(26),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(13),
+                          borderRadius: BorderRadius.circular(S.scale(context, 13)),
                           color: sound.isMuted ? t.border : t.primary,
                         ),
                         child: AnimatedAlign(
@@ -190,20 +190,19 @@ class _PreviewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: rs(20), vertical: rs(10)),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textPrimary, width: 2),
+          borderRadius: BorderRadius.circular(S.scale(context, 10)),
+          border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
           boxShadow: [
             BoxShadow(
               color: t.textPrimary,
-              offset: const Offset(2, 2),
+              offset: Offset(S.scale(context, 2), S.scale(context, 2)),
               blurRadius: 0,
             ),
           ],

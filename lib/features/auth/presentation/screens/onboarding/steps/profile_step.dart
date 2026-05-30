@@ -60,11 +60,11 @@ class ProfileStep extends ConsumerWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: t.bgSurface2,
-                      border: Border.all(color: t.textPrimary, width: 3),
+                      border: Border.all(color: t.textPrimary, width: S.scale(context, 3)),
                       boxShadow: [
                         BoxShadow(
                           color: t.textPrimary,
-                          offset: const Offset(3, 3),
+                          offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                           blurRadius: 0,
                         ),
                       ],
@@ -89,7 +89,7 @@ class ProfileStep extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: t.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: t.textPrimary, width: 2),
+                        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                       ),
                       child: Icon(Icons.camera_alt_rounded, size: S.scale(context, 18), color: t.primaryContent),
                     ),

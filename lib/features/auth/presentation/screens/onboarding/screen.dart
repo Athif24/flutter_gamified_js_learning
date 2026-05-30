@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/services/cloudinary_service.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../../../../shared/services/sound_service.dart';
 import '../../providers/auth_provider.dart';
 import 'steps/welcome_step.dart';
@@ -89,8 +90,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
     final progress = (_current + 1) / _steps.length;
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
+    double rs(double px) => S.scale(context, px);
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
@@ -145,7 +145,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   SizedBox(height: rs(16)),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(S.scale(context, 6)),
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: rs(6),

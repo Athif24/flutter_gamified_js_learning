@@ -10,6 +10,7 @@ import '../../../../shared/widgets/main_screen.dart';
 import '../../../courses/presentation/providers/course_provider.dart';
 import '../providers/auth_provider.dart';
 import '../../../../shared/services/sound_service.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -32,10 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  double r(double px) {
-    final w = MediaQuery.of(context).size.width;
-    return px * (w / 390).clamp(0.8, 1.3);
-  }
+  double r(double px) => S.scale(context, px);
 
   @override
   void didChangeDependencies() {
@@ -74,21 +72,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   InputDecoration _inputDecoration(String hint, IconData icon, BloomTheme t) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: r(13)),
+      hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
       prefixIcon: Icon(icon, color: t.textPrimary, size: r(20)),
       filled: true,
       fillColor: t.bgSurface2,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(r(10)),
-        borderSide: BorderSide(color: t.textPrimary, width: 2),
+        borderSide: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(r(10)),
-        borderSide: BorderSide(color: t.border, width: 2),
+        borderSide: BorderSide(color: t.border, width: S.scale(context, 2)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(r(10)),
-        borderSide: BorderSide(color: t.primary, width: 2),
+        borderSide: BorderSide(color: t.primary, width: S.scale(context, 2)),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
     );
@@ -121,30 +119,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               decoration: BoxDecoration(
                                 color: t.primary,
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: t.textPrimary,
-                                  width: 2,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
+                                  border: Border.all(
                                     color: t.textPrimary,
-                                    offset: Offset(r(3), r(3)),
-                                    blurRadius: 0,
+                                    width: S.scale(context, 2),
                                   ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '🌸',
-                                  style: TextStyle(fontSize: r(36)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: t.textPrimary,
+                                      offset: Offset(r(3), r(3)),
+                                      blurRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '🌸',
+                                    style: TextStyle(fontSize: S.font(context, 36)),
                                 ),
                               ),
                             ),
                             SizedBox(height: r(10)),
-                            Text(
-                              'Bloom',
-                              style: GoogleFonts.nunito(
-                                fontSize: r(28),
+                              Text(
+                                'Bloom',
+                                style: GoogleFonts.nunito(
+                                  fontSize: S.font(context, 28),
                                 fontWeight: FontWeight.w900,
                                 color: t.textPrimary,
                               ),
@@ -152,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             Text(
                               'JavaScript Learning',
                               style: GoogleFonts.nunito(
-                                fontSize: r(13),
+                                fontSize: S.font(context, 13),
                                 color: t.mutedText,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -168,7 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Text(
                       'Selamat Datang!',
                       style: GoogleFonts.nunito(
-                        fontSize: r(22),
+                        fontSize: S.font(context, 22),
                         fontWeight: FontWeight.w800,
                         color: t.textPrimary,
                       ),
@@ -179,7 +177,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       'Masuk dan lanjutkan belajar JavaScript-mu',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.nunito(
-                        fontSize: r(13),
+                        fontSize: S.font(context, 13),
                         color: t.mutedText,
                       ),
                     ).animate().fadeIn(delay: 200.ms),
@@ -193,7 +191,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       decoration: BoxDecoration(
                         color: t.bgSurface,
                         borderRadius: BorderRadius.circular(r(10)),
-                        border: Border.all(color: t.textPrimary, width: 2),
+                        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
@@ -263,14 +261,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 decoration: BoxDecoration(
                                   color: t.error.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(r(10)),
-                                  border: Border.all(color: t.error, width: 2),
+                                  border: Border.all(color: t.error, width: S.scale(context, 2)),
                                 ),
-                                child: Text(
-                                  auth.error!,
-                                  style: GoogleFonts.nunito(
-                                    color: t.error,
-                                    fontSize: r(12),
-                                    fontWeight: FontWeight.w600,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    auth.error!,
+                                    style: GoogleFonts.nunito(
+                                      color: t.error,
+                                      fontSize: S.font(context, 12),
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ).animate().fadeIn().shakeX(),
@@ -342,10 +343,8 @@ class _Label extends StatelessWidget {
   const _Label(this.text, this.t);
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    double rs(double px) => px * (w / 390).clamp(0.8, 1.3);
     return Text(text, style: GoogleFonts.nunito(
-      fontSize: rs(13),
+      fontSize: S.font(context, 13),
       fontWeight: FontWeight.w700,
       color: t.textPrimary,
     ));
