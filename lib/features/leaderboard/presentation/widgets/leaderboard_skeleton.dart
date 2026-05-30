@@ -131,7 +131,7 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
         borderRadius: BorderRadius.circular(rs(24)),
-        border: Border.all(color: widget.t.textPrimary, width: 2),
+        border: Border.all(color: widget.t.textPrimary, width: rs(2)),
       ),
       child: Column(
         children: [
@@ -257,7 +257,7 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
         borderRadius: BorderRadius.circular(rs(18)),
-        border: Border.all(color: widget.t.textPrimary, width: 2),
+        border: Border.all(color: widget.t.textPrimary, width: rs(2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +282,7 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
         borderRadius: BorderRadius.circular(rs(24)),
-        border: Border.all(color: widget.t.textPrimary, width: 2),
+        border: Border.all(color: widget.t.textPrimary, width: rs(2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +332,7 @@ class _LeaderboardSkeletonState extends State<LeaderboardSkeleton>
       decoration: BoxDecoration(
         color: widget.t.bgSurface,
         borderRadius: BorderRadius.circular(rs(18)),
-        border: Border.all(color: widget.t.textPrimary, width: 2),
+        border: Border.all(color: widget.t.textPrimary, width: rs(2)),
       ),
       child: Row(
         children: [
