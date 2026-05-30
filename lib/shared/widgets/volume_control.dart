@@ -27,12 +27,12 @@ class VolumeButton extends ConsumerWidget {
           decoration: BoxDecoration(
             color: t.bgSurface2,
             shape: BoxShape.circle,
-            border: Border.all(color: t.textPrimary, width: 2),
+            border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
           ),
           child: Icon(
             muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
             color: muted ? t.mutedText : t.primary,
-            size: 15,
+            size: S.scale(context, 15),
           ),
         ),
       ),
@@ -43,8 +43,8 @@ class VolumeButton extends ConsumerWidget {
 void _showVolumePopover(BuildContext context, BloomTheme t) {
   showModalBottomSheet(
     context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(S.scale(context, 20))),
     ),
     builder: (ctx) {
       return Consumer(
@@ -61,17 +61,17 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 40,
-                  height: 4,
+                  width: S.scale(context, 40),
+                  height: S.scale(context, 4),
                   decoration: BoxDecoration(
                     color: t.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(S.scale(context, 2)),
                   ),
                 ),
                 SizedBox(height: S.scale(context, 20)),
                 Row(
                   children: [
-                    Icon(Icons.volume_up_rounded, color: t.primary, size: 20),
+                    Icon(Icons.volume_up_rounded, color: t.primary, size: S.scale(context, 20)),
                     SizedBox(width: S.scale(context, 12)),
                     Text(
                       'Volume Suara',
@@ -88,7 +88,7 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                         width: S.scale(context, 48),
                         height: S.scale(context, 26),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(13),
+                          borderRadius: BorderRadius.circular(S.scale(context, 13)),
                           color: s.isMuted ? t.border : t.primary,
                         ),
                         child: AnimatedAlign(
@@ -113,7 +113,7 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                 SizedBox(height: S.scale(context, 12)),
                 Row(
                   children: [
-                    Icon(Icons.volume_down_rounded, color: t.mutedText, size: 18),
+                    Icon(Icons.volume_down_rounded, color: t.mutedText, size: S.scale(context, 18)),
                     Expanded(
                       child: Slider(
                         value: s.volume,
@@ -124,7 +124,7 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                         onChanged: s.isMuted ? null : (v) => s.setVolume(v),
                       ),
                     ),
-                    Icon(Icons.volume_up_rounded, color: t.mutedText, size: 18),
+                    Icon(Icons.volume_up_rounded, color: t.mutedText, size: S.scale(context, 18)),
                   ],
                 ),
               ],

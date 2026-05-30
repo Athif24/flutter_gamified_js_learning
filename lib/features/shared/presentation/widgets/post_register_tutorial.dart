@@ -214,12 +214,15 @@ class _TooltipCard extends StatelessWidget {
                   color: t.primary,
                   borderRadius: BorderRadius.circular(S.scale(context, 6)),
                 ),
-                child: Text(
-                  '${step + 1}/$total',
-                  style: GoogleFonts.nunito(
-                    fontWeight: FontWeight.w800,
-                    fontSize: S.font(context, 11),
-                    color: t.primaryContent,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '${step + 1}/$total',
+                    style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w800,
+                      fontSize: S.font(context, 11),
+                      color: t.primaryContent,
+                    ),
                   ),
                 ),
               ),

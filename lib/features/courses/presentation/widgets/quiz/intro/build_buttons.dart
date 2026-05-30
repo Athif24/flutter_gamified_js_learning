@@ -28,8 +28,8 @@ class BuildButtons extends StatelessWidget {
       if (i > 0) {
         list.add(
           SizedBox(
-            width: axis == Axis.horizontal ? 12 : 0,
-            height: axis == Axis.vertical ? 10 : 0,
+            width: axis == Axis.horizontal ? S.scale(context, 12) : 0,
+            height: axis == Axis.vertical ? S.scale(context, 10) : 0,
           ),
         );
       }
@@ -47,8 +47,8 @@ class BuildButtons extends StatelessWidget {
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.lock_rounded, size: 14, color: t.mutedText),
-                  const SizedBox(width: 6),
+                  Icon(Icons.lock_rounded, size: S.scale(context, 14), color: t.mutedText),
+                  SizedBox(width: S.scale(context, 6)),
                   Text(
                     'Nyawa Habis',
                     style: GoogleFonts.nunito(

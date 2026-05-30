@@ -75,7 +75,7 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
           borderRadius: BorderRadius.circular(S.scale(context, 10)),
           border: Border.all(
             color: _pressed ? Colors.transparent : shadow,
-            width: 2,
+            width: S.scale(context, 2),
           ),
           boxShadow: _pressed
               ? null
@@ -109,25 +109,29 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
                           fontWeight: FontWeight.w800,
                           fontSize: S.font(context, 14),
                           color: txtColor,
-                          letterSpacing: 0.5,
+                          letterSpacing: S.scale(context, 0.5),
                         ),
                       ),
                     ),
                   ),
                 ],
               )
-            : (widget.child ??
-                  FittedBox(
+            : (widget.child != null
+                ? FittedBox(
                     fit: BoxFit.scaleDown,
-                      child: Text(
-                        widget.label!,
-                        style: GoogleFonts.nunito(
-                          fontWeight: FontWeight.w800,
-                          fontSize: S.font(context, 14),
-                          color: txtColor,
-                          letterSpacing: 0.5,
-                        ),
+                    child: widget.child!,
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.label!,
+                      style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w800,
+                        fontSize: S.font(context, 14),
+                        color: txtColor,
+                        letterSpacing: S.scale(context, 0.5),
                       ),
+                    ),
                   )),
       ),
     );

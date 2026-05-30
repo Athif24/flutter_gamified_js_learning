@@ -34,10 +34,10 @@ class BuildSingleButton extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.lock_rounded,
-                    size: 14,
+                    size: S.scale(context, 14),
                     color: const Color(0xFF666666),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: S.scale(context, 6)),
                   Text(
                     'Nyawa Habis',
                     style: GoogleFonts.nunito(

@@ -182,8 +182,8 @@ class _BottomNav extends ConsumerWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, -2),
+            blurRadius: S.scale(context, 16),
+            offset: Offset(0, S.scale(context, -2)),
           ),
         ],
       ),
@@ -217,7 +217,7 @@ class _BottomNav extends ConsumerWidget {
                           color: sel
                               ? t.accent.withValues(alpha: 0.15)
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(50),
+                          borderRadius: BorderRadius.circular(S.scale(context, 50)),
                         ),
                         child: Icon(
                           sel ? activeI : inactiveI,
@@ -225,7 +225,7 @@ class _BottomNav extends ConsumerWidget {
                           color: sel ? t.accent : t.mutedText,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: S.scale(context, 2)),
                       Text(
                         label,
                         style: GoogleFonts.nunito(
