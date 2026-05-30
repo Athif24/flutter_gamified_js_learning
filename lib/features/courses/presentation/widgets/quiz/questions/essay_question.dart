@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../../shared/themes/theme_provider.dart';
-import '../../../../../core/utils/responsive_utils.dart';
+import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class EssayQuestion extends StatefulWidget {
   final BloomTheme t;
@@ -29,7 +29,10 @@ class _EssayQuestionState extends State<EssayQuestion> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
-        padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 8)),
+        padding: EdgeInsets.symmetric(
+          horizontal: S.scale(context, 14),
+          vertical: S.scale(context, 8),
+        ),
         decoration: BoxDecoration(
           color: widget.t.info.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
@@ -61,9 +64,13 @@ class _EssayQuestionState extends State<EssayQuestion> {
         child: TextField(
           controller: _controller,
           minLines: 4,
-          maxLines: MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 8,
+          maxLines: MediaQuery.of(context).orientation == Orientation.landscape
+              ? 5
+              : 8,
           maxLength: _maxChars,
-          buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+          buildCounter:
+              (_, {required currentLength, required isFocused, maxLength}) =>
+                  null,
           onChanged: (v) {
             setState(() {
               _charCount = v.length;
@@ -76,7 +83,8 @@ class _EssayQuestionState extends State<EssayQuestion> {
             height: 1.6,
           ),
           decoration: InputDecoration(
-            hintText: 'Tulis jawaban essay di sini...\n\nContoh: var dapat di-reassign dan di-redeclare, sedangkan let hanya bisa di-reassign...',
+            hintText:
+                'Tulis jawaban essay di sini...\n\nContoh: var dapat di-reassign dan di-redeclare, sedangkan let hanya bisa di-reassign...',
             hintStyle: GoogleFonts.nunito(
               color: widget.t.mutedText,
               fontSize: S.font(context, 13),
@@ -89,7 +97,10 @@ class _EssayQuestionState extends State<EssayQuestion> {
         ),
       ),
       Padding(
-        padding: EdgeInsets.only(top: S.scale(context, 8), left: S.scale(context, 4)),
+        padding: EdgeInsets.only(
+          top: S.scale(context, 8),
+          left: S.scale(context, 4),
+        ),
         child: Text(
           '$_charCount/$_maxChars',
           style: GoogleFonts.nunito(

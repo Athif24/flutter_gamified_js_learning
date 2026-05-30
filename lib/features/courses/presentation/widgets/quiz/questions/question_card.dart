@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../../shared/themes/theme_provider.dart';
-import '../../../../../core/utils/responsive_utils.dart';
+import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
 
 class QuestionCard extends StatelessWidget {
   final String type;
@@ -22,24 +22,53 @@ class QuestionCard extends StatelessWidget {
   ({String label, IconData icon, Color accent, bool darkBg}) get _style {
     switch (type) {
       case 'choice':
-        return (label: '\u{2611}\u{FE0F} Pilihan Ganda', icon: Icons.check_box_rounded, accent: t.info, darkBg: false);
+        return (
+          label: '\u{2611}\u{FE0F} Pilihan Ganda',
+          icon: Icons.check_box_rounded,
+          accent: t.info,
+          darkBg: false,
+        );
       case 'arrange':
-        return (label: '\u{1F4DD} ${_arrangeLabel(arrangeVariant)}', icon: Icons.sort_rounded, accent: t.warning, darkBg: false);
+        return (
+          label: '\u{1F4DD} ${_arrangeLabel(arrangeVariant)}',
+          icon: Icons.sort_rounded,
+          accent: t.warning,
+          darkBg: false,
+        );
       case 'coding':
-        return (label: '\u{1F4BB} Coding', icon: Icons.code_rounded, accent: t.info, darkBg: true);
+        return (
+          label: '\u{1F4BB} Coding',
+          icon: Icons.code_rounded,
+          accent: t.info,
+          darkBg: true,
+        );
       case 'essay':
-        return (label: '\u{270F}\u{FE0F} Essay', icon: Icons.edit_note_rounded, accent: t.secondary, darkBg: false);
+        return (
+          label: '\u{270F}\u{FE0F} Essay',
+          icon: Icons.edit_note_rounded,
+          accent: t.secondary,
+          darkBg: false,
+        );
       default:
-        return (label: type, icon: Icons.question_mark_rounded, accent: t.info, darkBg: false);
+        return (
+          label: type,
+          icon: Icons.question_mark_rounded,
+          accent: t.info,
+          darkBg: false,
+        );
     }
   }
 
   static String _arrangeLabel(String? variant) {
     switch (variant) {
-      case 'complete_word': return 'Lengkapi Kata';
-      case 'reorder_words': return 'Susun Kata-kata';
-      case 'drag_blocks':   return 'Susun Blok Kode';
-      default:              return 'Susun Jawaban';
+      case 'complete_word':
+        return 'Lengkapi Kata';
+      case 'reorder_words':
+        return 'Susun Kata-kata';
+      case 'drag_blocks':
+        return 'Susun Blok Kode';
+      default:
+        return 'Susun Jawaban';
     }
   }
 
@@ -58,7 +87,10 @@ class QuestionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 5)),
+            padding: EdgeInsets.symmetric(
+              horizontal: S.scale(context, 10),
+              vertical: S.scale(context, 5),
+            ),
             decoration: BoxDecoration(
               color: style.accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(50),

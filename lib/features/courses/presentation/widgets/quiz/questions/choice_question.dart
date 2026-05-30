@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../../shared/themes/theme_provider.dart';
-import '../../../../../core/utils/responsive_utils.dart';
-import '../../../data/models/course_model.dart';
+import '../../../../../../shared/themes/theme_provider.dart';
+import '../../../../../../core/utils/responsive_utils.dart';
+import '../../../../data/models/course_model.dart';
 
 class ChoiceQuestion extends StatelessWidget {
   static const _labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -35,7 +35,9 @@ class ChoiceQuestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final useGrid = S.isTablet(context) && options.length >= 3;
-    final halfWidth = useGrid ? (MediaQuery.of(context).size.width - S.scale(context, 30)) / 2 : null;
+    final halfWidth = useGrid
+        ? (MediaQuery.of(context).size.width - S.scale(context, 30)) / 2
+        : null;
 
     final items = options.asMap().entries.map((e) {
       final idx = e.key;
@@ -52,7 +54,10 @@ class ChoiceQuestion extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             margin: EdgeInsets.only(bottom: S.scale(context, 10)),
-            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 14), vertical: S.scale(context, 12)),
+            padding: EdgeInsets.symmetric(
+              horizontal: S.scale(context, 14),
+              vertical: S.scale(context, 12),
+            ),
             decoration: BoxDecoration(
               color: isSel ? color.withValues(alpha: 0.12) : t.bgSurface,
               borderRadius: BorderRadius.circular(16),
@@ -60,19 +65,21 @@ class ChoiceQuestion extends StatelessWidget {
                 color: isSel ? color : t.textPrimary,
                 width: 2,
               ),
-              boxShadow: isSel ? [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.4),
-                  offset: const Offset(0, 4),
-                  blurRadius: 0,
-                ),
-              ] : [
-                BoxShadow(
-                  color: t.textPrimary,
-                  offset: const Offset(3, 3),
-                  blurRadius: 0,
-                ),
-              ],
+              boxShadow: isSel
+                  ? [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.4),
+                        offset: const Offset(0, 4),
+                        blurRadius: 0,
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: t.textPrimary,
+                        offset: const Offset(3, 3),
+                        blurRadius: 0,
+                      ),
+                    ],
             ),
             child: Row(
               children: [
@@ -83,10 +90,7 @@ class ChoiceQuestion extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSel ? color : color.withValues(alpha: 0.1),
-                    border: Border.all(
-                      color: t.textPrimary,
-                      width: 2,
-                    ),
+                    border: Border.all(color: t.textPrimary, width: 2),
                     boxShadow: [
                       BoxShadow(
                         color: t.textPrimary,
@@ -125,9 +129,7 @@ class ChoiceQuestion extends StatelessWidget {
         ),
       ).animate(key: ValueKey(e.key)).fadeIn(delay: (50 * e.key).ms);
 
-      return useGrid
-          ? SizedBox(width: halfWidth, child: item)
-          : item;
+      return useGrid ? SizedBox(width: halfWidth, child: item) : item;
     }).toList();
 
     return useGrid
