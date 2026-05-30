@@ -77,7 +77,10 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
                 decoration: BoxDecoration(
                   color: t.bgSurface,
                   borderRadius: BorderRadius.circular(S.scale(context, 12)),
-                  border: Border.all(color: t.textPrimary, width: 1.5),
+                  border: Border.all(
+                    color: t.textPrimary,
+                    width: S.scale(context, 1.5),
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -143,11 +146,17 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
                         borderRadius: BorderRadius.circular(
                           S.scale(context, 16),
                         ),
-                        border: Border.all(color: t.textPrimary, width: 2),
+                        border: Border.all(
+                          color: t.textPrimary,
+                          width: S.scale(context, 2),
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
-                            offset: const Offset(3, 3),
+                            offset: Offset(
+                              S.scale(context, 3),
+                              S.scale(context, 3),
+                            ),
                             blurRadius: 0,
                           ),
                         ],

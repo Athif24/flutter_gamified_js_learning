@@ -47,7 +47,7 @@ class _StoreInventoryTabState extends ConsumerState<StoreInventoryTab> {
             backgroundColor: t.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
           ),
         );
@@ -109,7 +109,7 @@ class _StoreInventoryTabState extends ConsumerState<StoreInventoryTab> {
             backgroundColor: t.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
           ),
         );

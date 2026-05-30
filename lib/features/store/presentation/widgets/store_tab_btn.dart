@@ -40,12 +40,18 @@ class StoreTabBtn extends ConsumerWidget {
         ),
         decoration: BoxDecoration(
           color: sel ? t.primary : t.bgSurface,
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: t.textPrimary, width: 2),
+          borderRadius: BorderRadius.circular(S.scale(context, 50)),
+          border: Border.all(
+            color: t.textPrimary,
+            width: S.scale(context, 2),
+          ),
           boxShadow: [
             BoxShadow(
               color: t.textPrimary,
-              offset: const Offset(3, 3),
+              offset: Offset(
+                S.scale(context, 3),
+                S.scale(context, 3),
+              ),
               blurRadius: 0,
             ),
           ],
