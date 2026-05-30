@@ -311,7 +311,7 @@ class _RewardRevealState extends State<_RewardReveal> {
             shape: BoxShape.circle,
             border: Border.all(
               color: widget.rewardColor.withValues(alpha: 0.3),
-              width: 2,
+              width: S.scale(context, 2),
             ),
           ),
           child: Center(
@@ -355,7 +355,7 @@ class _RewardRevealState extends State<_RewardReveal> {
             color: widget.t.mutedText,
             fontSize: S.scale(context, 12),
             fontWeight: FontWeight.w700,
-            letterSpacing: 1,
+            letterSpacing: S.scale(context, 1),
           ),
         ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2),
 
@@ -404,12 +404,15 @@ class _RewardRevealState extends State<_RewardReveal> {
                 borderRadius: BorderRadius.circular(S.scale(context, 10)),
                 border: Border.all(
                   color: widget.t.primary.withValues(alpha: 0.5),
-                  width: 2,
+                  width: S.scale(context, 2),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: widget.t.textPrimary.withValues(alpha: 0.3),
-                    offset: const Offset(2, 2),
+                    offset: Offset(
+                      S.scale(context, 2),
+                      S.scale(context, 2),
+                    ),
                     blurRadius: 0,
                   ),
                 ],
@@ -442,17 +445,20 @@ class _RewardRevealState extends State<_RewardReveal> {
                 decoration: BoxDecoration(
                   color: widget.t.bgSurface2,
                   borderRadius: BorderRadius.circular(S.scale(context, 10)),
-                  border: Border.all(
-                    color: widget.t.primary.withValues(alpha: 0.5),
-                    width: 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: widget.t.textPrimary.withValues(alpha: 0.3),
-                      offset: const Offset(2, 2),
-                      blurRadius: 0,
+                border: Border.all(
+                  color: widget.t.primary.withValues(alpha: 0.5),
+                  width: S.scale(context, 2),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.t.textPrimary.withValues(alpha: 0.3),
+                    offset: Offset(
+                      S.scale(context, 2),
+                      S.scale(context, 2),
                     ),
-                  ],
+                    blurRadius: 0,
+                  ),
+                ],
                 ),
                 child: Text(
                   'Tutup',
@@ -510,12 +516,12 @@ class _ConfettiParticle extends StatelessWidget {
             child: Transform.rotate(
               angle: progress * 4 * pi + index,
               child: Container(
-                width: 8,
-                height: 8,
+                width: S.scale(context, 8),
+                height: S.scale(context, 8),
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(
-                    random.nextBool() ? 4 : 0,
+                    random.nextBool() ? S.scale(context, 4) : 0,
                   ),
                 ),
               ),

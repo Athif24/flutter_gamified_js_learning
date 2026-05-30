@@ -101,12 +101,18 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                     padding: EdgeInsets.all(S.scale(context, 24)),
                     decoration: BoxDecoration(
                       color: t.primary,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: t.textPrimary, width: 2),
+                      borderRadius: BorderRadius.circular(S.scale(context, 24)),
+                      border: Border.all(
+                        color: t.textPrimary,
+                        width: S.scale(context, 2),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: t.textPrimary,
-                          offset: const Offset(3, 3),
+                          offset: Offset(
+                            S.scale(context, 3),
+                            S.scale(context, 3),
+                          ),
                           blurRadius: 0,
                         ),
                       ],
@@ -134,7 +140,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: S.scale(context, 4)),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -154,7 +160,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             ),
                             decoration: BoxDecoration(
                               color: t.primaryContent.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius:
+                                  BorderRadius.circular(S.scale(context, 16)),
                               border: Border.all(
                                 color: t.primaryContent.withValues(alpha: 0.5),
                               ),
@@ -167,7 +174,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                   size: S.scale(context, 24),
                                   color: t.info,
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: S.scale(context, 8)),
                                 Container(
                                   width: S.scale(context, 60),
                                   height: S.scale(context, 24),
@@ -188,7 +195,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             ),
                             decoration: BoxDecoration(
                               color: t.primaryContent.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius:
+                                  BorderRadius.circular(S.scale(context, 16)),
                               border: Border.all(
                                 color: t.primaryContent.withValues(alpha: 0.5),
                               ),
@@ -201,7 +209,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                   size: S.scale(context, 24),
                                   color: t.info,
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: S.scale(context, 8)),
                                 Text(
                                   '-',
                                   style: GoogleFonts.nunito(
@@ -220,7 +228,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             ),
                             decoration: BoxDecoration(
                               color: t.primaryContent.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius:
+                                  BorderRadius.circular(S.scale(context, 16)),
                               border: Border.all(
                                 color: t.primaryContent.withValues(alpha: 0.5),
                               ),
@@ -234,7 +243,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                   size: S.scale(context, 24),
                                   color: t.info,
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: S.scale(context, 8)),
                                 Flexible(
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
@@ -243,12 +252,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                       style: GoogleFonts.nunito(
                                         color: t.primaryContent,
                                         fontWeight: FontWeight.w900,
-                                        fontSize: 24,
+                                        fontSize: S.scale(context, 24),
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: S.scale(context, 4)),
                                 if (maxJewels > 0) ...[
                                   Text(
                                     '/ ${formatNumber(maxJewels)}',
@@ -260,7 +269,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                       fontSize: S.scale(context, 12),
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: S.scale(context, 8)),
                                 ],
                                 Text(
                                   'JEWELS',
@@ -270,7 +279,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                     ),
                                     fontWeight: FontWeight.w800,
                                     fontSize: S.scale(context, 12),
-                                    letterSpacing: 1.2,
+                                    letterSpacing: S.scale(context, 1.2),
                                   ),
                                 ),
                               ],
@@ -316,7 +325,10 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                       boxShadow: [
                         BoxShadow(
                           color: t.textPrimary,
-                          offset: const Offset(3, 3),
+                          offset: Offset(
+                            S.scale(context, 3),
+                            S.scale(context, 3),
+                          ),
                           blurRadius: 0,
                         ),
                       ],

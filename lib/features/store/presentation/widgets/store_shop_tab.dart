@@ -124,15 +124,16 @@ class _StoreShopTabState extends ConsumerState<StoreShopTab> {
                 builder: (_, constraints) {
                   final cardWidth = constraints.maxWidth > 600 ? 280.0 : 240.0;
                   return SizedBox(
-                    height: 300,
+                    height: S.scale(context, 300),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       clipBehavior: Clip.none,
                       itemCount: pools.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 14),
+                      separatorBuilder: (_, __) =>
+                          SizedBox(width: S.scale(context, 14)),
                       itemBuilder: (_, i) => SizedBox(
                         width: cardWidth,
-                        height: 300,
+                        height: S.scale(context, 300),
                         child: MysteryBoxCard(
                           pool: pools[i],
                           balance: balance,
@@ -156,7 +157,7 @@ class _StoreShopTabState extends ConsumerState<StoreShopTab> {
                     size: S.scale(context, 16),
                     color: t.accent,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: S.scale(context, 8)),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
@@ -181,8 +182,8 @@ class _StoreShopTabState extends ConsumerState<StoreShopTab> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: 14,
-                      crossAxisSpacing: 14,
+                      mainAxisSpacing: S.scale(context, 14),
+                      crossAxisSpacing: S.scale(context, 14),
                       childAspectRatio: 0.78,
                     ),
                     itemCount: regularItems.length,
