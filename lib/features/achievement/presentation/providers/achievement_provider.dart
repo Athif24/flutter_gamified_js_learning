@@ -110,40 +110,40 @@ class XpHistoryNotifier extends StateNotifier<XpHistoryState> {
   final AchievementRemoteDatasource _ds;
   XpHistoryNotifier(this._ds) : super(const XpHistoryState());
 
-Future<void> fetchInitial() async {
-  if (!mounted) return;
-  state = state.copyWith(isLoading: true, error: null);
-  try {
-    final result = await _ds.getXpHistory();
+  Future<void> fetchInitial() async {
     if (!mounted) return;
-    state = XpHistoryState(
-      entries: result.data,
-      cursor: result.cursor,
-      hasMore: result.hasMore,
-    );
-  } catch (_) {
-    if (!mounted) return;
-    state = state.copyWith(isLoading: false, error: 'Gagal memuat riwayat XP');
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final result = await _ds.getXpHistory();
+      if (!mounted) return;
+      state = XpHistoryState(
+        entries: result.data,
+        cursor: result.cursor,
+        hasMore: result.hasMore,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(isLoading: false, error: 'Gagal memuat riwayat XP');
+    }
   }
-}
 
-Future<void> loadMore() async {
-  if (!mounted) return;
-  if (!state.hasMore || state.isLoadingMore) return;
-  state = state.copyWith(isLoadingMore: true);
-  try {
-    final result = await _ds.getXpHistory(cursor: state.cursor);
+  Future<void> loadMore() async {
     if (!mounted) return;
-    state = XpHistoryState(
-      entries: [...state.entries, ...result.data],
-      cursor: result.cursor,
-      hasMore: result.hasMore,
-    );
-  } catch (_) {
-    if (!mounted) return;
-    state = state.copyWith(isLoadingMore: false, error: 'Gagal memuat riwayat XP');
+    if (!state.hasMore || state.isLoadingMore) return;
+    state = state.copyWith(isLoadingMore: true);
+    try {
+      final result = await _ds.getXpHistory(cursor: state.cursor);
+      if (!mounted) return;
+      state = XpHistoryState(
+        entries: [...state.entries, ...result.data],
+        cursor: result.cursor,
+        hasMore: result.hasMore,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(isLoadingMore: false, error: 'Gagal memuat riwayat XP');
+    }
   }
-}
 }
 
 final xpHistoryProvider =

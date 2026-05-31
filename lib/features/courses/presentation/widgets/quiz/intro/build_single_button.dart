@@ -35,13 +35,13 @@ class BuildSingleButton extends StatelessWidget {
                   Icon(
                     Icons.lock_rounded,
                     size: S.scale(context, 14),
-                    color: const Color(0xFF666666),
+                    color: t.mutedText,
                   ),
                   SizedBox(width: S.scale(context, 6)),
                   Text(
                     'Nyawa Habis',
                     style: GoogleFonts.nunito(
-                      color: const Color(0xFF666666),
+                      color: t.mutedText,
                       fontWeight: FontWeight.w800,
                       fontSize: S.font(context, 14),
                     ),

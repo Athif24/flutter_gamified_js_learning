@@ -76,7 +76,9 @@ class _StoreInventoryTabState extends ConsumerState<StoreInventoryTab> {
             result: result,
             poolName: pool.name,
             poolIcon: pool.icon,
-            onDismiss: () => Navigator.of(buildContext).pop(),
+            onDismiss: () {
+              if (buildContext.mounted) Navigator.of(buildContext).pop();
+            },
             onOpenAgain: showOverlay,
             canOpenAgain: canOpenAgain,
             t: t,
@@ -174,7 +176,6 @@ class _StoreInventoryTabState extends ConsumerState<StoreInventoryTab> {
                               invItem: inv,
                               storeItem: storeItem,
                               t: t,
-                              ref: ref,
                             ),
                           );
                         },

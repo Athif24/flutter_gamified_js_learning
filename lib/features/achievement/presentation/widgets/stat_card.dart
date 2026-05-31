@@ -57,10 +57,10 @@ class StatCard extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Icon(icon, color: color, size: S.scale(context, 20)),
+              child: ExcludeSemantics(child: Icon(icon, color: color, size: S.scale(context, 20))),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -70,11 +70,11 @@ class StatCard extends StatelessWidget {
                 color: t.mutedText,
                 fontSize: S.font(context, 11),
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
+                letterSpacing: S.scale(context, 0.5),
               ),
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: S.scale(context, 2)),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -90,7 +90,7 @@ class StatCard extends StatelessWidget {
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 2),
+            SizedBox(height: S.scale(context, 2)),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Text(

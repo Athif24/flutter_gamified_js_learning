@@ -51,17 +51,19 @@ class UserRankCard extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                Icon(
-                      Icons.local_fire_department_rounded,
-                      size: S.scale(context, 24),
-                      color: t.warning,
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.15, 1.15),
-                      duration: 1000.ms,
-                    ),
+                ExcludeSemantics(
+                  child: Icon(
+                        Icons.local_fire_department_rounded,
+                        size: S.scale(context, 24),
+                        color: t.warning,
+                      )
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .scale(
+                        begin: const Offset(1, 1),
+                        end: const Offset(1.15, 1.15),
+                        duration: 1000.ms,
+                      ),
+                ),
               ],
             ),
             SizedBox(height: S.scale(context, 16)),

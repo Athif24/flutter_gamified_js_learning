@@ -49,12 +49,14 @@ class LevelRoadmap extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.map_rounded,
-                color: t.primary,
-                size: S.scale(context, 20),
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.map_rounded,
+                  color: t.primary,
+                  size: S.scale(context, 20),
+                ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: S.scale(context, 8)),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -80,14 +82,14 @@ class LevelRoadmap extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: S.scale(context, 20)),
           Stack(
             children: [
               Positioned(
-                left: 26,
-                top: 16,
-                bottom: 16,
-                child: Container(width: 2, color: t.border.withAlpha(25)),
+                left: S.scale(context, 26),
+                top: S.scale(context, 16),
+                bottom: S.scale(context, 16),
+                child: Container(width: S.scale(context, 2), color: t.border.withAlpha(25)),
               ),
               Column(
                 children: sorted.asMap().entries.map((entry) {
@@ -110,7 +112,7 @@ class LevelRoadmap extends ConsumerWidget {
 
                   final outerCard = Container(
                     margin: EdgeInsets.only(
-                      bottom: i < sorted.length - 1 ? 12 : 0,
+                      bottom: i < sorted.length - 1 ? S.scale(context, 12) : 0,
                     ),
                     padding: EdgeInsets.all(S.scale(context, 16)),
                     decoration: BoxDecoration(
@@ -149,7 +151,7 @@ class LevelRoadmap extends ConsumerWidget {
                             width: S.scale(context, 28),
                             child: Column(
                               children: [
-                                const SizedBox(height: 2),
+                                SizedBox(height: S.scale(context, 2)),
                                 Container(
                                   width: S.scale(context, 28),
                                   height: S.scale(context, 28),
@@ -171,35 +173,35 @@ class LevelRoadmap extends ConsumerWidget {
                                   ),
                                   child: Center(
                                     child: isPassed
-                                        ? Icon(
+                                        ? ExcludeSemantics(child: Icon(
                                             Icons.check_rounded,
                                             color: t.primaryContent,
                                             size: S.scale(context, 16),
-                                          )
+                                          ))
                                         : isCurrent
-                                        ? Icon(
+                                        ? ExcludeSemantics(child: Icon(
                                             Icons.star_rounded,
                                             color: t.primaryContent,
                                             size: S.scale(context, 14),
-                                          )
-                                        : Icon(
+                                          ))
+                                        : ExcludeSemantics(child: Icon(
                                             Icons.lock_rounded,
                                             color: t.mutedText.withAlpha(100),
                                             size: S.scale(context, 14),
-                                          ),
+                                          )),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: S.scale(context, 16)),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Wrap(
-                                  spacing: 8,
-                                  runSpacing: 4,
+                                  spacing: S.scale(context, 8),
+                                  runSpacing: S.scale(context, 4),
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     Row(
@@ -222,7 +224,7 @@ class LevelRoadmap extends ConsumerWidget {
                                           ),
                                         ),
                                         if (isCurrent) ...[
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: S.scale(context, 8)),
                                           Container(
                                             padding: EdgeInsets.symmetric(
                                               horizontal: S.scale(context, 8),
@@ -245,14 +247,14 @@ class LevelRoadmap extends ConsumerWidget {
                                                 color: t.primary,
                                                 fontSize: S.font(context, 10),
                                                 fontWeight: FontWeight.w900,
-                                                letterSpacing: 0.5,
+                                                letterSpacing: S.scale(context, 0.5),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ],
                                       if (isPassed) ...[
-                                        const SizedBox(width: 8),
+                                        SizedBox(width: S.scale(context, 8)),
                                         Container(
                                           padding: EdgeInsets.symmetric(
                                             horizontal: S.scale(context, 8),
@@ -275,7 +277,7 @@ class LevelRoadmap extends ConsumerWidget {
                                                   color: t.success,
                                                   fontSize: S.font(context, 10),
                                                   fontWeight: FontWeight.w900,
-                                                  letterSpacing: 0.5,
+                                                  letterSpacing: S.scale(context, 0.5),
                                                 ),
                                               ),
                                             ),
@@ -286,12 +288,14 @@ class LevelRoadmap extends ConsumerWidget {
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
-                                          Icons.bolt_rounded,
-                                          color: t.warning,
-                                          size: S.scale(context, 14),
+                                        ExcludeSemantics(
+                                          child: Icon(
+                                            Icons.bolt_rounded,
+                                            color: t.warning,
+                                            size: S.scale(context, 14),
+                                          ),
                                         ),
-                                        const SizedBox(width: 4),
+                                        SizedBox(width: S.scale(context, 4)),
                                         FittedBox(
                                           fit: BoxFit.scaleDown,
                                           child: Text(
@@ -304,7 +308,7 @@ class LevelRoadmap extends ConsumerWidget {
                                           ),
                                         ),
                                         if (level.rewardJewels > 0) ...[
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: S.scale(context, 8)),
                                           FittedBox(
                                             fit: BoxFit.scaleDown,
                                             child: Text(
@@ -316,11 +320,13 @@ class LevelRoadmap extends ConsumerWidget {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 2),
-                                          Icon(
-                                            Icons.diamond_rounded,
-                                            color: t.info,
-                                            size: S.scale(context, 14),
+                                          SizedBox(width: S.scale(context, 2)),
+                                          ExcludeSemantics(
+                                            child: Icon(
+                                              Icons.diamond_rounded,
+                                              color: t.info,
+                                              size: S.scale(context, 14),
+                                            ),
                                           ),
                                         ],
                                       ],
@@ -328,7 +334,7 @@ class LevelRoadmap extends ConsumerWidget {
                                   ],
                                 ),
                                 if (isCurrent && nextLevel != null) ...[
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: S.scale(context, 8)),
                                   Container(
                                     decoration: BoxDecoration(
                                       border: Border.all(
@@ -352,7 +358,7 @@ class LevelRoadmap extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: S.scale(context, 4)),
                                   FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(

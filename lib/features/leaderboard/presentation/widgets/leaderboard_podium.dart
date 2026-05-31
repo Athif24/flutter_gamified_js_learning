@@ -25,7 +25,9 @@ class Podium extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.emoji_events_rounded, size: S.scale(context, 22), color: t.warning),
+              ExcludeSemantics(
+                child: Icon(Icons.emoji_events_rounded, size: S.scale(context, 22), color: t.warning),
+              ),
               SizedBox(width: S.scale(context, 8)),
               Text(
                 'Top 3 Pemain Terbaik',
@@ -102,11 +104,17 @@ class PodiumUser extends StatelessWidget {
     return Column(
     children: [
       if (rank == 1)
-        Icon(Icons.emoji_events_rounded, size: S.scale(context, 28), color: t.warning),
+        ExcludeSemantics(
+          child: Icon(Icons.emoji_events_rounded, size: S.scale(context, 28), color: t.warning),
+        ),
       if (rank == 2)
-        Icon(Icons.emoji_events_rounded, size: S.scale(context, 24), color: t.info),
+        ExcludeSemantics(
+          child: Icon(Icons.emoji_events_rounded, size: S.scale(context, 24), color: t.info),
+        ),
       if (rank == 3)
-        Icon(Icons.emoji_events_rounded, size: S.scale(context, 24), color: t.accent),
+        ExcludeSemantics(
+          child: Icon(Icons.emoji_events_rounded, size: S.scale(context, 24), color: t.accent),
+        ),
       SizedBox(height: S.scale(context, 8)),
       Container(
             width: rank == 1 ? S.scale(context, 56) : S.scale(context, 44),

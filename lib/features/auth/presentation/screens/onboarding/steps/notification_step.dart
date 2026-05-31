@@ -12,7 +12,6 @@ class NotificationStep extends ConsumerStatefulWidget {
 }
 
 class _NotificationStepState extends ConsumerState<NotificationStep> {
-  double rs(double px) => S.scale(context, px);
 
   bool _granted = false;
   bool _checked = false;
@@ -45,42 +44,44 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
     final t = ref.watch(currentThemeProvider);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: rs(24)),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(
-            _granted
-                ? Icons.notifications_active_rounded
-                : Icons.notifications_off_rounded,
-            size: rs(56),
-            color: _granted ? t.primary : t.mutedText,
+          ExcludeSemantics(
+            child: Icon(
+              _granted
+                  ? Icons.notifications_active_rounded
+                  : Icons.notifications_off_rounded,
+              size: S.scale(context, 56),
+              color: _granted ? t.primary : t.mutedText,
+            ),
           ),
-          SizedBox(height: rs(16)),
+          SizedBox(height: S.scale(context, 16)),
           Text(
             'Notifikasi',
             style: GoogleFonts.nunito(
-              fontSize: rs(22),
+              fontSize: S.font(context, 22),
               fontWeight: FontWeight.w900,
               color: t.textPrimary,
             ),
           ),
-          SizedBox(height: rs(8)),
+          SizedBox(height: S.scale(context, 8)),
           Text(
             'Dapatkan pengingat dan info terbaru dari Bloom',
             textAlign: TextAlign.center,
             style: GoogleFonts.nunito(
-              fontSize: rs(13),
+              fontSize: S.font(context, 13),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: rs(24)),
+          SizedBox(height: S.scale(context, 24)),
           if (_checked)
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(rs(14)),
+              padding: EdgeInsets.all(S.scale(context, 14)),
               decoration: BoxDecoration(
                 color: _granted
                     ? t.success.withValues(alpha: 0.1)
@@ -92,14 +93,16 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    _granted
-                        ? Icons.check_circle_rounded
-                        : Icons.error_outline_rounded,
-                    color: _granted ? t.success : t.mutedText,
-                    size: rs(24),
+                  ExcludeSemantics(
+                    child: Icon(
+                      _granted
+                          ? Icons.check_circle_rounded
+                          : Icons.error_outline_rounded,
+                      color: _granted ? t.success : t.mutedText,
+                      size: S.scale(context, 24),
+                    ),
                   ),
-                  SizedBox(width: rs(12)),
+                  SizedBox(width: S.scale(context, 12)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,17 +113,17 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
                               : 'Notifikasi Tidak Aktif',
                           style: GoogleFonts.nunito(
                             fontWeight: FontWeight.w700,
-                            fontSize: rs(13),
+                            fontSize: S.font(context, 13),
                             color: t.textPrimary,
                           ),
                         ),
-                        SizedBox(height: rs(2)),
+                        SizedBox(height: S.scale(context, 2)),
                         Text(
                           _granted
                               ? 'Kamu akan menerima pengingat streak dan info dari Bloom'
                               : 'Aktifkan lewat Pengaturan > Aplikasi > Bloom',
                           style: GoogleFonts.nunito(
-                            fontSize: rs(11),
+                            fontSize: S.font(context, 11),
                             color: t.mutedText,
                             fontWeight: FontWeight.w500,
                           ),
@@ -131,7 +134,7 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
                 ],
               ),
             ),
-          SizedBox(height: rs(16)),
+          SizedBox(height: S.scale(context, 16)),
           _NotifCard(
             t: t,
             icon: Icons.local_fire_department_rounded,
@@ -139,7 +142,7 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
             title: 'Pengingat Streak',
             desc: 'Dapatkan notifikasi setiap hari buat jaga streak belajarmu',
           ),
-          SizedBox(height: rs(12)),
+          SizedBox(height: S.scale(context, 12)),
           _NotifCard(
             t: t,
             icon: Icons.campaign_rounded,
@@ -170,9 +173,8 @@ class _NotifCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double rs(double px) => S.scale(context, px);
     return Container(
-      padding: EdgeInsets.all(rs(14)),
+      padding: EdgeInsets.all(S.scale(context, 14)),
       decoration: BoxDecoration(
         color: t.bgSurface2,
         borderRadius: BorderRadius.circular(S.scale(context, 14)),
@@ -181,15 +183,15 @@ class _NotifCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: rs(42),
-            height: rs(42),
+            width: S.scale(context, 42),
+            height: S.scale(context, 42),
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
-            child: Icon(icon, color: iconColor, size: rs(22)),
+            child: ExcludeSemantics(child: Icon(icon, color: iconColor, size: S.scale(context, 22))),
           ),
-          SizedBox(width: rs(14)),
+          SizedBox(width: S.scale(context, 14)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,15 +200,15 @@ class _NotifCard extends StatelessWidget {
                   title,
                   style: GoogleFonts.nunito(
                     fontWeight: FontWeight.w700,
-                    fontSize: rs(13),
+                    fontSize: S.font(context, 13),
                     color: t.textPrimary,
                   ),
                 ),
-                SizedBox(height: rs(2)),
+                SizedBox(height: S.scale(context, 2)),
                 Text(
                   desc,
                   style: GoogleFonts.nunito(
-                    fontSize: rs(11),
+                    fontSize: S.font(context, 11),
                     color: t.mutedText,
                     fontWeight: FontWeight.w500,
                   ),

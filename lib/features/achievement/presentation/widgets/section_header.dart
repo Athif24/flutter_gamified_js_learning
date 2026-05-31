@@ -20,8 +20,8 @@ class SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: t.warning, size: S.scale(context, 20)),
-        const SizedBox(width: 8),
+        ExcludeSemantics(child: Icon(icon, color: t.warning, size: S.scale(context, 20))),
+        SizedBox(width: S.scale(context, 8)),
         Text(
           title,
           style: GoogleFonts.nunito(

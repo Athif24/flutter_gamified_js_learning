@@ -18,26 +18,39 @@ import '../../data/models/reward_pool_model.dart';
 import '../providers/store_provider.dart';
 import '../providers/reward_pool_provider.dart';
 
-class StoreBuyDialog extends ConsumerWidget {
+class StoreBuyDialog extends ConsumerStatefulWidget {
   final StoreItem item;
   final BloomTheme t;
-  final WidgetRef ref;
   final int balance;
   final VoidCallback onDismiss;
 
-  StoreBuyDialog({
+  const StoreBuyDialog({
     super.key,
     required this.item,
     required this.t,
-    required this.ref,
     required this.balance,
     required this.onDismiss,
   });
 
+  @override
+  ConsumerState<StoreBuyDialog> createState() => _StoreBuyDialogState();
+}
+
+class _StoreBuyDialogState extends ConsumerState<StoreBuyDialog> {
   final ValueNotifier<bool> _isBuying = ValueNotifier(false);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _isBuying.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.t;
+    final item = widget.item;
+    final balance = widget.balance;
+    final onDismiss = widget.onDismiss;
     final remaining = balance - item.price;
 
     return StatefulBuilder(
@@ -146,15 +159,19 @@ class StoreBuyDialog extends ConsumerWidget {
                                             width: S.scale(context, 28),
                                             height: S.scale(context, 28),
                                             fit: BoxFit.contain,
-                                            placeholder: (_, __) => Icon(
-                                              Icons.inventory_2_rounded,
-                                              size: S.scale(context, 24),
-                                              color: t.mutedText,
+                                            placeholder: (_, __) => ExcludeSemantics(
+                                              child: Icon(
+                                                Icons.inventory_2_rounded,
+                                                size: S.scale(context, 24),
+                                                color: t.mutedText,
+                                              ),
                                             ),
-                                            errorWidget: (_, __, ___) => Icon(
-                                              Icons.inventory_2_rounded,
-                                              size: S.scale(context, 24),
-                                              color: t.mutedText,
+                                            errorWidget: (_, __, ___) => ExcludeSemantics(
+                                              child: Icon(
+                                                Icons.inventory_2_rounded,
+                                                size: S.scale(context, 24),
+                                                color: t.mutedText,
+                                              ),
                                             ),
                                           )
                                         : Text(
@@ -196,16 +213,18 @@ class StoreBuyDialog extends ConsumerWidget {
                             _infoRow(
                               'Harga',
                               Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.diamond,
-                                    size: S.scale(context, 14),
-                                    color: t.info,
-                                  ),
-                                  SizedBox(width: S.scale(context, 4)),
-                                  Text(
-                                    '-${formatNumber(item.price)}',
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ExcludeSemantics(
+                                      child: Icon(
+                                        Icons.diamond,
+                                        size: S.scale(context, 14),
+                                        color: t.info,
+                                      ),
+                                    ),
+                                    SizedBox(width: S.scale(context, 4)),
+                                    Text(
+                                      '-${formatNumber(item.price)}',
                                     style: GoogleFonts.nunito(
                                       color: t.textPrimary,
                                       fontWeight: FontWeight.w800,
@@ -384,7 +403,7 @@ class StoreBuyDialog extends ConsumerWidget {
           child: Text(
             label,
             style: GoogleFonts.nunito(
-              color: t.mutedText,
+              color: widget.t.mutedText,
               fontWeight: FontWeight.w600,
               fontSize: S.scale(c, 13),
             ),
@@ -399,24 +418,36 @@ class StoreBuyDialog extends ConsumerWidget {
 
 // ════════════════════════════════════════════════════════════════════════════
 
-class StoreUseDialog extends ConsumerWidget {
+class StoreUseDialog extends ConsumerStatefulWidget {
   final InventoryItem invItem;
   final StoreItem storeItem;
   final BloomTheme t;
-  final WidgetRef ref;
 
-  StoreUseDialog({
+  const StoreUseDialog({
     super.key,
     required this.invItem,
     required this.storeItem,
     required this.t,
-    required this.ref,
   });
 
+  @override
+  ConsumerState<StoreUseDialog> createState() => _StoreUseDialogState();
+}
+
+class _StoreUseDialogState extends ConsumerState<StoreUseDialog> {
   final ValueNotifier<bool> _isUsing = ValueNotifier(false);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _isUsing.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.t;
+    final storeItem = widget.storeItem;
+    final invItem = widget.invItem;
     final remaining = invItem.quantity - 1;
 
     return StatefulBuilder(
@@ -525,15 +556,19 @@ class StoreUseDialog extends ConsumerWidget {
                                             width: S.scale(context, 28),
                                             height: S.scale(context, 28),
                                             fit: BoxFit.contain,
-                                            placeholder: (_, __) => Icon(
-                                              Icons.inventory_2_rounded,
-                                              size: S.scale(context, 24),
-                                              color: t.mutedText,
+                                            placeholder: (_, __) => ExcludeSemantics(
+                                              child: Icon(
+                                                Icons.inventory_2_rounded,
+                                                size: S.scale(context, 24),
+                                                color: t.mutedText,
+                                              ),
                                             ),
-                                            errorWidget: (_, __, ___) => Icon(
-                                              Icons.inventory_2_rounded,
-                                              size: S.scale(context, 24),
-                                              color: t.mutedText,
+                                            errorWidget: (_, __, ___) => ExcludeSemantics(
+                                              child: Icon(
+                                                Icons.inventory_2_rounded,
+                                                size: S.scale(context, 24),
+                                                color: t.mutedText,
+                                              ),
                                             ),
                                           )
                                         : Text(
@@ -654,8 +689,8 @@ class StoreUseDialog extends ConsumerWidget {
                           color: t.primary,
                           shadowColor: t.textPrimary,
                           textColor: t.primaryContent,
-                          horizontalPadding: 14,
-                          verticalPadding: 10,
+                          horizontalPadding: S.scale(context, 14),
+                          verticalPadding: S.scale(context, 10),
                           isLoading: _isUsing.value,
                           onTap: _isUsing.value
                               ? null
@@ -732,12 +767,12 @@ class StoreUseDialog extends ConsumerWidget {
   }
 
   String _useEffectDesc() {
-    if (storeItem.description != null && storeItem.description!.isNotEmpty) {
-      return storeItem.description!;
+    if (widget.storeItem.description != null && widget.storeItem.description!.isNotEmpty) {
+      return widget.storeItem.description!;
     }
-    final base = itemTypeDescriptions[storeItem.type] ?? '';
-    if (storeItem.effectValue != null && storeItem.effectValue! > 0) {
-      return '$base (+${storeItem.effectValue})';
+    final base = itemTypeDescriptions[widget.storeItem.type] ?? '';
+    if (widget.storeItem.effectValue != null && widget.storeItem.effectValue! > 0) {
+      return '$base (+${widget.storeItem.effectValue})';
     }
     return base;
   }
@@ -750,7 +785,7 @@ class StoreUseDialog extends ConsumerWidget {
           child: Text(
             label,
             style: GoogleFonts.nunito(
-              color: t.mutedText,
+              color: widget.t.mutedText,
               fontWeight: FontWeight.w600,
               fontSize: S.scale(c, 13),
             ),
@@ -767,33 +802,46 @@ class StoreUseDialog extends ConsumerWidget {
 
 // ════════════════════════════════════════════════════════════════════════════
 
-class MysteryBoxBuyDialog extends ConsumerWidget {
+class MysteryBoxBuyDialog extends ConsumerStatefulWidget {
   final RewardPool pool;
   final int balance;
   final BloomTheme t;
-  final WidgetRef ref;
 
   const MysteryBoxBuyDialog({
     super.key,
     required this.pool,
     required this.balance,
     required this.t,
-    required this.ref,
   });
 
+  @override
+  ConsumerState<MysteryBoxBuyDialog> createState() => _MysteryBoxBuyDialogState();
+}
+
+class _MysteryBoxBuyDialogState extends ConsumerState<MysteryBoxBuyDialog> {
+  final ValueNotifier<bool> isPending = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isPending.dispose();
+    super.dispose();
+  }
+
   String get _icon {
-    if (pool.icon != null && pool.icon!.isNotEmpty) return pool.icon!;
-    if (pool.name.toLowerCase().contains('legendary')) return '👑';
-    if (pool.name.toLowerCase().contains('premium')) return '🎀';
+    if (widget.pool.icon != null && widget.pool.icon!.isNotEmpty) return widget.pool.icon!;
+    if (widget.pool.name.toLowerCase().contains('legendary')) return '👑';
+    if (widget.pool.name.toLowerCase().contains('premium')) return '🎀';
     return '🎁';
   }
 
   Color? _parseColor(String? hex) => parseColor(hex);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final t = widget.t;
+    final pool = widget.pool;
+    final balance = widget.balance;
     final remaining = balance - pool.jewelCost;
-    final ValueNotifier<bool> isPending = ValueNotifier(false);
 
     return StatefulBuilder(
       builder: (_, setLocalState) => Dialog(
@@ -839,7 +887,7 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                             ),
                             border: Border.all(
                               color: t.textPrimary,
-                              width: 1.5,
+                              width: S.scale(context, 1.5),
                             ),
                           ),
                           child: ClipRRect(
@@ -854,18 +902,22 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                                     fit: BoxFit.contain,
                                     placeholder: (_, __) => Container(
                                       color: t.bgSurface2,
-                                      child: Icon(
-                                        Icons.card_giftcard,
-                                        size: S.scale(context, 20),
-                                        color: t.mutedText,
+                                      child: ExcludeSemantics(
+                                        child: Icon(
+                                          Icons.card_giftcard,
+                                          size: S.scale(context, 20),
+                                          color: t.mutedText,
+                                        ),
                                       ),
                                     ),
                                     errorWidget: (_, __, ___) => Container(
                                       color: t.bgSurface2,
-                                      child: Icon(
-                                        Icons.card_giftcard,
-                                        size: S.scale(context, 20),
-                                        color: t.mutedText,
+                                      child: ExcludeSemantics(
+                                        child: Icon(
+                                          Icons.card_giftcard,
+                                          size: S.scale(context, 20),
+                                          color: t.mutedText,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -963,10 +1015,12 @@ class MysteryBoxBuyDialog extends ConsumerWidget {
                               value: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
-                                    Icons.diamond,
-                                    size: S.scale(context, 14),
-                                    color: t.info,
+                                  ExcludeSemantics(
+                                    child: Icon(
+                                      Icons.diamond,
+                                      size: S.scale(context, 14),
+                                      color: t.info,
+                                    ),
                                   ),
                                   SizedBox(width: S.scale(context, 4)),
                                   Text(

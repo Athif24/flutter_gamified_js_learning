@@ -121,10 +121,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.shopping_cart_rounded,
-                              size: S.scale(context, 24),
-                              color: t.primaryContent,
+                            ExcludeSemantics(
+                              child: Icon(
+                                Icons.shopping_cart_rounded,
+                                size: S.scale(context, 24),
+                                color: t.primaryContent,
+                              ),
                             ),
                             SizedBox(width: S.scale(context, 10)),
                             FittedBox(
@@ -169,10 +171,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.diamond,
-                                  size: S.scale(context, 24),
-                                  color: t.info,
+                                ExcludeSemantics(
+                                  child: Icon(
+                                    Icons.diamond,
+                                    size: S.scale(context, 24),
+                                    color: t.info,
+                                  ),
                                 ),
                                 SizedBox(width: S.scale(context, 8)),
                                 Container(
@@ -182,7 +186,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                                     color: t.primaryContent.withValues(
                                       alpha: 0.3,
                                     ),
-                                    borderRadius: BorderRadius.circular(6),
+                                    borderRadius: BorderRadius.circular(S.scale(context, 6)),
                                   ),
                                 ),
                               ],
@@ -204,10 +208,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.diamond,
-                                  size: S.scale(context, 24),
-                                  color: t.info,
+                                ExcludeSemantics(
+                                  child: Icon(
+                                    Icons.diamond,
+                                    size: S.scale(context, 24),
+                                    color: t.info,
+                                  ),
                                 ),
                                 SizedBox(width: S.scale(context, 8)),
                                 Text(
@@ -238,10 +244,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.diamond,
-                                  size: S.scale(context, 24),
-                                  color: t.info,
+                                ExcludeSemantics(
+                                  child: Icon(
+                                    Icons.diamond,
+                                    size: S.scale(context, 24),
+                                    color: t.info,
+                                  ),
                                 ),
                                 SizedBox(width: S.scale(context, 8)),
                                 Flexible(

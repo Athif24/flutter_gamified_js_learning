@@ -71,7 +71,7 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                 SizedBox(height: S.scale(context, 20)),
                 Row(
                   children: [
-                    Icon(Icons.volume_up_rounded, color: t.primary, size: S.scale(context, 20)),
+                    ExcludeSemantics(child: Icon(Icons.volume_up_rounded, color: t.primary, size: S.scale(context, 20))),
                     SizedBox(width: S.scale(context, 12)),
                     Text(
                       'Volume Suara',
@@ -83,7 +83,13 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => s.setMuted(!s.isMuted),
+                      onTap: () {
+                        try {
+                          s.setMuted(!s.isMuted);
+                        } catch (_) {
+                          debugPrint('[Volume] setMuted gagal');
+                        }
+                      },
                       child: Container(
                         width: S.scale(context, 48),
                         height: S.scale(context, 26),
@@ -113,7 +119,7 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                 SizedBox(height: S.scale(context, 12)),
                 Row(
                   children: [
-                    Icon(Icons.volume_down_rounded, color: t.mutedText, size: S.scale(context, 18)),
+                    ExcludeSemantics(child: Icon(Icons.volume_down_rounded, color: t.mutedText, size: S.scale(context, 18))),
                     Expanded(
                       child: Slider(
                         value: s.volume,
@@ -121,10 +127,16 @@ void _showVolumePopover(BuildContext context, BloomTheme t) {
                         max: 1,
                         activeColor: t.primary,
                         inactiveColor: t.border,
-                        onChanged: s.isMuted ? null : (v) => s.setVolume(v),
+                        onChanged: s.isMuted ? null : (v) {
+                          try {
+                            s.setVolume(v);
+                          } catch (_) {
+                            debugPrint('[Volume] setVolume gagal');
+                          }
+                        },
                       ),
                     ),
-                    Icon(Icons.volume_up_rounded, color: t.mutedText, size: S.scale(context, 18)),
+                    ExcludeSemantics(child: Icon(Icons.volume_up_rounded, color: t.mutedText, size: S.scale(context, 18))),
                   ],
                 ),
               ],

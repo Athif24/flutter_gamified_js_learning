@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,7 +109,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                 ),
                 image: course.thumbnail != null
                     ? DecorationImage(
-                        image: NetworkImage(course.thumbnail!),
+                        image: CachedNetworkImageProvider(course.thumbnail!),
                         fit: BoxFit.cover,
                       )
                     : null,

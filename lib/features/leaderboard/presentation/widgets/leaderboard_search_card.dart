@@ -47,7 +47,7 @@ class SearchCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: t.bgPrimary,
               borderRadius: BorderRadius.circular(S.scale(context, 10)),
-              border: Border.all(color: t.textPrimary.withValues(alpha: 0.3)),
+              border: Border.all(color: t.textPrimary.withValues(alpha: 0.3), width: S.scale(context, 1)),
             ),
             child: Semantics(
               label: 'Cari pemain',

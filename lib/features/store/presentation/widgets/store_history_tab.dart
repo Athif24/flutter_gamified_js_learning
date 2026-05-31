@@ -57,10 +57,12 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
           // Dropdown filter
           Row(
             children: [
-              Icon(
-                Icons.filter_alt_rounded,
-                size: S.scale(context, 16),
-                color: t.mutedText,
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.filter_alt_rounded,
+                  size: S.scale(context, 16),
+                  color: t.mutedText,
+                ),
               ),
               SizedBox(width: S.scale(context, 6)),
               Text(
@@ -267,10 +269,12 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Icon(
-                                      Icons.diamond,
-                                      size: S.scale(context, 14),
-                                      color: t.info,
+                                    ExcludeSemantics(
+                                      child: Icon(
+                                        Icons.diamond,
+                                        size: S.scale(context, 14),
+                                        color: t.info,
+                                      ),
                                     ),
                                     SizedBox(width: S.scale(context, 4)),
                                     Text(

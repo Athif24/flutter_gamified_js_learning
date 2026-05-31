@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
@@ -60,7 +61,7 @@ class ProfileHeroCard extends StatelessWidget {
                   radius: S.scale(context, 40).roundToDouble(),
                   backgroundColor: t.bgSurface.withValues(alpha: 0.3),
                   backgroundImage: profile.avatar != null
-                      ? NetworkImage(profile.avatar!)
+                      ? CachedNetworkImageProvider(profile.avatar!)
                       : null,
                   child: profile.avatar == null
                       ? Text(
@@ -135,11 +136,11 @@ class ProfileHeroCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        ExcludeSemantics(child: Icon(
                           Icons.calendar_today_rounded,
                           size: S.scale(context, 12),
                           color: t.primaryContent.withValues(alpha: 0.8),
-                        ),
+                        )),
                         SizedBox(width: S.scale(context, 4)),
                         Text(
                           'Bergabung ${profile.daysSinceJoined} hari lalu',
@@ -240,7 +241,9 @@ class ProfileHeroCard extends StatelessWidget {
         Positioned(
           right: S.scale(context, 12),
           top: S.scale(context, 12),
-          child: Bounceable(
+          child: Semantics(
+            button: true,
+            child: Bounceable(
             onTap: () {
               ref.read(soundProvider).playClick();
               showThemePicker(context, ref);
@@ -267,6 +270,7 @@ class ProfileHeroCard extends StatelessWidget {
                 size: S.scale(context, 18),
               ),
             ),
+          ),
           ),
         ),
       ],

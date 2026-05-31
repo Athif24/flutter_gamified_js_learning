@@ -123,9 +123,12 @@ class MysteryBoxResult {
     );
   }
 
+  static const _xpThreshold = 500;
+  static const _jewelThreshold = 400;
+
   bool get isGoodReward {
-    return (rewardType == 'xp' && amount >= 500) ||
-        (rewardType == 'jewels' && amount >= 400) ||
+    return (rewardType == 'xp' && amount >= _xpThreshold) ||
+        (rewardType == 'jewels' && amount >= _jewelThreshold) ||
         rewardType == 'item';
   }
 

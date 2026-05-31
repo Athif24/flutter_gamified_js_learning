@@ -70,6 +70,7 @@ class PetaBelajar extends ConsumerWidget {
                           strokeWidth: S.scale(ctx, 4),
                           dashWidth: S.scale(ctx, 10),
                           dashSpace: S.scale(ctx, 8),
+                          curveOffset: S.scale(ctx, 40),
                         ),
                       ),
                     ),

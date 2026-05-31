@@ -4,6 +4,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/storage/secure_storage.dart';
 import '../models/achievement_model.dart';
 
+// TODO: add per-call timeout via Dio options to prevent hanging requests
 class AchievementRemoteDatasource {
   final ApiClient _api;
   AchievementRemoteDatasource(this._api);
@@ -16,6 +17,7 @@ class AchievementRemoteDatasource {
           .map((e) => LevelModel.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
+      // TODO: preserve original exception type instead of wrapping in Exception
       throw Exception(e.response?.data?['message'] ?? 'Gagal memuat level');
     }
   }
@@ -51,6 +53,7 @@ class AchievementRemoteDatasource {
       }
       return (data: entries, cursor: nextCursor, hasMore: hasMore);
     } on DioException catch (e) {
+      // TODO: preserve original exception type instead of wrapping in Exception
       throw Exception(
         e.response?.data?['message'] ?? 'Gagal memuat riwayat XP',
       );
@@ -85,6 +88,7 @@ class AchievementRemoteDatasource {
           .map((e) => BadgeModel.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
+      // TODO: preserve original exception type instead of wrapping in Exception
       throw Exception(e.response?.data?['message'] ?? 'Gagal memuat badge');
     }
   }
@@ -97,6 +101,7 @@ class AchievementRemoteDatasource {
           .map((e) => BadgeModel.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
+      // TODO: preserve original exception type instead of wrapping in Exception
       throw Exception(e.response?.data?['message'] ?? 'Gagal memuat badge');
     }
   }

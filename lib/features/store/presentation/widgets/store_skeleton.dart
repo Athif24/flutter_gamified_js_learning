@@ -13,6 +13,8 @@ class StoreSkeleton extends StatefulWidget {
 
 class _StoreSkeletonState extends State<StoreSkeleton>
     with SingleTickerProviderStateMixin {
+  static const double _cardAspectRatio = 0.78;
+
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -48,13 +50,16 @@ class _StoreSkeletonState extends State<StoreSkeleton>
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    final items = switch (widget.tabId) {
+      0 => _shopSkeleton(context),
+      1 => _inventorySkeleton(context),
+      2 => _historySkeleton(context),
+      _ => <Widget>[],
+    };
+    return ListView.builder(
       padding: EdgeInsets.all(S.scale(context, 20)),
-      children: [
-        if (widget.tabId == 0) ..._shopSkeleton(context),
-        if (widget.tabId == 1) ..._inventorySkeleton(context),
-        if (widget.tabId == 2) ..._historySkeleton(context),
-      ],
+      itemCount: items.length,
+      itemBuilder: (_, i) => items[i],
     );
   }
 
@@ -137,15 +142,15 @@ class _StoreSkeletonState extends State<StoreSkeleton>
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: S.scale(c, 14),
               crossAxisSpacing: S.scale(c, 14),
-              childAspectRatio: 0.78,
+              childAspectRatio: _cardAspectRatio,
             ),
             itemCount: 4,
-            itemBuilder: (_, __) => _shimmer(
+            itemBuilder: (ctx, __) => _shimmer(
               Container(
                 decoration: BoxDecoration(
                   color: widget.t.bgSurface,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: widget.t.textPrimary, width: 2),
+                  borderRadius: BorderRadius.circular(S.scale(ctx, 18)),
+                  border: Border.all(color: widget.t.textPrimary, width: S.scale(ctx, 2)),
                 ),
               ),
             ),
@@ -177,8 +182,8 @@ class _StoreSkeletonState extends State<StoreSkeleton>
               height: S.scale(c, 120),
               decoration: BoxDecoration(
                 color: widget.t.bgSurface,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: widget.t.textPrimary, width: 2),
+                borderRadius: BorderRadius.circular(S.scale(c, 18)),
+                border: Border.all(color: widget.t.textPrimary, width: S.scale(c, 2)),
               ),
             ),
           ),

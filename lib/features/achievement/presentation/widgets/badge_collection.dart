@@ -27,6 +27,13 @@ class BadgeCollection extends ConsumerStatefulWidget {
 class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
   String _activeTab = 'all';
 
+  static const _grayscaleMatrix = <double>[
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0, 0, 0, 1, 0,
+  ];
+
   static const _conditionIcons = {
     'streak': Icons.local_fire_department_rounded,
     'xp': Icons.bolt_rounded,
@@ -64,7 +71,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                 title: 'Koleksi Badge',
                 icon: Icons.workspace_premium_rounded,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(S.scale(context, 24)),
@@ -96,7 +103,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                           style: TextStyle(fontSize: S.font(context, 36)),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: S.scale(context, 8)),
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
@@ -154,7 +161,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                 icon: Icons.workspace_premium_rounded,
                 count: '$earnedCount/${badges.length}',
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               SizedBox(
                 height: S.scale(context, 34),
                 child: ListView(
@@ -170,7 +177,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                       },
                       t: t,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: S.scale(context, 8)),
                     FilterTab(
                       label: 'Diraih',
                       count: earnedCount,
@@ -181,7 +188,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                       },
                       t: t,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: S.scale(context, 8)),
                     FilterTab(
                       label: 'Terkunci',
                       count: lockedCount,
@@ -195,7 +202,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               Container(
                 height: S.scale(context, 2),
                 decoration: BoxDecoration(
@@ -212,7 +219,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               if (filtered.isEmpty)
                 Container(
                   width: double.infinity,
@@ -229,13 +236,15 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                     children: [
                       FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Icon(
-                          Icons.emoji_events_outlined,
-                          size: S.scale(context, 40),
-                          color: t.textHint,
+                        child: ExcludeSemantics(
+                          child: Icon(
+                            Icons.emoji_events_outlined,
+                            size: S.scale(context, 40),
+                            color: t.textHint,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: S.scale(context, 8)),
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
@@ -261,13 +270,13 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                         : constraints.maxWidth > 400
                         ? 3
                         : 2;
-                    final totalGutter = 12 * (crossAxisCount - 1);
+                    final totalGutter = S.scale(context, 12) * (crossAxisCount - 1);
                     final childWidth =
                         (constraints.maxWidth - totalGutter) / crossAxisCount;
 
                     return Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
+                      spacing: S.scale(context, 12),
+                      runSpacing: S.scale(context, 12),
                       children: filtered
                           .map(
                             (b) => SizedBox(
@@ -343,7 +352,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
@@ -359,7 +368,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
             ),
           ),
           if (b.description != null && b.description!.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: S.scale(context, 12)),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
@@ -375,7 +384,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
             ),
           ],
           if (condIcon != null && b.conditionValue != null) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: S.scale(context, 12)),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: S.scale(context, 6),
@@ -392,12 +401,14 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    condIcon,
-                    size: S.scale(context, 10),
-                    color: t.textSecondary,
+                  ExcludeSemantics(
+                    child: Icon(
+                      condIcon,
+                      size: S.scale(context, 10),
+                      color: t.textSecondary,
+                    ),
                   ),
-                  const SizedBox(width: 3),
+                  SizedBox(width: S.scale(context, 3)),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
@@ -414,16 +425,18 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
             ),
           ],
           if (b.rewardJewels > 0) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: S.scale(context, 12)),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.diamond_rounded,
-                  size: S.scale(context, 10),
-                  color: t.info,
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.diamond_rounded,
+                    size: S.scale(context, 10),
+                    color: t.info,
+                  ),
                 ),
-                const SizedBox(width: 2),
+                SizedBox(width: S.scale(context, 2)),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -439,7 +452,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
             ),
           ],
           if (earned && b.earnedAt != null) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: S.scale(context, 12)),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
@@ -460,8 +473,8 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
       children: [
         cardBody,
         Positioned(
-          right: -8,
-          top: -8,
+          right: S.scale(context, -8),
+          top: S.scale(context, -8),
           child: Container(
             width: S.scale(context, 24),
             height: S.scale(context, 24),
@@ -505,28 +518,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
       return Opacity(
         opacity: 0.5,
         child: ColorFiltered(
-          colorFilter: const ColorFilter.matrix(<double>[
-            0.2126,
-            0.7152,
-            0.0722,
-            0,
-            0,
-            0.2126,
-            0.7152,
-            0.0722,
-            0,
-            0,
-            0.2126,
-            0.7152,
-            0.0722,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-          ]),
+          colorFilter: const ColorFilter.matrix(_grayscaleMatrix),
           child: card,
         ),
       );

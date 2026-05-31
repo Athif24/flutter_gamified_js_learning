@@ -50,7 +50,7 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_rounded, color: t.success, size: S.scale(context, 20)),
+              ExcludeSemantics(child: Icon(Icons.shield_rounded, color: t.success, size: S.scale(context, 20))),
               SizedBox(width: S.scale(context, 8)),
               Text(
                 'Akun & Keamanan',
@@ -84,13 +84,14 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
                     borderRadius: BorderRadius.circular(S.scale(context, 12)),
                     border: Border.all(
                       color: t.textPrimary.withValues(alpha: 0.35),
+                      width: S.scale(context, 1),
                     ),
                   ),
-                  child: Icon(
+                  child: ExcludeSemantics(child: Icon(
                     Icons.email_rounded,
                     color: t.primary,
                     size: S.scale(context, 20),
-                  ),
+                  )),
                 ),
                 SizedBox(width: S.scale(context, 12)),
                 Expanded(

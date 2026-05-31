@@ -81,9 +81,11 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
         (1 - _scoreAnimController.value) *
             (1 - _scoreAnimController.value) *
             (1 - _scoreAnimController.value);
-    setState(() {
-      _displayPct = (targetPct * eased).round();
-    });
+    if (mounted) {
+      setState(() {
+        _displayPct = (targetPct * eased).round();
+      });
+    }
   }
 
   @override
@@ -144,7 +146,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                         ? widget.t.warning
                                         : widget.t.success)
                                   : widget.t.error,
-                              width: 2,
+                              width: S.scale(context, 2),
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -196,10 +198,10 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                                 ? widget.t.warning
                                                 : widget.t.success)
                                           : widget.t.error,
-                                      width: 3,
-                                    ),
-                                  ),
-                                  child: Icon(
+                                       width: S.scale(context, 3),
+                                     ),
+                                   ),
+                                   child: Icon(
                                     widget.result.passed
                                         ? Icons.emoji_events_rounded
                                         : Icons.close_rounded,
@@ -263,7 +265,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                                     isSuper: _isSuperResult,
                                     t: widget.t,
                                     ringBgColor: widget.t.bgSurface2,
-                                    size: S.isTablet(context) ? 160 : 112,
+                                    size: S.isTablet(context) ? S.scale(context, 160) : S.scale(context, 112),
                                   )
                                   .animate()
                                   .fadeIn(delay: 350.ms)
@@ -440,11 +442,11 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
 
       return Positioned(
         left: startX,
-        top: -10,
+        top: -S.scale(context, 10),
         child:
             Container(
-                  width: 6,
-                  height: 6,
+                  width: S.scale(context, 6),
+                  height: S.scale(context, 6),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.4),
                     shape: BoxShape.circle,

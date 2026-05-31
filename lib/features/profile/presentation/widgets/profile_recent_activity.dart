@@ -70,7 +70,7 @@ class ProfileRecentActivity extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.timeline_rounded, color: t.warning, size: S.scale(context, 20)),
+              ExcludeSemantics(child: Icon(Icons.timeline_rounded, color: t.warning, size: S.scale(context, 20))),
               SizedBox(width: S.scale(context, 8)),
               Text(
                 'Aktivitas Terbaru',
@@ -91,12 +91,13 @@ class ProfileRecentActivity extends StatelessWidget {
                   borderRadius: BorderRadius.circular(S.scale(context, 50)),
                   border: Border.all(
                     color: t.textPrimary.withValues(alpha: 0.35),
+                    width: S.scale(context, 1),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.bolt_rounded, color: t.warning, size: S.scale(context, 14)),
+                    ExcludeSemantics(child: Icon(Icons.bolt_rounded, color: t.warning, size: S.scale(context, 14))),
                     SizedBox(width: S.scale(context, 3)),
                     Text(
                       '+${formatNumber(totalXp)} XP',
@@ -172,9 +173,10 @@ class ProfileRecentActivity extends StatelessWidget {
                 borderRadius: BorderRadius.circular(S.scale(context, 12)),
                 border: Border.all(
                   color: t.textPrimary.withValues(alpha: 0.35),
+                  width: S.scale(context, 1),
                 ),
               ),
-              child: Icon(icon, color: iconColor, size: S.scale(context, 16)),
+              child: ExcludeSemantics(child: Icon(icon, color: iconColor, size: S.scale(context, 16))),
             ),
             SizedBox(width: S.scale(context, 12)),
             Expanded(
@@ -212,7 +214,7 @@ class ProfileRecentActivity extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.bolt_rounded, color: t.warning, size: S.scale(context, 14)),
+                  ExcludeSemantics(child: Icon(Icons.bolt_rounded, color: t.warning, size: S.scale(context, 14))),
                   SizedBox(width: S.scale(context, 3)),
                   Text(
                     '+${formatNumber(e.xpEarned)}',
@@ -249,7 +251,7 @@ class ProfileRecentActivity extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(Icons.bolt_rounded, size: S.scale(context, 40), color: t.mutedText),
+          ExcludeSemantics(child: Icon(Icons.bolt_rounded, size: S.scale(context, 40), color: t.mutedText)),
           SizedBox(height: S.scale(context, 8)),
           Text(
             'Belum ada aktivitas terbaru',

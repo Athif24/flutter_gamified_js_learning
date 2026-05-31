@@ -60,7 +60,7 @@ class StatCard extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Icon(data.icon, color: data.color, size: S.scale(context, 20)),
+              child: ExcludeSemantics(child: Icon(data.icon, color: data.color, size: S.scale(context, 20))),
             ),
           ),
           SizedBox(height: S.scale(context, 12)),

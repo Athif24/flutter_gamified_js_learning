@@ -19,12 +19,8 @@ class ProfileRemoteDatasource {
   }
 
   Future<LivesModel> getEffectiveLives() async {
-    try {
-      final res = await _api.get(Api.usersLives);
-      return LivesModel.fromJson(res.data);
-    } on DioException {
-      rethrow;
-    }
+    final res = await _api.get(Api.usersLives);
+    return LivesModel.fromJson(res.data);
   }
 
   Future<ProfileModel> updateProfile(Map<String, dynamic> data) async {

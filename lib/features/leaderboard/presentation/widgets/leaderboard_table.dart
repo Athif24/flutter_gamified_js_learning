@@ -47,7 +47,9 @@ class LeaderboardTable extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.emoji_events_rounded, size: S.scale(context, 28), color: t.warning),
+              ExcludeSemantics(
+                child: Icon(Icons.emoji_events_rounded, size: S.scale(context, 28), color: t.warning),
+              ),
               SizedBox(width: S.scale(context, 8)),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

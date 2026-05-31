@@ -70,11 +70,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     final livesAsync = ref.watch(livesProvider);
 
     ref.listen<QuizState>(quizProvider, (prev, next) {
-      debugPrint('[SOUND] prev?.lastAnswerResult=${prev?.lastAnswerResult?.isCorrect} '
-          'next.lastAnswerResult=${next.lastAnswerResult?.isCorrect}');
       if (next.lastAnswerResult != null &&
           prev?.lastAnswerResult != next.lastAnswerResult) {
-        debugPrint('[SOUND] >>> calling ${next.lastAnswerResult!.isCorrect ? "playCorrect" : "playWrong"}');
         if (next.lastAnswerResult!.isCorrect) {
           sound.playCorrect();
         } else {
@@ -226,7 +223,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             badges: result.badgesAwarded,
             courseId: widget.courseId,
             quizId: widget.quizId,
-            onContinue: () => setState(() => _showCelebration = false),
+            onContinue: () { if (mounted) setState(() => _showCelebration = false); },
           ),
         );
       }

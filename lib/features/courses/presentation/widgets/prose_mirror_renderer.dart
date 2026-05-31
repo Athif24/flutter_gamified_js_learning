@@ -308,7 +308,7 @@ class ProseMirrorRenderer extends StatelessWidget {
                     title: attrs['title'] as String?)
                 : SizedBox(
                     height: (attrs['height'] as num?)?.toDouble() ?? S.scale(context, 200),
-                    child: IframeWidget(src: src),
+                    child: IframeWidget(src: src, t: t),
                   ),
           ),
         );
@@ -607,7 +607,7 @@ class CodeBlock extends StatelessWidget {
           child: SelectableText.rich(
             TextSpan(
               style: GoogleFonts.firaCode(fontSize: S.font(context, 13), height: 1.6),
-              children: ProseMirrorRenderer._highlightSyntax(code),
+              children: ProseMirrorRenderer._highlightSyntax(code, fontSize: S.font(context, 13)),
             ),
           ),
         ),

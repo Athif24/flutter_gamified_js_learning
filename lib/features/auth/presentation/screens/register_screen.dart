@@ -33,7 +33,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  double r(double px) => S.scale(context, px);
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -53,22 +52,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return InputDecoration(
       hintText: hint,
       hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
-      prefixIcon: Icon(icon, color: t.textPrimary, size: r(20)),
+      prefixIcon: ExcludeSemantics(child: Icon(icon, color: t.textPrimary, size: S.scale(context, 20))),
       filled: true,
       fillColor: t.bgSurface2,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(r(10)),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
         borderSide: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(r(10)),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
         borderSide: BorderSide(color: t.border, width: S.scale(context, 2)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(r(10)),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
         borderSide: BorderSide(color: t.primary, width: S.scale(context, 2)),
       ),
-      contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
+      contentPadding: EdgeInsets.symmetric(horizontal: S.scale(context, 16), vertical: S.scale(context, 14)),
     );
   }
 
@@ -89,7 +88,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             SliverFillRemaining(
               hasScrollBody: false,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: r(24)),
+                  padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
                 child: Column(
                   children: [
                     const Spacer(flex: 2),
@@ -101,12 +100,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 children: [
                                   Container(
                                     padding: EdgeInsets.symmetric(
-                                      horizontal: r(12),
-                                      vertical: r(3),
+                                      horizontal: S.scale(context, 12),
+                                      vertical: S.scale(context, 3),
                                     ),
                                     decoration: BoxDecoration(
                                       color: t.primary.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(r(20)),
+                                      borderRadius: BorderRadius.circular(S.scale(context, 20)),
                                       border: Border.all(
                                         color: t.primary.withValues(
                                           alpha: 0.35,
@@ -123,17 +122,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: r(8)),
+                                  SizedBox(height: S.scale(context, 8)),
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Container(
-                                        width: r(44),
-                                        height: r(44),
+                                        width: S.scale(context, 44),
+                                        height: S.scale(context, 44),
                                         decoration: BoxDecoration(
                                           color: t.primary,
                                           borderRadius: BorderRadius.circular(
-                                            r(12),
+                                            S.scale(context, 12),
                                           ),
                                           border: Border.all(
                                             color: t.textPrimary,
@@ -142,7 +141,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                           boxShadow: [
                                             BoxShadow(
                                               color: t.textPrimary,
-                                              offset: Offset(r(2), r(2)),
+                                              offset: Offset(S.scale(context, 2), S.scale(context, 2)),
                                               blurRadius: 0,
                                             ),
                                           ],
@@ -154,7 +153,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: r(10)),
+                                      SizedBox(width: S.scale(context, 10)),
                                       Text(
                                         'Bloom',
                                         style: GoogleFonts.nunito(
@@ -172,19 +171,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               .scale(begin: const Offset(.8, .8)),
                     ),
 
-                    SizedBox(height: r(32)),
+                    SizedBox(height: S.scale(context, 32)),
 
                     // Form card — Neo Brutalism
                     Container(
-                      padding: EdgeInsets.all(r(22)),
+                      padding: EdgeInsets.all(S.scale(context, 22)),
                       decoration: BoxDecoration(
                         color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(r(10)),
+                        borderRadius: BorderRadius.circular(S.scale(context, 10)),
                         border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
-                            offset: Offset(r(3), r(3)),
+                            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                             blurRadius: 0,
                           ),
                         ],
@@ -204,7 +203,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   ? 'Min. 3 karakter'
                                   : null,
                             ),
-                            SizedBox(height: r(14)),
+                            SizedBox(height: S.scale(context, 14)),
                             _buildField(
                               'Email',
                               _emailCtrl,
@@ -216,7 +215,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   ? 'Email tidak valid'
                                   : null,
                             ),
-                            SizedBox(height: r(14)),
+                            SizedBox(height: S.scale(context, 14)),
                             _buildPasswordField(
                               'Password',
                               _passCtrl,
@@ -227,7 +226,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   ? 'Min. 6 karakter'
                                   : null,
                             ),
-                            SizedBox(height: r(14)),
+                            SizedBox(height: S.scale(context, 14)),
                             _buildPasswordField(
                               'Konfirmasi Password',
                               _confCtrl,
@@ -241,13 +240,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ),
 
                             if (auth.error != null) ...[
-                              SizedBox(height: r(12)),
+                              SizedBox(height: S.scale(context, 12)),
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.all(r(12)),
+                                padding: EdgeInsets.all(S.scale(context, 12)),
                                 decoration: BoxDecoration(
                                   color: t.error.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(r(10)),
+                                  borderRadius: BorderRadius.circular(S.scale(context, 10)),
                                   border: Border.all(color: t.error, width: S.scale(context, 2)),
                                 ),
                                 child: FittedBox(
@@ -264,7 +263,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               ).animate().fadeIn().shakeX(),
                             ],
 
-                            SizedBox(height: r(20)),
+                            SizedBox(height: S.scale(context, 20)),
 
                             SizedBox(
                               width: double.infinity,
@@ -273,7 +272,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 color: t.primary,
                                 shadowColor: t.textPrimary,
                                 textColor: t.primaryContent,
-                                horizontalPadding: r(16),
+                                horizontalPadding: S.scale(context, 16),
                                 isLoading: auth.isLoading,
                                 onTap: auth.isLoading ? null : _submit,
                                 child: auth.isLoading
@@ -290,11 +289,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                               color: t.primaryContent,
                                             ),
                                           ),
-                                          SizedBox(width: r(8)),
+                                          SizedBox(width: S.scale(context, 8)),
                                           Icon(
                                             Icons.rocket_launch_rounded,
                                             color: t.primaryContent,
-                                            size: r(16),
+                                            size: S.scale(context, 16),
                                           ),
                                         ],
                                       ),
@@ -304,7 +303,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                     ).animate().fadeIn(delay: 160.ms).slideY(begin: 0.1),
-                    SizedBox(height: r(12)),
+                    SizedBox(height: S.scale(context, 12)),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -365,7 +364,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               color: t.textPrimary,
             ),
           ),
-          SizedBox(height: r(8)),
+          SizedBox(height: S.scale(context, 8)),
           TextFormField(
             controller: ctrl,
             keyboardType: keyboardType,
@@ -396,7 +395,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               color: t.textPrimary,
             ),
           ),
-          SizedBox(height: r(8)),
+          SizedBox(height: S.scale(context, 8)),
           TextFormField(
             controller: ctrl,
             obscureText: obscure,
@@ -408,7 +407,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
                 color: t.mutedText,
-                size: r(20),
+                size: S.scale(context, 20),
               ),
               onPressed: () {
                 ref.read(soundProvider).playClick();

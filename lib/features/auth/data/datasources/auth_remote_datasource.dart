@@ -45,7 +45,11 @@ class AuthRemoteDatasource {
 
   Future<void> logout() async {
     debugPrint('[ACTION] Logout');
-    await SecureStorage.clearAll();
+    try {
+      await SecureStorage.clearAll();
+    } catch (e) {
+      debugPrint('[ACTION] Logout ❌ $e');
+    }
   }
 
   Future<void> changePassword(String oldPassword, String newPassword) async {

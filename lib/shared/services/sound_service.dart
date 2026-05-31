@@ -45,6 +45,7 @@ class SoundService extends ChangeNotifier {
     final player = AudioPlayer();
     _activePlayers.add(player);
 
+    // TODO: ganti pola cleanup listener dengan dispose() yang lebih robust — player.dispose() tidak boleh dipanggil dua kali
     unawaited(
       player.onPlayerComplete.first.then((_) {
         _activePlayers.remove(player);
@@ -64,30 +65,7 @@ class SoundService extends ChangeNotifier {
     }
   }
 
-  Future<void> playOverlapping(String asset) async {
-    await _initCompleter.future;
-    if (_muted) return;
-    final player = AudioPlayer();
-    _activePlayers.add(player);
-
-    unawaited(
-      player.onPlayerComplete.first.then((_) {
-        _activePlayers.remove(player);
-        player.dispose();
-      }).catchError((_) {
-        _activePlayers.remove(player);
-        player.dispose();
-      }),
-    );
-
-    try {
-      await player.setVolume(_volume);
-      await player.play(AssetSource(asset));
-    } catch (e) {
-      _activePlayers.remove(player);
-      await player.dispose();
-    }
-  }
+  Future<void> playOverlapping(String asset) => play(asset);
 
   Future<void> playClick() => play('sounds/click.wav');
   Future<void> playCorrect() => play('sounds/correct.wav');

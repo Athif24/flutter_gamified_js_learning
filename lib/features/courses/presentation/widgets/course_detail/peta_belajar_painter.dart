@@ -9,6 +9,7 @@ class PetaBelajarPainter extends CustomPainter {
   final double strokeWidth;
   final double dashWidth;
   final double dashSpace;
+  final double curveOffset;
 
   PetaBelajarPainter({
     required this.positions,
@@ -16,6 +17,7 @@ class PetaBelajarPainter extends CustomPainter {
     this.strokeWidth = 4,
     this.dashWidth = 10,
     this.dashSpace = 8,
+    this.curveOffset = 40,
   });
 
   @override
@@ -32,7 +34,7 @@ class PetaBelajarPainter extends CustomPainter {
 
       final path = Path();
       path.moveTo(a.x, a.y);
-      path.cubicTo(a.x, a.y + 40, b.x, b.y - 40, b.x, b.y);
+      path.cubicTo(a.x, a.y + curveOffset, b.x, b.y - curveOffset, b.x, b.y);
 
       final metrics = path.computeMetrics();
       for (final metric in metrics) {

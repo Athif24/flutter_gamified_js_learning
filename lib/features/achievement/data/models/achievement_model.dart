@@ -233,6 +233,6 @@ class LearningReportModel {
 String? _parseDesc(dynamic d) {
   if (d == null) return null;
   if (d is String) return d;
-  if (d is Map) return d['text']?.toString();
+  if (d is Map<String, dynamic>) return d['text']?.toString();
   return d.toString();
 }

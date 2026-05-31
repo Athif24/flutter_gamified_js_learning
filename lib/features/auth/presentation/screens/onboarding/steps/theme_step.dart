@@ -27,7 +27,7 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
       child: Column(
         children: [
           SizedBox(height: S.scale(context, 64)),
-          Icon(Icons.palette_rounded, size: S.scale(context, 48), color: t.primary),
+          ExcludeSemantics(child: Icon(Icons.palette_rounded, size: S.scale(context, 48), color: t.primary)),
           SizedBox(height: S.scale(context, 12)),
           Text(
             'Pilih Tema Favorit',

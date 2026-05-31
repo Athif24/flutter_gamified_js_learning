@@ -10,7 +10,6 @@ class WelcomeStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(currentThemeProvider);
-    double rs(double px) => S.scale(context, px);
 
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
@@ -18,16 +17,18 @@ class WelcomeStep extends ConsumerWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: constraints.maxHeight),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: rs(24)),
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.auto_awesome_rounded,
-                  size: rs(56),
-                  color: t.primary,
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.auto_awesome_rounded,
+                    size: S.scale(context, 56),
+                    color: t.primary,
+                  ),
                 ),
-                SizedBox(height: rs(12)),
+                SizedBox(height: S.scale(context, 12)),
                 Text(
                   'Selamat Datang, Developer Baru!',
                   textAlign: TextAlign.center,
@@ -37,7 +38,7 @@ class WelcomeStep extends ConsumerWidget {
                     color: t.textPrimary,
                   ),
                 ),
-                SizedBox(height: rs(6)),
+                SizedBox(height: S.scale(context, 6)),
                 Text(
                   'Siap-siap jadi master JavaScript bareng Bloom',
                   textAlign: TextAlign.center,
@@ -47,7 +48,7 @@ class WelcomeStep extends ConsumerWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: rs(20)),
+                SizedBox(height: S.scale(context, 20)),
                 ..._benefits.map(
                   (b) => _BenefitCard(
                     t: t,
@@ -109,21 +110,20 @@ class _BenefitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double rs(double px) => S.scale(context, px);
     return Padding(
-      padding: EdgeInsets.only(bottom: rs(12)),
+      padding: EdgeInsets.only(bottom: S.scale(context, 12)),
       child: Row(
         children: [
           Container(
-            width: rs(44),
-            height: rs(44),
+            width: S.scale(context, 44),
+            height: S.scale(context, 44),
             decoration: BoxDecoration(
               color: t.bgSurface2,
               borderRadius: BorderRadius.circular(S.scale(context, 12)),
             ),
-            child: Icon(icon, color: t.primary, size: rs(22)),
+            child: ExcludeSemantics(child: Icon(icon, color: t.primary, size: S.scale(context, 22))),
           ),
-          SizedBox(width: rs(14)),
+          SizedBox(width: S.scale(context, 14)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class _BenefitCard extends StatelessWidget {
                   title,
                   style: GoogleFonts.nunito(
                     fontWeight: FontWeight.w700,
-                    fontSize: rs(14),
+                    fontSize: S.font(context, 14),
                     color: t.textPrimary,
                   ),
                 ),
@@ -140,7 +140,7 @@ class _BenefitCard extends StatelessWidget {
                 Text(
                   desc,
                   style: GoogleFonts.nunito(
-                    fontSize: rs(12),
+                    fontSize: S.font(context, 12),
                     color: t.mutedText,
                     fontWeight: FontWeight.w500,
                   ),

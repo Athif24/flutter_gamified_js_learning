@@ -71,7 +71,7 @@ class QuizFeedbackPopup extends StatelessWidget {
       'Terus belajar!',
       'Ayo coba lagi!',
     ];
-    return messages[DateTime.now().millisecond % messages.length];
+    return messages[DateTime.now().millisecondsSinceEpoch % messages.length];
   }
 
   String _formatCorrectAnswer(dynamic correctAnswer) {

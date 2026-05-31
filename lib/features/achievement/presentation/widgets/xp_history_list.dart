@@ -28,6 +28,19 @@ class XpHistoryList extends ConsumerStatefulWidget {
   ConsumerState<XpHistoryList> createState() => _XpHistoryListState();
 }
 
+class _SourceConfig {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final Color bg;
+  const _SourceConfig({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.bg,
+  });
+}
+
 class _XpHistoryListState extends ConsumerState<XpHistoryList> {
   final _scrollController = ScrollController();
 
@@ -55,25 +68,25 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     super.dispose();
   }
 
-  Map<String, Map<String, dynamic>> _sourceConfig(BloomTheme t) => {
-    'quiz': {
-      'icon': Icons.code_rounded,
-      'label': 'Quiz',
-      'color': t.primary,
-      'bg': t.primary.withAlpha(25),
-    },
-    'lesson': {
-      'icon': Icons.menu_book_rounded,
-      'label': 'Pelajaran',
-      'color': t.success,
-      'bg': t.success.withAlpha(25),
-    },
-    'bonus': {
-      'icon': Icons.card_giftcard_rounded,
-      'label': 'Bonus',
-      'color': t.secondary,
-      'bg': t.secondary.withAlpha(25),
-    },
+  Map<String, _SourceConfig> _sourceConfig(BloomTheme t) => {
+    'quiz': _SourceConfig(
+      icon: Icons.code_rounded,
+      label: 'Quiz',
+      color: t.primary,
+      bg: t.primary.withAlpha(25),
+    ),
+    'lesson': _SourceConfig(
+      icon: Icons.menu_book_rounded,
+      label: 'Pelajaran',
+      color: t.success,
+      bg: t.success.withAlpha(25),
+    ),
+    'bonus': _SourceConfig(
+      icon: Icons.card_giftcard_rounded,
+      label: 'Bonus',
+      color: t.secondary,
+      bg: t.secondary.withAlpha(25),
+    ),
   };
 
   String _formatDateGroup(String dateStr) {
@@ -129,12 +142,14 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.history_rounded,
-                color: t.mutedText,
-                size: S.scale(context, 20),
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.history_rounded,
+                  color: t.mutedText,
+                  size: S.scale(context, 20),
+                ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: S.scale(context, 8)),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -161,7 +176,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: S.scale(context, 16)),
           if (widget.isLoading)
             _loadingSkeleton(t)
           else if (sorted.isEmpty)
@@ -178,7 +193,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
       children: List.generate(
         6,
         (i) => Padding(
-          padding: EdgeInsets.only(top: i == 0 ? 0 : 8),
+          padding: EdgeInsets.only(top: i == 0 ? 0 : S.scale(context, 8)),
           child:
               Container(
                     height: S.scale(context, 56),
@@ -208,15 +223,15 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
 
       items.add(
         Padding(
-          padding: EdgeInsets.only(top: groupIdx == 0 ? 0 : 20),
+          padding: EdgeInsets.only(top: groupIdx == 0 ? 0 : S.scale(context, 20)),
           child: Column(
             children: [
               Row(
                 children: [
                   Expanded(
-                    child: Divider(
-                      color: t.textPrimary.withAlpha(25),
-                      height: 1,
+                      child: Divider(
+                        color: t.textPrimary.withAlpha(25),
+                        height: S.scale(context, 1),
                     ),
                   ),
                   Padding(
@@ -229,26 +244,26 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                         color: t.mutedText.withAlpha(102),
                         fontSize: S.font(context, 11),
                         fontWeight: FontWeight.w800,
-                        letterSpacing: 1.1,
+                        letterSpacing: S.scale(context, 1.1),
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Divider(
-                      color: t.textPrimary.withAlpha(25),
-                      height: 1,
+                      child: Divider(
+                        color: t.textPrimary.withAlpha(25),
+                        height: S.scale(context, 1),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: S.scale(context, 8)),
             ],
           ),
         ),
       );
 
       for (final entry in groupEntries.asMap().entries) {
-        if (entry.key > 0) items.add(const SizedBox(height: 8));
+        if (entry.key > 0) items.add(SizedBox(height: S.scale(context, 8)));
         items.add(_buildEntry(t, entry.value, groupIdx, entry.key));
       }
 
@@ -277,11 +292,12 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: S.scale(context, 384)),
-      child: ListView(
+      child: ListView.builder(
         controller: _scrollController,
         shrinkWrap: true,
         physics: const AlwaysScrollableScrollPhysics(),
-        children: children,
+        itemCount: children.length,
+        itemBuilder: (_, i) => children[i],
       ),
     );
   }
@@ -295,16 +311,16 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
     final totalIdx = groupIdx * 100 + entryIdx;
     final cfg =
         _sourceConfig(t)[e.sourceType] ??
-        {
-          'icon': Icons.star_rounded,
-          'label': e.sourceType,
-          'color': t.mutedText,
-          'bg': t.bgSurface2,
-        };
-    final icon = cfg['icon'] as IconData;
-    final label = cfg['label'] as String;
-    final iconColor = cfg['color'] as Color;
-    final bgColor = cfg['bg'] as Color;
+        _SourceConfig(
+          icon: Icons.star_rounded,
+          label: e.sourceType,
+          color: t.mutedText,
+          bg: t.bgSurface2,
+        );
+    final icon = cfg.icon;
+    final label = cfg.label;
+    final iconColor = cfg.color;
+    final bgColor = cfg.bg;
     final dateTime = DateTime.tryParse(e.createdAt);
     final time = dateTime != null
         ? '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}'
@@ -330,9 +346,9 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                   borderRadius: BorderRadius.circular(S.scale(context, 12)),
                   border: Border.all(color: iconColor.withAlpha(76)),
                 ),
-                child: Icon(icon, color: iconColor, size: S.scale(context, 18)),
+                child: ExcludeSemantics(child: Icon(icon, color: iconColor, size: S.scale(context, 18))),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: S.scale(context, 12)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,12 +394,14 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.bolt_rounded,
-                      color: t.warning,
-                      size: S.scale(context, 14),
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.bolt_rounded,
+                        color: t.warning,
+                        size: S.scale(context, 14),
+                      ),
                     ),
-                    const SizedBox(width: 3),
+                    SizedBox(width: S.scale(context, 3)),
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
@@ -412,12 +430,14 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
       padding: EdgeInsets.symmetric(vertical: S.scale(context, 32)),
       child: Column(
         children: [
-          Icon(
-            Icons.bolt_rounded,
-            size: S.scale(context, 48),
-            color: t.mutedText,
+          ExcludeSemantics(
+            child: Icon(
+              Icons.bolt_rounded,
+              size: S.scale(context, 48),
+              color: t.mutedText,
+            ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: S.scale(context, 12)),
           Text(
             'Belum ada XP yang dikumpulkan',
             style: GoogleFonts.nunito(
@@ -426,7 +446,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: S.scale(context, 4)),
           Text(
             'Selesaikan quiz atau pelajaran untuk mendapat XP',
             style: GoogleFonts.nunito(

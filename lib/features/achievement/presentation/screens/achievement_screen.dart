@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +34,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_silentRefresh()));
   }
 
   Future<void> _silentRefresh() async {
@@ -58,6 +59,12 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
     );
   }
 
+  List<Widget> _wrapStatItems(List<StatCard> items, double childWidth) {
+    return items
+        .map((item) => SizedBox(width: childWidth, child: item))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<int>(navIndexProvider, (prev, next) {
@@ -68,7 +75,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
         ref.invalidate(livesProvider);
         ref.invalidate(levelsProvider);
         ref.invalidate(xpHistoryProvider);
-        _silentRefresh();
+        unawaited(_silentRefresh());
       }
     });
 
@@ -146,7 +153,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                               ).animate().fadeIn(),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: S.scale(context, 16)),
 
                             xpAsync.when(
                               loading: () => StatsRowSkeleton(t: t),
@@ -179,7 +186,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                     subtitle:
                                         'Terpanjang: ${s?.longestStreak ?? 0} hari',
                                     label: 'STREAK SEKARANG',
-                                    color: Colors.orange,
+                                    color: t.warning,
                                   ),
                                   StatCard(
                                     t: t,
@@ -209,35 +216,28 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                     final crossAxisCount =
                                         constraints.maxWidth > 600 ? 4 : 2;
                                     final totalGutter =
-                                        12 * (crossAxisCount - 1);
+                                        S.scale(context, 12) * (crossAxisCount - 1);
                                     final childWidth =
                                         (constraints.maxWidth - totalGutter) /
                                         crossAxisCount;
                                     return Wrap(
-                                      spacing: 12,
-                                      runSpacing: 12,
-                                      children: items
-                                          .map(
-                                            (item) => SizedBox(
-                                              width: childWidth,
-                                              child: item,
-                                            ),
-                                          )
-                                          .toList(),
+                                      spacing: S.scale(context, 12),
+                                      runSpacing: S.scale(context, 12),
+                                      children: _wrapStatItems(items, childWidth),
                                     );
                                   },
                                 ).animate().fadeIn(delay: 100.ms);
                               },
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: S.scale(context, 16)),
 
                             BadgeCollection(
                               t: t,
                               badgesAsync: badgesAsync,
                             ).animate().fadeIn(delay: 200.ms),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: S.scale(context, 16)),
 
                             xpAsync.when(
                               loading: () => LevelSkeleton(t: t),
@@ -258,7 +258,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                                 xpTotal: xp.totalXp,
                                               ),
                                             ),
-                                            const SizedBox(width: 16),
+                                            SizedBox(width: S.scale(context, 16)),
                                             Expanded(
                                               child: XpHistoryList(
                                                 entries: xpHistoryState.entries,
@@ -285,7 +285,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                               levels: levels,
                                               xpTotal: xp.totalXp,
                                             ),
-                                            const SizedBox(height: 16),
+                                            SizedBox(height: S.scale(context, 16)),
                                             XpHistoryList(
                                               entries: xpHistoryState.entries,
                                               isLoading:

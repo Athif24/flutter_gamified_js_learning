@@ -323,21 +323,27 @@ class _RewardRevealState extends State<_RewardReveal> {
                     width: S.scale(context, 80),
                     height: S.scale(context, 80),
                     fit: BoxFit.contain,
-                    placeholder: (_, __) => Icon(
-                      widget.rewardIcon,
-                      size: S.scale(context, 64),
-                      color: widget.rewardColor,
+                    placeholder: (_, __) => ExcludeSemantics(
+                      child: Icon(
+                        widget.rewardIcon,
+                        size: S.scale(context, 64),
+                        color: widget.rewardColor,
+                      ),
                     ),
-                    errorWidget: (_, __, ___) => Icon(
-                      widget.rewardIcon,
-                      size: S.scale(context, 64),
-                      color: widget.rewardColor,
+                    errorWidget: (_, __, ___) => ExcludeSemantics(
+                      child: Icon(
+                        widget.rewardIcon,
+                        size: S.scale(context, 64),
+                        color: widget.rewardColor,
+                      ),
                     ),
                   )
-                : Icon(
-                    widget.rewardIcon,
-                    size: S.scale(context, 64),
-                    color: widget.rewardColor,
+                : ExcludeSemantics(
+                    child: Icon(
+                      widget.rewardIcon,
+                      size: S.scale(context, 64),
+                      color: widget.rewardColor,
+                    ),
                   ),
           ),
         ).animate().scale(

@@ -10,35 +10,34 @@ class PositionStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(currentThemeProvider);
-    double rs(double px) => S.scale(context, px);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: rs(24)),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(Icons.celebration_rounded, size: rs(64), color: t.primary),
-          SizedBox(height: rs(16)),
+          ExcludeSemantics(child: Icon(Icons.celebration_rounded, size: S.scale(context, 64), color: t.primary)),
+          SizedBox(height: S.scale(context, 16)),
           Text(
             'Siap Memulai!',
             style: GoogleFonts.nunito(
-              fontSize: rs(24),
+              fontSize: S.font(context, 24),
               fontWeight: FontWeight.w900,
               color: t.textPrimary,
             ),
           ),
-          SizedBox(height: rs(8)),
+          SizedBox(height: S.scale(context, 8)),
           Text(
             'Ini posisi awal kamu. Yuk kejar yang terbaik!',
             textAlign: TextAlign.center,
             style: GoogleFonts.nunito(
-              fontSize: rs(13),
+              fontSize: S.font(context, 13),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: rs(28)),
+          SizedBox(height: S.scale(context, 28)),
           Row(
             children: [
               Expanded(
@@ -49,7 +48,7 @@ class PositionStep extends ConsumerWidget {
                   value: '0',
                 ),
               ),
-              SizedBox(width: rs(12)),
+              SizedBox(width: S.scale(context, 12)),
               Expanded(
                 child: _StatCard(
                   t: t,
@@ -58,7 +57,7 @@ class PositionStep extends ConsumerWidget {
                   value: '1',
                 ),
               ),
-              SizedBox(width: rs(12)),
+              SizedBox(width: S.scale(context, 12)),
               Expanded(
                 child: _StatCard(
                   t: t,
@@ -69,9 +68,9 @@ class PositionStep extends ConsumerWidget {
               ),
             ],
           ),
-          SizedBox(height: rs(28)),
+          SizedBox(height: S.scale(context, 28)),
           Container(
-            padding: EdgeInsets.all(rs(18)),
+            padding: EdgeInsets.all(S.scale(context, 18)),
             decoration: BoxDecoration(
               color: t.bgSurface2,
               borderRadius: BorderRadius.circular(S.scale(context, 16)),
@@ -79,17 +78,19 @@ class PositionStep extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.format_quote_rounded,
-                  color: t.primary,
-                  size: rs(28),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.format_quote_rounded,
+                    color: t.primary,
+                    size: S.scale(context, 28),
+                  ),
                 ),
-                SizedBox(width: rs(12)),
+                SizedBox(width: S.scale(context, 12)),
                 Expanded(
                   child: Text(
                     'Perjalanan sejauh ribuan kilometer dimulai dari satu langkah.',
                     style: GoogleFonts.nunito(
-                      fontSize: rs(12),
+                      fontSize: S.font(context, 12),
                       color: t.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontStyle: FontStyle.italic,
@@ -120,9 +121,8 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double rs(double px) => S.scale(context, px);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: rs(16), horizontal: rs(4)),
+      padding: EdgeInsets.symmetric(vertical: S.scale(context, 16), horizontal: S.scale(context, 4)),
       decoration: BoxDecoration(
         color: t.bgSurface2,
         borderRadius: BorderRadius.circular(S.scale(context, 14)),
@@ -130,21 +130,21 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: t.primary, size: rs(24)),
-          SizedBox(height: rs(6)),
+          ExcludeSemantics(child: Icon(icon, color: t.primary, size: S.scale(context, 24))),
+          SizedBox(height: S.scale(context, 6)),
           Text(
             value,
             style: GoogleFonts.nunito(
-              fontSize: rs(18),
+              fontSize: S.font(context, 18),
               fontWeight: FontWeight.w900,
               color: t.textPrimary,
             ),
           ),
-          SizedBox(height: rs(2)),
+          SizedBox(height: S.scale(context, 2)),
           Text(
             label,
             style: GoogleFonts.nunito(
-              fontSize: rs(10),
+              fontSize: S.font(context, 10),
               color: t.mutedText,
               fontWeight: FontWeight.w600,
             ),

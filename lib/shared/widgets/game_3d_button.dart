@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/utils/responsive_utils.dart';
 import '../services/sound_service.dart';
 
+// TODO: deduplicate with theme_parser.dart _darken
 Color darken(Color c, double amt) {
   final h = HSLColor.fromColor(c);
   return h.withLightness((h.lightness - amt).clamp(0.0, 1.0)).toColor();
@@ -29,8 +30,8 @@ class Game3DButton extends ConsumerStatefulWidget {
     required this.textColor,
     this.onTap,
     this.isLoading = false,
-    this.horizontalPadding = 28,
-    this.verticalPadding = 13,
+    this.horizontalPadding = 0,
+    this.verticalPadding = 0,
   }) : assert(
          label != null || child != null,
          'Either label or child must be provided',
@@ -46,29 +47,44 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
   @override
   Widget build(BuildContext context) {
     final isDisabled = widget.onTap == null && !widget.isLoading;
+    final hPad = widget.horizontalPadding > 0
+        ? widget.horizontalPadding
+        : S.scale(context, 16);
+    final vPad = widget.verticalPadding > 0
+        ? widget.verticalPadding
+        : S.scale(context, 8);
     final faceColor = isDisabled ? const Color(0xFFE5E5E5) : widget.color;
     final shadow = isDisabled ? const Color(0xFFC0C0C0) : widget.shadowColor;
     final txtColor = isDisabled ? const Color(0xFF666666) : widget.textColor;
 
-    return GestureDetector(
-      onTapDown: widget.onTap != null
-          ? (_) => setState(() => _pressed = true)
-          : null,
-      onTapUp: widget.onTap != null
-          ? (_) {
-              setState(() => _pressed = false);
-              ref.read(soundProvider).playClick();
-              widget.onTap?.call();
-            }
-          : null,
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
+    return Semantics(
+      button: true,
+      label: widget.label ?? 'Tombol',
+      enabled: !isDisabled,
+      onTap: widget.onTap,
+      child: GestureDetector(
+        onTapDown: widget.onTap != null
+            ? (_) {
+                if (mounted) setState(() => _pressed = true);
+              }
+            : null,
+        onTapUp: widget.onTap != null
+            ? (_) {
+                if (mounted) setState(() => _pressed = false);
+                ref.read(soundProvider).playClick();
+                widget.onTap?.call();
+              }
+            : null,
+        onTapCancel: () {
+          if (mounted) setState(() => _pressed = false);
+        },
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 80),
         transform: Matrix4.translationValues(0, _pressed ? S.scale(context, 2.0) : 0.0, 0),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(
-          horizontal: widget.horizontalPadding,
-          vertical: widget.verticalPadding,
+          horizontal: hPad,
+          vertical: vPad,
         ),
         decoration: BoxDecoration(
           color: faceColor,
@@ -133,6 +149,7 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
                       ),
                     ),
                   )),
+        ),
       ),
     );
   }

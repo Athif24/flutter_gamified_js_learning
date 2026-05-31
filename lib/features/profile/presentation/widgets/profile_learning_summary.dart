@@ -44,7 +44,7 @@ class ProgressBlock extends StatelessWidget {
                   color: t.textSecondary.withValues(alpha: 0.6),
                   fontSize: S.font(context, 12),
                   fontWeight: FontWeight.w800,
-                  letterSpacing: S.scale(context, 0.5),
+                  letterSpacing: 0.5,
                 ),
               ),
               const Spacer(),
@@ -63,7 +63,7 @@ class ProgressBlock extends StatelessWidget {
             height: S.scale(context, 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(S.scale(context, 4)),
-              border: Border.all(color: t.textPrimary.withValues(alpha: 0.15)),
+              border: Border.all(color: t.textPrimary.withValues(alpha: 0.15), width: S.scale(context, 1)),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(S.scale(context, 3)),
@@ -131,10 +131,10 @@ class MiniStat extends StatelessWidget {
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(S.scale(context, 8)),
-              border: Border.all(color: borderColor),
+              border: Border.all(color: borderColor, width: S.scale(context, 1)),
             ),
             child: Center(
-              child: Icon(icon, color: iconColor, size: S.scale(context, 16)),
+              child: ExcludeSemantics(child: Icon(icon, color: iconColor, size: S.scale(context, 16))),
             ),
           ),
           SizedBox(width: S.scale(context, 8)),
@@ -153,7 +153,7 @@ class MiniStat extends StatelessWidget {
                       color: t.textSecondary.withValues(alpha: 0.55),
                       fontSize: S.font(context, 10),
                       fontWeight: FontWeight.w700,
-                      letterSpacing: S.scale(context, 0.5),
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
@@ -214,7 +214,7 @@ class ProfileLearningSummary extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.menu_book_rounded, color: t.primary, size: S.scale(context, 20)),
+              ExcludeSemantics(child: Icon(Icons.menu_book_rounded, color: t.primary, size: S.scale(context, 20))),
               SizedBox(width: S.scale(context, 8)),
               Expanded(
                 child: SingleChildScrollView(
@@ -241,6 +241,7 @@ class ProfileLearningSummary extends StatelessWidget {
                   borderRadius: BorderRadius.circular(S.scale(context, 50)),
                   border: Border.all(
                     color: t.textPrimary.withValues(alpha: 0.35),
+                    width: S.scale(context, 1),
                   ),
                 ),
                 child: Text(

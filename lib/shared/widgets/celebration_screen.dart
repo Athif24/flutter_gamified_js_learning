@@ -5,10 +5,10 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/theme_provider.dart';
+import '../../features/courses/data/models/gamification_models.dart';
 import '../providers/gamification_providers.dart';
 import '../services/sound_service.dart';
 import '../../core/utils/responsive_utils.dart';
-import '../../features/courses/data/models/course_model.dart';
 
 class CelebrationScreen extends ConsumerStatefulWidget {
   final int xpEarned;
@@ -119,6 +119,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
         child: SafeArea(
           child: Stack(
             children: [
+              // TODO: 232+ AnimatedBuilder is heavy — refactor to single CustomPainter
               if (_isSuperCelebration)
                 ..._buildConfettiParticles(t, _isSuperCelebration ? 80 : 20),
               if (_isSuperCelebration)
@@ -210,7 +211,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       final startX = random.nextDouble() * size.width;
       final delay = random.nextDouble() * 0.28;
       final drift = -22 + (random.nextDouble() * 44).toInt();
-      final emojiSize = 5 + (random.nextInt(5)).toDouble();
+      final emojiSize = S.scale(context, (5 + random.nextInt(5)).toDouble());
       final isEmoji = random.nextDouble() > 0.5;
       final emojis = ['⭐', '🎁', '💎', '🔥', '✨'];
       final emoji = emojis[random.nextInt(emojis.length)];
@@ -254,6 +255,8 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     });
   }
 
+  // TODO: _buildConfettiParticles and _buildThirdConfettiLayer share ~90% identical logic.
+  // Refactor into a single parameterized method when time permits.
   List<Widget> _buildThirdConfettiLayer(BloomTheme t) {
     final size = MediaQuery.of(context).size;
     final count = 80;
@@ -262,7 +265,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       final startX = random.nextDouble() * size.width;
       final delay = 0.3 + random.nextDouble() * 0.3;
       final drift = -30 + (random.nextDouble() * 60).toInt();
-      final emojiSize = 6 + (random.nextInt(4)).toDouble();
+      final emojiSize = S.scale(context, (6 + random.nextInt(4)).toDouble());
       final isEmoji = random.nextDouble() > 0.5;
       final emojis = ['⭐', '🎁', '💎', '🔥', '✨'];
       final emoji = emojis[random.nextInt(emojis.length)];
@@ -346,11 +349,11 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
               ]
             : null,
       ),
-      child: Icon(
+      child: ExcludeSemantics(child: Icon(
         _hasLevelUp ? Icons.auto_awesome_rounded : Icons.emoji_events_rounded,
         size: S.scale(context, 48),
         color: _hasLevelUp ? t.warning : t.accent,
-      ),
+      )),
     )
         .animate()
         .scale(
@@ -367,7 +370,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       decoration: BoxDecoration(
         color: t.warning.withAlpha(40),
         borderRadius: BorderRadius.circular(S.scale(context, 50)),
-        border: Border.all(color: t.warning.withAlpha(100)),
+        border: Border.all(color: t.warning.withAlpha(100), width: S.scale(context, 1)),
       ),
       child: Text(
         'SUPER CELEBRATION',
@@ -428,7 +431,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(S.scale(context, 16)),
-        border: Border.all(color: t.accent.withAlpha(100)),
+        border: Border.all(color: t.accent.withAlpha(100), width: S.scale(context, 1)),
         boxShadow: _isSuperCelebration
             ? [
                 BoxShadow(
@@ -524,7 +527,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
               decoration: BoxDecoration(
                 color: t.info.withAlpha(25),
                 borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                border: Border.all(color: t.info.withAlpha(100)),
+                border: Border.all(color: t.info.withAlpha(100), width: S.scale(context, 1)),
               ),
               child: Text(
                 '+${widget.levelUp!.jewelsAwarded} Jewel Bonus',
@@ -551,7 +554,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       decoration: BoxDecoration(
         color: t.accent.withAlpha(25),
         borderRadius: BorderRadius.circular(S.scale(context, 16)),
-        border: Border.all(color: t.accent.withAlpha(100)),
+        border: Border.all(color: t.accent.withAlpha(100), width: S.scale(context, 1)),
         boxShadow: [
           BoxShadow(
             color: t.accent.withAlpha(50),
@@ -608,7 +611,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(20),
         borderRadius: BorderRadius.circular(S.scale(context, 16)),
-        border: Border.all(color: Colors.white.withAlpha(30)),
+        border: Border.all(color: Colors.white.withAlpha(30), width: S.scale(context, 1)),
       ),
       child: Row(
         children: [
@@ -651,7 +654,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                 decoration: BoxDecoration(
                   color: t.info.withAlpha(25),
                   borderRadius: BorderRadius.circular(S.scale(context, 16)),
-                  border: Border.all(color: t.info.withAlpha(60)),
+                  border: Border.all(color: t.info.withAlpha(60), width: S.scale(context, 1)),
                   boxShadow: [
                     BoxShadow(
                       color: t.info.withAlpha(25),
@@ -668,12 +671,10 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                       decoration: BoxDecoration(
                         color: t.warning.withAlpha(25),
                         shape: BoxShape.circle,
-                        border: Border.all(color: t.warning.withAlpha(80)),
+                        border: Border.all(color: t.warning.withAlpha(80), width: S.scale(context, 1)),
                       ),
                       child: Center(
-                        child: e.value.jewelsEarned > 0
-                            ? Text('🏅', style: TextStyle(fontSize: S.font(context, 22)))
-                            : Text('🏅', style: TextStyle(fontSize: S.font(context, 22))),
+                        child: Text('🏅', style: TextStyle(fontSize: S.font(context, 22))),
                       ),
                     ),
                     SizedBox(width: S.scale(context, 12)),
@@ -716,7 +717,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                         decoration: BoxDecoration(
                           color: t.info.withAlpha(25),
                           borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                          border: Border.all(color: t.info.withAlpha(80)),
+                          border: Border.all(color: t.info.withAlpha(80), width: S.scale(context, 1)),
                         ),
                         child: Text(
                           '+${e.value.jewelsEarned}',
@@ -744,48 +745,49 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     final isFromQuiz = widget.quizId != null;
     final ctaLabel = isFromQuiz ? 'Lihat Hasil' : 'Lanjutkan';
 
-    return Bounceable(
-      onTap: () {
-        ref.read(soundProvider).playClick();
-        invalidateGamificationProviders(
-          ref,
-          courseId: widget.courseId,
-          quizId: widget.quizId,
-        );
-        widget.onContinue?.call();
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
-        decoration: BoxDecoration(
-          color: _isSuperCelebration ? t.warning : t.accent,
-          borderRadius: BorderRadius.circular(S.scale(context, 10)),
-          border: Border.all(
-            color: t.textPrimary,
-            width: S.scale(context, 2),
-          ),
-          boxShadow: [
-            BoxShadow(
+    return Semantics(
+      button: true,
+      label: 'Reward',
+      child: Bounceable(
+        onTap: () {
+          ref.read(soundProvider).playClick();
+          invalidateGamificationProviders(
+            ref,
+            courseId: widget.courseId,
+            quizId: widget.quizId,
+          );
+          widget.onContinue?.call();
+        },
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: S.scale(context, 16)),
+          decoration: BoxDecoration(
+            color: _isSuperCelebration ? t.warning : t.accent,
+            borderRadius: BorderRadius.circular(S.scale(context, 10)),
+            border: Border.all(
               color: t.textPrimary,
-              offset: Offset(S.scale(context, 2), S.scale(context, 2)),
-              blurRadius: 0,
+              width: S.scale(context, 2),
             ),
-          ],
-        ),
-        child: Text(
-          ctaLabel,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.nunito(
-            color: t.bgPrimary,
-            fontSize: S.font(context, 16),
-            fontWeight: FontWeight.w900,
+            boxShadow: [
+              BoxShadow(
+                color: t.textPrimary,
+                offset: Offset(S.scale(context, 2), S.scale(context, 2)),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Text(
+            ctaLabel,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.nunito(
+              color: t.bgPrimary,
+              fontSize: S.font(context, 16),
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
-      ),
-    )
-        .animate()
-        .fadeIn(delay: 1200.ms)
-        .slideY(begin: 0.3);
+      ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
+    );
   }
 }
 
@@ -849,7 +851,7 @@ class _AnimatedRewardCardState extends State<_AnimatedRewardCard>
       decoration: BoxDecoration(
         color: widget.color.withAlpha(25),
         borderRadius: BorderRadius.circular(S.scale(context, 16)),
-        border: Border.all(color: widget.color.withAlpha(80)),
+        border: Border.all(color: widget.color.withAlpha(80), width: S.scale(context, 1)),
         boxShadow: widget.isSuper
             ? [
                 BoxShadow(

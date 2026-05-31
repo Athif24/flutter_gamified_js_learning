@@ -29,8 +29,9 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
+  static const _navCount = 5;
   bool _showTutorial = false;
-  final _navKeys = List.generate(5, (_) => GlobalKey());
+  final _navKeys = List.generate(_navCount, (_) => GlobalKey());
 
   @override
   void initState() {
@@ -51,6 +52,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       );
     }
   }
+
+  late final List<Widget> _screens = const [
+    CourseListScreen(),
+    AchievementScreen(),
+    LeaderboardScreen(),
+    StoreScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -78,13 +87,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final t = ref.watch(currentThemeProvider);
     final index = ref.watch(navIndexProvider);
 
-    const screens = [
-      CourseListScreen(),
-      AchievementScreen(),
-      LeaderboardScreen(),
-      StoreScreen(),
-      ProfileScreen(),
-    ];
+    final screens = _screens;
 
     final scaffold = Scaffold(
       backgroundColor: t.bgPrimary,
@@ -198,7 +201,10 @@ class _BottomNav extends ConsumerWidget {
               final (activeI, inactiveI, label) = e.value;
 
               return Expanded(
-                child: Bounceable(
+                child: Semantics(
+                  button: true,
+                  container: true,
+                  child: Bounceable(
                   key: navKeys[i],
                   onTap: () {
                     ref.read(soundProvider).playClick();
@@ -219,10 +225,12 @@ class _BottomNav extends ConsumerWidget {
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(S.scale(context, 50)),
                         ),
-                        child: Icon(
-                          sel ? activeI : inactiveI,
-                          size: S.scale(context, 22),
-                          color: sel ? t.accent : t.mutedText,
+                        child: ExcludeSemantics(
+                          child: Icon(
+                            sel ? activeI : inactiveI,
+                            size: S.scale(context, 22),
+                            color: sel ? t.accent : t.mutedText,
+                          ),
                         ),
                       ),
                       SizedBox(height: S.scale(context, 2)),
@@ -236,9 +244,10 @@ class _BottomNav extends ConsumerWidget {
                       ),
                     ],
                   ),
-                ),
-              );
-            }).toList(),
+                  ),
+                  ),
+                );
+              }).toList(),
           ),
         ),
       ),

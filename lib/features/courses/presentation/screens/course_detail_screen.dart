@@ -56,7 +56,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     final offset = _scrollCtrl.offset;
     int activeIdx = 0;
     for (int i = 0; i < _unitPositions.length; i++) {
-      if (_unitPositions[i] <= offset + 48) {
+      if (_unitPositions[i] <= offset + S.scale(context, 48)) {
         activeIdx = i;
       } else {
         break;
@@ -65,7 +65,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
 
     // Cek apakah unit header aktif masih terlihat di viewport
     final unitHeaderTop = _unitPositions[activeIdx];
-    final unitHeaderBottom = unitHeaderTop + 72; // 72 = tinggi _UnitHeader
+    final unitHeaderBottom = unitHeaderTop + S.scale(context, 72);
 
     // Header "tidak terlihat" jika sudah ter-scroll ke atas (bottom < offset)
     _isUnitHeaderVisible.value = unitHeaderBottom >= offset;
@@ -79,11 +79,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     double y = 0;
     for (final item in items) {
       if (item.isLesson) {
-        y += item.isFirstActive ? 192 : 152;
+        y += S.scale(context, item.isFirstActive ? 192 : 152);
       } else {
         _unitPositions.add(y);
         _unitNames.add(item.unitName ?? '');
-        y += 72;
+        y += S.scale(context, 72);
       }
     }
   }

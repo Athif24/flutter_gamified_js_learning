@@ -41,7 +41,7 @@ class ErrorBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: S.scale(context, 56), color: t.mutedText),
+          ExcludeSemantics(child: Icon(icon, size: S.scale(context, 56), color: t.mutedText)),
           SizedBox(height: S.scale(context, 12)),
           Text(
             displayTitle,

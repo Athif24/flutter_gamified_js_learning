@@ -99,7 +99,7 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                               await file.writeAsBytes(cropped);
                               if (context.mounted) Navigator.pop(context, file);
                             } catch (e) {
-                              setState(() => _isCropping = false);
+                              if (mounted) setState(() => _isCropping = false);
                               scaffold.showSnackBar(
                                 SnackBar(content: Text('Gagal menyimpan gambar: $e')),
                               );

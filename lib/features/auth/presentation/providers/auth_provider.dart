@@ -138,7 +138,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         unawaited(FcmService.registerToken(_api));
       }
     } catch (e) {
-      if (!kReleaseMode) debugPrint('[AuthProvider] registerToken error: $e');
+      debugPrint('[AuthProvider] registerToken error: $e');
     }
   }
 
@@ -161,8 +161,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> updateProfile({String? avatar}) async {
-    await _ds.updateProfile(avatar: avatar);
-    await refreshMe();
+    try {
+      await _ds.updateProfile(avatar: avatar);
+      await refreshMe();
+    } catch (e) {
+      if (!kReleaseMode) debugPrint('[AuthProvider] updateProfile error: $e');
+    }
   }
 
   Future<void> setWizardCompleted() async {
@@ -181,8 +185,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
-    await FcmService.unregisterToken(_api);
-    await _ds.logout();
+    try {
+      await FcmService.unregisterToken(_api);
+    } catch (_) {}
+    try {
+      await _ds.logout();
+    } catch (_) {}
     _api.clearCachedToken();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_onboardingSPKey);

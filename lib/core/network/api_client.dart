@@ -13,7 +13,6 @@ List<dynamic> extractList(dynamic body) {
     final d = body['data'];
     if (d is List) return d;
     if (d is Map) {
-      // for (final v in (d as Map).values) { if (v is List) return v; }
       for (final v in (d as Map<String, dynamic>).values) { if (v is List) return v; }
     }
     for (final v in body.values) { if (v is List) return v; }
@@ -117,9 +116,11 @@ class _AuthInterceptor extends Interceptor {
 }
 
 class _ConnectivityInterceptor extends Interceptor {
+  static final _connectivity = Connectivity();
+
   @override
   Future<void> onRequest(RequestOptions o, RequestInterceptorHandler h) async {
-    final result = await Connectivity().checkConnectivity();
+    final result = await _connectivity.checkConnectivity();
     if (result.contains(ConnectivityResult.none)) {
       return h.reject(DioException(
         requestOptions: o,

@@ -83,12 +83,14 @@ class _QuizTimerState extends State<QuizTimer>
         timer.cancel();
         widget.onTimeUp();
       } else {
-        setState(() {
-          _remainingSeconds--;
-          if (_remainingSeconds <= 60) {
-            _pulseController.forward(from: 0);
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _remainingSeconds--;
+            if (_remainingSeconds <= 60) {
+              _pulseController.forward(from: 0);
+            }
+          });
+        }
       }
     });
   }

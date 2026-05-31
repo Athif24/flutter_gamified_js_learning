@@ -71,6 +71,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    // TODO: ref.listen di dalam build berpotensi re-trigger tiap build; pindahkan ke initState via postFrameCallback
     ref.listen<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 2 && next == 2) {
         ref.invalidate(leaderboardProvider);
@@ -124,69 +125,63 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
               )
               .toList();
 
+    final childWidgets = <Widget>[
+      HeaderCard(
+        t: t,
+        currentUserRank: currentUserRank,
+        currentUserXp: currentUserXp,
+      ).animate().fadeIn(),
+      SizedBox(height: S.scale(context, 16)),
+      if (currentUserRank != null && currentUserXp != null) ...[
+        UserRankCard(
+          t: t,
+          rank: currentUserRank,
+          xp: currentUserXp,
+        ).animate().fadeIn(delay: 100.ms),
+        SizedBox(height: S.scale(context, 16)),
+      ],
+      if (entries.length >= 3) ...[
+        Podium(
+          t: t,
+          entries: entries.take(3).toList(),
+        ).animate().fadeIn(delay: 180.ms),
+        SizedBox(height: S.scale(context, 16)),
+      ],
+      SearchCard(
+        t: t,
+        onChanged: (v) => setState(() => _searchQuery = v),
+      ).animate().fadeIn(delay: 250.ms),
+      SizedBox(height: S.scale(context, 16)),
+      LeaderboardTable(
+        t: t,
+        entries: filtered,
+        isSearchActive: _searchQuery.isNotEmpty,
+        currentUserRank: currentUserRank,
+        topXp: topXp,
+      ).animate().fadeIn(delay: 300.ms),
+      SizedBox(height: S.scale(context, 16)),
+      if (entries.isNotEmpty)
+        FooterStats(
+          t: t,
+          total: entries.length,
+          topXp: topXp,
+          myRank: currentUserRank,
+        ).animate().fadeIn(delay: 350.ms),
+    ];
+
     return RefreshIndicator(
       onRefresh: () async {
         await _silentRefresh();
       },
-      child: ListView(
+      child: ListView.builder(
         padding: EdgeInsets.fromLTRB(
           S.scale(context, 20),
           S.scale(context, 20),
           S.scale(context, 20),
           S.scale(context, 32),
         ),
-        children: [
-          HeaderCard(
-            t: t,
-            currentUserRank: currentUserRank,
-            currentUserXp: currentUserXp,
-          ).animate().fadeIn(),
-
-          SizedBox(height: S.scale(context, 16)),
-
-          if (currentUserRank != null && currentUserXp != null)
-            UserRankCard(
-              t: t,
-              rank: currentUserRank,
-              xp: currentUserXp,
-            ).animate().fadeIn(delay: 100.ms),
-
-          if (currentUserRank != null && currentUserXp != null)
-            SizedBox(height: S.scale(context, 16)),
-
-          if (entries.length >= 3)
-            Podium(
-              t: t,
-              entries: entries.take(3).toList(),
-            ).animate().fadeIn(delay: 180.ms),
-
-          if (entries.length >= 3) SizedBox(height: S.scale(context, 16)),
-
-          SearchCard(
-            t: t,
-            onChanged: (v) => setState(() => _searchQuery = v),
-          ).animate().fadeIn(delay: 250.ms),
-
-          SizedBox(height: S.scale(context, 16)),
-
-          LeaderboardTable(
-            t: t,
-            entries: filtered,
-            isSearchActive: _searchQuery.isNotEmpty,
-            currentUserRank: currentUserRank,
-            topXp: topXp,
-          ).animate().fadeIn(delay: 300.ms),
-
-          SizedBox(height: S.scale(context, 16)),
-
-          if (entries.isNotEmpty)
-            FooterStats(
-              t: t,
-              total: entries.length,
-              topXp: topXp,
-              myRank: currentUserRank,
-            ).animate().fadeIn(delay: 350.ms),
-        ],
+        itemCount: childWidgets.length,
+        itemBuilder: (_, i) => childWidgets[i],
       ),
     );
   }

@@ -27,8 +27,9 @@ class CourseRemoteDatasource {
 
   Future<Map<String, dynamic>> getMyEnrollments() async {
     // user-courses returns 403; use auth/profile instead which has courses.details
-    final res = await _api.get(Api.authProfile);
-    final data = extractMap(res.data);
+    try {
+      final res = await _api.get(Api.authProfile);
+      final data = extractMap(res.data);
     final coursesData = data['courses'] as Map? ?? {};
     final details = coursesData['details'] as List? ?? [];
     final enrollmentMap = <String, dynamic>{};
@@ -49,6 +50,9 @@ class CourseRemoteDatasource {
       };
     }
     return enrollmentMap;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat enrollment');
+    }
   }
 
   Future<CourseModel> getCourseById(String id) async {
@@ -148,13 +152,17 @@ class CourseRemoteDatasource {
   }
 
   Future<QuizRefModel?> getQuizByLessonId(String lessonId) async {
-    final res = await _api.get(Api.quizzes, query: {
-      'lesson_id': lessonId,
-      'device': deviceType,
-    });
-    final list = extractList(res.data);
-    if (list.isEmpty) return null;
-    return QuizRefModel.fromJson(list[0] as Map<String, dynamic>);
+    try {
+      final res = await _api.get(Api.quizzes, query: {
+        'lesson_id': lessonId,
+        'device': deviceType,
+      });
+      final list = extractList(res.data);
+      if (list.isEmpty) return null;
+      return QuizRefModel.fromJson(list[0] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat quiz');
+    }
   }
 
   Future<LessonCompleteResponse> completeLesson(String id) async {

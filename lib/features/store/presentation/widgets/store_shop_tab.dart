@@ -25,6 +25,8 @@ class StoreShopTab extends ConsumerStatefulWidget {
 }
 
 class _StoreShopTabState extends ConsumerState<StoreShopTab> {
+  static const double _cardAspectRatio = 0.78;
+
   bool _isBuyingPool = false;
 
   void _onRegularItemBuy(StoreItem item) {
@@ -33,7 +35,6 @@ class _StoreShopTabState extends ConsumerState<StoreShopTab> {
       builder: (ctx) => StoreBuyDialog(
         item: item,
         t: ref.read(currentThemeProvider),
-        ref: ref,
         balance: ref
             .read(jewelBalanceProvider)
             .maybeWhen(data: (j) => j.balance, orElse: () => 0),
@@ -53,7 +54,7 @@ class _StoreShopTabState extends ConsumerState<StoreShopTab> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) =>
-          MysteryBoxBuyDialog(pool: pool, balance: balance, t: t, ref: ref),
+          MysteryBoxBuyDialog(pool: pool, balance: balance, t: t),
     );
     if (mounted) setState(() => _isBuyingPool = false);
   }
@@ -97,108 +98,118 @@ class _StoreShopTabState extends ConsumerState<StoreShopTab> {
           );
         }
 
-        return ListView(
-          padding: EdgeInsets.all(S.scale(context, 20)),
-          children: [
-            if (hasMysteryBoxes) ...[
-              Row(
-                children: [
-                  Icon(
+        final childWidgets = <Widget>[];
+        if (hasMysteryBoxes) {
+          childWidgets.addAll([
+            Row(
+              children: [
+                ExcludeSemantics(
+                  child: Icon(
                     Icons.card_giftcard_rounded,
                     size: S.scale(context, 20),
                     color: t.accent,
                   ),
-                  SizedBox(width: S.scale(context, 8)),
-                  Text(
-                    'Special Items',
+                ),
+                SizedBox(width: S.scale(context, 8)),
+                Text(
+                  'Special Items',
+                  style: GoogleFonts.nunito(
+                    color: t.textPrimary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: S.scale(context, 16),
+                  ),
+                ).animate().fadeIn(),
+              ],
+            ),
+            SizedBox(height: S.scale(context, 12)),
+            LayoutBuilder(
+              builder: (_, constraints) {
+                final cardWidth = constraints.maxWidth > 600 ? S.scale(context, 280) : S.scale(context, 240);
+                return SizedBox(
+                  height: S.scale(context, 300),
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    itemCount: pools.length,
+                    separatorBuilder: (_, __) =>
+                        SizedBox(width: S.scale(context, 14)),
+                    itemBuilder: (_, i) => SizedBox(
+                      width: cardWidth,
+                      height: S.scale(context, 300),
+                      child: MysteryBoxCard(
+                        pool: pools[i],
+                        balance: balance,
+                        isPending: _isBuyingPool,
+                        onBuy: () => _onPoolBuy(pools[i]),
+                        t: t,
+                      ).animate().fadeIn(delay: (100 * i).ms),
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: S.scale(context, 24)),
+          ]);
+        }
+
+        if (hasRegularItems) {
+          childWidgets.addAll([
+            Row(
+              children: [
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.shopping_cart_rounded,
+                    size: S.scale(context, 16),
+                    color: t.accent,
+                  ),
+                ),
+                SizedBox(width: S.scale(context, 8)),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Items',
                     style: GoogleFonts.nunito(
                       color: t.textPrimary,
                       fontWeight: FontWeight.w900,
                       fontSize: S.scale(context, 16),
                     ),
-                  ).animate().fadeIn(),
-                ],
-              ),
-              SizedBox(height: S.scale(context, 12)),
-              LayoutBuilder(
-                builder: (_, constraints) {
-                  final cardWidth = constraints.maxWidth > 600 ? 280.0 : 240.0;
-                  return SizedBox(
-                    height: S.scale(context, 300),
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
-                      itemCount: pools.length,
-                      separatorBuilder: (_, __) =>
-                          SizedBox(width: S.scale(context, 14)),
-                      itemBuilder: (_, i) => SizedBox(
-                        width: cardWidth,
-                        height: S.scale(context, 300),
-                        child: MysteryBoxCard(
-                          pool: pools[i],
-                          balance: balance,
-                          isPending: _isBuyingPool,
-                          onBuy: () => _onPoolBuy(pools[i]),
-                          t: t,
-                        ).animate().fadeIn(delay: (100 * i).ms),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: S.scale(context, 24)),
-            ],
+                  ),
+                ),
+              ],
+            ).animate().fadeIn(),
+            SizedBox(height: S.scale(context, 12)),
+            LayoutBuilder(
+              builder: (_, constraints) {
+                final crossAxisCount = constraints.maxWidth > 600
+                    ? (constraints.maxWidth > 900 ? 4 : 3)
+                    : 2;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: S.scale(context, 14),
+                    crossAxisSpacing: S.scale(context, 14),
+                    childAspectRatio: _cardAspectRatio,
+                  ),
+                  itemCount: regularItems.length,
+                  itemBuilder: (_, i) => StoreCompactCard(
+                    item: regularItems[i],
+                    t: t,
+                    ref: ref,
+                    balance: balance,
+                    onBuy: _onRegularItemBuy,
+                  ).animate().fadeIn(delay: (60 * i).ms),
+                );
+              },
+            ),
+          ]);
+        }
 
-            if (hasRegularItems) ...[
-              Row(
-                children: [
-                  Icon(
-                    Icons.shopping_cart_rounded,
-                    size: S.scale(context, 16),
-                    color: t.accent,
-                  ),
-                  SizedBox(width: S.scale(context, 8)),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Items',
-                      style: GoogleFonts.nunito(
-                        color: t.textPrimary,
-                        fontWeight: FontWeight.w900,
-                        fontSize: S.scale(context, 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn(),
-              SizedBox(height: S.scale(context, 12)),
-              LayoutBuilder(
-                builder: (_, constraints) {
-                  final crossAxisCount = constraints.maxWidth > 600
-                      ? (constraints.maxWidth > 900 ? 4 : 3)
-                      : 2;
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: S.scale(context, 14),
-                      crossAxisSpacing: S.scale(context, 14),
-                      childAspectRatio: 0.78,
-                    ),
-                    itemCount: regularItems.length,
-                    itemBuilder: (_, i) => StoreCompactCard(
-                      item: regularItems[i],
-                      t: t,
-                      ref: ref,
-                      balance: balance,
-                      onBuy: _onRegularItemBuy,
-                    ).animate().fadeIn(delay: (60 * i).ms),
-                  );
-                },
-              ),
-            ],
-          ],
+        return ListView.builder(
+          padding: EdgeInsets.all(S.scale(context, 20)),
+          itemCount: childWidgets.length,
+          itemBuilder: (_, i) => childWidgets[i],
         );
       },
     );

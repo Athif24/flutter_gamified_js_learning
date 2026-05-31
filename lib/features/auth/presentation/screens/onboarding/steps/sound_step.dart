@@ -16,41 +16,42 @@ class _SoundStepState extends ConsumerState<SoundStep> {
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
     final sound = ref.watch(soundProvider);
-    double rs(double px) => S.scale(context, px);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: rs(24)),
+      padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(
-            sound.isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-            size: rs(56),
-            color: sound.isMuted ? t.mutedText : t.primary,
+          ExcludeSemantics(
+            child: Icon(
+              sound.isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+              size: S.scale(context, 56),
+              color: sound.isMuted ? t.mutedText : t.primary,
+            ),
           ),
-          SizedBox(height: rs(16)),
+          SizedBox(height: S.scale(context, 16)),
           Text(
             'Atur Suara',
             style: GoogleFonts.nunito(
-              fontSize: rs(22),
+              fontSize: S.font(context, 22),
               fontWeight: FontWeight.w900,
               color: t.textPrimary,
             ),
           ),
-          SizedBox(height: rs(8)),
+          SizedBox(height: S.scale(context, 8)),
           Text(
             'Dengar feedback suara saat jawab quiz',
             textAlign: TextAlign.center,
             style: GoogleFonts.nunito(
-              fontSize: rs(13),
+              fontSize: S.font(context, 13),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: rs(32)),
+          SizedBox(height: S.scale(context, 32)),
           Container(
-            padding: EdgeInsets.all(rs(20)),
+            padding: EdgeInsets.all(S.scale(context, 20)),
             decoration: BoxDecoration(
               color: t.bgSurface2,
               borderRadius: BorderRadius.circular(S.scale(context, 16)),
@@ -60,17 +61,19 @@ class _SoundStepState extends ConsumerState<SoundStep> {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.notifications_active_rounded,
-                      color: t.primary,
-                      size: rs(20),
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.notifications_active_rounded,
+                        color: t.primary,
+                        size: S.scale(context, 20),
+                      ),
                     ),
-                    SizedBox(width: rs(12)),
+                    SizedBox(width: S.scale(context, 12)),
                     Text(
                       'Suara Efek',
                       style: GoogleFonts.nunito(
                         fontWeight: FontWeight.w700,
-                        fontSize: rs(14),
+                        fontSize: S.font(context, 14),
                         color: t.textPrimary,
                       ),
                     ),
@@ -84,8 +87,8 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                         s.setMuted(!s.isMuted);
                       },
                       child: Container(
-                        width: rs(48),
-                        height: rs(26),
+                        width: S.scale(context, 48),
+                        height: S.scale(context, 26),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(S.scale(context, 13)),
                           color: sound.isMuted ? t.border : t.primary,
@@ -96,9 +99,9 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                               ? Alignment.centerLeft
                               : Alignment.centerRight,
                           child: Container(
-                            width: rs(22),
-                            height: rs(22),
-                            margin: EdgeInsets.all(rs(2)),
+                            width: S.scale(context, 22),
+                            height: S.scale(context, 22),
+                            margin: EdgeInsets.all(S.scale(context, 2)),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: t.bgPrimary,
@@ -109,13 +112,15 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                     ),
                   ],
                 ),
-                SizedBox(height: rs(16)),
+                SizedBox(height: S.scale(context, 16)),
                 Row(
                   children: [
-                    Icon(
-                      Icons.volume_down_rounded,
-                      color: t.mutedText,
-                      size: rs(18),
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.volume_down_rounded,
+                        color: t.mutedText,
+                        size: S.scale(context, 18),
+                      ),
                     ),
                     Expanded(
                       child: Slider(
@@ -131,17 +136,19 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                               },
                       ),
                     ),
-                    Icon(
-                      Icons.volume_up_rounded,
-                      color: t.mutedText,
-                      size: rs(18),
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.volume_up_rounded,
+                        color: t.mutedText,
+                        size: S.scale(context, 18),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(height: rs(20)),
+          SizedBox(height: S.scale(context, 20)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -151,7 +158,7 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                 color: t.success,
                 onTap: () => ref.read(soundProvider).playCorrect(),
               ),
-              SizedBox(width: rs(16)),
+              SizedBox(width: S.scale(context, 16)),
               _PreviewButton(
                 t: t,
                 label: 'Reward',
@@ -160,11 +167,11 @@ class _SoundStepState extends ConsumerState<SoundStep> {
               ),
             ],
           ),
-          SizedBox(height: rs(8)),
+          SizedBox(height: S.scale(context, 8)),
           Text(
             'Tap tombol di atas untuk preview suara',
             style: GoogleFonts.nunito(
-              fontSize: rs(11),
+              fontSize: S.font(context, 11),
               color: t.mutedText,
               fontWeight: FontWeight.w500,
             ),
@@ -190,11 +197,10 @@ class _PreviewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double rs(double px) => S.scale(context, px);
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: rs(20), vertical: rs(10)),
+        padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20), vertical: S.scale(context, 10)),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(S.scale(context, 10)),
@@ -210,13 +216,13 @@ class _PreviewButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.play_arrow_rounded, color: t.bgPrimary, size: rs(18)),
-            SizedBox(width: rs(6)),
+            Icon(Icons.play_arrow_rounded, color: t.bgPrimary, size: S.scale(context, 18)),
+            SizedBox(width: S.scale(context, 6)),
             Text(
               label,
               style: GoogleFonts.nunito(
                 fontWeight: FontWeight.w800,
-                fontSize: rs(12),
+                fontSize: S.font(context, 12),
                 color: t.bgPrimary,
               ),
             ),

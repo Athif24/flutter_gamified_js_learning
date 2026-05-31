@@ -80,12 +80,12 @@ class HeroCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        ExcludeSemantics(child: Icon(
                           Icons.military_tech_rounded,
                           color: t.primaryContent,
                           size: S.scale(context, 12),
-                        ),
-                        const SizedBox(width: 4),
+                        )),
+                        SizedBox(width: S.scale(context, 4)),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
@@ -114,19 +114,19 @@ class HeroCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      ExcludeSemantics(child: Icon(
                         Icons.bolt_rounded,
                         color: t.primaryContent.withValues(alpha: 0.8),
                         size: S.scale(context, 16),
-                      ),
-                      const SizedBox(width: 6),
+                      )),
+                      SizedBox(width: S.scale(context, 6)),
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
@@ -160,17 +160,17 @@ class HeroCard extends StatelessWidget {
                       if (xp.nextLevelTitle != null)
                         Padding(
                           padding: EdgeInsets.only(left: S.scale(context, 4)),
-                          child: Icon(
+                          child: ExcludeSemantics(child: Icon(
                             Icons.chevron_right,
                             color: t.primaryContent.withValues(alpha: 0.8),
                             size: S.scale(context, 14),
-                          ),
+                          )),
                         ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: S.scale(context, 6)),
               Container(
                 height: S.scale(context, 24),
                 decoration: BoxDecoration(
@@ -205,7 +205,7 @@ class HeroCard extends StatelessWidget {
                 ),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: S.scale(context, 8)),
               Row(
                 children: [
                   FittedBox(
@@ -235,7 +235,7 @@ class HeroCard extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: S.scale(context, 12)),
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
@@ -256,26 +256,28 @@ class HeroCard extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          Container(
-                            width: S.scale(context, 32),
-                            height: S.scale(context, 32),
-                            decoration: BoxDecoration(
-                              color: t.warning.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: t.warning.withValues(alpha: 0.3),
-                                width: S.scale(context, 1.5),
+                          ExcludeSemantics(
+                            child: Container(
+                              width: S.scale(context, 28),
+                              height: S.scale(context, 28),
+                              decoration: BoxDecoration(
+                                color: t.warning.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: t.warning.withValues(alpha: 0.3),
+                                  width: S.scale(context, 1.5),
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.local_fire_department_rounded,
-                                color: t.warning,
-                                size: S.scale(context, 16),
+                              child: Center(
+                                child: Icon(
+                                  Icons.local_fire_department_rounded,
+                                  color: t.warning,
+                                  size: S.scale(context, 16),
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: S.scale(context, 8)),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -295,7 +297,7 @@ class HeroCard extends StatelessWidget {
                                 color: t.primaryContent.withValues(alpha: 0.8),
                                 fontSize: S.font(context, 10),
                                 fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
+                                letterSpacing: S.scale(context, 0.5),
                               ),
                             ),
                           ),
@@ -310,26 +312,28 @@ class HeroCard extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          Container(
-                            width: S.scale(context, 32),
-                            height: S.scale(context, 32),
-                            decoration: BoxDecoration(
-                              color: t.info.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: t.info.withValues(alpha: 0.3),
-                                width: S.scale(context, 1.5),
+                          ExcludeSemantics(
+                            child: Container(
+                              width: S.scale(context, 32),
+                              height: S.scale(context, 32),
+                              decoration: BoxDecoration(
+                                color: t.info.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: t.info.withValues(alpha: 0.3),
+                                  width: S.scale(context, 1.5),
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.diamond_rounded,
-                                color: t.info,
-                                size: S.scale(context, 16),
+                              child: Center(
+                                child: Icon(
+                                  Icons.diamond_rounded,
+                                  color: t.info,
+                                  size: S.scale(context, 16),
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: S.scale(context, 8)),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -349,7 +353,7 @@ class HeroCard extends StatelessWidget {
                                 color: t.primaryContent.withValues(alpha: 0.8),
                                 fontSize: S.font(context, 10),
                                 fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
+                                letterSpacing: S.scale(context, 0.5),
                               ),
                             ),
                           ),
@@ -364,26 +368,28 @@ class HeroCard extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          Container(
-                            width: S.scale(context, 32),
-                            height: S.scale(context, 32),
-                            decoration: BoxDecoration(
-                              color: t.error.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: t.error.withValues(alpha: 0.3),
-                                width: S.scale(context, 1.5),
+                          ExcludeSemantics(
+                            child: Container(
+                              width: S.scale(context, 32),
+                              height: S.scale(context, 32),
+                              decoration: BoxDecoration(
+                                color: t.error.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: t.error.withValues(alpha: 0.3),
+                                  width: S.scale(context, 1.5),
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.favorite_rounded,
-                                color: t.error,
-                                size: S.scale(context, 16),
+                              child: Center(
+                                child: Icon(
+                                  Icons.favorite_rounded,
+                                  color: t.error,
+                                  size: S.scale(context, 16),
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: S.scale(context, 8)),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -403,7 +409,7 @@ class HeroCard extends StatelessWidget {
                                 color: t.primaryContent.withValues(alpha: 0.8),
                                 fontSize: S.font(context, 10),
                                 fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
+                                letterSpacing: S.scale(context, 0.5),
                               ),
                             ),
                           ),

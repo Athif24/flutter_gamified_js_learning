@@ -45,10 +45,14 @@ class ProfileNotificationSectionState
     if (mounted) setState(() => _notificationsEnabled = value);
 
     final api = ref.read(apiClientProvider);
-    if (value) {
-      await FcmService.registerToken(api);
-    } else {
-      await FcmService.unregisterToken(api);
+    try {
+      if (value) {
+        await FcmService.registerToken(api);
+      } else {
+        await FcmService.unregisterToken(api);
+      }
+    } catch (e) {
+      debugPrint('[_toggleNotifications] $e');
     }
   }
 
@@ -77,7 +81,7 @@ class ProfileNotificationSectionState
         children: [
           Row(
             children: [
-              Icon(Icons.notifications_rounded, color: t.accent, size: S.scale(context, 20)),
+              ExcludeSemantics(child: Icon(Icons.notifications_rounded, color: t.accent, size: S.scale(context, 20))),
               SizedBox(width: S.scale(context, 8)),
               Text(
                 'Notifikasi',
@@ -111,13 +115,14 @@ class ProfileNotificationSectionState
                     borderRadius: BorderRadius.circular(S.scale(context, 12)),
                     border: Border.all(
                       color: t.textPrimary.withValues(alpha: 0.35),
+                      width: S.scale(context, 1),
                     ),
                   ),
-                  child: Icon(
+                  child: ExcludeSemantics(child: Icon(
                     Icons.notifications_outlined,
                     color: t.primary,
                     size: S.scale(context, 20),
-                  ),
+                  )),
                 ),
                 SizedBox(width: S.scale(context, 12)),
                 Expanded(
@@ -177,15 +182,16 @@ class ProfileNotificationSectionState
                         borderRadius: BorderRadius.circular(S.scale(context, 12)),
                         border: Border.all(
                           color: t.textPrimary.withValues(alpha: 0.35),
+                          width: S.scale(context, 1),
                         ),
                       ),
-                      child: Icon(
+                      child: ExcludeSemantics(child: Icon(
                         sound.isMuted
                             ? Icons.volume_off_rounded
                             : Icons.volume_up_rounded,
                         color: t.primary,
                         size: S.scale(context, 20),
-                      ),
+                      )),
                     ),
                     SizedBox(width: S.scale(context, 12)),
                     Expanded(
@@ -231,8 +237,8 @@ class ProfileNotificationSectionState
                   SizedBox(height: S.scale(context, 8)),
                   Row(
                     children: [
-                      Icon(Icons.volume_down_rounded,
-                          color: t.mutedText, size: S.scale(context, 16)),
+                      ExcludeSemantics(child: Icon(Icons.volume_down_rounded,
+                          color: t.mutedText, size: S.scale(context, 16))),
                       Expanded(
                         child: Slider(
                           value: sound.volume,
@@ -245,8 +251,8 @@ class ProfileNotificationSectionState
                           },
                         ),
                       ),
-                      Icon(Icons.volume_up_rounded,
-                          color: t.mutedText, size: S.scale(context, 16)),
+                      ExcludeSemantics(child: Icon(Icons.volume_up_rounded,
+                          color: t.mutedText, size: S.scale(context, 16))),
                     ],
                   ),
                 ],

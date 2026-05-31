@@ -159,15 +159,19 @@ class MysteryBoxCard extends StatelessWidget {
                                           width: S.scale(context, 24),
                                           height: S.scale(context, 24),
                                           fit: BoxFit.contain,
-                                          placeholder: (_, __) => Icon(
-                                            Icons.card_giftcard,
-                                            size: S.scale(context, 24),
-                                            color: t.mutedText,
+                                          placeholder: (_, __) => ExcludeSemantics(
+                                            child: Icon(
+                                              Icons.card_giftcard,
+                                              size: S.scale(context, 24),
+                                              color: t.mutedText,
+                                            ),
                                           ),
-                                          errorWidget: (_, __, ___) => Icon(
-                                            Icons.card_giftcard,
-                                            size: S.scale(context, 24),
-                                            color: t.mutedText,
+                                          errorWidget: (_, __, ___) => ExcludeSemantics(
+                                            child: Icon(
+                                              Icons.card_giftcard,
+                                              size: S.scale(context, 24),
+                                              color: t.mutedText,
+                                            ),
                                           ),
                                         )
                                       : SizedBox(
@@ -270,7 +274,6 @@ class MysteryBoxCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 0),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
@@ -339,10 +342,12 @@ class MysteryBoxCard extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.diamond,
-                                size: S.scale(context, 16),
-                                color: t.info,
+                              ExcludeSemantics(
+                                child: Icon(
+                                  Icons.diamond,
+                                  size: S.scale(context, 16),
+                                  color: t.info,
+                                ),
                               ),
                               SizedBox(width: S.scale(context, 4)),
                               FittedBox(
