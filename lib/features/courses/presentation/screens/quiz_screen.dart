@@ -72,6 +72,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     ref.listen<QuizState>(quizProvider, (prev, next) {
       if (next.lastAnswerResult != null &&
           prev?.lastAnswerResult != next.lastAnswerResult) {
+        ref.invalidate(livesProvider);
         if (next.lastAnswerResult!.isCorrect) {
           sound.playCorrect();
         } else {

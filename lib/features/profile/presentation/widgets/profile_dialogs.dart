@@ -164,7 +164,10 @@ Future<void> showEditProfile(
                           ],
                         ),
                         SizedBox(height: S.scale(context, 12)),
-                        Bounceable(
+                        Semantics(
+                          button: true,
+                          label: 'Upload foto profil',
+                          child: Bounceable(
                           onTap: () async {
                             ref.read(soundProvider).playClick();
                             final result = await AssetPicker.pickAssets(
@@ -199,6 +202,9 @@ Future<void> showEditProfile(
                                 if (cropped != null) {
                                   setState(() => avatarFile = cropped);
                                 }
+                                try {
+                                  await safeFile.delete();
+                                } catch (_) {}
                               }
                             }
                           },
@@ -245,6 +251,7 @@ Future<void> showEditProfile(
                             ),
                           ),
                         ),
+                          ),
                         SizedBox(height: S.scale(context, 4)),
                         Text(
                           'Format JPG/PNG/GIF, max 5MB ya!',
@@ -352,9 +359,9 @@ Future<void> showEditProfile(
                       Expanded(
                         child: Game3DButton(
                           label: 'Batal',
-                          color: t.secondary,
+                          color: t.bgSurface2,
                           shadowColor: t.textPrimary,
-                          textColor: t.secondaryContent,
+                          textColor: t.textPrimary,
                           onTap: () => Navigator.of(ctx).pop(),
                         ),
                       ),
@@ -368,7 +375,9 @@ Future<void> showEditProfile(
                           onTap: isLoading
                               ? null
                               : () async {
-                                  if (!formKey.currentState!.validate()) return;
+                                  if (!formKey.currentState!.validate()) {
+                                    return;
+                                  }
                                   setState(() => isLoading = true);
                                   try {
                                     String? uploadedUrl;
@@ -520,10 +529,12 @@ Future<void> showChangePassword(
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.lock_rounded,
-                            size: S.scale(context, 20),
-                            color: t.textPrimary,
+                          ExcludeSemantics(
+                            child: Icon(
+                              Icons.lock_rounded,
+                              size: S.scale(context, 20),
+                              color: t.textPrimary,
+                            ),
                           ),
                           SizedBox(width: S.scale(context, 8)),
                           Expanded(
@@ -713,9 +724,9 @@ Future<void> showChangePassword(
                           Expanded(
                             child: Game3DButton(
                               label: 'Batal',
-                              color: t.secondary,
+                              color: t.bgSurface2,
                               shadowColor: t.textPrimary,
-                              textColor: t.secondaryContent,
+                              textColor: t.textPrimary,
                               onTap: () => Navigator.of(ctx).pop(),
                             ),
                           ),
@@ -872,7 +883,7 @@ Future<void> showLogoutConfirm(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(height: S.scale(context, 8)),
-              Icon(Icons.logout_rounded, size: S.scale(context, 48), color: t.error),
+              ExcludeSemantics(child: Icon(Icons.logout_rounded, size: S.scale(context, 48), color: t.error)),
               SizedBox(height: S.scale(context, 16)),
               Text(
                 'Keluar',
@@ -895,9 +906,9 @@ Future<void> showLogoutConfirm(
                   Expanded(
                     child: Game3DButton(
                       label: 'Batal',
-                      color: t.secondary,
+                      color: t.bgSurface2,
                       shadowColor: t.textPrimary,
-                      textColor: t.secondaryContent,
+                      textColor: t.textPrimary,
                       onTap: () => Navigator.of(ctx).pop(),
                     ),
                   ),
@@ -940,7 +951,7 @@ Future<void> showLogoutConfirm(
                                       'Logout Berhasil',
                                       style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
                                     ),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: t.success,
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(S.scale(context, 12)),

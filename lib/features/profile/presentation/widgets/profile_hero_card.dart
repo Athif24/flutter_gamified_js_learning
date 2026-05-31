@@ -57,22 +57,13 @@ class ProfileHeroCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: t.textPrimary, width: S.scale(context, 3)),
                 ),
-                child: CircleAvatar(
+                child: _ProfileAvatar(
+                  avatarUrl: profile.avatar,
+                  initials: initials,
                   radius: S.scale(context, 40).roundToDouble(),
-                  backgroundColor: t.bgSurface.withValues(alpha: 0.3),
-                  backgroundImage: profile.avatar != null
-                      ? CachedNetworkImageProvider(profile.avatar!)
-                      : null,
-                  child: profile.avatar == null
-                      ? Text(
-                          initials,
-                          style: GoogleFonts.nunito(
-                            color: t.primary,
-                            fontSize: S.font(context, 28),
-                            fontWeight: FontWeight.w900,
-                          ),
-                        )
-                      : null,
+                  bgColor: t.bgSurface.withValues(alpha: 0.3),
+                  textColor: t.primary,
+                  fontSize: S.font(context, 28),
                 ),
               ),
               SizedBox(height: S.scale(context, 20)),
@@ -156,7 +147,10 @@ class ProfileHeroCard extends StatelessWidget {
                 ],
               ),
               SizedBox(height: S.scale(context, 20)),
-              Bounceable(
+              Semantics(
+                button: true,
+                label: 'Edit profil',
+                child: Bounceable(
                 onTap: () {
                   ref.read(soundProvider).playClick();
                   onEditProfile();
@@ -198,6 +192,7 @@ class ProfileHeroCard extends StatelessWidget {
                         ),
                       ),
                     ],
+                    ),
                   ),
                 ),
               ),
@@ -243,6 +238,7 @@ class ProfileHeroCard extends StatelessWidget {
           top: S.scale(context, 12),
           child: Semantics(
             button: true,
+            label: 'Pilih tema',
             child: Bounceable(
             onTap: () {
               ref.read(soundProvider).playClick();
@@ -275,5 +271,54 @@ class ProfileHeroCard extends StatelessWidget {
         ),
       ],
     ).animate().fadeIn();
+  }
+}
+
+class _ProfileAvatar extends StatefulWidget {
+  final String? avatarUrl;
+  final String initials;
+  final double radius;
+  final Color bgColor;
+  final Color textColor;
+  final double fontSize;
+
+  const _ProfileAvatar({
+    required this.avatarUrl,
+    required this.initials,
+    required this.radius,
+    required this.bgColor,
+    required this.textColor,
+    required this.fontSize,
+  });
+
+  @override
+  State<_ProfileAvatar> createState() => _ProfileAvatarState();
+}
+
+class _ProfileAvatarState extends State<_ProfileAvatar> {
+  bool _hasError = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: widget.radius,
+      backgroundColor: widget.bgColor,
+      backgroundImage: widget.avatarUrl != null && !_hasError
+          ? CachedNetworkImageProvider(widget.avatarUrl!)
+          : null,
+      onBackgroundImageError: widget.avatarUrl != null && !_hasError
+          ? (_, __) { if (mounted) setState(() => _hasError = true); }
+          : null,
+      child: widget.avatarUrl == null || _hasError
+          ? Text(
+              widget.initials,
+              style: GoogleFonts.nunito(
+                color: widget.textColor,
+                fontSize: widget.fontSize,
+                fontWeight: FontWeight.w900,
+              ),
+            )
+          : null,
+    );
   }
 }

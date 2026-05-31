@@ -128,13 +128,16 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
           SizedBox(height: S.scale(context, 12)),
           Column(
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: Bounceable(
-                  onTap: () {
-                    ref.read(soundProvider).playClick();
-                    widget.onChangePassword();
-                  },
+              Semantics(
+                button: true,
+                label: 'Ubah password',
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Bounceable(
+                    onTap: () {
+                      ref.read(soundProvider).playClick();
+                      widget.onChangePassword();
+                    },
                   child: Container(
                     constraints: BoxConstraints(minHeight: S.scale(context, 48)),
                     padding: EdgeInsets.symmetric(vertical: S.scale(context, 12)),
@@ -171,6 +174,7 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
                         ],
                       ),
                     ),
+                    ),
                   ),
                 ),
               ),
@@ -178,6 +182,7 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
               SizedBox(
                 width: double.infinity,
                 child: Semantics(
+                  button: true,
                   label: 'Keluar dari aplikasi',
                   child: Bounceable(
                     onTap: () {

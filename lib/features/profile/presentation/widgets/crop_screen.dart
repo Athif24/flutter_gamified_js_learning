@@ -50,6 +50,7 @@ class _CropScreenState extends ConsumerState<CropScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: t.textPrimary),
+          tooltip: 'Tutup',
           onPressed: () {
             ref.read(soundProvider).playClick();
             Navigator.pop(context);
@@ -62,7 +63,7 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.broken_image_rounded, color: t.mutedText, size: S.scale(context, 48)),
+                    ExcludeSemantics(child: Icon(Icons.broken_image_rounded, color: t.mutedText, size: S.scale(context, 48))),
                     SizedBox(height: S.scale(context, 16)),
                     Text(
                       'Gagal memuat gambar',
@@ -80,7 +81,7 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                 ),
               )
             : _imageData == null
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: t.primary))
                 : Column(
                     children: [
                       Expanded(
