@@ -23,7 +23,7 @@ class ProfileStep extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          Icon(Icons.face_rounded, size: S.scale(context, 56), color: t.primary),
+          ExcludeSemantics(child: Icon(Icons.face_rounded, size: S.scale(context, 56), color: t.primary)),
           SizedBox(height: S.scale(context, 16)),
           Text(
             'Pilih Foto Profil',
@@ -117,19 +117,26 @@ class ProfileStep extends ConsumerWidget {
     try {
       final result = await AssetPicker.pickAssets(
         context,
-        pickerConfig: const AssetPickerConfig(
+        pickerConfig: AssetPickerConfig(
           maxAssets: 1,
           requestType: RequestType.image,
+          textDelegate: const EnglishAssetPickerTextDelegate(),
         ),
       );
       final asset = result?.firstOrNull;
       if (asset == null) return;
       final file = await asset.file;
       if (file == null || !context.mounted) return;
+      final tempDir = Directory.systemTemp;
+      final safeFile = File(
+        '${tempDir.path}/avatar_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      await safeFile.writeAsBytes(await file.readAsBytes());
+      if (!context.mounted) return;
       final cropped = await Navigator.push<File>(
         context,
         MaterialPageRoute(
-          builder: (_) => CropScreen(imageFile: file, t: t),
+          builder: (_) => CropScreen(imageFile: safeFile, t: t),
         ),
       );
       if (cropped != null) onAvatarPicked(cropped);

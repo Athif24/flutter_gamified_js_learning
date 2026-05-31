@@ -1,5 +1,6 @@
-import 'dart:io' show File;
+import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +37,7 @@ Future<void> showEditProfile(
   File? avatarFile;
   String? avatarUrl = profile.avatar;
 
-  return showDialog(
+  return showDialog<void>(
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => AlertDialog(
@@ -50,8 +51,8 @@ Future<void> showEditProfile(
           padding: EdgeInsets.all(S.scale(context, 20)),
           decoration: BoxDecoration(
             color: t.bgSurface,
-            border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
-            borderRadius: BorderRadius.circular(S.scale(context, 20)),
+            borderRadius: BorderRadius.circular(S.scale(context, 24)),
+            border: Border.all(color: t.textPrimary),
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
@@ -109,7 +110,7 @@ Future<void> showEditProfile(
                                 backgroundImage: avatarFile != null
                                     ? FileImage(avatarFile!)
                                     : (avatarUrl != null
-                                          ? NetworkImage(avatarUrl!)
+                                          ? CachedNetworkImageProvider(avatarUrl!)
                                           : null),
                                 child: avatarFile == null && avatarUrl == null
                                     ? Text(
@@ -125,32 +126,36 @@ Future<void> showEditProfile(
                             ),
                             if (avatarFile != null || avatarUrl != null)
                               Positioned(
-                                right: -4,
-                                top: -4,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    ref.read(soundProvider).playClick();
-                                    setState(() {
-                                      avatarFile = null;
-                                      avatarUrl = null;
-                                    });
-                                  },
-                                  child: Container(
-                                    width: S.scale(context, 28),
-                                    height: S.scale(context, 28),
-                                    decoration: BoxDecoration(
-                                      color: t.error,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: t.textPrimary,
-                                        width: S.scale(context, 2),
+                                right: S.scale(context, -4),
+                                top: S.scale(context, -4),
+                                child: Semantics(
+                                  button: true,
+                                  label: 'Hapus avatar',
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      ref.read(soundProvider).playClick();
+                                      setState(() {
+                                        avatarFile = null;
+                                        avatarUrl = null;
+                                      });
+                                    },
+                                    child: Container(
+                                      width: S.scale(context, 28),
+                                      height: S.scale(context, 28),
+                                      decoration: BoxDecoration(
+                                        color: t.error,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: t.textPrimary,
+                                          width: S.scale(context, 2),
+                                        ),
                                       ),
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.close_rounded,
-                                        color: t.bgPrimary,
-                                        size: S.scale(context, 16),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.close_rounded,
+                                          color: t.bgPrimary,
+                                          size: S.scale(context, 16),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -164,20 +169,31 @@ Future<void> showEditProfile(
                             ref.read(soundProvider).playClick();
                             final result = await AssetPicker.pickAssets(
                               ctx,
-                              pickerConfig: const AssetPickerConfig(
+                              pickerConfig: AssetPickerConfig(
                                 maxAssets: 1,
                                 requestType: RequestType.image,
+                                textDelegate: const EnglishAssetPickerTextDelegate(),
                               ),
                             );
                             final asset = result?.firstOrNull;
                             if (asset != null) {
                               final file = await asset.file;
                               if (file != null && ctx.mounted) {
+                                final tempDir = Directory.systemTemp;
+                                final safeFile = File(
+                                  '${tempDir.path}/avatar_${DateTime.now().millisecondsSinceEpoch}.jpg',
+                                );
+                                await safeFile.writeAsBytes(
+                                  await file.readAsBytes(),
+                                );
+                                if (!ctx.mounted) return;
                                 final cropped = await Navigator.of(ctx)
                                     .push<File>(
                                       MaterialPageRoute(
-                                        builder: (_) =>
-                                            CropScreen(imageFile: file, t: t),
+                                        builder: (_) => CropScreen(
+                                          imageFile: safeFile,
+                                          t: t,
+                                        ),
                                       ),
                                     );
                                 if (cropped != null) {
@@ -357,10 +373,15 @@ Future<void> showEditProfile(
                                   try {
                                     String? uploadedUrl;
                                     if (avatarFile != null) {
-                                      uploadedUrl =
-                                          await CloudinaryService.uploadImage(
-                                            avatarFile!.path,
-                                          );
+                                      try {
+                                        uploadedUrl =
+                                            await CloudinaryService.uploadImage(
+                                              avatarFile!.path,
+                                            );
+                                      } catch (uploadError) {
+                                        debugPrint('[Upload] Avatar gagal: $uploadError');
+                                        rethrow;
+                                      }
                                     }
                                     final updateData = <String, dynamic>{
                                       'name': nameController.text.trim(),
@@ -375,8 +396,6 @@ Future<void> showEditProfile(
                                     await ref
                                         .read(profileDsProvider)
                                         .updateProfile(updateData);
-                                    ref.invalidate(profileProvider);
-                                    await ref.read(authProvider.notifier).refreshMe();
                                     if (ctx.mounted) Navigator.of(ctx).pop();
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(
@@ -439,7 +458,14 @@ Future<void> showEditProfile(
         ),
       ),
     ),
-  );
+  ).then((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      nameController.dispose();
+      emailController.dispose();
+      ref.invalidate(profileProvider);
+      ref.read(authProvider.notifier).refreshMe();
+    });
+  });
 }
 
 Future<void> showChangePassword(
@@ -510,13 +536,14 @@ Future<void> showChangePassword(
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              ref.read(soundProvider).playClick();
-                              Navigator.of(ctx).pop();
-                            },
-                            child: Semantics(
-                              label: 'Tutup dialog',
+                          Semantics(
+                            button: true,
+                            label: 'Tutup dialog',
+                            child: GestureDetector(
+                              onTap: () {
+                                ref.read(soundProvider).playClick();
+                                Navigator.of(ctx).pop();
+                              },
                               child: Container(
                                 width: S.scale(context, 28),
                                 height: S.scale(context, 28),
@@ -801,7 +828,13 @@ Future<void> showChangePassword(
         },
       );
     },
-  );
+  ).then((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      currentPwController.dispose();
+      newPwController.dispose();
+      confirmPwController.dispose();
+    });
+  });
 }
 
 Future<void> showLogoutConfirm(
@@ -891,6 +924,7 @@ Future<void> showLogoutConfirm(
                                 return;
                               }
 
+                              // TODO: deduplikasi — beberapa provider di-invalidate juga di invalidateGamificationProviders
                               invalidateGamificationProviders(ref, skip: {'xpHistory'});
                               ref.invalidate(coursesProvider);
                               ref.invalidate(courseDetailProvider);

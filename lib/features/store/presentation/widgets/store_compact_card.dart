@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/services/sound_service.dart';
+import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../data/models/store_model.dart';
 
@@ -82,15 +82,19 @@ class StoreCompactCard extends ConsumerWidget {
                           width: S.scale(context, 26),
                           height: S.scale(context, 26),
                           fit: BoxFit.contain,
-                          placeholder: (_, __) => Icon(
-                            Icons.inventory_2_rounded,
-                            size: S.scale(context, 22),
-                            color: t.mutedText,
+                          placeholder: (_, __) => ExcludeSemantics(
+                            child: Icon(
+                              Icons.inventory_2_rounded,
+                              size: S.scale(context, 22),
+                              color: t.mutedText,
+                            ),
                           ),
-                          errorWidget: (_, __, ___) => Icon(
-                            Icons.inventory_2_rounded,
-                            size: S.scale(context, 22),
-                            color: t.mutedText,
+                          errorWidget: (_, __, ___) => ExcludeSemantics(
+                            child: Icon(
+                              Icons.inventory_2_rounded,
+                              size: S.scale(context, 22),
+                              color: t.mutedText,
+                            ),
                           ),
                         )
                       : Text(
@@ -176,10 +180,12 @@ class StoreCompactCard extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.diamond,
-                    size: S.scale(context, 12),
-                    color: t.info,
+                  ExcludeSemantics(
+                    child: Icon(
+                      Icons.diamond,
+                      size: S.scale(context, 12),
+                      color: t.info,
+                    ),
                   ),
                   SizedBox(width: S.scale(context, 3)),
                   FittedBox(
@@ -198,67 +204,19 @@ class StoreCompactCard extends ConsumerWidget {
               const Spacer(),
               Semantics(
                 label: canAfford ? 'Beli ${item.name}' : 'Saldo Tidak Cukup',
-                child: Bounceable(
+                child: Game3DButton(
+                  label: 'Beli',
+                  color: t.primary,
+                  shadowColor: t.textPrimary,
+                  textColor: t.primaryContent,
+                  horizontalPadding: S.scale(context, 10),
+                  verticalPadding: S.scale(context, 6),
                   onTap: canAfford
                       ? () {
                           ref.read(soundProvider).playClick();
                           onBuy(item);
                         }
                       : null,
-                  child: Container(
-                    constraints: BoxConstraints(
-                      minWidth: S.scale(context, 36),
-                      minHeight: S.scale(context, 36),
-                    ),
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: S.scale(context, 10),
-                      vertical: S.scale(context, 6),
-                    ),
-                    decoration: BoxDecoration(
-                      color: canAfford ? t.primary : t.bgSurface2,
-                      borderRadius:
-                          BorderRadius.circular(S.scale(context, 10)),
-                      border: Border.all(
-                        color: t.textPrimary,
-                        width: S.scale(context, 2),
-                      ),
-                      boxShadow: canAfford
-                          ? [
-                              BoxShadow(
-                                color: t.textPrimary,
-                                offset: Offset(
-                                  S.scale(context, 3),
-                                  S.scale(context, 3),
-                                ),
-                                blurRadius: 0,
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.shopping_cart_rounded,
-                          size: S.scale(context, 14),
-                          color: canAfford ? t.primaryContent : t.mutedText,
-                        ),
-                        SizedBox(width: S.scale(context, 4)),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Beli',
-                            style: GoogleFonts.nunito(
-                              color: canAfford ? t.primaryContent : t.mutedText,
-                              fontWeight: FontWeight.w800,
-                              fontSize: S.scale(context, 11),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ),
             ],

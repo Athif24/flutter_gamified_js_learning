@@ -33,7 +33,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  double r(double px) => S.scale(context, px);
 
   @override
   void didChangeDependencies() {
@@ -66,6 +65,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ref.invalidate(myQuizResultProvider);
       ref.read(navIndexProvider.notifier).state = 0;
       context.go('/home');
+    } else if (!ok && mounted) {
+      final auth = ref.read(authProvider);
+      if (auth.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              auth.error!,
+              style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: ref.read(currentThemeProvider).error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -73,22 +86,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return InputDecoration(
       hintText: hint,
       hintStyle: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 13)),
-      prefixIcon: Icon(icon, color: t.textPrimary, size: r(20)),
+      prefixIcon: ExcludeSemantics(child: Icon(icon, color: t.textPrimary, size: S.scale(context, 20))),
       filled: true,
       fillColor: t.bgSurface2,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(r(10)),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
         borderSide: BorderSide(color: t.textPrimary, width: S.scale(context, 2)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(r(10)),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
         borderSide: BorderSide(color: t.border, width: S.scale(context, 2)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(r(10)),
+        borderRadius: BorderRadius.circular(S.scale(context, 10)),
         borderSide: BorderSide(color: t.primary, width: S.scale(context, 2)),
       ),
-      contentPadding: EdgeInsets.symmetric(horizontal: r(16), vertical: r(14)),
+      contentPadding: EdgeInsets.symmetric(horizontal: S.scale(context, 16), vertical: S.scale(context, 14)),
     );
   }
 
@@ -106,7 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: r(24)),
+                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
                 child: Column(
                   children: [
                     const Spacer(flex: 2),
@@ -114,8 +127,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Column(
                           children: [
                             Container(
-                              width: r(72),
-                              height: r(72),
+                              width: S.scale(context, 72),
+                              height: S.scale(context, 72),
                               decoration: BoxDecoration(
                                 color: t.primary,
                                 shape: BoxShape.circle,
@@ -126,7 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: t.textPrimary,
-                                      offset: Offset(r(3), r(3)),
+                                      offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                                       blurRadius: 0,
                                     ),
                                   ],
@@ -138,7 +151,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: r(10)),
+                            SizedBox(height: S.scale(context, 10)),
                               Text(
                                 'Bloom',
                                 style: GoogleFonts.nunito(
@@ -161,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         .fadeIn(duration: 500.ms)
                         .scale(begin: const Offset(.8, .8)),
 
-                    SizedBox(height: r(20)),
+                    SizedBox(height: S.scale(context, 20)),
 
                     Text(
                       'Selamat Datang!',
@@ -172,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ).animate().fadeIn(delay: 150.ms),
 
-                    SizedBox(height: r(6)),
+                    SizedBox(height: S.scale(context, 6)),
                     Text(
                       'Masuk dan lanjutkan belajar JavaScript-mu',
                       textAlign: TextAlign.center,
@@ -182,20 +195,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ).animate().fadeIn(delay: 200.ms),
 
-                    SizedBox(height: r(24)),
+                    SizedBox(height: S.scale(context, 24)),
 
                     // Form card — Neo Brutalism
                     Container(
                       key: _formCardKey,
-                      padding: EdgeInsets.all(r(22)),
+                      padding: EdgeInsets.all(S.scale(context, 22)),
                       decoration: BoxDecoration(
                         color: t.bgSurface,
-                        borderRadius: BorderRadius.circular(r(10)),
+                        borderRadius: BorderRadius.circular(S.scale(context, 10)),
                         border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
                         boxShadow: [
                           BoxShadow(
                             color: t.textPrimary,
-                            offset: Offset(r(3), r(3)),
+                            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                             blurRadius: 0,
                           ),
                         ],
@@ -206,7 +219,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _Label('Email', t),
-                            SizedBox(height: r(8)),
+                            SizedBox(height: S.scale(context, 8)),
                             TextFormField(
                               controller: _emailCtrl,
                               keyboardType: TextInputType.emailAddress,
@@ -221,9 +234,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   : null,
                             ).animate().fadeIn(delay: 300.ms),
 
-                            SizedBox(height: r(14)),
+                            SizedBox(height: S.scale(context, 14)),
                             _Label('Password', t),
-                            SizedBox(height: r(8)),
+                            SizedBox(height: S.scale(context, 8)),
                             TextFormField(
                               controller: _passCtrl,
                               obscureText: _obscure,
@@ -240,7 +253,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                             ? Icons.visibility_off_outlined
                                             : Icons.visibility_outlined,
                                         color: t.mutedText,
-                                        size: r(20),
+                                        size: S.scale(context, 20),
                                       ),
                                       onPressed: () {
                                         ref.read(soundProvider).playClick();
@@ -253,31 +266,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   : null,
                             ).animate().fadeIn(delay: 350.ms),
 
-                            if (auth.error != null) ...[
-                              SizedBox(height: r(12)),
-                              Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.all(r(12)),
-                                decoration: BoxDecoration(
-                                  color: t.error.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(r(10)),
-                                  border: Border.all(color: t.error, width: S.scale(context, 2)),
-                                ),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    auth.error!,
-                                    style: GoogleFonts.nunito(
-                                      color: t.error,
-                                      fontSize: S.font(context, 12),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ).animate().fadeIn().shakeX(),
-                            ],
-
-                            SizedBox(height: r(20)),
+                            SizedBox(height: S.scale(context, 20)),
 
                             SizedBox(
                               width: double.infinity,
@@ -286,7 +275,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 color: t.primary,
                                 shadowColor: t.textPrimary,
                                 textColor: t.primaryContent,
-                                horizontalPadding: r(16),
+                                horizontalPadding: S.scale(context, 16),
                                 isLoading: auth.isLoading,
                                 onTap: auth.isLoading ? null : _submit,
                               ),
@@ -295,7 +284,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ).animate().fadeIn(delay: 260.ms).slideY(begin: 0.1),
-                    SizedBox(height: r(12)),
+                    SizedBox(height: S.scale(context, 12)),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -304,7 +293,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           'Belum punya akun? ',
                           style: GoogleFonts.nunito(
                             color: t.mutedText,
-                            fontSize: r(14),
+                            fontSize: S.font(context, 14),
                           ),
                         ),
                         GestureDetector(
@@ -316,7 +305,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             'Daftar Sekarang',
                             style: GoogleFonts.nunito(
                               color: t.primary,
-                              fontSize: r(14),
+                              fontSize: S.font(context, 14),
                               fontWeight: FontWeight.w800,
                               decoration: TextDecoration.underline,
                               decorationColor: t.primary,

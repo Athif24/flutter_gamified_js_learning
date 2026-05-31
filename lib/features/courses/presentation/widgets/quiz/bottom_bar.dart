@@ -49,8 +49,6 @@ class BottomBar extends ConsumerWidget {
                 color: t.bgSurface2,
                 shadowColor: t.textPrimary,
                 textColor: t.mutedText,
-                horizontalPadding: S.scale(context, 20),
-                verticalPadding: S.scale(context, 12),
                 onTap:
                     popupShowing || quiz.isSubmitting || quiz.isSubmittingAnswer
                     ? null
