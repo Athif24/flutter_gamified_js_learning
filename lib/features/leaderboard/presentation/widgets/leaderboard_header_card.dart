@@ -5,13 +5,9 @@ import '../../../../../shared/themes/theme_provider.dart';
 
 class HeaderCard extends StatelessWidget {
   final BloomTheme t;
-  final int? currentUserRank;
-  final int? currentUserXp;
   const HeaderCard({
     super.key,
     required this.t,
-    this.currentUserRank,
-    this.currentUserXp,
   });
 
   @override
@@ -40,10 +36,12 @@ class HeaderCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.emoji_events_rounded,
-                  color: t.primaryContent,
-                  size: S.scale(context, 32),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.emoji_events_rounded,
+                    color: t.primaryContent,
+                    size: S.scale(context, 32),
+                  ),
                 ),
                 SizedBox(width: S.scale(context, 8)),
                 Text(

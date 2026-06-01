@@ -12,6 +12,7 @@ import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/leaderboard_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../widgets/leaderboard_skeleton.dart';
 import '../widgets/leaderboard_header_card.dart';
 import '../widgets/leaderboard_user_rank_card.dart';
@@ -81,6 +82,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
 
     final t = ref.watch(currentThemeProvider);
     final boardAsync = ref.watch(leaderboardProvider);
+    final profileAsync = ref.watch(profileProvider);
+    final myName = profileAsync.maybeWhen(data: (p) => p.name, orElse: () => null);
+    final myAvatar = profileAsync.maybeWhen(data: (p) => p.avatar, orElse: () => null);
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
@@ -102,7 +106,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
                     _silentRefresh();
                   },
                 ),
-                data: (res) => _buildContent(t, res),
+                data: (res) => _buildContent(t, res, myName, myAvatar),
               ),
             ),
           ],
@@ -111,7 +115,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     );
   }
 
-  Widget _buildContent(BloomTheme t, LeaderboardResponse res) {
+  Widget _buildContent(BloomTheme t, LeaderboardResponse res, String? myName, String? myAvatar) {
     final entries = res.leaderboard;
     final currentUserRank = res.currentUserRank;
     final currentUserXp = res.currentUserXp;
@@ -126,11 +130,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
               .toList();
 
     final childWidgets = <Widget>[
-      HeaderCard(
-        t: t,
-        currentUserRank: currentUserRank,
-        currentUserXp: currentUserXp,
-      ).animate().fadeIn(),
+      HeaderCard(t: t).animate().fadeIn(),
       SizedBox(height: S.scale(context, 16)),
       if (currentUserRank != null && currentUserXp != null) ...[
         UserRankCard(
@@ -157,6 +157,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
         entries: filtered,
         isSearchActive: _searchQuery.isNotEmpty,
         currentUserRank: currentUserRank,
+        currentUserXp: currentUserXp,
+        currentUserName: myName,
+        currentUserAvatar: myAvatar,
         topXp: topXp,
       ).animate().fadeIn(delay: 300.ms),
       SizedBox(height: S.scale(context, 16)),

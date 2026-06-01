@@ -13,6 +13,9 @@ class LeaderboardTable extends StatelessWidget {
   final List<LeaderboardEntry> entries;
   final bool isSearchActive;
   final int? currentUserRank;
+  final int? currentUserXp;
+  final String? currentUserName;
+  final String? currentUserAvatar;
   final int topXp;
   const LeaderboardTable({
     super.key,
@@ -20,6 +23,9 @@ class LeaderboardTable extends StatelessWidget {
     required this.entries,
     this.isSearchActive = false,
     this.currentUserRank,
+    this.currentUserXp,
+    this.currentUserName,
+    this.currentUserAvatar,
     required this.topXp,
   });
 
@@ -110,21 +116,37 @@ class LeaderboardTable extends StatelessWidget {
                 if (!isSearchActive && currentUserRank != null) ...[
                   SizedBox(height: S.scale(context, 8)),
                   Separator(t: t),
-                  if (currentUserRank! > 5) ...[
-                    SizedBox(height: S.scale(context, 8)),
-                    if (entries.where((e) => e.rank == currentUserRank).firstOrNull case final userEntry?)
-                      LeaderboardRow(
-                        entry: userEntry,
-                        isCurrentUser: true,
-                        t: t,
-                      ),
-                  ],
+                if (currentUserRank! > 5) ...[
+                  SizedBox(height: S.scale(context, 8)),
+                  _buildCurrentUserRow(context),
+                ],
                 ],
               ],
             ),
         ],
       ),
     );
+  }
+
+  Widget _buildCurrentUserRow(BuildContext context) {
+    final entry = entries.where((e) => e.rank == currentUserRank).firstOrNull;
+    if (entry != null) {
+      return LeaderboardRow(entry: entry, isCurrentUser: true, t: t);
+    }
+    if (currentUserName != null && currentUserXp != null) {
+      return LeaderboardRow(
+        entry: LeaderboardEntry(
+          rank: currentUserRank!,
+          userId: 0,
+          name: currentUserName!,
+          avatar: currentUserAvatar,
+          xpTotal: currentUserXp!,
+        ),
+        isCurrentUser: true,
+        t: t,
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
 
@@ -147,7 +169,7 @@ class LeaderboardRow extends StatelessWidget {
         vertical: S.scale(context, 8),
       ),
       decoration: BoxDecoration(
-        color: isCurrentUser ? t.accent.withAlpha(25) : Colors.transparent,
+        color: isCurrentUser ? t.accent.withValues(alpha: 25 / 255) : Colors.transparent,
         borderRadius: BorderRadius.circular(S.scale(context, 10)),
       ),
       child: Row(
