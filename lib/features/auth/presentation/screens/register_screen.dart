@@ -146,10 +146,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                             ),
                                           ],
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            '🌸',
-                                            style: TextStyle(fontSize: S.font(context, 22)),
+                                        child: ColorFiltered(
+                                          colorFilter: ColorFilter.mode(t.primaryContent, BlendMode.srcIn),
+                                          child: Image.asset(
+                                            'assets/logo/logo_app.png',
+                                            width: S.scale(context, 22),
+                                            height: S.scale(context, 22),
                                           ),
                                         ),
                                       ),
