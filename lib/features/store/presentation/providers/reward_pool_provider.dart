@@ -11,14 +11,3 @@ final rewardPoolsProvider = FutureProvider<List<RewardPool>>(
   (ref) => ref.read(rewardPoolDsProvider).getPools('mystery_box'),
 );
 
-// TODO: deprecate — tidak dipakai di mana pun; hapus setelah refactor ke buy/open langsung dari RewardPoolRemoteDatasource
-final buyRewardPoolProvider =
-    FutureProvider.family<Map<String, dynamic>, int>(
-  (ref, poolId) => ref.read(rewardPoolDsProvider).buyPool(poolId),
-);
-
-// TODO: deprecate — tidak dipakai di mana pun; hapus setelah refactor ke buy/open langsung dari RewardPoolRemoteDatasource
-final openRewardPoolProvider =
-    FutureProvider.family<MysteryBoxResult, int>(
-  (ref, poolId) => ref.read(rewardPoolDsProvider).openPool(poolId),
-);
