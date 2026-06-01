@@ -56,10 +56,11 @@ class _StoreSkeletonState extends State<StoreSkeleton>
       2 => _historySkeleton(context),
       _ => <Widget>[],
     };
-    return ListView.builder(
+    return Padding(
       padding: EdgeInsets.all(S.scale(context, 20)),
-      itemCount: items.length,
-      itemBuilder: (_, i) => items[i],
+      child: Column(
+        children: items,
+      ),
     );
   }
 
