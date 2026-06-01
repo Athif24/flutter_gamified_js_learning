@@ -296,9 +296,9 @@ class _StoreBuyDialogState extends ConsumerState<StoreBuyDialog> {
                     Expanded(
                       child: Game3DButton(
                         label: 'Batal',
-                        color: t.secondary,
+                        color: t.bgSurface2,
                         shadowColor: t.textPrimary,
-                        textColor: t.secondaryContent,
+                        textColor: t.textPrimary,
                         horizontalPadding: S.scale(context, 14),
                         verticalPadding: S.scale(context, 10),
                         onTap: onDismiss,
@@ -671,9 +671,9 @@ class _StoreUseDialogState extends ConsumerState<StoreUseDialog> {
                     Expanded(
                       child: Game3DButton(
                         label: 'Batal',
-                        color: t.secondary,
+                        color: t.bgSurface2,
                         shadowColor: t.textPrimary,
-                        textColor: t.secondaryContent,
+                        textColor: t.textPrimary,
                         horizontalPadding: S.scale(context, 14),
                         verticalPadding: S.scale(context, 10),
                         onTap: _isUsing.value
@@ -1132,9 +1132,9 @@ class _MysteryBoxBuyDialogState extends ConsumerState<MysteryBoxBuyDialog> {
                     Expanded(
                       child: Game3DButton(
                         label: 'Batal',
-                        color: t.secondary,
+                        color: t.bgSurface2,
                         shadowColor: t.textPrimary,
-                        textColor: t.secondaryContent,
+                        textColor: t.textPrimary,
                         horizontalPadding: S.scale(context, 14),
                         verticalPadding: S.scale(context, 10),
                         onTap: isPending.value
