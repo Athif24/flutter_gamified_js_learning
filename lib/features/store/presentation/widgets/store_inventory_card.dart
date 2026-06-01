@@ -115,15 +115,19 @@ class StoreInventoryCard extends ConsumerWidget {
                           width: S.scale(context, 32),
                           height: S.scale(context, 32),
                           fit: BoxFit.contain,
-                          placeholder: (_, __) => Icon(
-                            Icons.inventory_2_rounded,
-                            size: S.scale(context, 28),
-                            color: t.mutedText,
+                          placeholder: (_, __) => ExcludeSemantics(
+                            child: Icon(
+                              Icons.inventory_2_rounded,
+                              size: S.scale(context, 28),
+                              color: t.mutedText,
+                            ),
                           ),
-                          errorWidget: (_, __, ___) => Icon(
-                            Icons.inventory_2_rounded,
-                            size: S.scale(context, 28),
-                            color: t.mutedText,
+                          errorWidget: (_, __, ___) => ExcludeSemantics(
+                            child: Icon(
+                              Icons.inventory_2_rounded,
+                              size: S.scale(context, 28),
+                              color: t.mutedText,
+                            ),
                           ),
                         )
                       : Text(
@@ -267,10 +271,12 @@ class StoreInventoryCard extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.block_rounded,
-                        size: S.scale(context, 14),
-                        color: t.mutedText,
+                      ExcludeSemantics(
+                        child: Icon(
+                          Icons.block_rounded,
+                          size: S.scale(context, 14),
+                          color: t.mutedText,
+                        ),
                       ),
                       SizedBox(width: S.scale(context, 4)),
                       Text(

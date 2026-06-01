@@ -47,11 +47,13 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
         ref.invalidate(jewelBalanceProvider);
         ref.invalidate(jewelHistoryProvider);
         ref.invalidate(rewardPoolsProvider);
-        await ref.read(storeItemsProvider.future);
-        await ref.read(inventoryProvider.future);
-        await ref.read(jewelBalanceProvider.future);
-        await ref.read(jewelHistoryProvider.future);
-        await ref.read(rewardPoolsProvider.future);
+        await Future.wait([
+          ref.read(storeItemsProvider.future),
+          ref.read(inventoryProvider.future),
+          ref.read(jewelBalanceProvider.future),
+          ref.read(jewelHistoryProvider.future),
+          ref.read(rewardPoolsProvider.future),
+        ]);
       },
       fetchState: fetchState,
     );
@@ -329,7 +331,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen>
                   Container(
                     height: S.scale(context, 2),
                     decoration: BoxDecoration(
-                      color: t.border.withAlpha(80),
+                      color: t.border.withValues(alpha: 80 / 255),
                       boxShadow: [
                         BoxShadow(
                           color: t.textPrimary,

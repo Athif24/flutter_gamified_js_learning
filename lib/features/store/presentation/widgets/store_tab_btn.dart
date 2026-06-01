@@ -59,10 +59,12 @@ class StoreTabBtn extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: S.scale(context, 16),
-              color: sel ? t.primaryContent : t.textPrimary,
+            ExcludeSemantics(
+              child: Icon(
+                icon,
+                size: S.scale(context, 16),
+                color: sel ? t.primaryContent : t.textPrimary,
+              ),
             ),
             SizedBox(width: S.scale(context, 6)),
             Text(
