@@ -28,12 +28,12 @@ class StoreItem {
     name: j['name'] ?? '',
     description: j['description'],
     icon: j['icon'] ?? '🎁',
-    price: (j['jewel_cost'] ?? 0) as int,
+    price: ((j['jewel_cost'] ?? 0) as num).toInt(),
     type: j['item_type']?.toString() ?? 'item',
     isAvailable: j['is_active'] ?? true,
-    effectValue: j['effect_value'] as int?,
+    effectValue: (j['effect_value'] as num?)?.toInt(),
     isConsumable: j['is_consumable'] ?? true,
-    ownedQuantity: (j['owned_quantity'] ?? 0) as int,
+    ownedQuantity: ((j['owned_quantity'] ?? 0) as num).toInt(),
   );
 }
 
@@ -54,8 +54,8 @@ class InventoryItem {
 
   factory InventoryItem.fromJson(Map<String, dynamic> j) => InventoryItem(
     id: j['id']?.toString() ?? '',
-    itemId: (j['item_id'] ?? 0) as int,
-    quantity: (j['quantity'] ?? 1) as int,
+    itemId: ((j['item_id'] ?? 0) as num).toInt(),
+    quantity: ((j['quantity'] ?? 1) as num).toInt(),
     acquiredAt: j['acquired_at']?.toString(),
     item: j['item'] != null
         ? StoreItem.fromJson(j['item'] as Map<String, dynamic>)
@@ -68,7 +68,7 @@ class JewelBalance {
   const JewelBalance({required this.balance});
   factory JewelBalance.fromJson(Map<String, dynamic> j) {
     final d = j['data'] ?? j;
-    return JewelBalance(balance: (d['balance'] ?? 0) as int);
+    return JewelBalance(balance: ((d['balance'] ?? 0) as num).toInt());
   }
 }
 
@@ -93,12 +93,12 @@ class JewelTransaction {
 
   factory JewelTransaction.fromJson(Map<String, dynamic> j) => JewelTransaction(
     id: j['id']?.toString() ?? '',
-    amount: (j['amount'] ?? 0) as int,
+    amount: ((j['amount'] ?? 0) as num).toInt(),
     type: j['type'] ?? 'earn',
     source: j['source']?.toString() ?? j['type'] ?? 'unknown',
     description: j['description'] ?? j['reason'],
     createdAt: j['created_at']?.toString() ?? j['createdAt']?.toString() ?? '',
-    balanceAfter: j['balance_after'] as int?,
+    balanceAfter: (j['balance_after'] as num?)?.toInt(),
   );
 }
 

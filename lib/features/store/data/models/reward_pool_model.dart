@@ -28,13 +28,13 @@ class RewardPool {
   });
 
   factory RewardPool.fromJson(Map<String, dynamic> j) => RewardPool(
-    id: (j['id'] ?? 0) as int,
+    id: ((j['id'] ?? 0) as num).toInt(),
     name: j['name'] ?? '',
     poolType: j['pool_type'] ?? 'mystery_box',
     color: j['color'],
     badgeLabel: j['badge_label'],
     icon: j['icon'],
-    jewelCost: (j['jewel_cost'] ?? 0) as int,
+    jewelCost: ((j['jewel_cost'] ?? 0) as num).toInt(),
     isActive: j['is_active'] ?? true,
     createdAt: j['created_at'],
     updatedAt: j['updated_at'],
@@ -72,12 +72,12 @@ class PoolReward {
   });
 
   factory PoolReward.fromJson(Map<String, dynamic> j) => PoolReward(
-    id: (j['id'] ?? 0) as int,
-    poolId: (j['pool_id'] ?? 0) as int,
+    id: ((j['id'] ?? 0) as num).toInt(),
+    poolId: ((j['pool_id'] ?? 0) as num).toInt(),
     rewardType: j['reward_type'] ?? 'jewels',
-    rewardItemId: j['reward_item_id'] as int?,
-    minAmount: (j['min_amount'] ?? 0) as int,
-    maxAmount: (j['max_amount'] ?? 0) as int,
+    rewardItemId: (j['reward_item_id'] as num?)?.toInt(),
+    minAmount: ((j['min_amount'] ?? 0) as num).toInt(),
+    maxAmount: ((j['max_amount'] ?? 0) as num).toInt(),
     probability: j['probability'] != null
         ? (j['probability'] as num).toDouble()
         : 0.0,
@@ -115,9 +115,9 @@ class MysteryBoxResult {
     return MysteryBoxResult(
       message: j['message'] ?? '',
       rewardType: reward['type'] ?? 'jewels',
-      amount: (reward['amount'] ?? 0) as int,
+      amount: ((reward['amount'] ?? 0) as num).toInt(),
       displayLabel: reward['display_label'] ?? '',
-      itemId: reward['item_id'] as int?,
+      itemId: (reward['item_id'] as num?)?.toInt(),
       itemName: reward['item_name'],
       itemIcon: reward['item_icon'],
     );
