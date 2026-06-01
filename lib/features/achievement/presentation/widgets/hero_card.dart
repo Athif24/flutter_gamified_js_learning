@@ -176,12 +176,12 @@ class HeroCard extends StatelessWidget {
                 decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(S.scale(context, 12)),
                 border: Border.all(
-                  color: t.border.withAlpha(120),
+                  color: t.border.withValues(alpha: 120/255),
                   width: S.scale(context, 2),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: t.border.withAlpha(75),
+                    color: t.border.withValues(alpha: 75/255),
                     offset: Offset(
                       S.scale(context, 1),
                       S.scale(context, 1),

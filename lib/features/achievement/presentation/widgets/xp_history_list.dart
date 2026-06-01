@@ -73,19 +73,19 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
       icon: Icons.code_rounded,
       label: 'Quiz',
       color: t.primary,
-      bg: t.primary.withAlpha(25),
+      bg: t.primary.withValues(alpha: 25/255),
     ),
     'lesson': _SourceConfig(
       icon: Icons.menu_book_rounded,
       label: 'Pelajaran',
       color: t.success,
-      bg: t.success.withAlpha(25),
+      bg: t.success.withValues(alpha: 25/255),
     ),
     'bonus': _SourceConfig(
       icon: Icons.card_giftcard_rounded,
       label: 'Bonus',
       color: t.secondary,
-      bg: t.secondary.withAlpha(25),
+      bg: t.secondary.withValues(alpha: 25/255),
     ),
   };
 
@@ -230,7 +230,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                 children: [
                   Expanded(
                       child: Divider(
-                        color: t.textPrimary.withAlpha(25),
+                        color: t.textPrimary.withValues(alpha: 25/255),
                         height: S.scale(context, 1),
                     ),
                   ),
@@ -241,7 +241,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                     child: Text(
                       dateLabel,
                       style: GoogleFonts.nunito(
-                        color: t.mutedText.withAlpha(102),
+                        color: t.mutedText.withValues(alpha: 102/255),
                         fontSize: S.font(context, 11),
                         fontWeight: FontWeight.w800,
                         letterSpacing: S.scale(context, 1.1),
@@ -250,7 +250,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                   ),
                   Expanded(
                       child: Divider(
-                        color: t.textPrimary.withAlpha(25),
+                        color: t.textPrimary.withValues(alpha: 25/255),
                         height: S.scale(context, 1),
                     ),
                   ),
@@ -332,7 +332,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
             vertical: S.scale(context, 10),
           ),
           decoration: BoxDecoration(
-            color: t.bgSurface2.withAlpha(102),
+            color: t.bgSurface2.withValues(alpha: 102/255),
             borderRadius: BorderRadius.circular(S.scale(context, 12)),
             border: Border.all(color: t.textPrimary.withAlpha(25)),
           ),
@@ -344,7 +344,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(S.scale(context, 12)),
-                  border: Border.all(color: iconColor.withAlpha(76)),
+                  border: Border.all(color: iconColor.withValues(alpha: 76/255)),
                 ),
                 child: ExcludeSemantics(child: Icon(icon, color: iconColor, size: S.scale(context, 18))),
               ),
@@ -370,7 +370,7 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                         child: Text(
                           time,
                           style: GoogleFonts.nunito(
-                            color: t.mutedText.withAlpha(128),
+                            color: t.mutedText.withValues(alpha: 128/255),
                             fontSize: S.font(context, 11),
                           ),
                         ),
@@ -384,10 +384,10 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
                   vertical: S.scale(context, 2),
                 ),
                 decoration: BoxDecoration(
-                  color: t.warning.withAlpha(25),
+                  color: t.warning.withValues(alpha: 25/255),
                   borderRadius: BorderRadius.circular(S.scale(context, 50)),
                   border: Border.all(
-                    color: t.warning.withAlpha(102),
+                    color: t.warning.withValues(alpha: 102/255),
                     width: S.scale(context, 2),
                   ),
                 ),

@@ -89,7 +89,7 @@ class LevelRoadmap extends ConsumerWidget {
                 left: S.scale(context, 26),
                 top: S.scale(context, 16),
                 bottom: S.scale(context, 16),
-                child: Container(width: S.scale(context, 2), color: t.border.withAlpha(25)),
+                child: Container(width: S.scale(context, 2), color: t.border.withValues(alpha: 25/255)),
               ),
               Column(
                 children: sorted.asMap().entries.map((entry) {
@@ -117,23 +117,23 @@ class LevelRoadmap extends ConsumerWidget {
                     padding: EdgeInsets.all(S.scale(context, 16)),
                     decoration: BoxDecoration(
                       color: isCurrent
-                          ? t.primary.withAlpha(12)
+                          ? t.primary.withValues(alpha: 12/255)
                           : isPassed
-                          ? t.success.withAlpha(12)
-                          : t.bgSurface2.withAlpha(76),
+                          ? t.success.withValues(alpha: 12/255)
+                          : t.bgSurface2.withValues(alpha: 76/255),
                       borderRadius: BorderRadius.circular(S.scale(context, 16)),
                       border: Border.all(
                         color: isCurrent
                             ? t.primary
                             : isPassed
-                            ? t.success.withAlpha(102)
-                            : t.border.withAlpha(25),
+                            ? t.success.withValues(alpha: 102/255)
+                            : t.border.withValues(alpha: 25/255),
                         width: S.scale(context, 2),
                       ),
                       boxShadow: isCurrent
                           ? [
                               BoxShadow(
-                                color: t.primary.withAlpha(76),
+                                color: t.primary.withValues(alpha: 76/255),
                                 offset: Offset(
                                   S.scale(context, 3),
                                   S.scale(context, 3),
@@ -167,7 +167,7 @@ class LevelRoadmap extends ConsumerWidget {
                                           ? t.success
                                           : isCurrent
                                           ? t.primary
-                                          : t.border.withAlpha(50),
+                                          : t.border.withValues(alpha: 50/255),
                                       width: S.scale(context, 2),
                                     ),
                                   ),
@@ -186,7 +186,7 @@ class LevelRoadmap extends ConsumerWidget {
                                           ))
                                         : ExcludeSemantics(child: Icon(
                                             Icons.lock_rounded,
-                                            color: t.mutedText.withAlpha(100),
+                                            color: t.mutedText.withValues(alpha: 100/255),
                                             size: S.scale(context, 14),
                                           )),
                                   ),
@@ -216,7 +216,7 @@ class LevelRoadmap extends ConsumerWidget {
                                                   ? t.primary
                                                   : isPassed
                                                   ? t.success
-                                                  : t.mutedText.withAlpha(127),
+                                                  : t.mutedText.withValues(alpha: 127/255),
                                               fontWeight: FontWeight.w800,
                                               fontSize: S.font(context, 14),
                                             ),
@@ -231,12 +231,12 @@ class LevelRoadmap extends ConsumerWidget {
                                               vertical: S.scale(context, 2),
                                             ),
                                             decoration: BoxDecoration(
-                                              color: t.primary.withAlpha(25),
+                                              color: t.primary.withValues(alpha: 25/255),
                                             borderRadius: BorderRadius.circular(
                                               S.scale(context, 50),
                                             ),
                                             border: Border.all(
-                                              color: t.primary.withAlpha(100),
+                                              color: t.primary.withValues(alpha: 100/255),
                                             ),
                                           ),
                                           child: FittedBox(
@@ -261,12 +261,12 @@ class LevelRoadmap extends ConsumerWidget {
                                             vertical: S.scale(context, 2),
                                           ),
                                           decoration: BoxDecoration(
-                                            color: t.success.withAlpha(25),
+                                            color: t.success.withValues(alpha: 25/255),
                                             borderRadius: BorderRadius.circular(
                                               S.scale(context, 50),
                                             ),
                                             border: Border.all(
-                                                color: t.success.withAlpha(100),
+                                                color: t.success.withValues(alpha: 100/255),
                                               ),
                                             ),
                                             child: FittedBox(
@@ -338,7 +338,7 @@ class LevelRoadmap extends ConsumerWidget {
                                   Container(
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: t.border.withAlpha(50),
+                                        color: t.border.withValues(alpha: 50/255),
                                       ),
                                       borderRadius: BorderRadius.circular(
                                         S.scale(context, 4),

@@ -206,7 +206,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
               Container(
                 height: S.scale(context, 2),
                 decoration: BoxDecoration(
-                  color: t.textPrimary.withAlpha(80),
+                  color: t.textPrimary.withValues(alpha: 80/255),
                   boxShadow: [
                     BoxShadow(
                       color: t.textPrimary,
@@ -270,21 +270,48 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                         : constraints.maxWidth > 400
                         ? 3
                         : 2;
-                    final totalGutter = S.scale(context, 12) * (crossAxisCount - 1);
-                    final childWidth =
-                        (constraints.maxWidth - totalGutter) / crossAxisCount;
+                    final spacing = S.scale(context, 12);
+                    final rowCount = (filtered.length + crossAxisCount - 1) ~/ crossAxisCount;
 
-                    return Wrap(
-                      spacing: S.scale(context, 12),
-                      runSpacing: S.scale(context, 12),
-                      children: filtered
-                          .map(
-                            (b) => SizedBox(
-                              width: childWidth,
-                              child: _buildBadgeCard(t, b),
+                    return Column(
+                      children: List.generate(rowCount, (rowIndex) {
+                        final start = rowIndex * crossAxisCount;
+                        final end = (start + crossAxisCount).clamp(0, filtered.length);
+                        final rowItems = filtered.sublist(start, end);
+
+                        final hasAnyDesc = rowItems.any(
+                          (b) => b.description != null && b.description!.isNotEmpty,
+                        );
+                        final hasAnyCondition = rowItems.any(
+                          (b) => _conditionIcons[b.conditionType] != null && b.conditionValue != null,
+                        );
+                        final hasAnyReward = rowItems.any((b) => b.rewardJewels > 0);
+                        final hasAnyDate = rowItems.any((b) => b.isEarned && b.earnedAt != null);
+
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: rowIndex < rowCount - 1 ? spacing : 0,
+                          ),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (int i = 0; i < rowItems.length; i++) ...[
+                                  if (i > 0) SizedBox(width: spacing),
+                                  Expanded(
+                                    child: _buildBadgeCard(t, rowItems[i],
+                                      hasAnyDesc: hasAnyDesc,
+                                      hasAnyCondition: hasAnyCondition,
+                                      hasAnyReward: hasAnyReward,
+                                      hasAnyDate: hasAnyDate,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                          )
-                          .toList(),
+                          ),
+                        );
+                      }),
                     );
                   },
                 ),
@@ -295,7 +322,12 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
     );
   }
 
-  Widget _buildBadgeCard(BloomTheme t, BadgeModel b) {
+  Widget _buildBadgeCard(BloomTheme t, BadgeModel b, {
+    required bool hasAnyDesc,
+    required bool hasAnyCondition,
+    required bool hasAnyReward,
+    required bool hasAnyDate,
+  }) {
     final earned = b.isEarned;
     final condIcon = _conditionIcons[b.conditionType];
     final condLabel = _conditionLabels[b.conditionType];
@@ -303,7 +335,7 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
     final cardBody = Container(
       padding: EdgeInsets.all(S.scale(context, 16)),
       decoration: BoxDecoration(
-        color: earned ? t.bgSurface : t.bgSurface2.withAlpha(180),
+        color: earned ? t.bgSurface : t.bgSurface2.withValues(alpha: 180/255),
         borderRadius: BorderRadius.circular(S.scale(context, 16)),
         border: Border.all(
           color: t.textPrimary,
@@ -311,205 +343,243 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
         ),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: S.scale(context, 56),
+          SizedBox(height: S.scale(context, 4)),
+          SizedBox(
             height: S.scale(context, 56),
-            decoration: BoxDecoration(
-              color: earned ? t.warning.withAlpha(25) : t.bgSurface3,
-              borderRadius: BorderRadius.circular(S.scale(context, 16)),
-              border: Border.all(
-                color: t.textPrimary,
-                width: S.scale(context, 2),
-              ),
-            ),
-            child: Semantics(
-              label:
-                  '${b.name} - ${earned ? "Sudah didapat" : "Belum didapat"}',
-              child: Center(
-                child: b.icon.startsWith('http')
-                    ? CachedNetworkImage(
-                        imageUrl: b.icon,
-                        width: S.scale(context, 36),
-                        height: S.scale(context, 36),
-                        fit: BoxFit.contain,
-                        placeholder: (_, __) => Icon(
-                          Icons.emoji_events_rounded,
-                          size: S.scale(context, 24),
-                          color: earned ? t.warning : t.textHint,
-                        ),
-                        errorWidget: (_, __, ___) => Icon(
-                          Icons.emoji_events_rounded,
-                          size: S.scale(context, 24),
-                          color: earned ? t.warning : t.textHint,
-                        ),
-                      )
-                    : Text(
-                        b.icon,
-                        style: TextStyle(fontSize: S.font(context, 24)),
-                      ),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                width: S.scale(context, 56),
+                height: S.scale(context, 56),
+                decoration: BoxDecoration(
+                  color: earned ? t.warning.withValues(alpha: 25/255) : t.bgSurface3,
+                  borderRadius: BorderRadius.circular(S.scale(context, 16)),
+                  border: Border.all(
+                    color: t.textPrimary,
+                    width: S.scale(context, 2),
+                  ),
+                ),
+                child: Semantics(
+                  label: '${b.name} - ${earned ? "Sudah didapat" : "Belum didapat"}',
+                  child: Center(
+                    child: b.icon.startsWith('http')
+                        ? CachedNetworkImage(
+                            imageUrl: b.icon,
+                            width: S.scale(context, 36),
+                            height: S.scale(context, 36),
+                            fit: BoxFit.contain,
+                            placeholder: (_, __) => ExcludeSemantics(child: Icon(
+                              Icons.emoji_events_rounded,
+                              size: S.scale(context, 24),
+                              color: earned ? t.warning : t.textHint,
+                            )),
+                            errorWidget: (_, __, ___) => ExcludeSemantics(child: Icon(
+                              Icons.emoji_events_rounded,
+                              size: S.scale(context, 24),
+                              color: earned ? t.warning : t.textHint,
+                            )),
+                          )
+                        : Text(
+                            b.icon,
+                            style: TextStyle(fontSize: S.font(context, 24)),
+                          ),
+                  ),
+                ),
               ),
             ),
           ),
-          SizedBox(height: S.scale(context, 12)),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              b.name,
-              style: GoogleFonts.nunito(
-                fontSize: S.font(context, 14),
-                fontWeight: FontWeight.w800,
-                color: earned ? t.textPrimary : t.textHint,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (b.description != null && b.description!.isNotEmpty) ...[
-            SizedBox(height: S.scale(context, 12)),
-            FittedBox(
-              fit: BoxFit.scaleDown,
+          SizedBox(height: S.scale(context, 10)),
+          SizedBox(
+            height: S.scale(context, 36),
+            child: Align(
+              alignment: Alignment.topCenter,
               child: Text(
-                b.description!,
+                b.name,
                 style: GoogleFonts.nunito(
-                  fontSize: S.font(context, 11),
-                  color: t.textHint,
+                  fontSize: S.font(context, 14),
+                  fontWeight: FontWeight.w800,
+                  color: earned ? t.textPrimary : t.textHint,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
-          if (condIcon != null && b.conditionValue != null) ...[
-            SizedBox(height: S.scale(context, 12)),
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: S.scale(context, 6),
-                vertical: S.scale(context, 2),
-              ),
-              decoration: BoxDecoration(
-                color: t.bgSurface2,
-                borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                border: Border.all(
-                  color: t.border.withAlpha(50),
-                  width: S.scale(context, 1),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ExcludeSemantics(
-                    child: Icon(
-                      condIcon,
-                      size: S.scale(context, 10),
-                      color: t.textSecondary,
-                    ),
-                  ),
-                  SizedBox(width: S.scale(context, 3)),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      '$condLabel: ${b.conditionValue}',
-                      style: GoogleFonts.nunito(
-                        fontSize: S.font(context, 10),
-                        color: t.textSecondary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+          ),
+          if (hasAnyDesc) ...[
+            SizedBox(height: S.scale(context, 4)),
+            SizedBox(
+              height: S.scale(context, 26),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: b.description != null && b.description!.isNotEmpty
+                    ? Text(
+                        b.description!,
+                        style: GoogleFonts.nunito(
+                          fontSize: S.font(context, 11),
+                          color: t.textHint,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : null,
               ),
             ),
           ],
-          if (b.rewardJewels > 0) ...[
-            SizedBox(height: S.scale(context, 12)),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ExcludeSemantics(
-                  child: Icon(
-                    Icons.diamond_rounded,
-                    size: S.scale(context, 10),
-                    color: t.info,
-                  ),
-                ),
-                SizedBox(width: S.scale(context, 2)),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '+${b.rewardJewels} jewels',
-                  style: GoogleFonts.nunito(
-                    fontSize: S.font(context, 11),
-                    color: t.info,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-          if (earned && b.earnedAt != null) ...[
-            SizedBox(height: S.scale(context, 12)),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                'Diraih ${_formatDate(b.earnedAt)}',
-                style: GoogleFonts.nunito(
-                  fontSize: S.font(context, 10),
-                  color: t.textHint,
-                ),
+          if (hasAnyCondition || hasAnyReward || hasAnyDate)
+            SizedBox(height: S.scale(context, 10)),
+          if (hasAnyCondition)
+            SizedBox(
+              height: S.scale(context, 20),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: condIcon != null && b.conditionValue != null
+                    ? Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: S.scale(context, 6),
+                          vertical: S.scale(context, 2),
+                        ),
+                        decoration: BoxDecoration(
+                          color: t.bgSurface2,
+                          borderRadius: BorderRadius.circular(S.scale(context, 50)),
+                          border: Border.all(
+                            color: t.border.withValues(alpha: 50/255),
+                            width: S.scale(context, 1),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ExcludeSemantics(child: Icon(
+                              condIcon,
+                              size: S.scale(context, 10),
+                              color: t.textSecondary,
+                            )),
+                            SizedBox(width: S.scale(context, 3)),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '$condLabel: ${b.conditionValue}',
+                                style: GoogleFonts.nunito(
+                                  fontSize: S.font(context, 10),
+                                  color: t.textSecondary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : null,
               ),
             ),
-          ],
+          if (hasAnyReward || hasAnyDate)
+            SizedBox(height: S.scale(context, 10)),
+          if (hasAnyReward)
+            SizedBox(
+              height: S.scale(context, 16),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: b.rewardJewels > 0
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ExcludeSemantics(child: Icon(
+                            Icons.diamond_rounded,
+                            size: S.scale(context, 10),
+                            color: t.info,
+                          )),
+                          SizedBox(width: S.scale(context, 2)),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '+${b.rewardJewels} jewels',
+                              style: GoogleFonts.nunito(
+                                fontSize: S.font(context, 11),
+                                color: t.info,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : null,
+              ),
+            ),
+          if (hasAnyDate)
+            SizedBox(height: S.scale(context, 10)),
+          if (hasAnyDate)
+            SizedBox(
+              height: S.scale(context, 16),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: earned && b.earnedAt != null
+                    ? FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Diraih ${_formatDate(b.earnedAt)}',
+                          style: GoogleFonts.nunito(
+                            fontSize: S.font(context, 10),
+                            color: t.textHint,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+          const Spacer(),
         ],
       ),
     );
 
-    final card = Stack(
+    final statusIconWidget = Container(
+      width: S.scale(context, 24),
+      height: S.scale(context, 24),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: earned ? t.success : t.bgSurface3,
+        border: Border.all(
+          color: t.border,
+          width: S.scale(context, 2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: t.border,
+            offset: Offset(
+              S.scale(context, 1),
+              S.scale(context, 1),
+            ),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Center(
+        child: earned
+            ? ExcludeSemantics(child: Icon(
+                Icons.check_rounded,
+                color: t.accentText,
+                size: S.scale(context, 16),
+              ))
+            : ExcludeSemantics(child: Icon(
+                Icons.lock_rounded,
+                color: t.textHint,
+                size: S.scale(context, 16),
+              )),
+      ),
+    );
+
+    final wrapped = Stack(
       clipBehavior: Clip.none,
       children: [
         cardBody,
         Positioned(
-          right: S.scale(context, -8),
-          top: S.scale(context, -8),
-          child: Container(
-            width: S.scale(context, 24),
-            height: S.scale(context, 24),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: earned ? t.success : t.bgSurface3,
-                border: Border.all(
-                  color: t.border,
-                  width: S.scale(context, 2),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: t.border,
-                    offset: Offset(
-                      S.scale(context, 1),
-                      S.scale(context, 1),
-                    ),
-                    blurRadius: 0,
-                  ),
-                ],
-            ),
-            child: Center(
-              child: earned
-                  ? Icon(
-                      Icons.check_rounded,
-                      color: t.accentText,
-                      size: S.scale(context, 13),
-                    )
-                  : Icon(
-                      Icons.lock_rounded,
-                      color: t.textHint,
-                      size: S.scale(context, 14),
-                    ),
-            ),
-          ),
+          top: -S.scale(context, 8),
+          right: -S.scale(context, 8),
+          child: statusIconWidget,
         ),
       ],
     );
@@ -519,11 +589,11 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
         opacity: 0.5,
         child: ColorFiltered(
           colorFilter: const ColorFilter.matrix(_grayscaleMatrix),
-          child: card,
+          child: wrapped,
         ),
       );
     }
-    return card;
+    return wrapped;
   }
 }
 
@@ -590,7 +660,7 @@ class FilterTab extends StatelessWidget {
               vertical: S.scale(context, 1),
             ),
             decoration: BoxDecoration(
-              color: isActive ? t.accentText.withAlpha(30) : t.bgSurface2,
+              color: isActive ? t.accentText.withValues(alpha: 30/255) : t.bgSurface2,
               borderRadius: BorderRadius.circular(S.scale(context, 50)),
             ),
             child: FittedBox(

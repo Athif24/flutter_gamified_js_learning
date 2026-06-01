@@ -282,7 +282,7 @@ class LevelSkeleton extends StatelessWidget {
                           child: Container(
                             padding: EdgeInsets.all(S.scale(context, 16)),
                             decoration: BoxDecoration(
-                              color: t.bgSurface3.withAlpha(50),
+                              color: t.bgSurface3.withValues(alpha: 50/255),
                               borderRadius: BorderRadius.circular(
                                 S.scale(context, 16),
                               ),
@@ -335,7 +335,7 @@ class BadgeGridSkeleton extends StatelessWidget {
     width: double.infinity,
     padding: EdgeInsets.all(S.scale(context, 20)),
     decoration: BoxDecoration(
-      color: t.bgSurface2,
+      color: t.bgSurface,
       borderRadius: BorderRadius.circular(S.scale(context, 24)),
       border: Border.all(
         color: t.textPrimary,
@@ -376,7 +376,7 @@ class BadgeGridSkeleton extends StatelessWidget {
                 ),
                 const Spacer(),
                 Container(
-                  width: S.scale(context, 40),
+                  width: S.scale(context, 50),
                   height: S.scale(context, 14),
                   decoration: BoxDecoration(
                     color: t.bgSurface3,
@@ -400,7 +400,7 @@ class BadgeGridSkeleton extends StatelessWidget {
                           vertical: S.scale(context, 6),
                         ),
                         decoration: BoxDecoration(
-                          color: t.bgSurface3.withAlpha(50),
+                          color: t.bgSurface3.withValues(alpha: 50/255),
                           borderRadius: BorderRadius.circular(
                             S.scale(context, 50),
                           ),
@@ -438,78 +438,123 @@ class BadgeGridSkeleton extends StatelessWidget {
           ),
         ),
         SizedBox(height: S.scale(context, 12)),
+        Container(
+          height: S.scale(context, 2),
+          decoration: BoxDecoration(
+            color: t.textPrimary.withValues(alpha: 80/255),
+          ),
+        ),
+        SizedBox(height: S.scale(context, 12)),
         LayoutBuilder(
           builder: (_, constraints) {
-            final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+            final crossAxisCount = constraints.maxWidth > 800
+                ? 5
+                : constraints.maxWidth > 600
+                ? 4
+                : constraints.maxWidth > 400
+                ? 3
+                : 2;
             final spacing = S.scale(context, 12);
-            final totalGutter = spacing * (crossAxisCount - 1);
-            final childWidth =
-                (constraints.maxWidth - totalGutter) / crossAxisCount;
-            return Wrap(
-              spacing: spacing,
-              runSpacing: spacing,
-              children: List.generate(
-                crossAxisCount,
-                (_) => SizedBox(
-                  width: childWidth,
-                  child:
-                      Container(
-                            padding: EdgeInsets.all(S.scale(context, 16)),
-                            decoration: BoxDecoration(
-                              color: t.bgSurface3.withAlpha(50),
-                              borderRadius: BorderRadius.circular(
-                                S.scale(context, 16),
-                              ),
-                              border: Border.all(
-                                color: t.textPrimary,
-                                width: S.scale(context, 2),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  width: S.scale(context, 56),
-                                  height: S.scale(context, 56),
-                                  decoration: BoxDecoration(
-                                    color: t.bgSurface3,
-                                    borderRadius: BorderRadius.circular(
-                                      S.scale(context, 16),
-                                    ),
-                                    border: Border.all(
-                                      color: t.textPrimary,
-                                      width: S.scale(context, 2),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: S.scale(context, 12)),
-                                Container(
-                                  width: S.scale(context, 60),
-                                  height: S.scale(context, 14),
-                                  decoration: BoxDecoration(
-                                    color: t.bgSurface3,
-                                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
-                                  ),
-                                ),
-                                SizedBox(height: S.scale(context, 4)),
-                                Container(
-                                  width: S.scale(context, 50),
-                                  height: S.scale(context, 11),
-                                  decoration: BoxDecoration(
-                                    color: t.bgSurface3,
-                                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat())
-                          .shimmer(duration: 1200.ms, color: t.bgSurface3),
-                ),
-              ),
+            final rowCount = 2;
+
+            return Column(
+              children: List.generate(rowCount, (rowIndex) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: rowIndex < rowCount - 1 ? spacing : 0,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (int i = 0; i < crossAxisCount; i++) ...[
+                          if (i > 0) SizedBox(width: spacing),
+                          Expanded(child: _buildSkeletonCard(t, context)),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              }),
             );
           },
         ),
       ],
     ),
   );
+
+  Widget _buildSkeletonCard(BloomTheme t, BuildContext context) =>
+      Container(
+            padding: EdgeInsets.all(S.scale(context, 16)),
+            decoration: BoxDecoration(
+              color: t.bgSurface3.withValues(alpha: 50/255),
+              borderRadius: BorderRadius.circular(S.scale(context, 16)),
+              border: Border.all(
+                color: t.textPrimary,
+                width: S.scale(context, 2),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: S.scale(context, 4)),
+                Container(
+                  width: S.scale(context, 56),
+                  height: S.scale(context, 56),
+                  decoration: BoxDecoration(
+                    color: t.bgSurface3,
+                    borderRadius: BorderRadius.circular(S.scale(context, 16)),
+                    border: Border.all(
+                      color: t.textPrimary,
+                      width: S.scale(context, 2),
+                    ),
+                  ),
+                ),
+                SizedBox(height: S.scale(context, 10)),
+                Container(
+                  height: S.scale(context, 36),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: t.bgSurface3,
+                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                  ),
+                ),
+                SizedBox(height: S.scale(context, 10)),
+                Container(
+                  height: S.scale(context, 20),
+                  width: S.scale(context, 60),
+                  decoration: BoxDecoration(
+                    color: t.bgSurface3,
+                    borderRadius: BorderRadius.circular(S.scale(context, 50)),
+                    border: Border.all(
+                      color: t.textPrimary.withValues(alpha: 50/255),
+                      width: S.scale(context, 1),
+                    ),
+                  ),
+                ),
+                SizedBox(height: S.scale(context, 10)),
+                Container(
+                  height: S.scale(context, 16),
+                  width: S.scale(context, 50),
+                  decoration: BoxDecoration(
+                    color: t.bgSurface3,
+                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                  ),
+                ),
+                SizedBox(height: S.scale(context, 10)),
+                Container(
+                  height: S.scale(context, 16),
+                  width: S.scale(context, 70),
+                  decoration: BoxDecoration(
+                    color: t.bgSurface3,
+                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                  ),
+                ),
+                const Spacer(),
+              ],
+            ),
+          )
+          .animate(onPlay: (c) => c.repeat())
+          .shimmer(duration: 1200.ms, color: t.bgSurface3);
 }

@@ -64,10 +64,9 @@ class BadgeModel {
   final String icon;
   final bool isEarned;
   final String? earnedAt;
-  final int? requiredValue;
+  final int rewardJewels;
   final String? conditionType;
   final String? conditionValue;
-  final int rewardJewels;
 
   const BadgeModel({
     required this.id,
@@ -77,10 +76,9 @@ class BadgeModel {
     required this.icon,
     required this.isEarned,
     this.earnedAt,
-    this.requiredValue,
+    this.rewardJewels = 0,
     this.conditionType,
     this.conditionValue,
-    this.rewardJewels = 0,
   });
 
   factory BadgeModel.fromJson(Map<String, dynamic> j) {
@@ -98,10 +96,9 @@ class BadgeModel {
           outer['badge'] != null ??
           false,
       earnedAt: outer['earned_at']?.toString() ?? outer['earnedAt']?.toString(),
-      requiredValue: badge['requiredValue'] as int?,
+      rewardJewels: (badge['reward_jewels'] ?? 0) as int,
       conditionType: badge['condition_type']?.toString(),
       conditionValue: badge['condition_value']?.toString(),
-      rewardJewels: (badge['reward_jewels'] ?? 0) as int,
     );
   }
 }
@@ -167,7 +164,6 @@ class LivesModel {
   final int current;
   final int max;
   final DateTime? lastLifeUpdate;
-  final int? regenTimeRemaining;
   final int? minutesUntilNextLife;
   final bool isUnlimited;
 
@@ -175,7 +171,6 @@ class LivesModel {
     required this.current,
     required this.max,
     this.lastLifeUpdate,
-    this.regenTimeRemaining,
     this.minutesUntilNextLife,
     this.isUnlimited = false,
   });
@@ -188,44 +183,8 @@ class LivesModel {
       lastLifeUpdate: d['lastLifeUpdate'] != null
           ? DateTime.tryParse(d['lastLifeUpdate'].toString())
           : null,
-      regenTimeRemaining: d['regenTimeRemaining'] as int?,
       minutesUntilNextLife: d['minutesUntilNextLife'] as int?,
       isUnlimited: (d['isUnlimited'] ?? false) as bool,
-    );
-  }
-}
-
-class LearningReportModel {
-  final int quizAttempts;
-  final int quizPassed;
-  final double averageScore;
-  final double bestScore;
-  final int lessonsCompleted;
-  final int coursesCompleted;
-
-  const LearningReportModel({
-    required this.quizAttempts,
-    required this.quizPassed,
-    required this.averageScore,
-    required this.bestScore,
-    required this.lessonsCompleted,
-    required this.coursesCompleted,
-  });
-
-  double get accuracy =>
-      quizAttempts > 0 ? (quizPassed / quizAttempts) * 100 : 0;
-
-  factory LearningReportModel.fromJson(Map<String, dynamic> j) {
-    final d = j['data'] ?? j;
-    return LearningReportModel(
-      quizAttempts: (d['quizAttempts'] ?? d['totalQuizAttempts'] ?? 0) as int,
-      quizPassed: (d['quizPassed'] ?? d['totalQuizPassed'] ?? 0) as int,
-      averageScore: (d['averageScore'] ?? d['avgScore'] ?? 0).toDouble(),
-      bestScore: (d['bestScore'] ?? d['highestScore'] ?? 0).toDouble(),
-      lessonsCompleted:
-          (d['lessonsCompleted'] ?? d['totalLessons'] ?? 0) as int,
-      coursesCompleted:
-          (d['coursesCompleted'] ?? d['totalCourses'] ?? 0) as int,
     );
   }
 }

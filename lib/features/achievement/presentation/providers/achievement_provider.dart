@@ -37,14 +37,6 @@ final streakProvider = FutureProvider<StreakModel>(
   (ref) => ref.read(achievementDsProvider).getStreak(),
 );
 
-final userBadgesProvider = FutureProvider<List<BadgeModel>>(
-  (ref) => ref.read(achievementDsProvider).getUserBadges(),
-);
-
-final allBadgesProvider = FutureProvider<List<BadgeModel>>(
-  (ref) => ref.read(achievementDsProvider).getAllBadges(),
-);
-
 final mergedBadgesProvider = FutureProvider<List<BadgeModel>>((ref) async {
   final ds = ref.read(achievementDsProvider);
   final [allBadges, userBadges] = await Future.wait([
@@ -64,10 +56,9 @@ final mergedBadgesProvider = FutureProvider<List<BadgeModel>>((ref) async {
       icon: badge.icon,
       isEarned: earnedIds.contains(badge.id),
       earnedAt: earned?.earnedAt,
-      requiredValue: badge.requiredValue,
+      rewardJewels: badge.rewardJewels,
       conditionType: badge.conditionType,
       conditionValue: badge.conditionValue,
-      rewardJewels: badge.rewardJewels,
     );
   }).toList();
 });
