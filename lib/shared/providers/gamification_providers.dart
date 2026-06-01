@@ -13,7 +13,7 @@ void invalidateGamificationProviders(
 }) {
   if (!skip.contains('xp')) ref.invalidate(xpProvider);
   if (!skip.contains('streak')) ref.invalidate(streakProvider);
-  if (!skip.contains('badges')) ref.invalidate(userBadgesProvider);
+  if (!skip.contains('badges')) ref.invalidate(mergedBadgesProvider);
   if (!skip.contains('lives')) ref.invalidate(livesProvider);
   if (!skip.contains('profile')) ref.invalidate(profileProvider);
   if (!skip.contains('jewel')) ref.invalidate(jewelBalanceProvider);

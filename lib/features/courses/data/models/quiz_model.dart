@@ -194,7 +194,7 @@ class QuizResultModel {
     final d = j['data'] ?? j;
     return QuizResultModel(
       score          : (d['score'] ?? d['total_score'] ?? 0) as int,
-      totalPoints    : (d['total_points'] ?? d['totalPoints'] ?? 100) as int,
+      totalPoints    : (d['total_points'] ?? d['totalPoints'] ?? d['max_possible_score'] ?? 100) as int,
       percentage     : (d['percentage'] ?? d['percentage_score'] ?? d['score'] ?? 0).toDouble(),
       passed         : d['passed'] ?? d['is_passed'] ?? d['isPassed'] ?? false,
       xpEarned       : (d['xp_earned'] ?? d['xpEarned'] ?? d['xp'] ?? d['earned_xp'] ?? 0) as int,
