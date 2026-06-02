@@ -85,7 +85,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                       padding: EdgeInsets.all(S.scale(context, 24)),
                       decoration: BoxDecoration(
                         color: t.primary,
-                        borderRadius: BorderRadius.circular(S.scale(context, 24)),
+                        borderRadius: BorderRadius.circular(
+                          S.scale(context, 24),
+                        ),
                         border: Border.all(
                           color: t.textPrimary,
                           width: S.scale(context, 2),
@@ -146,10 +148,13 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: t.primaryContent.withValues(alpha: 0.15),
-                                borderRadius:
-                                    BorderRadius.circular(S.scale(context, 16)),
+                                borderRadius: BorderRadius.circular(
+                                  S.scale(context, 16),
+                                ),
                                 border: Border.all(
-                                  color: t.primaryContent.withValues(alpha: 0.5),
+                                  color: t.primaryContent.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                               child: Row(
@@ -170,7 +175,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                                       color: t.primaryContent.withValues(
                                         alpha: 0.3,
                                       ),
-                                      borderRadius: BorderRadius.circular(S.scale(context, 6)),
+                                      borderRadius: BorderRadius.circular(
+                                        S.scale(context, 6),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -183,10 +190,13 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: t.primaryContent.withValues(alpha: 0.15),
-                                borderRadius:
-                                    BorderRadius.circular(S.scale(context, 16)),
+                                borderRadius: BorderRadius.circular(
+                                  S.scale(context, 16),
+                                ),
                                 border: Border.all(
-                                  color: t.primaryContent.withValues(alpha: 0.5),
+                                  color: t.primaryContent.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                               child: Row(
@@ -218,10 +228,13 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: t.primaryContent.withValues(alpha: 0.15),
-                                borderRadius:
-                                    BorderRadius.circular(S.scale(context, 16)),
+                                borderRadius: BorderRadius.circular(
+                                  S.scale(context, 16),
+                                ),
                                 border: Border.all(
-                                  color: t.primaryContent.withValues(alpha: 0.5),
+                                  color: t.primaryContent.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                               child: Row(

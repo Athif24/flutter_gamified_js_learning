@@ -52,17 +52,11 @@ class MysteryBoxCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(S.scale(context, 18)),
-        border: Border.all(
-          color: t.textPrimary,
-          width: S.scale(context, 2),
-        ),
+        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
         boxShadow: [
           BoxShadow(
             color: t.textPrimary,
-            offset: Offset(
-              S.scale(context, 3),
-              S.scale(context, 3),
-            ),
+            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
             blurRadius: 0,
           ),
         ],
@@ -146,7 +140,8 @@ class MysteryBoxCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: t.bgSurface.withValues(alpha: 0.8),
                                   borderRadius: BorderRadius.circular(
-                                      S.scale(context, 10)),
+                                    S.scale(context, 10),
+                                  ),
                                   border: Border.all(
                                     color: t.textPrimary,
                                     width: S.scale(context, 1.5),
@@ -159,20 +154,22 @@ class MysteryBoxCard extends StatelessWidget {
                                           width: S.scale(context, 24),
                                           height: S.scale(context, 24),
                                           fit: BoxFit.contain,
-                                          placeholder: (_, __) => ExcludeSemantics(
-                                            child: Icon(
-                                              Icons.card_giftcard,
-                                              size: S.scale(context, 24),
-                                              color: t.mutedText,
-                                            ),
-                                          ),
-                                          errorWidget: (_, __, ___) => ExcludeSemantics(
-                                            child: Icon(
-                                              Icons.card_giftcard,
-                                              size: S.scale(context, 24),
-                                              color: t.mutedText,
-                                            ),
-                                          ),
+                                          placeholder: (_, __) =>
+                                              ExcludeSemantics(
+                                                child: Icon(
+                                                  Icons.card_giftcard,
+                                                  size: S.scale(context, 24),
+                                                  color: t.mutedText,
+                                                ),
+                                              ),
+                                          errorWidget: (_, __, ___) =>
+                                              ExcludeSemantics(
+                                                child: Icon(
+                                                  Icons.card_giftcard,
+                                                  size: S.scale(context, 24),
+                                                  color: t.mutedText,
+                                                ),
+                                              ),
                                         )
                                       : SizedBox(
                                           width: S.scale(context, 24),
@@ -218,8 +215,9 @@ class MysteryBoxCard extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: t.bgSurface.withValues(alpha: 0.3),
-                                borderRadius:
-                                    BorderRadius.circular(S.scale(context, 5)),
+                                borderRadius: BorderRadius.circular(
+                                  S.scale(context, 5),
+                                ),
                                 border: Border.all(
                                   color: t.textPrimary.withValues(alpha: 0.35),
                                 ),
@@ -302,7 +300,8 @@ class MysteryBoxCard extends StatelessWidget {
                                     ? color.withValues(alpha: 0.15)
                                     : t.bgSurface2,
                                 borderRadius: BorderRadius.circular(
-                                    S.scale(context, 4)),
+                                  S.scale(context, 4),
+                                ),
                                 border: Border.all(
                                   color: color != null
                                       ? color.withValues(alpha: 0.35)
@@ -422,7 +421,7 @@ class _BuyButton extends StatelessWidget {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                    Icon(
+                  Icon(
                     Icons.card_giftcard,
                     size: S.scale(context, 14),
                     color: canAfford ? t.primaryContent : t.mutedText,
