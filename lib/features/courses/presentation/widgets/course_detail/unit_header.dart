@@ -23,7 +23,10 @@ class UnitHeader extends StatelessWidget {
           const Expanded(child: SizedBox()),
           Expanded(
             flex: 3,
-            child: Divider(color: t.border.withValues(alpha: 0.15)),
+            child: Divider(
+              height: S.scale(context, 16),
+              color: t.border.withValues(alpha: 0.15),
+            ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12)),
@@ -34,7 +37,10 @@ class UnitHeader extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                border: Border.all(width: S.scale(context, 2), color: t.textPrimary),
+                border: Border.all(
+                  width: S.scale(context, 2),
+                  color: t.textPrimary,
+                ),
                 color: t.bgSurface2,
                 boxShadow: [
                   BoxShadow(
@@ -58,7 +64,10 @@ class UnitHeader extends StatelessWidget {
           ),
           Expanded(
             flex: 3,
-            child: Divider(color: t.border.withValues(alpha: 0.15)),
+            child: Divider(
+              height: S.scale(context, 16),
+              color: t.border.withValues(alpha: 0.15),
+            ),
           ),
           const Expanded(child: SizedBox()),
         ],

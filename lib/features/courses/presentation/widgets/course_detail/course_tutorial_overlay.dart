@@ -117,17 +117,21 @@ class _CourseTutorialOverlayState extends State<CourseTutorialOverlay> {
 
             if (_current.circleHighlight) {
               final center = Offset(
-                pos.dx + s.width / 2 + (_current.circleOffset?.dx ?? 0),
-                pos.dy + s.height / 2 + (_current.circleOffset?.dy ?? 0),
+                pos.dx +
+                    s.width / 2 +
+                    S.scale(context, _current.circleOffset?.dx ?? 0),
+                pos.dy +
+                    s.height / 2 +
+                    S.scale(context, _current.circleOffset?.dy ?? 0),
               );
               final radius = _current.circleRadius != null
                   ? S.scale(context, _current.circleRadius!)
                   : s.shortestSide / 2 + padding;
               targetRect = Rect.fromCircle(center: center, radius: radius);
             } else {
-              final il = _current.insetLeft ?? 0;
-              final ir = _current.insetRight ?? 0;
-              final ib = _current.insetBottom ?? 0;
+              final il = S.scale(context, _current.insetLeft ?? 0);
+              final ir = S.scale(context, _current.insetRight ?? 0);
+              final ib = S.scale(context, _current.insetBottom ?? 0);
               targetRect = Rect.fromLTWH(
                 pos.dx + il,
                 pos.dy - padding,
@@ -157,11 +161,12 @@ class _CourseTutorialOverlayState extends State<CourseTutorialOverlay> {
         );
       }
       if (_current.extendToTop > 0) {
+        final et = S.scale(context, _current.extendToTop);
         targetRect = Rect.fromLTWH(
           targetRect.left,
-          targetRect.top - _current.extendToTop,
+          targetRect.top - et,
           targetRect.width,
-          targetRect.height + _current.extendToTop,
+          targetRect.height + et,
         );
       }
     }
@@ -253,14 +258,13 @@ class _CourseTutorialOverlayState extends State<CourseTutorialOverlay> {
       );
     }
 
-    return Stack(children: [
-      widget.child,
-      if (_step == 0 || _step == 1 || _step == 3)
-        IgnorePointer(child: overlay)
-      else
+    return Stack(
+      children: [
+        IgnorePointer(ignoring: _step > 0, child: widget.child),
         overlay,
-      tooltip,
-    ]);
+        tooltip,
+      ],
+    );
   }
 }
 
@@ -279,22 +283,25 @@ class _CourseSpotlightClipper extends CustomClipper<Path> {
     final full = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
     final hole = Path();
     if (circle) {
-      hole.addOval(Rect.fromCircle(
-        center: targetRect.center,
-        radius: targetRect.shortestSide / 2,
-      ));
+      hole.addOval(
+        Rect.fromCircle(
+          center: targetRect.center,
+          radius: targetRect.shortestSide / 2,
+        ),
+      );
     } else {
-      hole.addRRect(RRect.fromRectAndRadius(
-        targetRect,
-        Radius.circular(radius),
-      ));
+      hole.addRRect(
+        RRect.fromRectAndRadius(targetRect, Radius.circular(radius)),
+      );
     }
     return Path.combine(PathOperation.difference, full, hole);
   }
 
   @override
   bool shouldReclip(covariant _CourseSpotlightClipper old) =>
-      old.targetRect != targetRect || old.circle != circle || old.radius != radius;
+      old.targetRect != targetRect ||
+      old.circle != circle ||
+      old.radius != radius;
 }
 
 class _CourseTooltipCard extends StatelessWidget {
@@ -317,6 +324,50 @@ class _CourseTooltipCard extends StatelessWidget {
     required this.onNext,
     required this.onFinish,
   });
+
+  TextSpan _buildStyledText(String text) {
+    final spans = <TextSpan>[];
+    final boldRegex = RegExp(r'\*\*(.*?)\*\*');
+    final italicRegex = RegExp(r'\*(.*?)\*');
+    int last = 0;
+    for (final m in boldRegex.allMatches(text)) {
+      if (m.start > last) {
+        spans.addAll(_parseItalic(text.substring(last, m.start), italicRegex));
+      }
+      spans.add(
+        TextSpan(
+          text: m.group(1),
+          style: const TextStyle(fontWeight: FontWeight.w900),
+        ),
+      );
+      last = m.end;
+    }
+    if (last < text.length) {
+      spans.addAll(_parseItalic(text.substring(last), italicRegex));
+    }
+    return TextSpan(children: spans);
+  }
+
+  List<TextSpan> _parseItalic(String text, RegExp regex) {
+    final spans = <TextSpan>[];
+    int last = 0;
+    for (final m in regex.allMatches(text)) {
+      if (m.start > last) {
+        spans.add(TextSpan(text: text.substring(last, m.start)));
+      }
+      spans.add(
+        TextSpan(
+          text: m.group(1),
+          style: const TextStyle(fontStyle: FontStyle.italic),
+        ),
+      );
+      last = m.end;
+    }
+    if (last < text.length) {
+      spans.add(TextSpan(text: text.substring(last)));
+    }
+    return spans;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -341,7 +392,10 @@ class _CourseTooltipCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 3)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: S.scale(context, 8),
+                  vertical: S.scale(context, 3),
+                ),
                 decoration: BoxDecoration(
                   color: t.primary,
                   borderRadius: BorderRadius.circular(S.scale(context, 6)),
@@ -372,8 +426,8 @@ class _CourseTooltipCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: S.scale(context, 10)),
-          Text(
-            description,
+          Text.rich(
+            _buildStyledText(description),
             style: GoogleFonts.nunito(
               fontSize: S.font(context, 13),
               color: t.mutedText,

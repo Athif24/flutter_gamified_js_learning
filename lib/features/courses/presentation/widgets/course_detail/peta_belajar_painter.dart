@@ -14,10 +14,10 @@ class PetaBelajarPainter extends CustomPainter {
   PetaBelajarPainter({
     required this.positions,
     required this.t,
-    this.strokeWidth = 4,
-    this.dashWidth = 10,
-    this.dashSpace = 8,
-    this.curveOffset = 40,
+    required this.strokeWidth,
+    required this.dashWidth,
+    required this.dashSpace,
+    required this.curveOffset,
   });
 
   @override
