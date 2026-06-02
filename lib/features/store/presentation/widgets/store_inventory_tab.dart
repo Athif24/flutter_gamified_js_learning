@@ -142,7 +142,12 @@ class _StoreInventoryTabState extends ConsumerState<StoreInventoryTab> {
       children: [
         invAsync.when(
           loading: () => StoreSkeleton(t: t, tabId: 1),
-          error: (_, __) => ErrorBody(t: t, title: AppStrings.errLoadInventory),
+          error: (e, _) => ErrorBody(
+            t: t,
+            title: AppStrings.errLoadInventory,
+            message: sanitizeErrorMessage(e),
+            onRetry: () => ref.invalidate(inventoryProvider),
+          ),
           data: (items) {
             final sorted = List<InventoryItem>.from(items)
               ..sort((a, b) {

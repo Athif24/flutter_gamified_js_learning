@@ -6,6 +6,8 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/number_formatter.dart';
+import '../../../../core/utils/error_helper.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../data/models/store_model.dart';
 import '../providers/store_provider.dart';
 import '../widgets/store_skeleton.dart';
@@ -120,7 +122,12 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
           Expanded(
             child: histAsync.when(
               loading: () => StoreSkeleton(t: t, tabId: 2),
-              error: (_, __) => ErrorBody(t: t, title: 'Belum ada riwayat'),
+              error: (e, _) => ErrorBody(
+                t: t,
+                title: AppStrings.errLoadJewelHistory,
+                message: sanitizeErrorMessage(e),
+                onRetry: () => ref.invalidate(jewelHistoryProvider),
+              ),
               data: (list) {
                 if (list.isEmpty) {
                   return StoreEmptyState(
@@ -217,12 +224,15 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
                           return DataRow(
                             cells: [
                               DataCell(
-                                Text(
-                                  formatDate(tx.createdAt),
-                                  style: GoogleFonts.nunito(
-                                    color: t.textPrimary,
-                                    fontSize: S.scale(context, 12),
-                                    fontWeight: FontWeight.w600,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    formatDate(tx.createdAt),
+                                    style: GoogleFonts.nunito(
+                                      color: t.textPrimary,
+                                      fontSize: S.scale(context, 12),
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -241,27 +251,33 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
                                       S.scale(context, 4),
                                     ),
                                   ),
-                                  child: Text(
-                                    jewelSourceLabels[tx.source] ?? tx.source,
-                                    style: GoogleFonts.nunito(
-                                      color:
-                                          _sourceBadgeColors[tx.source] ??
-                                          t.mutedText,
-                                      fontSize: S.scale(context, 11),
-                                      fontWeight: FontWeight.w800,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      jewelSourceLabels[tx.source] ?? tx.source,
+                                      style: GoogleFonts.nunito(
+                                        color:
+                                            _sourceBadgeColors[tx.source] ??
+                                            t.mutedText,
+                                        fontSize: S.scale(context, 11),
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                               DataCell(
-                                Text(
-                                  '${isEarn ? '+' : ''}${formatNumber(tx.amount)}',
-                                  style: GoogleFonts.nunito(
-                                    color: isEarn ? t.success : t.error,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: S.scale(context, 13),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    '${isEarn ? '+' : ''}${formatNumber(tx.amount)}',
+                                    style: GoogleFonts.nunito(
+                                      color: isEarn ? t.success : t.error,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: S.scale(context, 13),
+                                    ),
+                                    textAlign: TextAlign.right,
                                   ),
-                                  textAlign: TextAlign.right,
                                 ),
                               ),
                               DataCell(
@@ -277,12 +293,15 @@ class _StoreHistoryTabState extends ConsumerState<StoreHistoryTab> {
                                       ),
                                     ),
                                     SizedBox(width: S.scale(context, 4)),
-                                    Text(
-                                      formatNumber(tx.balanceAfter ?? 0),
-                                      style: GoogleFonts.nunito(
-                                        color: t.textPrimary,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: S.scale(context, 13),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        formatNumber(tx.balanceAfter ?? 0),
+                                        style: GoogleFonts.nunito(
+                                          color: t.textPrimary,
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: S.scale(context, 13),
+                                        ),
                                       ),
                                     ),
                                   ],

@@ -410,9 +410,9 @@ class _BuyButton extends StatelessWidget {
           : 'Saldo Tidak Cukup',
       child: Game3DButton(
         label: isLoading ? '' : 'Beli',
-        color: canAfford ? t.primary : t.bgSurface2,
+        color: t.primary,
         shadowColor: t.textPrimary,
-        textColor: canAfford ? t.primaryContent : t.mutedText,
+        textColor: t.primaryContent,
         horizontalPadding: S.scale(context, 14),
         verticalPadding: S.scale(context, 6),
         isLoading: isLoading,
@@ -431,7 +431,7 @@ class _BuyButton extends StatelessWidget {
                   Text(
                     'Beli',
                     style: GoogleFonts.nunito(
-                      color: canAfford ? t.primaryContent : t.mutedText,
+                      color: t.primaryContent,
                       fontWeight: FontWeight.w800,
                       fontSize: S.scale(context, 12),
                     ),
