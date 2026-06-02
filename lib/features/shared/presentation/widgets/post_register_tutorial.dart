@@ -36,6 +36,14 @@ class PostRegisterTutorial extends StatefulWidget {
 class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
   int _step = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
   TutorialStep get _current => widget.steps[_step];
   bool get _isLast => _step == widget.steps.length - 1;
   bool get _noTarget => _current.targetKey == null;
@@ -57,8 +65,7 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
 
     final t = widget.theme;
     final size = MediaQuery.of(context).size;
-    Offset? center;
-    double radius = 0;
+    Rect? targetRect;
 
     if (!_noTarget) {
       final ctx = _current.targetKey!.currentContext;
@@ -70,8 +77,13 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
               renderObj.attached) {
             final pos = renderObj.localToGlobal(Offset.zero);
             final s = renderObj.size;
-            center = Offset(pos.dx + s.width / 2, pos.dy + s.height / 2);
-            radius = (s.width > s.height ? s.width : s.height) / 2 + 28;
+            final padding = S.scale(context, 2);
+            targetRect = Rect.fromLTWH(
+              pos.dx - padding,
+              pos.dy - padding,
+              s.width + padding * 2,
+              s.height + padding * 2,
+            );
           }
         } catch (e) {
           if (!kReleaseMode) debugPrint('[PostRegisterTutorial] findRenderObject error: $e');
@@ -79,13 +91,13 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
       }
     }
 
-    final hasTarget = center != null;
-    final tooltipAbove = hasTarget && center.dy > size.height * 0.55;
+    final hasTarget = targetRect != null;
+    final tooltipAbove = hasTarget && targetRect.center.dy > size.height * 0.55;
 
     Widget overlay;
     if (hasTarget) {
       overlay = ClipPath(
-        clipper: _SpotlightClipper(center: center, radius: radius),
+        clipper: _SpotlightClipper(targetRect: targetRect),
         child: Container(color: t.textPrimary.withValues(alpha: 0.6)),
       );
     } else {
@@ -97,7 +109,7 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
       tooltip = Positioned(
         left: S.scale(context, 16),
         right: S.scale(context, 16),
-        bottom: size.height - center.dy + radius + S.scale(context, 12),
+        bottom: size.height - targetRect.top + S.scale(context, 12),
         child: _TooltipCard(
           t: t,
           step: _step,
@@ -113,7 +125,7 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
       tooltip = Positioned(
         left: S.scale(context, 16),
         right: S.scale(context, 16),
-        top: center.dy + radius + S.scale(context, 12),
+        top: targetRect.bottom + S.scale(context, 12),
         child: _TooltipCard(
           t: t,
           step: _step,
@@ -148,21 +160,23 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
 }
 
 class _SpotlightClipper extends CustomClipper<Path> {
-  final Offset center;
-  final double radius;
-  const _SpotlightClipper({required this.center, required this.radius});
+  final Rect targetRect;
+  const _SpotlightClipper({required this.targetRect});
 
   @override
   Path getClip(Size size) {
     final full = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
     final hole = Path()
-      ..addOval(Rect.fromCircle(center: center, radius: radius));
+      ..addRRect(RRect.fromRectAndRadius(
+        targetRect,
+        const Radius.circular(12),
+      ));
     return Path.combine(PathOperation.difference, full, hole);
   }
 
   @override
   bool shouldReclip(covariant _SpotlightClipper old) =>
-      old.center != center || old.radius != radius;
+      old.targetRect != targetRect;
 }
 
 class _TooltipCard extends StatelessWidget {
