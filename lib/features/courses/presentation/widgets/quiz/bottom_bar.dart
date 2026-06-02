@@ -20,9 +20,14 @@ class BottomBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ans = quiz.answers[quiz.current?.id];
-    final hasAns = quiz.current != null &&
+    final hasAns =
+        quiz.current != null &&
         ans != null &&
-        (ans is List ? ans.isNotEmpty : ans is String ? ans.isNotEmpty : true);
+        (ans is List
+            ? ans.isNotEmpty
+            : ans is String
+            ? ans.isNotEmpty
+            : true);
     final isLast = quiz.isLast;
     final popupShowing = quiz.lastAnswerResult != null;
 
@@ -40,34 +45,8 @@ class BottomBar extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Semantics(
-              button: true,
-              label: 'Lewati',
-              child: Game3DButton(
-                label: 'LEWATI',
-                color: t.bgSurface2,
-                shadowColor: t.textPrimary,
-                textColor: t.mutedText,
-                onTap:
-                    popupShowing || quiz.isSubmitting || quiz.isSubmittingAnswer
-                    ? null
-                    : () async {
-                        if (isLast) {
-                          if (hasAns) {
-                            await ref
-                                .read(quizProvider.notifier)
-                                .submitCurrentAnswer();
-                          }
-                          ref.read(quizProvider.notifier).submit(quizId);
-                        } else {
-                          ref.read(quizProvider.notifier).next();
-                        }
-                      },
-              ),
-            ),
-            SizedBox(width: S.scale(context, 12)),
-            const Spacer(),
             Semantics(
               button: true,
               label: isLast ? 'Selesai' : 'Periksa',

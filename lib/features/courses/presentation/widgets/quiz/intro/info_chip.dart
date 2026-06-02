@@ -21,7 +21,7 @@ class InfoChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.bgSurface2,
         borderRadius: BorderRadius.circular(S.scale(context, 50)),
-        border: Border.all(color: t.border),
+        border: Border.all(color: t.border, width: S.scale(context, 1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

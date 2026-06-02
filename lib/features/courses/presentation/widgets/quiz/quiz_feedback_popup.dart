@@ -78,7 +78,8 @@ class QuizFeedbackPopup extends StatelessWidget {
     if (correctAnswer == null) return '';
     if (correctAnswer is String) return correctAnswer;
     if (correctAnswer is List) return correctAnswer.join(', ');
-    if (correctAnswer is Map) return correctAnswer['text']?.toString() ?? correctAnswer.toString();
+    if (correctAnswer is Map)
+      return correctAnswer['text']?.toString() ?? correctAnswer.toString();
     return correctAnswer.toString();
   }
 
@@ -111,7 +112,12 @@ class QuizFeedbackPopup extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border(top: BorderSide(color: t.border.withValues(alpha: 0.4))),
+        border: Border(
+          top: BorderSide(
+            width: S.scale(context, 1),
+            color: t.border.withValues(alpha: 0.4),
+          ),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -235,7 +241,10 @@ class QuizFeedbackPopup extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(S.scale(context, 50)),
-        border: Border.all(color: t.warning.withValues(alpha: 0.3)),
+        border: Border.all(
+          width: S.scale(context, 1),
+          color: t.warning.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

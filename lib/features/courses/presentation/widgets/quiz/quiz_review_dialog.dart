@@ -22,7 +22,9 @@ class ReviewDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => Dialog(
     backgroundColor: t.bgSurface,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(S.scale(context, 24))),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(S.scale(context, 24)),
+    ),
     child: Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -65,7 +67,8 @@ class ReviewDialog extends ConsumerWidget {
             child: ListView.separated(
               shrinkWrap: true,
               itemCount: questionResults.length,
-              separatorBuilder: (_, __) => SizedBox(height: S.scale(context, 8)),
+              separatorBuilder: (_, __) =>
+                  SizedBox(height: S.scale(context, 8)),
               itemBuilder: (_, i) {
                 final qr = questionResults[i];
                 final q = questions.firstWhere(
@@ -85,6 +88,7 @@ class ReviewDialog extends ConsumerWidget {
                         : t.error.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(S.scale(context, 14)),
                     border: Border.all(
+                      width: S.scale(context, 1),
                       color: qr.isCorrect
                           ? t.success.withValues(alpha: 0.3)
                           : t.error.withValues(alpha: 0.3),

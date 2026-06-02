@@ -186,7 +186,10 @@ class IntroBodyState extends State<IntroBody> {
               height: S.scale(context, 80),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: t.primary, width: S.scale(context, 4)),
+                border: Border.all(
+                  color: t.primary,
+                  width: S.scale(context, 4),
+                ),
                 color: t.primary.withValues(alpha: 0.1),
               ),
               child: Icon(
@@ -220,6 +223,7 @@ class IntroBodyState extends State<IntroBody> {
                 color: _difficultyColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(S.scale(context, 50)),
                 border: Border.all(
+                  width: S.scale(context, 1),
                   color: _difficultyColor.withValues(alpha: 0.4),
                 ),
               ),
@@ -351,6 +355,7 @@ class IntroBodyState extends State<IntroBody> {
                   : t.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(
+                width: S.scale(context, 1),
                 color: myResult.isPassed
                     ? t.success.withValues(alpha: 0.4)
                     : t.error.withValues(alpha: 0.4),

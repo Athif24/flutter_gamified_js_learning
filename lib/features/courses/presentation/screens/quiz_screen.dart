@@ -99,7 +99,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           decoration: BoxDecoration(
             color: t.bgSurface2,
             shape: BoxShape.circle,
-            border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
+            border: Border.all(
+              color: t.textPrimary,
+              width: S.scale(context, 2),
+            ),
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
@@ -224,7 +227,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             badges: result.badgesAwarded,
             courseId: widget.courseId,
             quizId: widget.quizId,
-            onContinue: () { if (mounted) setState(() => _showCelebration = false); },
+            onContinue: () {
+              if (mounted) setState(() => _showCelebration = false);
+            },
           ),
         );
       }
@@ -337,7 +342,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         decoration: BoxDecoration(
                           color: t.bgSurface2,
                           shape: BoxShape.circle,
-                          border: Border.all(color: t.border),
+                          border: Border.all(
+                            width: S.scale(context, 1),
+                            color: t.border,
+                          ),
                         ),
                         child: Icon(
                           Icons.close_rounded,
@@ -418,11 +426,17 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: t.bgSurface3,
-                        borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                        border: Border.all(color: t.border),
+                        borderRadius: BorderRadius.circular(
+                          S.scale(context, 50),
+                        ),
+                        border: Border.all(
+                          width: S.scale(context, 1),
+                          color: t.border,
+                        ),
                       ),
                       child: Semantics(
-                        label: 'Nyawa ${livesAsync.asData!.value.current} dari ${livesAsync.asData!.value.max}',
+                        label:
+                            'Nyawa ${livesAsync.asData!.value.current} dari ${livesAsync.asData!.value.max}',
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
