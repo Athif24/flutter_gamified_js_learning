@@ -21,12 +21,14 @@ class PostRegisterTutorial extends StatefulWidget {
   final BloomTheme theme;
   final Widget child;
   final VoidCallback? onComplete;
+  final ValueChanged<int>? onStepChanged;
   const PostRegisterTutorial({
     super.key,
     required this.steps,
     required this.theme,
     required this.child,
     this.onComplete,
+    this.onStepChanged,
   });
 
   @override
@@ -51,6 +53,7 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
   void _next() {
     if (_isLast) return;
     setState(() => _step++);
+    widget.onStepChanged?.call(_step);
   }
 
   void _finish() {
@@ -86,7 +89,8 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
             );
           }
         } catch (e) {
-          if (!kReleaseMode) debugPrint('[PostRegisterTutorial] findRenderObject error: $e');
+          if (!kReleaseMode)
+            debugPrint('[PostRegisterTutorial] findRenderObject error: $e');
         }
       }
     }
@@ -110,37 +114,8 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
         left: S.scale(context, 16),
         right: S.scale(context, 16),
         bottom: size.height - targetRect.top + S.scale(context, 12),
-        child: _TooltipCard(
-          t: t,
-          step: _step,
-          total: widget.steps.length,
-          title: _current.title,
-          description: _current.description,
-          isLast: _isLast,
-          onNext: _next,
-          onFinish: _finish,
-        ),
-      );
-    } else if (hasTarget) {
-      tooltip = Positioned(
-        left: S.scale(context, 16),
-        right: S.scale(context, 16),
-        top: targetRect.bottom + S.scale(context, 12),
-        child: _TooltipCard(
-          t: t,
-          step: _step,
-          total: widget.steps.length,
-          title: _current.title,
-          description: _current.description,
-          isLast: _isLast,
-          onNext: _next,
-          onFinish: _finish,
-        ),
-      );
-    } else {
-      tooltip = Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
+        child: Material(
+          type: MaterialType.transparency,
           child: _TooltipCard(
             t: t,
             step: _step,
@@ -150,6 +125,44 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
             isLast: _isLast,
             onNext: _next,
             onFinish: _finish,
+          ),
+        ),
+      );
+    } else if (hasTarget) {
+      tooltip = Positioned(
+        left: S.scale(context, 16),
+        right: S.scale(context, 16),
+        top: targetRect.bottom + S.scale(context, 12),
+        child: Material(
+          type: MaterialType.transparency,
+          child: _TooltipCard(
+            t: t,
+            step: _step,
+            total: widget.steps.length,
+            title: _current.title,
+            description: _current.description,
+            isLast: _isLast,
+            onNext: _next,
+            onFinish: _finish,
+          ),
+        ),
+      );
+    } else {
+      tooltip = Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: S.scale(context, 24)),
+          child: Material(
+            type: MaterialType.transparency,
+            child: _TooltipCard(
+              t: t,
+              step: _step,
+              total: widget.steps.length,
+              title: _current.title,
+              description: _current.description,
+              isLast: _isLast,
+              onNext: _next,
+              onFinish: _finish,
+            ),
           ),
         ),
       );
@@ -167,10 +180,9 @@ class _SpotlightClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final full = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
     final hole = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        targetRect,
-        const Radius.circular(12),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(targetRect, const Radius.circular(12)),
+      );
     return Path.combine(PathOperation.difference, full, hole);
   }
 
@@ -223,7 +235,10 @@ class _TooltipCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: S.scale(context, 8), vertical: S.scale(context, 3)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: S.scale(context, 8),
+                  vertical: S.scale(context, 3),
+                ),
                 decoration: BoxDecoration(
                   color: t.primary,
                   borderRadius: BorderRadius.circular(S.scale(context, 6)),

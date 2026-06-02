@@ -177,6 +177,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> completeOnboarding() async {
     await _ds.completeOnboarding();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingSPKey, true);
     if (state.user != null) {
       state = state.copyWith(
         user: state.user!.copyWith(onboardingCompleted: true),

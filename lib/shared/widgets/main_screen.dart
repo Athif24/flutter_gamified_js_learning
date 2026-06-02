@@ -106,46 +106,48 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     return PostRegisterTutorial(
       theme: t,
+      onStepChanged: (step) {
+        ref.read(navIndexProvider.notifier).state = step;
+      },
       onComplete: () {
-        ref.read(authProvider.notifier).completeOnboarding().catchError(
-          (e) => debugPrint('[MainScreen] completeOnboarding error: $e'),
-        );
+        ref
+            .read(authProvider.notifier)
+            .completeOnboarding()
+            .catchError(
+              (e) => debugPrint('[MainScreen] completeOnboarding error: $e'),
+            );
+        ref.read(navIndexProvider.notifier).state = 0;
       },
       steps: [
         TutorialStep(
           targetKey: _navKeys[0],
           title: 'Halaman Utama — Courses',
           description:
-              'Jelajahi semua kursus JavaScript yang tersedia di sini. Pilih kursus yang ingin kamu pelajari dan mulai perjalanan belajarmu!',
+              'Jelajahi kursus JavaScript yang tersedia. Pilih kursus dan mulai perjalanan belajarmu!',
         ),
         TutorialStep(
           targetKey: _navKeys[1],
           title: 'Achievement',
           description:
-              'Pantau XP, streak harian, dan badge prestasimu. Semakin rajin belajar, semakin banyak pencapaian yang bisa kamu raih!',
+              'Pantau XP, streak, dan badge prestasimu. Semakin rajin belajar, semakin banyak pencapaianmu!',
         ),
         TutorialStep(
           targetKey: _navKeys[2],
           title: 'Leaderboard',
           description:
-              'Lihat peringkat dan bersaing dengan developer lain. Siapa tahu kamu bisa menjadi yang teratas!',
+              'Lihat peringkat dan bersaing dengan developer lain. Bisa jadi kamu yang teratas!',
         ),
         TutorialStep(
           targetKey: _navKeys[3],
           title: 'Store',
           description:
-              'Tukarkan jewel-mu dengan item-item keren dari store. Lengkapi koleksimu dan tampil beda dari yang lain!',
+              'Tukarkan jewel dengan item keren dari store. Lengkapi koleksimu dan tampil beda!',
         ),
         TutorialStep(
           targetKey: _navKeys[4],
           title: 'Profile',
           description:
-              'Atur profil, avatar, dan pengaturan akunmu di sini. Pastikan data kamu selalu terbarui!',
-        ),
-        TutorialStep(
-          title: 'Mulai Belajar & Raih Prestasi!',
-          description:
-              'Tap salah satu kursus untuk mulai belajar. Kuasai materi, kerjakan quiz seru, kumpulkan XP, dan raih prestasi terbaikmu di Bloom! \u{1F680}',
+              'Atur profil, avatar, dan pengaturan akun di sini. Pastikan data selalu terbarui!',
         ),
       ],
       child: scaffold,
@@ -200,49 +202,51 @@ class _BottomNav extends ConsumerWidget {
                   button: true,
                   container: true,
                   child: Bounceable(
-                  key: navKeys[i],
-                  onTap: () {
-                    ref.read(soundProvider).playClick();
-                    ref.read(navIndexProvider.notifier).state = i;
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: S.scale(context, 12),
-                          vertical: S.scale(context, 4),
+                    key: navKeys[i],
+                    onTap: () {
+                      ref.read(soundProvider).playClick();
+                      ref.read(navIndexProvider.notifier).state = i;
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: S.scale(context, 12),
+                            vertical: S.scale(context, 4),
+                          ),
+                          decoration: BoxDecoration(
+                            color: sel
+                                ? t.accent.withValues(alpha: 0.15)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(
+                              S.scale(context, 50),
+                            ),
+                          ),
+                          child: ExcludeSemantics(
+                            child: Icon(
+                              sel ? activeI : inactiveI,
+                              size: S.scale(context, 22),
+                              color: sel ? t.accent : t.mutedText,
+                            ),
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: sel
-                              ? t.accent.withValues(alpha: 0.15)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(S.scale(context, 50)),
-                        ),
-                        child: ExcludeSemantics(
-                          child: Icon(
-                            sel ? activeI : inactiveI,
-                            size: S.scale(context, 22),
+                        SizedBox(height: S.scale(context, 2)),
+                        Text(
+                          label,
+                          style: GoogleFonts.nunito(
+                            fontSize: S.font(context, 9),
+                            fontWeight: FontWeight.w700,
                             color: sel ? t.accent : t.mutedText,
                           ),
                         ),
-                      ),
-                      SizedBox(height: S.scale(context, 2)),
-                      Text(
-                        label,
-                        style: GoogleFonts.nunito(
-                          fontSize: S.font(context, 9),
-                          fontWeight: FontWeight.w700,
-                          color: sel ? t.accent : t.mutedText,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  ),
-                  ),
-                );
-              }).toList(),
+                ),
+              );
+            }).toList(),
           ),
         ),
       ),
