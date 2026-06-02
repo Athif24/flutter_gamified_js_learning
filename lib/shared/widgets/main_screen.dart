@@ -116,41 +116,36 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           targetKey: _navKeys[0],
           title: 'Halaman Utama — Courses',
           description:
-              'Ini halaman utama! Jelajahi semua kursus JavaScript yang tersedia dan mulai perjalanan belajarmu.',
+              'Jelajahi semua kursus JavaScript yang tersedia di sini. Pilih kursus yang ingin kamu pelajari dan mulai perjalanan belajarmu!',
         ),
         TutorialStep(
           targetKey: _navKeys[1],
           title: 'Achievement',
           description:
-              'Pantau XP, streak harian, dan badge prestasimu di sini. Semakin rajin belajar, semakin banyak pencapaian!',
+              'Pantau XP, streak harian, dan badge prestasimu. Semakin rajin belajar, semakin banyak pencapaian yang bisa kamu raih!',
         ),
         TutorialStep(
           targetKey: _navKeys[2],
           title: 'Leaderboard',
           description:
-              'Lihat peringkat dan bersaing dengan developer lain. Siapa tahu kamu bisa jadi yang teratas!',
+              'Lihat peringkat dan bersaing dengan developer lain. Siapa tahu kamu bisa menjadi yang teratas!',
         ),
         TutorialStep(
           targetKey: _navKeys[3],
           title: 'Store',
           description:
-              'Tukarkan jewel-mu dengan item-item keren dari store. Lengkapi koleksi dan tampil beda!',
+              'Tukarkan jewel-mu dengan item-item keren dari store. Lengkapi koleksimu dan tampil beda dari yang lain!',
         ),
         TutorialStep(
           targetKey: _navKeys[4],
           title: 'Profile',
           description:
-              'Atur profil, avatar, dan pengaturan akun. Pastikan data kamu selalu terbarui!',
+              'Atur profil, avatar, dan pengaturan akunmu di sini. Pastikan data kamu selalu terbarui!',
         ),
         TutorialStep(
-          title: 'Mulai Belajar',
+          title: 'Mulai Belajar & Raih Prestasi!',
           description:
-              'Tap salah satu kursus di halaman ini untuk mulai belajar materi dan mengerjakan quiz seru!',
-        ),
-        TutorialStep(
-          title: 'Siap Jadi Master JavaScript!',
-          description:
-              'Kamu sudah siap! Jelajahi semua fitur Bloom dan raih prestasi terbaikmu. Selamat belajar! \u{1F680}',
+              'Tap salah satu kursus untuk mulai belajar. Kuasai materi, kerjakan quiz seru, kumpulkan XP, dan raih prestasi terbaikmu di Bloom! \u{1F680}',
         ),
       ],
       child: scaffold,
