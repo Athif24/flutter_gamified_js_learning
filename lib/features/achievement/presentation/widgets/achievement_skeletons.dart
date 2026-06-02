@@ -14,17 +14,11 @@ class HeroCardSkeleton extends StatelessWidget {
     decoration: BoxDecoration(
       color: t.bgSurface2,
       borderRadius: BorderRadius.circular(S.scale(context, 24)),
-      border: Border.all(
-        color: t.textPrimary,
-        width: S.scale(context, 2),
-      ),
+      border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
       boxShadow: [
         BoxShadow(
           color: t.textPrimary,
-          offset: Offset(
-            S.scale(context, 3),
-            S.scale(context, 3),
-          ),
+          offset: Offset(S.scale(context, 3), S.scale(context, 3)),
           blurRadius: 0,
         ),
       ],
@@ -73,7 +67,10 @@ class HeroCardSkeleton extends StatelessWidget {
               decoration: BoxDecoration(
                 color: t.bgSurface3,
                 borderRadius: BorderRadius.circular(S.scale(context, 12)),
-                border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
+                border: Border.all(
+                  color: t.textPrimary,
+                  width: S.scale(context, 2),
+                ),
               ),
             )
             .animate(onPlay: (c) => c.repeat())
@@ -89,8 +86,13 @@ class HeroCardSkeleton extends StatelessWidget {
                       height: S.scale(context, 70),
                       decoration: BoxDecoration(
                         color: t.bgSurface3,
-                        borderRadius: BorderRadius.circular(S.scale(context, 16)),
-                        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
+                        borderRadius: BorderRadius.circular(
+                          S.scale(context, 16),
+                        ),
+                        border: Border.all(
+                          color: t.textPrimary,
+                          width: S.scale(context, 2),
+                        ),
                       ),
                     )
                     .animate(onPlay: (c) => c.repeat())
@@ -166,7 +168,9 @@ class StatsRowSkeleton extends StatelessWidget {
                             height: S.scale(context, 11),
                             decoration: BoxDecoration(
                               color: t.bgSurface3,
-                              borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                              borderRadius: BorderRadius.circular(
+                                S.scale(context, 4),
+                              ),
                             ),
                           ),
                           SizedBox(height: S.scale(context, 6)),
@@ -175,7 +179,9 @@ class StatsRowSkeleton extends StatelessWidget {
                             height: S.scale(context, 20),
                             decoration: BoxDecoration(
                               color: t.bgSurface3,
-                              borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                              borderRadius: BorderRadius.circular(
+                                S.scale(context, 4),
+                              ),
                             ),
                           ),
                           SizedBox(height: S.scale(context, 6)),
@@ -184,7 +190,9 @@ class StatsRowSkeleton extends StatelessWidget {
                             height: S.scale(context, 11),
                             decoration: BoxDecoration(
                               color: t.bgSurface3,
-                              borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                              borderRadius: BorderRadius.circular(
+                                S.scale(context, 4),
+                              ),
                             ),
                           ),
                         ],
@@ -210,17 +218,11 @@ class LevelSkeleton extends StatelessWidget {
     decoration: BoxDecoration(
       color: t.bgSurface2,
       borderRadius: BorderRadius.circular(S.scale(context, 24)),
-      border: Border.all(
-        color: t.textPrimary,
-        width: S.scale(context, 2),
-      ),
+      border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
       boxShadow: [
         BoxShadow(
           color: t.textPrimary,
-          offset: Offset(
-            S.scale(context, 3),
-            S.scale(context, 3),
-          ),
+          offset: Offset(S.scale(context, 3), S.scale(context, 3)),
           blurRadius: 0,
         ),
       ],
@@ -274,7 +276,10 @@ class LevelSkeleton extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: t.bgSurface3,
-                            border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
+                            border: Border.all(
+                              color: t.textPrimary,
+                              width: S.scale(context, 2),
+                            ),
                           ),
                         ),
                         SizedBox(width: S.scale(context, 16)),
@@ -282,7 +287,7 @@ class LevelSkeleton extends StatelessWidget {
                           child: Container(
                             padding: EdgeInsets.all(S.scale(context, 16)),
                             decoration: BoxDecoration(
-                              color: t.bgSurface3.withValues(alpha: 50/255),
+                              color: t.bgSurface3.withValues(alpha: 50 / 255),
                               borderRadius: BorderRadius.circular(
                                 S.scale(context, 16),
                               ),
@@ -299,7 +304,9 @@ class LevelSkeleton extends StatelessWidget {
                                   height: S.scale(context, 14),
                                   decoration: BoxDecoration(
                                     color: t.bgSurface3,
-                                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                                    borderRadius: BorderRadius.circular(
+                                      S.scale(context, 4),
+                                    ),
                                   ),
                                 ),
                                 SizedBox(height: S.scale(context, 8)),
@@ -308,7 +315,9 @@ class LevelSkeleton extends StatelessWidget {
                                   height: S.scale(context, 8),
                                   decoration: BoxDecoration(
                                     color: t.bgSurface3,
-                                    borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                                    borderRadius: BorderRadius.circular(
+                                      S.scale(context, 4),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -337,17 +346,11 @@ class BadgeGridSkeleton extends StatelessWidget {
     decoration: BoxDecoration(
       color: t.bgSurface,
       borderRadius: BorderRadius.circular(S.scale(context, 24)),
-      border: Border.all(
-        color: t.textPrimary,
-        width: S.scale(context, 2),
-      ),
+      border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
       boxShadow: [
         BoxShadow(
           color: t.textPrimary,
-          offset: Offset(
-            S.scale(context, 3),
-            S.scale(context, 3),
-          ),
+          offset: Offset(S.scale(context, 3), S.scale(context, 3)),
           blurRadius: 0,
         ),
       ],
@@ -388,52 +391,60 @@ class BadgeGridSkeleton extends StatelessWidget {
             .animate(onPlay: (c) => c.repeat())
             .shimmer(duration: 1200.ms, color: t.bgSurface3),
         SizedBox(height: S.scale(context, 12)),
-        Row(
-          children: List.generate(
-            3,
-            (_) => Padding(
-              padding: EdgeInsets.only(right: S.scale(context, 8)),
-              child:
-                  Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: S.scale(context, 14),
-                          vertical: S.scale(context, 6),
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.bgSurface3.withValues(alpha: 50/255),
-                          borderRadius: BorderRadius.circular(
-                            S.scale(context, 50),
+        SizedBox(
+          height: S.scale(context, 34),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: List.generate(
+              3,
+              (_) => Padding(
+                padding: EdgeInsets.only(right: S.scale(context, 8)),
+                child:
+                    Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: S.scale(context, 14),
+                            vertical: S.scale(context, 6),
                           ),
-                          border: Border.all(
-                            color: t.textPrimary,
-                            width: S.scale(context, 2),
+                          decoration: BoxDecoration(
+                            color: t.bgSurface3.withValues(alpha: 50 / 255),
+                            borderRadius: BorderRadius.circular(
+                              S.scale(context, 50),
+                            ),
+                            border: Border.all(
+                              color: t.textPrimary,
+                              width: S.scale(context, 2),
+                            ),
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: S.scale(context, 40),
-                              height: S.scale(context, 13),
-                              decoration: BoxDecoration(
-                                color: t.bgSurface3,
-                                borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: S.scale(context, 40),
+                                height: S.scale(context, 13),
+                                decoration: BoxDecoration(
+                                  color: t.bgSurface3,
+                                  borderRadius: BorderRadius.circular(
+                                    S.scale(context, 4),
+                                  ),
+                                ),
                               ),
-                            ),
-                            SizedBox(width: S.scale(context, 6)),
-                            Container(
-                              width: S.scale(context, 20),
-                              height: S.scale(context, 13),
-                              decoration: BoxDecoration(
-                                color: t.bgSurface3,
-                                borderRadius: BorderRadius.circular(S.scale(context, 4)),
+                              SizedBox(width: S.scale(context, 6)),
+                              Container(
+                                width: S.scale(context, 20),
+                                height: S.scale(context, 13),
+                                decoration: BoxDecoration(
+                                  color: t.bgSurface3,
+                                  borderRadius: BorderRadius.circular(
+                                    S.scale(context, 4),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .animate(onPlay: (c) => c.repeat())
-                      .shimmer(duration: 1200.ms, color: t.bgSurface3),
+                            ],
+                          ),
+                        )
+                        .animate(onPlay: (c) => c.repeat())
+                        .shimmer(duration: 1200.ms, color: t.bgSurface3),
+              ),
             ),
           ),
         ),
@@ -441,7 +452,7 @@ class BadgeGridSkeleton extends StatelessWidget {
         Container(
           height: S.scale(context, 2),
           decoration: BoxDecoration(
-            color: t.textPrimary.withValues(alpha: 80/255),
+            color: t.textPrimary.withValues(alpha: 80 / 255),
           ),
         ),
         SizedBox(height: S.scale(context, 12)),
@@ -487,7 +498,7 @@ class BadgeGridSkeleton extends StatelessWidget {
       Container(
             padding: EdgeInsets.all(S.scale(context, 16)),
             decoration: BoxDecoration(
-              color: t.bgSurface3.withValues(alpha: 50/255),
+              color: t.bgSurface3.withValues(alpha: 50 / 255),
               borderRadius: BorderRadius.circular(S.scale(context, 16)),
               border: Border.all(
                 color: t.textPrimary,
@@ -528,7 +539,7 @@ class BadgeGridSkeleton extends StatelessWidget {
                     color: t.bgSurface3,
                     borderRadius: BorderRadius.circular(S.scale(context, 50)),
                     border: Border.all(
-                      color: t.textPrimary.withValues(alpha: 50/255),
+                      color: t.textPrimary.withValues(alpha: 50 / 255),
                       width: S.scale(context, 1),
                     ),
                   ),

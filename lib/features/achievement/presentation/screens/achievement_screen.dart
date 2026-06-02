@@ -6,12 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
-import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
-import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/achievement_provider.dart';
 import '../widgets/level_roadmap.dart';
@@ -29,34 +26,18 @@ class AchievementScreen extends ConsumerStatefulWidget {
   ConsumerState<AchievementScreen> createState() => _AchievementScreenState();
 }
 
-class _AchievementScreenState extends ConsumerState<AchievementScreen>
-    with SilentRefreshMixin<AchievementScreen> {
+class _AchievementScreenState extends ConsumerState<AchievementScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_silentRefresh()));
-  }
-
-  Future<void> _silentRefresh() async {
-    final fetchState = ref.read(achievementFetchProvider.notifier);
-    if (!fetchState.shouldRefresh) return;
-
-    silentFetch(
-      fetch: () async {
-        ref.invalidate(xpProvider);
-        ref.invalidate(streakProvider);
-        ref.invalidate(mergedBadgesProvider);
-        ref.invalidate(livesProvider);
-        ref.invalidate(levelsProvider);
-        ref.invalidate(xpHistoryProvider);
-        await ref.read(xpProvider.future);
-        await ref.read(streakProvider.future);
-        await ref.read(mergedBadgesProvider.future);
-        await ref.read(livesProvider.future);
-        await ref.read(levelsProvider.future);
-      },
-      fetchState: fetchState,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(xpProvider);
+      ref.invalidate(streakProvider);
+      ref.invalidate(mergedBadgesProvider);
+      ref.invalidate(livesProvider);
+      ref.invalidate(levelsProvider);
+      ref.invalidate(xpHistoryProvider);
+    });
   }
 
   List<Widget> _wrapStatItems(List<StatCard> items, double childWidth) {
@@ -67,7 +48,7 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<int>(navIndexProvider, (prev, next) {
+    ref.listenManual<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 1 && next == 1) {
         ref.invalidate(xpProvider);
         ref.invalidate(streakProvider);
@@ -75,7 +56,6 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
         ref.invalidate(livesProvider);
         ref.invalidate(levelsProvider);
         ref.invalidate(xpHistoryProvider);
-        unawaited(_silentRefresh());
       }
     });
 
@@ -114,7 +94,6 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
       body: SafeArea(
         child: Column(
           children: [
-            SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
               child: hasError
                   ? ErrorBody(
@@ -122,13 +101,29 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                       title: AppStrings.errLoadAchievementDetail,
                       onRetry: () {
                         ref.read(soundProvider).playClick();
-                        setShowSlowIndicator(true);
-                        _silentRefresh();
+                        ref.invalidate(xpProvider);
+                        ref.invalidate(streakProvider);
+                        ref.invalidate(mergedBadgesProvider);
+                        ref.invalidate(livesProvider);
+                        ref.invalidate(levelsProvider);
+                        ref.invalidate(xpHistoryProvider);
                       },
                     )
                   : RefreshIndicator(
                       onRefresh: () async {
-                        await _silentRefresh();
+                        ref.invalidate(xpProvider);
+                        ref.invalidate(streakProvider);
+                        ref.invalidate(mergedBadgesProvider);
+                        ref.invalidate(livesProvider);
+                        ref.invalidate(levelsProvider);
+                        ref.invalidate(xpHistoryProvider);
+                        await Future.wait([
+                          ref.read(xpProvider.future),
+                          ref.read(streakProvider.future),
+                          ref.read(mergedBadgesProvider.future),
+                          ref.read(livesProvider.future),
+                          ref.read(levelsProvider.future),
+                        ]);
                       },
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -216,14 +211,18 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                     final crossAxisCount =
                                         constraints.maxWidth > 600 ? 4 : 2;
                                     final totalGutter =
-                                        S.scale(context, 12) * (crossAxisCount - 1);
+                                        S.scale(context, 12) *
+                                        (crossAxisCount - 1);
                                     final childWidth =
                                         (constraints.maxWidth - totalGutter) /
                                         crossAxisCount;
                                     return Wrap(
                                       spacing: S.scale(context, 12),
                                       runSpacing: S.scale(context, 12),
-                                      children: _wrapStatItems(items, childWidth),
+                                      children: _wrapStatItems(
+                                        items,
+                                        childWidth,
+                                      ),
                                     );
                                   },
                                 ).animate().fadeIn(delay: 100.ms);
@@ -258,7 +257,9 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                                 xpTotal: xp.totalXp,
                                               ),
                                             ),
-                                            SizedBox(width: S.scale(context, 16)),
+                                            SizedBox(
+                                              width: S.scale(context, 16),
+                                            ),
                                             Expanded(
                                               child: XpHistoryList(
                                                 entries: xpHistoryState.entries,
@@ -285,7 +286,9 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen>
                                               levels: levels,
                                               xpTotal: xp.totalXp,
                                             ),
-                                            SizedBox(height: S.scale(context, 16)),
+                                            SizedBox(
+                                              height: S.scale(context, 16),
+                                            ),
                                             XpHistoryList(
                                               entries: xpHistoryState.entries,
                                               isLoading:

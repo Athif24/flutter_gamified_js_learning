@@ -38,10 +38,7 @@ class HeroCard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: t.textPrimary,
-                offset: Offset(
-                  S.scale(context, 3),
-                  S.scale(context, 3),
-                ),
+                offset: Offset(S.scale(context, 3), S.scale(context, 3)),
                 blurRadius: 0,
               ),
             ],
@@ -80,11 +77,13 @@ class HeroCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ExcludeSemantics(child: Icon(
-                          Icons.military_tech_rounded,
-                          color: t.primaryContent,
-                          size: S.scale(context, 12),
-                        )),
+                        ExcludeSemantics(
+                          child: Icon(
+                            Icons.military_tech_rounded,
+                            color: t.primaryContent,
+                            size: S.scale(context, 12),
+                          ),
+                        ),
                         SizedBox(width: S.scale(context, 4)),
                         FittedBox(
                           fit: BoxFit.scaleDown,
@@ -121,11 +120,13 @@ class HeroCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      ExcludeSemantics(child: Icon(
-                        Icons.bolt_rounded,
-                        color: t.primaryContent.withValues(alpha: 0.8),
-                        size: S.scale(context, 16),
-                      )),
+                      ExcludeSemantics(
+                        child: Icon(
+                          Icons.bolt_rounded,
+                          color: t.primaryContent.withValues(alpha: 0.8),
+                          size: S.scale(context, 16),
+                        ),
+                      ),
                       SizedBox(width: S.scale(context, 6)),
                       FittedBox(
                         fit: BoxFit.scaleDown,
@@ -140,33 +141,37 @@ class HeroCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            xp.nextLevelTitle != null
-                                ? '${formatNumber(xp.xpToNextLevel)} XP lagi menuju ${xp.nextLevelTitle}'
-                                : 'Max level!',
-                            style: GoogleFonts.nunito(
-                              color: t.primaryContent.withValues(alpha: 0.8),
-                              fontSize: S.font(context, 12),
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              xp.nextLevelTitle != null
+                                  ? '${formatNumber(xp.xpToNextLevel)} XP lagi menuju ${xp.nextLevelTitle}'
+                                  : 'Max level!',
+                              style: GoogleFonts.nunito(
+                                color: t.primaryContent.withValues(alpha: 0.8),
+                                fontSize: S.font(context, 12),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (xp.nextLevelTitle != null)
-                        Padding(
-                          padding: EdgeInsets.only(left: S.scale(context, 4)),
-                          child: ExcludeSemantics(child: Icon(
-                            Icons.chevron_right,
-                            color: t.primaryContent.withValues(alpha: 0.8),
-                            size: S.scale(context, 14),
-                          )),
-                        ),
-                    ],
+                        if (xp.nextLevelTitle != null)
+                          Padding(
+                            padding: EdgeInsets.only(left: S.scale(context, 4)),
+                            child: ExcludeSemantics(
+                              child: Icon(
+                                Icons.chevron_right,
+                                color: t.primaryContent.withValues(alpha: 0.8),
+                                size: S.scale(context, 14),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -174,35 +179,32 @@ class HeroCard extends StatelessWidget {
               Container(
                 height: S.scale(context, 24),
                 decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(S.scale(context, 12)),
-                border: Border.all(
-                  color: t.border.withValues(alpha: 120/255),
-                  width: S.scale(context, 2),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: t.border.withValues(alpha: 75/255),
-                    offset: Offset(
-                      S.scale(context, 1),
-                      S.scale(context, 1),
+                  borderRadius: BorderRadius.circular(S.scale(context, 12)),
+                  border: Border.all(
+                    color: t.border.withValues(alpha: 120 / 255),
+                    width: S.scale(context, 2),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: t.border.withValues(alpha: 75 / 255),
+                      offset: Offset(S.scale(context, 1), S.scale(context, 1)),
+                      blurRadius: 0,
                     ),
-                    blurRadius: 0,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(S.scale(context, 10)),
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: xp.progress),
-                  duration: const Duration(milliseconds: 1000),
-                  curve: Curves.easeOutCubic,
-                  builder: (_, value, __) => LinearProgressIndicator(
-                    value: value,
-                    backgroundColor: t.bgSurface3,
-                    valueColor: AlwaysStoppedAnimation(t.primary),
-                    minHeight: S.scale(context, 20),
-                  ),
+                  ],
                 ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(S.scale(context, 10)),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: xp.progress),
+                    duration: const Duration(milliseconds: 1000),
+                    curve: Curves.easeOutCubic,
+                    builder: (_, value, __) => LinearProgressIndicator(
+                      value: value,
+                      backgroundColor: t.bgSurface3,
+                      valueColor: AlwaysStoppedAnimation(t.primary),
+                      minHeight: S.scale(context, 20),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: S.scale(context, 8)),
