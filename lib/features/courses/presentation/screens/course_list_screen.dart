@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/course_list/header_banner.dart';
 import '../widgets/course_list/empty_state.dart';
 import '../widgets/course_list/course_card.dart';
+import '../widgets/course_list/course_list_skeleton.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
-import '../../../../shared/widgets/loading_circle.dart';
 import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
@@ -100,25 +100,9 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
                     child: CustomScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       slivers: [
-                        // ── Header banner ─────────────────────────────────────────────
-                        SliverToBoxAdapter(
-                          child: HeaderBanner(
-                            courseCount: coursesAsync.maybeWhen(
-                              data: (courses) => courses.length,
-                              orElse: () => 0,
-                            ),
-                            t: t,
-                          ),
-                        ),
-
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: S.scale(context, 24)),
-                        ),
-
-                        // ── Courses list ───────────────────────────────────────────────
                         coursesAsync.when(
                           loading: () =>
-                              SliverFillRemaining(child: LoadingCircle(t: t)),
+                              _buildSkeletonSliver(context, t),
                           error: (e, _) => SliverFillRemaining(
                             child: ErrorBody(
                               t: t,
@@ -133,12 +117,12 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
                           ),
                           data: (courses) {
                             return enrolledAsync.when(
-                              loading: () => SliverFillRemaining(
-                                child: LoadingCircle(t: t),
+                              loading: () => _buildSkeletonSliver(
+                                context, t, count: courses.length,
                               ),
                               error: (_, __) =>
-                                  _buildCourseList(context, ref, courses, t),
-                              data: (enrollmentMap) => _buildCourseList(
+                                  _buildLoadedSliver(context, ref, courses, t),
+                              data: (enrollmentMap) => _buildLoadedSliver(
                                 context,
                                 ref,
                                 getEnrichedCourses(courses, enrollmentMap),
@@ -159,7 +143,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
     );
   }
 
-  Widget _buildCourseList(
+  Widget _buildLoadedSliver(
     BuildContext context,
     WidgetRef ref,
     List<CourseModel> courses,
@@ -169,21 +153,60 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
       return SliverFillRemaining(child: EmptyState(t: t));
     }
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(
-        S.scale(context, 20),
-        0,
-        S.scale(context, 20),
-        S.scale(context, 32),
-      ),
+      padding: EdgeInsets.only(bottom: S.scale(context, 32)),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((_, i) {
-          final course = courses[i];
-          return CourseCard(
-            course: course,
-            index: i,
-            t: t,
-          ).animate().fadeIn(delay: (60 * i).ms).slideY(begin: 0.08, end: 0);
-        }, childCount: courses.length),
+          if (i == 0) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeaderBanner(courseCount: courses.length, t: t),
+                SizedBox(height: S.scale(context, 24)),
+              ],
+            );
+          }
+          final course = courses[i - 1];
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20)),
+            child: CourseCard(
+              course: course,
+              index: i - 1,
+              t: t,
+            ).animate().fadeIn(delay: (60 * (i - 1)).ms).slideY(begin: 0.08, end: 0),
+          );
+        }, childCount: courses.length + 1),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonSliver(
+    BuildContext context,
+    BloomTheme t, {
+    int count = 6,
+  }) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (_, _) => Column(
+          children: [
+            HeaderBannerSkeleton(t: t),
+            SizedBox(height: S.scale(context, 24)),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                S.scale(context, 20),
+                0,
+                S.scale(context, 20),
+                S.scale(context, 32),
+              ),
+              child: Column(
+                children: List.generate(
+                  count,
+                  (_) => CourseCardSkeleton(t: t),
+                ),
+              ),
+            ),
+          ],
+        ),
+        childCount: 1,
       ),
     );
   }

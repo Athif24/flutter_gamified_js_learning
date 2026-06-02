@@ -180,7 +180,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                         child: Text(
                           'Enrolled',
                           style: GoogleFonts.nunito(
-                            color: t.primary,
+                            color: t.textPrimary,
                             fontSize: S.font(context, 10),
                             fontWeight: FontWeight.w700,
                           ),
