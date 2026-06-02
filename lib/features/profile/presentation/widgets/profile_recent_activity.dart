@@ -10,18 +10,16 @@ import '../../data/models/profile_model.dart';
 class ProfileRecentActivity extends StatelessWidget {
   final BloomTheme t;
   final List<RecentXpEntry> entries;
-  const ProfileRecentActivity({super.key, required this.t, required this.entries});
+  const ProfileRecentActivity({
+    super.key,
+    required this.t,
+    required this.entries,
+  });
 
   static const _sourceConfig = {
     'quiz': {'icon': Icons.code_rounded, 'label': 'Quiz'},
-    'lesson': {
-      'icon': Icons.menu_book_rounded,
-      'label': 'Lesson',
-    },
-    'bonus': {
-      'icon': Icons.card_giftcard_rounded,
-      'label': 'Bonus',
-    },
+    'lesson': {'icon': Icons.menu_book_rounded, 'label': 'Lesson'},
+    'bonus': {'icon': Icons.card_giftcard_rounded, 'label': 'Bonus'},
   };
 
   String _dateLabel(String dateStr) {
@@ -34,8 +32,18 @@ class ProfileRecentActivity extends StatelessWidget {
     if (dateDay == today) return 'Hari ini';
     if (dateDay == yesterday) return 'Kemarin';
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
     ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
   }
@@ -70,7 +78,13 @@ class ProfileRecentActivity extends StatelessWidget {
         children: [
           Row(
             children: [
-              ExcludeSemantics(child: Icon(Icons.timeline_rounded, color: t.warning, size: S.scale(context, 20))),
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.timeline_rounded,
+                  color: t.warning,
+                  size: S.scale(context, 20),
+                ),
+              ),
               SizedBox(width: S.scale(context, 8)),
               Text(
                 'Aktivitas Terbaru',
@@ -97,14 +111,23 @@ class ProfileRecentActivity extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ExcludeSemantics(child: Icon(Icons.bolt_rounded, color: t.warning, size: S.scale(context, 14))),
-                    SizedBox(width: S.scale(context, 3)),
-                    Text(
-                      '+${formatNumber(totalXp)} XP',
-                      style: GoogleFonts.nunito(
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.bolt_rounded,
                         color: t.warning,
-                        fontSize: S.font(context, 11),
-                        fontWeight: FontWeight.w800,
+                        size: S.scale(context, 14),
+                      ),
+                    ),
+                    SizedBox(width: S.scale(context, 3)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '+${formatNumber(totalXp)} XP',
+                        style: GoogleFonts.nunito(
+                          color: t.warning,
+                          fontSize: S.font(context, 11),
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ],
@@ -121,7 +144,8 @@ class ProfileRecentActivity extends StatelessWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: entries.length,
-                separatorBuilder: (_, __) => SizedBox(height: S.scale(context, 8)),
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: S.scale(context, 8)),
                 itemBuilder: (ctx, i) => _buildEntry(t, entries[i], context),
               ),
             ),
@@ -154,7 +178,10 @@ class ProfileRecentActivity extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.zero,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: S.scale(context, 12), vertical: S.scale(context, 10)),
+        padding: EdgeInsets.symmetric(
+          horizontal: S.scale(context, 12),
+          vertical: S.scale(context, 10),
+        ),
         decoration: BoxDecoration(
           color: t.bgSurface2.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(S.scale(context, 12)),
@@ -176,7 +203,9 @@ class ProfileRecentActivity extends StatelessWidget {
                   width: S.scale(context, 1),
                 ),
               ),
-              child: ExcludeSemantics(child: Icon(icon, color: iconColor, size: S.scale(context, 16))),
+              child: ExcludeSemantics(
+                child: Icon(icon, color: iconColor, size: S.scale(context, 16)),
+              ),
             ),
             SizedBox(width: S.scale(context, 12)),
             Expanded(
@@ -202,7 +231,10 @@ class ProfileRecentActivity extends StatelessWidget {
               ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: S.scale(context, 10), vertical: S.scale(context, 4)),
+              padding: EdgeInsets.symmetric(
+                horizontal: S.scale(context, 10),
+                vertical: S.scale(context, 4),
+              ),
               decoration: BoxDecoration(
                 color: t.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(S.scale(context, 50)),
@@ -214,7 +246,13 @@ class ProfileRecentActivity extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ExcludeSemantics(child: Icon(Icons.bolt_rounded, color: t.warning, size: S.scale(context, 14))),
+                  ExcludeSemantics(
+                    child: Icon(
+                      Icons.bolt_rounded,
+                      color: t.warning,
+                      size: S.scale(context, 14),
+                    ),
+                  ),
                   SizedBox(width: S.scale(context, 3)),
                   Text(
                     '+${formatNumber(e.xpEarned)}',
@@ -251,7 +289,13 @@ class ProfileRecentActivity extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ExcludeSemantics(child: Icon(Icons.bolt_rounded, size: S.scale(context, 40), color: t.mutedText)),
+          ExcludeSemantics(
+            child: Icon(
+              Icons.bolt_rounded,
+              size: S.scale(context, 40),
+              color: t.mutedText,
+            ),
+          ),
           SizedBox(height: S.scale(context, 8)),
           Text(
             'Belum ada aktivitas terbaru',
@@ -264,7 +308,10 @@ class ProfileRecentActivity extends StatelessWidget {
           SizedBox(height: S.scale(context, 4)),
           Text(
             'Selesaikan quiz atau lesson untuk mulai kumpulkan XP.',
-            style: GoogleFonts.nunito(color: t.mutedText, fontSize: S.font(context, 11)),
+            style: GoogleFonts.nunito(
+              color: t.mutedText,
+              fontSize: S.font(context, 11),
+            ),
           ),
         ],
       ),

@@ -5,12 +5,9 @@ import '../../../../shared/themes/theme_provider.dart';
 import '../../data/models/profile_model.dart';
 import '../widgets/profile_skeleton.dart';
 import '../../../../shared/widgets/main_screen.dart';
-import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
-import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/profile_hero_card.dart';
 import '../widgets/profile_stats_grid.dart';
@@ -27,37 +24,31 @@ class ProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends ConsumerState<ProfileScreen>
-    with SilentRefreshMixin<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   ProfileModel? _cachedProfile;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
-  }
-
-  Future<void> _silentRefresh() async {
-    final fetchState = ref.read(profileFetchProvider.notifier);
-    if (!fetchState.shouldRefresh) return;
-
-    silentFetch(
-      fetch: () async {
-        ref.invalidate(profileProvider);
-        await ref.read(profileProvider.future);
-      },
-      fetchState: fetchState,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(profileProvider);
+    });
   }
 
   Widget _buildContent(ProfileModel profile, BloomTheme t) {
     return RefreshIndicator(
       onRefresh: () async {
-        await _silentRefresh();
+        ref.invalidate(profileProvider);
+        await ref.read(profileProvider.future);
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(S.scale(context, 20), S.scale(context, 20), S.scale(context, 20), S.scale(context, 40)),
+        padding: EdgeInsets.fromLTRB(
+          S.scale(context, 20),
+          S.scale(context, 20),
+          S.scale(context, 20),
+          S.scale(context, 40),
+        ),
         child: Column(
           children: [
             ProfileHeroCard(
@@ -115,10 +106,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<int>(navIndexProvider, (prev, next) {
+    ref.listenManual<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 4 && next == 4) {
         ref.invalidate(profileProvider);
-        _silentRefresh();
       }
     });
 
@@ -133,7 +123,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       body: SafeArea(
         child: Column(
           children: [
-            SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
               child: profile != null
                   ? _buildContent(profile, t)
@@ -144,12 +133,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         icon: iconForError(e),
                         title: AppStrings.errLoadProfile,
                         message: sanitizeErrorMessage(e),
-                        onRetry: () {
-                          setShowSlowIndicator(true);
-                          _silentRefresh();
-                        },
+                        onRetry: () => ref.invalidate(profileProvider),
                       ),
-                      data: (_) => ProfileSkeleton(t: t),
+                      data: (p) => _buildContent(p, t),
                     ),
             ),
           ],
@@ -158,6 +144,3 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 }
-
-
-

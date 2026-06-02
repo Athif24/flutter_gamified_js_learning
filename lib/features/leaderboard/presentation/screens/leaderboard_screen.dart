@@ -5,12 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
-import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
-import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/leaderboard_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../widgets/leaderboard_skeleton.dart';
@@ -30,68 +27,66 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
   ConsumerState<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
 
-class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
-    with SilentRefreshMixin<LeaderboardScreen> {
+class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   String _searchQuery = '';
   Timer? _autoRefreshTimer;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
+    ref.listenManual<int>(navIndexProvider, (prev, next) {
+      if (prev != null && prev != 2 && next == 2) {
+        ref.invalidate(leaderboardProvider);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(leaderboardProvider);
+    });
     _startAutoRefresh();
   }
 
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
   void _startAutoRefresh() {
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (mounted && ref.read(leaderboardProvider).hasValue) {
+      if (mounted) {
         ref.invalidate(leaderboardProvider);
-        _silentRefresh();
       }
     });
   }
 
-  Future<void> _silentRefresh() async {
-    final fetchState = ref.read(leaderboardFetchProvider.notifier);
-    if (!fetchState.shouldRefresh) return;
-
-    silentFetch(
-      fetch: () async {
-        ref.invalidate(leaderboardProvider);
-        await ref.read(leaderboardProvider.future);
-      },
-      fetchState: fetchState,
-    );
+  void _onSearchChanged(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) setState(() => _searchQuery = value);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: ref.listen di dalam build berpotensi re-trigger tiap build; pindahkan ke initState via postFrameCallback
-    ref.listen<int>(navIndexProvider, (prev, next) {
-      if (prev != null && prev != 2 && next == 2) {
-        ref.invalidate(leaderboardProvider);
-        _silentRefresh();
-      }
-    });
-
     final t = ref.watch(currentThemeProvider);
     final boardAsync = ref.watch(leaderboardProvider);
     final profileAsync = ref.watch(profileProvider);
-    final myName = profileAsync.maybeWhen(data: (p) => p.name, orElse: () => null);
-    final myAvatar = profileAsync.maybeWhen(data: (p) => p.avatar, orElse: () => null);
+    final myName = profileAsync.maybeWhen(
+      data: (p) => p.name,
+      orElse: () => null,
+    );
+    final myAvatar = profileAsync.maybeWhen(
+      data: (p) => p.avatar,
+      orElse: () => null,
+    );
 
     return Scaffold(
       backgroundColor: t.bgPrimary,
       body: SafeArea(
         child: Column(
           children: [
-            SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
               child: boardAsync.when(
                 loading: () => LeaderboardSkeleton(t: t),
@@ -102,8 +97,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
                   message: sanitizeErrorMessage(e),
                   onRetry: () {
                     ref.read(soundProvider).playClick();
-                    setShowSlowIndicator(true);
-                    _silentRefresh();
+                    ref.invalidate(leaderboardProvider);
                   },
                 ),
                 data: (res) => _buildContent(t, res, myName, myAvatar),
@@ -115,7 +109,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     );
   }
 
-  Widget _buildContent(BloomTheme t, LeaderboardResponse res, String? myName, String? myAvatar) {
+  Widget _buildContent(
+    BloomTheme t,
+    LeaderboardResponse res,
+    String? myName,
+    String? myAvatar,
+  ) {
     final entries = res.leaderboard;
     final currentUserRank = res.currentUserRank;
     final currentUserXp = res.currentUserXp;
@@ -149,7 +148,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       ],
       SearchCard(
         t: t,
-        onChanged: (v) => setState(() => _searchQuery = v),
+        onChanged: _onSearchChanged,
       ).animate().fadeIn(delay: 250.ms),
       SizedBox(height: S.scale(context, 16)),
       LeaderboardTable(
@@ -174,7 +173,8 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
 
     return RefreshIndicator(
       onRefresh: () async {
-        await _silentRefresh();
+        ref.invalidate(leaderboardProvider);
+        await ref.read(leaderboardProvider.future);
       },
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(
