@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
-import '../../../../../shared/services/sound_service.dart';
 import '../../../../../core/utils/responsive_utils.dart';
 import '../../../data/models/course_model.dart';
 
-class HeaderCard extends StatefulWidget {
+class HeaderCard extends StatelessWidget {
   final CourseModel course;
   final double progress;
   final int progressPct;
   final int completedUnits;
   final BloomTheme t;
+  final bool isExpanded;
+  final VoidCallback onToggle;
   const HeaderCard({
     super.key,
     required this.course,
@@ -19,19 +19,14 @@ class HeaderCard extends StatefulWidget {
     required this.progressPct,
     required this.completedUnits,
     required this.t,
+    required this.isExpanded,
+    required this.onToggle,
   });
 
   @override
-  State<HeaderCard> createState() => _HeaderCardState();
-}
-
-class _HeaderCardState extends State<HeaderCard> {
-  bool _isExpanded = true;
-
-  @override
   Widget build(BuildContext context) {
-    final cBg = widget.t.primary;
-    final cFg = widget.t.primaryContent;
+    final cBg = t.primary;
+    final cFg = t.primaryContent;
 
     return Container(
       margin: EdgeInsets.fromLTRB(
@@ -43,10 +38,10 @@ class _HeaderCardState extends State<HeaderCard> {
       decoration: BoxDecoration(
         color: cBg,
         borderRadius: BorderRadius.circular(S.scale(context, 24)),
-        border: Border.all(color: widget.t.textPrimary, width: S.scale(context, 2)),
+        border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
         boxShadow: [
           BoxShadow(
-            color: widget.t.textPrimary,
+            color: t.textPrimary,
             offset: Offset(S.scale(context, 3), S.scale(context, 3)),
             blurRadius: 0,
           ),
@@ -62,14 +57,14 @@ class _HeaderCardState extends State<HeaderCard> {
               children: [
                 Expanded(
                   child: Hero(
-                    tag: 'course-title-${widget.course.id}',
+                    tag: 'course-title-${course.id}',
                     child: Material(
                       color: Colors.transparent,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          widget.course.title,
+                          course.title,
                           style: GoogleFonts.nunito(
                             color: cFg,
                             fontSize: S.font(context, 24),
@@ -82,17 +77,12 @@ class _HeaderCardState extends State<HeaderCard> {
                 ),
                 SizedBox(width: S.scale(context, 8)),
                 GestureDetector(
-                  onTap: () {
-                    ProviderScope.containerOf(
-                      context,
-                    ).read(soundProvider).playClick();
-                    setState(() => _isExpanded = !_isExpanded);
-                  },
+                  onTap: onToggle,
                   child: CircleAvatar(
                     radius: S.scale(context, 16),
                     backgroundColor: cFg.withValues(alpha: 0.15),
                     child: Icon(
-                      _isExpanded
+                      isExpanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
                       color: cFg,
@@ -106,18 +96,18 @@ class _HeaderCardState extends State<HeaderCard> {
               duration: const Duration(milliseconds: 300),
               firstCurve: Curves.easeInOut,
               secondCurve: Curves.easeInOut,
-              crossFadeState: _isExpanded
+              crossFadeState: isExpanded
                   ? CrossFadeState.showSecond
                   : CrossFadeState.showFirst,
               firstChild: const SizedBox.shrink(),
               secondChild: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (widget.course.description != null &&
-                      widget.course.description!.isNotEmpty) ...[
+                  if (course.description != null &&
+                      course.description!.isNotEmpty) ...[
                     SizedBox(height: S.scale(context, 4)),
                     Text(
-                      widget.course.description!,
+                      course.description!,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.nunito(
@@ -139,7 +129,7 @@ class _HeaderCardState extends State<HeaderCard> {
                       color: cFg.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(S.scale(context, 16)),
                       border: Border.all(
-                        color: widget.t.textPrimary.withValues(alpha: 0.5),
+                        color: t.textPrimary.withValues(alpha: 0.5),
                         width: S.scale(context, 2),
                       ),
                     ),
@@ -170,7 +160,7 @@ class _HeaderCardState extends State<HeaderCard> {
                               ),
                               SizedBox(height: S.scale(context, 8)),
                               Text(
-                                '${widget.course.totalLessons}',
+                                '${course.totalLessons}',
                                 style: GoogleFonts.nunito(
                                   color: cFg,
                                   fontSize: S.font(context, 18),
@@ -192,7 +182,7 @@ class _HeaderCardState extends State<HeaderCard> {
                         Container(
                           width: S.scale(context, 1),
                           height: S.scale(context, 40),
-                          color: widget.t.textPrimary.withValues(alpha: 0.2),
+                          color: t.textPrimary.withValues(alpha: 0.2),
                         ),
                         Expanded(
                           child: Column(
@@ -218,7 +208,7 @@ class _HeaderCardState extends State<HeaderCard> {
                               ),
                               SizedBox(height: S.scale(context, 8)),
                               Text(
-                                '${widget.completedUnits}/${widget.course.units.length}',
+                                '$completedUnits/${course.units.length}',
                                 style: GoogleFonts.nunito(
                                   color: cFg,
                                   fontSize: S.font(context, 18),
@@ -240,7 +230,7 @@ class _HeaderCardState extends State<HeaderCard> {
                         Container(
                           width: S.scale(context, 1),
                           height: S.scale(context, 40),
-                          color: widget.t.textPrimary.withValues(alpha: 0.2),
+                          color: t.textPrimary.withValues(alpha: 0.2),
                         ),
                         Expanded(
                           child: Column(
@@ -266,7 +256,7 @@ class _HeaderCardState extends State<HeaderCard> {
                               ),
                               SizedBox(height: S.scale(context, 8)),
                               Text(
-                                '${widget.progressPct}%',
+                                '$progressPct%',
                                 style: GoogleFonts.nunito(
                                   color: cFg,
                                   fontSize: S.font(context, 18),
@@ -292,7 +282,7 @@ class _HeaderCardState extends State<HeaderCard> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(S.scale(context, 6)),
                     child: LinearProgressIndicator(
-                      value: widget.progress.clamp(0.0, 1.0),
+                      value: progress.clamp(0.0, 1.0),
                       backgroundColor: cFg.withValues(alpha: 0.3),
                       valueColor: AlwaysStoppedAnimation(cFg),
                       minHeight: S.scale(context, 12),

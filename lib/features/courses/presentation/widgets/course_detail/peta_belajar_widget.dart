@@ -74,7 +74,9 @@ class PetaBelajar extends ConsumerWidget {
                         ),
                       ),
                     ),
-                  Column(
+                  Padding(
+                    padding: EdgeInsets.only(top: S.scale(context, 8)),
+                    child: Column(
                     children: List.generate(items.length, (i) {
                       final item = items[i];
                       if (!item.isLesson) {
@@ -117,12 +119,13 @@ class PetaBelajar extends ConsumerWidget {
                       );
                       if (item.isFirstActive) {
                         return Padding(
-                          padding: EdgeInsets.only(top: S.scale(context, 40)),
+                          padding: EdgeInsets.only(top: S.scale(context, 28)),
                           child: bubble,
                         );
                       }
                       return bubble;
                     }),
+                  ),
                   ),
                 ],
               ),

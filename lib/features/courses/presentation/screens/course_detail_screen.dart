@@ -13,11 +13,13 @@ import '../../../../core/utils/error_helper.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/services/sound_service.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
 import '../widgets/course_detail/map_item.dart';
 import '../widgets/course_detail/header_card.dart';
 import '../widgets/course_detail/peta_belajar_widget.dart';
+import '../widgets/course_detail/course_tutorial_overlay.dart';
 
 class CourseDetailScreen extends ConsumerStatefulWidget {
   final String courseId;
@@ -35,11 +37,23 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   final _activeUnitName = ValueNotifier('');
   final _isUnitHeaderVisible = ValueNotifier<bool>(true);
   bool _scrolledToActive = false;
+  bool _tutorialSeen = false;
+  final _headerKey = GlobalKey();
+  final _petaKey = GlobalKey();
+  bool _isCardExpanded = true;
 
   @override
   void initState() {
     super.initState();
     _scrollCtrl.addListener(_onScroll);
+    _checkTutorial();
+  }
+
+  Future<void> _checkTutorial() async {
+    final userId = ref.read(authProvider).user?.id;
+    if (userId == null) return;
+    final seen = await isCourseTutorialSeen(userId);
+    if (mounted) setState(() => _tutorialSeen = seen);
   }
 
   @override
@@ -63,12 +77,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       }
     }
 
-    // Cek apakah unit header aktif masih terlihat di viewport
+    // Header "tidak terlihat" jika top-nya sudah ter-scroll melewati 16px dari viewport top
     final unitHeaderTop = _unitPositions[activeIdx];
-    final unitHeaderBottom = unitHeaderTop + S.scale(context, 72);
-
-    // Header "tidak terlihat" jika sudah ter-scroll ke atas (bottom < offset)
-    _isUnitHeaderVisible.value = unitHeaderBottom >= offset;
+    _isUnitHeaderVisible.value = unitHeaderTop >= offset - S.scale(context, 16);
 
     _activeUnitName.value = _unitNames[activeIdx];
   }
@@ -98,6 +109,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           if (idx >= 0 && idx < _itemKeys.length) {
             final ctx = _itemKeys[idx].currentContext;
             if (ctx != null) {
+              final renderObj = ctx.findRenderObject();
+              if (renderObj is RenderBox && renderObj.attached) {
+                final pos = renderObj.localToGlobal(Offset.zero);
+                final viewportHeight = MediaQuery.of(context).size.height;
+                if (pos.dy >= 0 && pos.dy < viewportHeight * 0.7) return;
+              }
               Scrollable.ensureVisible(
                 ctx,
                 alignment: 0.3,
@@ -171,9 +188,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       _scrollToActive(items);
       _scrolledToActive = true;
     }
+    final firstActiveLessonIdx = items.indexWhere(
+      (e) => e.isLesson && !e.isCompleted && !e.isLocked,
+    );
 
-    return SafeArea(
-      child: Column(
+    Widget content = Column(
         children: [
           // Back button + Course title (app bar region)
           Padding(
@@ -234,12 +253,22 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
               ],
             ),
           ),
-          HeaderCard(
-            course: course,
-            progress: p,
-            progressPct: pct,
-            completedUnits: completedUnits,
-            t: t,
+          Container(
+            key: _headerKey,
+            child: HeaderCard(
+              course: course,
+              progress: p,
+              progressPct: pct,
+              completedUnits: completedUnits,
+              t: t,
+              isExpanded: _isCardExpanded,
+              onToggle: () {
+                setState(() => _isCardExpanded = !_isCardExpanded);
+                Future.delayed(const Duration(milliseconds: 350), () {
+                  if (mounted) setState(() {});
+                });
+              },
+            ),
           ),
           // Peta Belajar title (fixed — never scrolls)
           Padding(
@@ -250,6 +279,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
               0,
             ),
             child: Row(
+              key: _petaKey,
               children: [
                 Icon(Icons.menu_book, size: S.scale(context, 24), color: t.primary),
                 SizedBox(width: S.scale(context, 8)),
@@ -272,29 +302,22 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                 valueListenable: _activeUnitName,
                 builder: (_, name, __) {
                   final shouldShow = name.isNotEmpty && !headerVisible;
-                  return AnimatedSwitcher(
+                  return AnimatedSize(
                     duration: 250.ms,
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    transitionBuilder: (child, animation) => SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, -0.5),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: FadeTransition(opacity: animation, child: child),
-                    ),
+                    curve: Curves.easeInOutCubic,
+                    alignment: Alignment.topCenter,
                     child: shouldShow
                         ? Container(
                             key: ValueKey('banner-$name'),
                             margin: EdgeInsets.fromLTRB(
                               S.scale(context, 24),
-                              S.scale(context, 10),
+                              S.scale(context, 6),
                               S.scale(context, 24),
                               0,
                             ),
                             padding: EdgeInsets.symmetric(
                               horizontal: S.scale(context, 14),
-                              vertical: S.scale(context, 6),
+                              vertical: S.scale(context, 5),
                             ),
                             decoration: BoxDecoration(
                               color: t.primary.withValues(alpha: 0.1),
@@ -307,13 +330,13 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.flag, size: S.scale(context, 14), color: t.primary),
+                                Icon(Icons.flag, size: S.scale(context, 12), color: t.primary),
                                 SizedBox(width: S.scale(context, 6)),
                                 Text(
                                   name.toUpperCase(),
                                   style: GoogleFonts.nunito(
                                     color: t.primary,
-                                    fontSize: S.font(context, 11),
+                                    fontSize: S.font(context, 10),
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: S.scale(context, 1.5),
                                   ),
@@ -321,13 +344,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                               ],
                             ),
                           )
-                        : const SizedBox.shrink(key: ValueKey('hidden')),
+                        : const SizedBox(
+                            key: ValueKey('hidden'),
+                          ),
                   );
                 },
               );
             },
           ),
-          SizedBox(height: S.scale(context, 12)),
+          SizedBox(height: S.scale(context, 24)),
           Expanded(
             child: items.isEmpty
                 ? Center(
@@ -355,6 +380,72 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                   ),
           ),
         ],
+      );
+
+    final userId = ref.read(authProvider).user?.id ?? '';
+    final firstActiveKey = firstActiveLessonIdx >= 0 && firstActiveLessonIdx < _itemKeys.length
+        ? _itemKeys[firstActiveLessonIdx]
+        : null;
+
+    return SafeArea(
+      child: CourseTutorialOverlay(
+        show: !_tutorialSeen,
+        theme: t,
+        onComplete: () async {
+          if (userId.isNotEmpty) {
+            await markCourseTutorialSeen(userId);
+          }
+          if (mounted) setState(() => _tutorialSeen = true);
+        },
+        steps: [
+          TutorialStepData(
+            targetKey: _headerKey,
+            spotlightRadius: 24,
+            extendToTop: 16,
+            insetLeft: 8,
+            insetRight: 8,
+            insetBottom: 18,
+            title: 'Informasi Kursus',
+            description:
+                'Ini header kursus. Kamu bisa melihat judul, jumlah materi, unit yang sudah selesai, dan progres belajarmu. Klik tombol ▲/▼ untuk menyembunyikan atau menampilkan detail.',
+          ),
+          TutorialStepData(
+            targetKey: _petaKey,
+            extendToBottom: -1,
+            extendToTop: 22,
+            insetLeft: -5,
+            insetRight: -5,
+            title: 'Peta Belajar',
+            description:
+                'Ini adalah peta belajarmu. Semua materi dan quiz tersusun rapi dari awal hingga akhir. Gulir ke bawah untuk melihat materi selanjutnya.',
+          ),
+          TutorialStepData(
+            targetKey: firstActiveKey,
+            circleHighlight: true,
+            circleRadius: 38,
+            circleOffset: Offset(-65, -40),
+            title: 'Materi Pembelajaran',
+            description:
+                'Setiap lingkaran adalah satu materi. Lingkaran biru dengan buku = siap dipelajari, hijau dengan centang = sudah selesai, abu-abu dengan kunci = masih terkunci.',
+          ),
+          TutorialStepData(
+            targetKey: firstActiveKey,
+            extendToTop: 25,
+            insetLeft: 50,
+            insetRight: 185,
+            insetBottom: 75,
+            spotlightRadius: 16,
+            title: 'Mulai Belajar',
+            description:
+                'Tap lingkaran biru untuk mulai membaca materi. Bacalah dengan saksama dan pahami setiap konsep yang diajarkan.',
+          ),
+          TutorialStepData(
+            title: 'Kerjakan Quiz',
+            description:
+                'Setelah selesai membaca materi, kerjakan quiz untuk menguji pemahamanmu. Semakin tinggi skor, semakin banyak XP yang kamu dapatkan!',
+          ),
+        ],
+        child: content,
       ),
     );
   }
