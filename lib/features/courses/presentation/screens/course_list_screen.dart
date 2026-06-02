@@ -8,12 +8,9 @@ import '../widgets/course_list/course_card.dart';
 import '../widgets/course_list/course_list_skeleton.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/main_screen.dart';
-import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
-import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/course_provider.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../data/models/course_model.dart';
@@ -25,38 +22,22 @@ class CourseListScreen extends ConsumerStatefulWidget {
   ConsumerState<CourseListScreen> createState() => _CourseListScreenState();
 }
 
-class _CourseListScreenState extends ConsumerState<CourseListScreen>
-    with SilentRefreshMixin<CourseListScreen> {
+class _CourseListScreenState extends ConsumerState<CourseListScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
-  }
-
-  Future<void> _silentRefresh() async {
-    final fetchState = ref.read(courseListFetchProvider.notifier);
-    if (!fetchState.shouldRefresh) return;
-
-    silentFetch(
-      fetch: () async {
-        ref.invalidate(coursesProvider);
-        ref.invalidate(enrolledCoursesProvider);
-        await Future.wait([
-          ref.read(coursesProvider.future),
-          ref.read(enrolledCoursesProvider.future),
-        ]);
-      },
-      fetchState: fetchState,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(coursesProvider);
+      ref.invalidate(enrolledCoursesProvider);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<int>(navIndexProvider, (prev, next) {
+    ref.listenManual<int>(navIndexProvider, (prev, next) {
       if (prev != null && prev != 0 && next == 0) {
         ref.invalidate(coursesProvider);
         ref.invalidate(enrolledCoursesProvider);
-        _silentRefresh();
       }
     });
 
@@ -88,10 +69,16 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
       body: SafeArea(
         child: Column(
           children: [
-            SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: _silentRefresh,
+                onRefresh: () async {
+                  ref.invalidate(coursesProvider);
+                  ref.invalidate(enrolledCoursesProvider);
+                  await Future.wait([
+                    ref.read(coursesProvider.future),
+                    ref.read(enrolledCoursesProvider.future),
+                  ]);
+                },
                 child: Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
@@ -101,24 +88,22 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
                       physics: const AlwaysScrollableScrollPhysics(),
                       slivers: [
                         coursesAsync.when(
-                          loading: () =>
-                              _buildSkeletonSliver(context, t),
+                          loading: () => _buildSkeletonSliver(context, t),
                           error: (e, _) => SliverFillRemaining(
                             child: ErrorBody(
                               t: t,
                               icon: iconForError(e),
                               title: AppStrings.errLoadCourses,
                               message: sanitizeErrorMessage(e),
-                              onRetry: () {
-                                setShowSlowIndicator(true);
-                                ref.invalidate(coursesProvider);
-                              },
+                              onRetry: () => ref.invalidate(coursesProvider),
                             ),
                           ),
                           data: (courses) {
                             return enrolledAsync.when(
                               loading: () => _buildSkeletonSliver(
-                                context, t, count: courses.length,
+                                context,
+                                t,
+                                count: courses.length,
                               ),
                               error: (_, __) =>
                                   _buildLoadedSliver(context, ref, courses, t),
@@ -168,11 +153,10 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
           final course = courses[i - 1];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: S.scale(context, 20)),
-            child: CourseCard(
-              course: course,
-              index: i - 1,
-              t: t,
-            ).animate().fadeIn(delay: (60 * (i - 1)).ms).slideY(begin: 0.08, end: 0),
+            child: CourseCard(course: course, index: i - 1, t: t)
+                .animate()
+                .fadeIn(delay: (60 * (i - 1)).ms)
+                .slideY(begin: 0.08, end: 0),
           );
         }, childCount: courses.length + 1),
       ),
@@ -198,10 +182,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen>
                 S.scale(context, 32),
               ),
               child: Column(
-                children: List.generate(
-                  count,
-                  (_) => CourseCardSkeleton(t: t),
-                ),
+                children: List.generate(count, (_) => CourseCardSkeleton(t: t)),
               ),
             ),
           ],

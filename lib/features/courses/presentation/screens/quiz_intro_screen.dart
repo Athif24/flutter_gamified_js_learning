@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/widgets/loading_circle.dart';
-import '../../../../shared/widgets/slow_loading_indicator.dart';
 import '../../../../shared/widgets/error_body.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../providers/course_provider.dart';
-import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../../../achievement/presentation/providers/achievement_provider.dart';
 import '../widgets/quiz/intro/intro_body.dart';
+import '../widgets/quiz/intro/intro_skeleton.dart';
 
 class QuizIntroScreen extends ConsumerStatefulWidget {
   final String quizId;
@@ -29,37 +26,19 @@ class QuizIntroScreen extends ConsumerStatefulWidget {
   ConsumerState<QuizIntroScreen> createState() => _QuizIntroScreenState();
 }
 
-class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen>
-    with SilentRefreshMixin<QuizIntroScreen> {
+class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _silentRefresh());
-  }
-
-  Future<void> _silentRefresh() async {
-    final fetchState = ref.read(quizIntroFetchProvider.notifier);
-    if (!fetchState.shouldRefresh) return;
-
-    silentFetch(
-      fetch: () async {
-        ref.invalidate(quizPreviewProvider(widget.quizId));
-        ref.invalidate(myQuizResultProvider(widget.quizId));
-        ref.invalidate(quizAttemptProvider(widget.quizId));
-        ref.invalidate(livesProvider);
-        if (widget.courseId != null) {
-          ref.invalidate(courseDetailProvider(widget.courseId!));
-        }
-        await ref.read(quizPreviewProvider(widget.quizId).future);
-        await ref.read(myQuizResultProvider(widget.quizId).future);
-        await ref.read(quizAttemptProvider(widget.quizId).future);
-        await ref.read(livesProvider.future);
-        if (widget.courseId != null) {
-          await ref.read(courseDetailProvider(widget.courseId!).future);
-        }
-      },
-      fetchState: fetchState,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(quizPreviewProvider(widget.quizId));
+      ref.invalidate(myQuizResultProvider(widget.quizId));
+      ref.invalidate(quizAttemptProvider(widget.quizId));
+      ref.invalidate(livesProvider);
+      if (widget.courseId != null) {
+        ref.invalidate(courseDetailProvider(widget.courseId!));
+      }
+    });
   }
 
   @override
@@ -78,7 +57,6 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen>
       body: SafeArea(
         child: Column(
           children: [
-            SlowLoadingIndicator(visible: showSlowIndicator, t: t),
             SizedBox(height: S.scale(context, 8)),
             Expanded(
               child: Center(
@@ -89,16 +67,14 @@ class _QuizIntroScreenState extends ConsumerState<QuizIntroScreen>
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(S.scale(context, 28)),
                     child: previewAsync.when(
-                      loading: () => LoadingCircle(t: t),
+                      loading: () => IntroSkeleton(t: t),
                       error: (e, _) => ErrorBody(
                         t: t,
                         icon: iconForError(e),
                         title: AppStrings.errLoadQuiz,
                         message: sanitizeErrorMessage(e),
-                        onRetry: () {
-                          setShowSlowIndicator(true);
-                          _silentRefresh();
-                        },
+                        onRetry: () =>
+                            ref.invalidate(quizPreviewProvider(widget.quizId)),
                       ),
                       data: (preview) => IntroBody(
                         preview: preview,
