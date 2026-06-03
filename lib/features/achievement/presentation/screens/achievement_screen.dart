@@ -30,14 +30,6 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(xpProvider);
-      ref.invalidate(streakProvider);
-      ref.invalidate(mergedBadgesProvider);
-      ref.invalidate(livesProvider);
-      ref.invalidate(levelsProvider);
-      ref.invalidate(xpHistoryProvider);
-    });
   }
 
   List<Widget> _wrapStatItems(List<StatCard> items, double childWidth) {

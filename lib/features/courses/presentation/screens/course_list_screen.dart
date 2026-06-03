@@ -26,10 +26,6 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(coursesProvider);
-      ref.invalidate(enrolledCoursesProvider);
-    });
   }
 
   @override

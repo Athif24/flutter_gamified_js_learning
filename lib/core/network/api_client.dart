@@ -39,7 +39,7 @@ class ApiClient {
     _authInterceptor = _AuthInterceptor();
     _dio = Dio(BaseOptions(
       baseUrl        : Api.base,
-      connectTimeout : const Duration(seconds: 10),
+      connectTimeout : null,
       receiveTimeout : const Duration(seconds: 15),
       headers        : {'Content-Type': 'application/json'},
     ));

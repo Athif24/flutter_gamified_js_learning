@@ -30,13 +30,6 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(storeItemsProvider);
-      ref.invalidate(inventoryProvider);
-      ref.invalidate(jewelBalanceProvider);
-      ref.invalidate(jewelHistoryProvider);
-      ref.invalidate(rewardPoolsProvider);
-    });
   }
 
   @override

@@ -39,9 +39,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         ref.invalidate(leaderboardProvider);
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(leaderboardProvider);
-    });
     _startAutoRefresh();
   }
 

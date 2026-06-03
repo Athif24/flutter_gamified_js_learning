@@ -30,9 +30,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(profileProvider);
-    });
   }
 
   Widget _buildContent(ProfileModel profile, BloomTheme t) {
