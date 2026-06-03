@@ -3,6 +3,7 @@ import 'dart:math' show cos, sin, pow, pi;
 import 'package:flutter/material.dart';
 
 import 'bloom_theme.dart';
+import '../utils/color_utils.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // RAW DAISYUI v5 THEME DATA  (from unpkg.com/daisyui@5.5.19/theme/object.js)
@@ -874,7 +875,7 @@ double _srgbTransfer(double c) {
 // DAISYUI → BLOOMTHEME
 // ════════════════════════════════════════════════════════════════════════════
 
-Color _darken(Color c, double amount) => Color.lerp(c, Colors.black, amount)!;
+Color _darken(Color c, double amount) => darken(c, amount);
 
 Color _deriveSurface2(Color base200, bool isLight) =>
     isLight ? Color.lerp(base200, Colors.black, 0.04)! : Color.lerp(base200, Colors.white, 0.04)!;

@@ -15,6 +15,7 @@ import '../../../../shared/widgets/celebration_screen.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../shared/utils/color_utils.dart';
 import '../../data/models/course_model.dart';
 import '../providers/course_provider.dart';
 import '../widgets/quiz/questions/question_card.dart';

@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import '../navigation/deep_link_helper.dart';
 
 final _plugin = FlutterLocalNotificationsPlugin();
 
@@ -20,9 +24,18 @@ class LocalNotificationService {
   }
 
   static void _onTap(NotificationResponse response) {
-    // Optional: navigate based on payload
-    final payload = response.payload;
-    debugPrint('[NOTIF] Tapped: $payload');
+    final raw = response.payload;
+    if (raw == null) return;
+    try {
+      final data = Map<String, String>.from(jsonDecode(raw) as Map);
+      final link = parseNotificationPayload(data);
+      if (link != null) {
+        pendingDeepLinkNotifier.value = link;
+        debugPrint('[NOTIF] Deep-link: $link');
+      }
+    } catch (e) {
+      debugPrint('[NOTIF] Payload parse error: $e');
+    }
   }
 
   static Future<void> showNotification(RemoteMessage message) async {
@@ -35,6 +48,7 @@ class LocalNotificationService {
       channelDescription: 'Notifikasi dari Bloom',
       importance: Importance.high,
       priority: Priority.high,
+      sound: RawResourceAndroidNotificationSound('notification'),
     );
     const iosDetails = DarwinNotificationDetails();
     final details = NotificationDetails(
@@ -47,7 +61,7 @@ class LocalNotificationService {
       notification.title,
       notification.body,
       details,
-      payload: message.data.toString(),
+      payload: jsonEncode(message.data),
     );
   }
 }

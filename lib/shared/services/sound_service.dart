@@ -45,23 +45,23 @@ class SoundService extends ChangeNotifier {
     final player = AudioPlayer();
     _activePlayers.add(player);
 
-    // TODO: ganti pola cleanup listener dengan dispose() yang lebih robust — player.dispose() tidak boleh dipanggil dua kali
+    var disposed = false;
+    void disposeOnce() {
+      if (disposed) return;
+      disposed = true;
+      _activePlayers.remove(player);
+      player.dispose();
+    }
+
     unawaited(
-      player.onPlayerComplete.first.then((_) {
-        _activePlayers.remove(player);
-        player.dispose();
-      }).catchError((_) {
-        _activePlayers.remove(player);
-        player.dispose();
-      }),
+      player.onPlayerComplete.first.then((_) => disposeOnce()).catchError((_) => disposeOnce()),
     );
 
     try {
       await player.setVolume(_volume);
       await player.play(AssetSource(asset));
     } catch (e) {
-      _activePlayers.remove(player);
-      await player.dispose();
+      disposeOnce();
     }
   }
 

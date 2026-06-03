@@ -89,8 +89,9 @@ class _PostRegisterTutorialState extends State<PostRegisterTutorial> {
             );
           }
         } catch (e) {
-          if (!kReleaseMode)
+          if (!kReleaseMode) {
             debugPrint('[PostRegisterTutorial] findRenderObject error: $e');
+          }
         }
       }
     }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/splash_background.dart';
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
@@ -28,10 +29,9 @@ class SplashScreen extends ConsumerWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/splash_screen_transparent.png',
-              fit: BoxFit.cover,
-            ).animate().fadeIn(duration: 400.ms).blur(
+            child: const SplashBackground().animate().fadeIn(
+                  duration: 400.ms,
+                ).blur(
                   begin: const Offset(6, 6),
                   end: Offset.zero,
                   duration: 400.ms,

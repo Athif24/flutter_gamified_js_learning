@@ -3,6 +3,7 @@ import '../../features/achievement/presentation/providers/achievement_provider.d
 import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../../features/leaderboard/presentation/providers/leaderboard_provider.dart';
 import '../../features/store/presentation/providers/store_provider.dart';
+import '../../features/store/presentation/providers/reward_pool_provider.dart';
 import '../../features/courses/presentation/providers/course_provider.dart';
 
 void invalidateGamificationProviders(
@@ -22,6 +23,10 @@ void invalidateGamificationProviders(
   if (!skip.contains('xpHistory')) ref.invalidate(xpHistoryProvider);
   if (!skip.contains('levels')) ref.invalidate(levelsProvider);
   if (!skip.contains('enrolledCourses')) ref.invalidate(enrolledCoursesProvider);
+  if (!skip.contains('courses')) ref.invalidate(coursesProvider);
+  if (!skip.contains('storeItems')) ref.invalidate(storeItemsProvider);
+  if (!skip.contains('inventory')) ref.invalidate(inventoryProvider);
+  if (!skip.contains('rewardPools')) ref.invalidate(rewardPoolsProvider);
   if (courseId != null && !skip.contains('courseDetail')) {
     ref.invalidate(courseDetailProvider(courseId));
   }

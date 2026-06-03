@@ -1,4 +1,3 @@
-// TODO: tambahkan deep-link support untuk notifikasi push, share URL, dsb.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +13,7 @@ import '../../features/courses/presentation/screens/quiz_screen.dart';
 import '../../shared/widgets/main_screen.dart';
 import '../logging/navigation_logger.dart';
 import '../auth/auth_refresh_notifier.dart';
+import '../navigation/deep_link_helper.dart';
 
 final _navLogger = NavigationLogger();
 
@@ -28,7 +28,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
     observers: [_navLogger],
-    refreshListenable: ref.watch(authRefreshNotifierProvider),
+    refreshListenable: Listenable.merge([
+      ref.watch(authRefreshNotifierProvider),
+      pendingDeepLinkNotifier,
+    ]),
     redirect: (context, state) {
       final auth = ref.read(authProvider);
       final loggedIn = auth.isLoggedIn;
@@ -52,6 +55,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           !auth.wizardCompleted &&
           state.matchedLocation != '/onboarding') {
         return '/onboarding';
+      }
+
+      final deepLink = pendingDeepLinkNotifier.value;
+      if (deepLink != null &&
+          loggedIn &&
+          auth.wizardCompleted &&
+          state.matchedLocation == '/home') {
+        pendingDeepLinkNotifier.value = null;
+        return deepLink;
       }
 
       return null;

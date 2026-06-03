@@ -78,8 +78,9 @@ class QuizFeedbackPopup extends StatelessWidget {
     if (correctAnswer == null) return '';
     if (correctAnswer is String) return correctAnswer;
     if (correctAnswer is List) return correctAnswer.join(', ');
-    if (correctAnswer is Map)
+    if (correctAnswer is Map) {
       return correctAnswer['text']?.toString() ?? correctAnswer.toString();
+    }
     return correctAnswer.toString();
   }
 

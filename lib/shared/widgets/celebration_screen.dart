@@ -86,10 +86,11 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       );
       if (_hasLevelUp) {
         Future.delayed(const Duration(milliseconds: 600), () {
-          if (mounted)
+          if (mounted) {
             sound.playLevelUp().catchError(
               (e) => debugPrint('[Celebration] playLevelUp: $e'),
             );
+          }
         });
       }
 
@@ -124,12 +125,22 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
         child: SafeArea(
           child: Stack(
             children: [
-              // TODO: 232+ AnimatedBuilder is heavy — refactor to single CustomPainter
               if (_isSuperCelebration)
-                ..._buildConfettiParticles(t, _isSuperCelebration ? 80 : 20),
-              if (_isSuperCelebration)
-                ..._buildConfettiParticles(t, _isSuperCelebration ? 72 : 16),
-              if (_isSuperCelebration) ..._buildThirdConfettiLayer(t),
+                RepaintBoundary(
+                  child: AnimatedBuilder(
+                    animation: _confettiController,
+                    builder: (context, _) {
+                      final s = MediaQuery.of(context).size;
+                      return CustomPaint(
+                        painter: _ConfettiPainter(
+                          particles: _getParticles(t, s),
+                          progress: _confettiController.value,
+                        ),
+                        size: s,
+                      );
+                    },
+                  ),
+                ),
 
               if (_isSuperCelebration) _buildScreenFlash(t),
 
@@ -206,121 +217,81 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     );
   }
 
-  List<Widget> _buildConfettiParticles(BloomTheme t, int count) {
-    final size = MediaQuery.of(context).size;
-    return List.generate(count, (i) {
-      final random = Random(i * 7);
-      final startX = random.nextDouble() * size.width;
-      final delay = random.nextDouble() * 0.28;
-      final drift = -22 + (random.nextDouble() * 44).toInt();
-      final emojiSize = S.scale(context, (5 + random.nextInt(5)).toDouble());
-      final isEmoji = random.nextDouble() > 0.5;
-      final emojis = ['⭐', '🎁', '💎', '🔥', '✨'];
-      final emoji = emojis[random.nextInt(emojis.length)];
 
-      return AnimatedBuilder(
-        animation: _confettiController,
-        builder: (context, child) {
-          final progress = _confettiController.value;
-          if (progress < delay) return const SizedBox.shrink();
-          final adjustedProgress = ((progress - delay) / (1 - delay)).clamp(
-            0.0,
-            1.0,
-          );
-          final endY = size.height * 0.8;
-          final currentY = -50 + (endY + 50) * adjustedProgress;
-          final wobble =
-              sin(adjustedProgress * 4 * pi + i) * drift * adjustedProgress;
-          final opacity = (1 - adjustedProgress).clamp(0.0, 1.0);
 
-          return Positioned(
-            left: startX + wobble,
-            top: currentY,
-            child: Opacity(
-              opacity: opacity,
-              child: Transform.rotate(
-                angle: adjustedProgress * 4 * pi + i,
-                child: isEmoji
-                    ? Text(emoji, style: TextStyle(fontSize: emojiSize))
-                    : Container(
-                        width: emojiSize,
-                        height: emojiSize * 1.5,
-                        decoration: BoxDecoration(
-                          color: [
-                            t.accent,
-                            t.info,
-                            t.warning,
-                            t.success,
-                          ][i % 4],
-                          borderRadius: BorderRadius.circular(
-                            random.nextBool() ? emojiSize / 2 : 0,
-                          ),
-                        ),
-                      ),
-              ),
-            ),
-          );
-        },
-      );
-    });
+
+
+  // ── Confetti helpers ──────────────────────────────────────────────────────
+
+  List<_ConfettiParticle>? _particles;
+  Size? _lastConfettiSize;
+
+  List<_ConfettiParticle> _getParticles(BloomTheme t, Size s) {
+    if (_particles == null || _lastConfettiSize != s) {
+      _particles = _generateParticles(t, s);
+      _lastConfettiSize = s;
+    }
+    return _particles!;
   }
 
-  // TODO: _buildConfettiParticles and _buildThirdConfettiLayer share ~90% identical logic.
-  // Refactor into a single parameterized method when time permits.
-  List<Widget> _buildThirdConfettiLayer(BloomTheme t) {
-    final size = MediaQuery.of(context).size;
-    final count = 80;
-    return List.generate(count, (i) {
-      final random = Random(i * 13 + 5);
-      final startX = random.nextDouble() * size.width;
-      final delay = 0.3 + random.nextDouble() * 0.3;
-      final drift = -30 + (random.nextDouble() * 60).toInt();
-      final emojiSize = S.scale(context, (6 + random.nextInt(4)).toDouble());
-      final isEmoji = random.nextDouble() > 0.5;
-      final emojis = ['⭐', '🎁', '💎', '🔥', '✨'];
-      final emoji = emojis[random.nextInt(emojis.length)];
-      final color = random.nextDouble() > 0.5
-          ? t.warning.withAlpha(200)
-          : t.success.withAlpha(200);
+  List<_ConfettiParticle> _generateParticles(BloomTheme t, Size s) {
+    final rng = Random(42);
+    final list = <_ConfettiParticle>[];
+    var index = 0;
 
-      return AnimatedBuilder(
-        animation: _confettiController,
-        builder: (context, child) {
-          final progress = _confettiController.value;
-          if (progress < delay) return const SizedBox.shrink();
-          final adjustedProgress = ((progress - delay) / (1 - delay)).clamp(
-            0.0,
-            1.0,
-          );
-          final endY = size.height * 0.85;
-          final currentY = -50 + (endY + 50) * adjustedProgress;
-          final wobble =
-              sin(adjustedProgress * 4 * pi + i) * drift * adjustedProgress;
-          final opacity = (1 - adjustedProgress).clamp(0.0, 1.0);
+    void addLayer({
+      required int count,
+      required double minDelay,
+      required double maxDelay,
+      required int minDrift,
+      required int maxDrift,
+      required double minSize,
+      required double maxSize,
+      required List<Color> colors,
+      required double rectWHRatio,
+      required double endYFrac,
+    }) {
+      const emojis = ['⭐', '🎁', '💎', '🔥', '✨'];
+      for (int i = 0; i < count; i++) {
+        list.add(_ConfettiParticle(
+          startX: rng.nextDouble() * s.width,
+          delay: minDelay + rng.nextDouble() * (maxDelay - minDelay),
+          drift: minDrift + rng.nextDouble() * (maxDrift - minDrift),
+          size: minSize + rng.nextDouble() * (maxSize - minSize),
+          isEmoji: rng.nextDouble() > 0.5,
+          emoji: emojis[rng.nextInt(emojis.length)],
+          color: colors[rng.nextInt(colors.length)],
+          isRound: rng.nextBool(),
+          rectWHRatio: rectWHRatio,
+          endYFrac: endYFrac,
+          index: index++,
+        ));
+      }
+    }
 
-          return Positioned(
-            left: startX + wobble,
-            top: currentY,
-            child: Opacity(
-              opacity: opacity,
-              child: Transform.rotate(
-                angle: adjustedProgress * 4 * pi + i,
-                child: isEmoji
-                    ? Text(emoji, style: TextStyle(fontSize: emojiSize))
-                    : Container(
-                        width: emojiSize * 1.2,
-                        height: emojiSize * 1.2,
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(emojiSize / 2),
-                        ),
-                      ),
-              ),
-            ),
-          );
-        },
-      );
-    });
+    addLayer(
+      count: 80, minDelay: 0, maxDelay: 0.28,
+      minDrift: -22, maxDrift: 22,
+      minSize: 5, maxSize: 10,
+      colors: [t.accent, t.info, t.warning, t.success],
+      rectWHRatio: 1.5, endYFrac: 0.8,
+    );
+    addLayer(
+      count: 72, minDelay: 0, maxDelay: 0.28,
+      minDrift: -22, maxDrift: 22,
+      minSize: 5, maxSize: 10,
+      colors: [t.accent, t.info, t.warning, t.success],
+      rectWHRatio: 1.5, endYFrac: 0.8,
+    );
+    addLayer(
+      count: 80, minDelay: 0.3, maxDelay: 0.6,
+      minDrift: -30, maxDrift: 30,
+      minSize: 6, maxSize: 10,
+      colors: [t.warning.withAlpha(200), t.success.withAlpha(200)],
+      rectWHRatio: 1.0, endYFrac: 0.85,
+    );
+
+    return list;
   }
 
   Widget _buildScreenFlash(BloomTheme t) {
@@ -976,4 +947,93 @@ class _AnimatedRewardCardState extends State<_AnimatedRewardCard>
         .fadeIn(delay: Duration(milliseconds: widget.delay))
         .slideX(begin: 0.1);
   }
+}
+
+// ── Confetti particle data and painter ──────────────────────────────────────
+
+class _ConfettiParticle {
+  final double startX;
+  final double delay;
+  final double drift;
+  final double size;
+  final bool isEmoji;
+  final String emoji;
+  final Color color;
+  final bool isRound;
+  final double rectWHRatio;
+  final double endYFrac;
+  final int index;
+
+  const _ConfettiParticle({
+    required this.startX,
+    required this.delay,
+    required this.drift,
+    required this.size,
+    required this.isEmoji,
+    required this.emoji,
+    required this.color,
+    required this.isRound,
+    required this.rectWHRatio,
+    required this.endYFrac,
+    required this.index,
+  });
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final List<_ConfettiParticle> particles;
+  final double progress;
+
+  _ConfettiPainter({required this.particles, required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final p in particles) {
+      if (progress < p.delay) continue;
+
+      final adj = ((progress - p.delay) / (1 - p.delay)).clamp(0.0, 1.0);
+      final endY = size.height * p.endYFrac;
+      final y = -50 + (endY + 50) * adj;
+      final wobble = sin(adj * 4 * pi + p.index) * p.drift * adj;
+      final opacity = (1 - adj).clamp(0.0, 1.0);
+
+      canvas.save();
+      canvas.translate(p.startX + wobble, y);
+      canvas.rotate(adj * 4 * pi + p.index);
+
+      if (p.isEmoji) {
+        _drawEmoji(canvas, p.emoji, p.size, opacity);
+      } else {
+        final paint = Paint()..color = p.color.withValues(alpha: opacity);
+        final rect = Rect.fromCenter(
+          center: Offset.zero,
+          width: p.size,
+          height: p.size * p.rectWHRatio,
+        );
+        if (p.isRound) {
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(rect, Radius.circular(p.size / 2)),
+            paint,
+          );
+        } else {
+          canvas.drawRect(rect, paint);
+        }
+      }
+
+      canvas.restore();
+    }
+  }
+
+  void _drawEmoji(Canvas canvas, String emoji, double size, double opacity) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: emoji,
+        style: TextStyle(fontSize: size, color: Colors.white.withValues(alpha: opacity)),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter old) => old.progress != progress;
 }

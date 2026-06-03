@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../network/api_client.dart';
+import '../navigation/deep_link_helper.dart';
 import 'local_notification_service.dart';
 
 @pragma('vm:entry-point')
@@ -31,12 +32,20 @@ class FcmService {
     // Foreground messages → show local notification
     FirebaseMessaging.onMessage.listen(LocalNotificationService.showNotification);
 
-    // App opened from notification
-    FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
+    // App opened from terminated state (killed → tap notification)
+    final initial = await messaging.getInitialMessage();
+    if (initial != null) _setDeepLink(initial);
+
+    // App opened from background state
+    FirebaseMessaging.onMessageOpenedApp.listen(_setDeepLink);
   }
 
-  static void _onMessageOpenedApp(RemoteMessage message) {
-    debugPrint('[FCM] Opened from: ${message.notification?.title}');
+  static void _setDeepLink(RemoteMessage message) {
+    final link = parseNotificationPayload(message.data.cast<String, String>());
+    if (link != null) {
+      pendingDeepLinkNotifier.value = link;
+      debugPrint('[FCM] Deep-link: $link');
+    }
   }
 
   static Future<String?> getToken() async {

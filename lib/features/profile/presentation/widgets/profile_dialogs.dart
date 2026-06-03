@@ -16,8 +16,6 @@ import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../courses/presentation/providers/course_provider.dart';
-import '../../../store/presentation/providers/store_provider.dart';
-import '../../../store/presentation/providers/reward_pool_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../../data/models/profile_model.dart';
@@ -932,13 +930,8 @@ Future<void> showLogoutConfirm(
                                 return;
                               }
 
-                              // TODO: deduplikasi — beberapa provider di-invalidate juga di invalidateGamificationProviders
                               invalidateGamificationProviders(ref, skip: {'xpHistory'});
-                              ref.invalidate(coursesProvider);
                               ref.invalidate(courseDetailProvider);
-                              ref.invalidate(storeItemsProvider);
-                              ref.invalidate(inventoryProvider);
-                              ref.invalidate(rewardPoolsProvider);
                               ref.read(navIndexProvider.notifier).state = 0;
 
                               if (ctx.mounted) {

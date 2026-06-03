@@ -63,8 +63,8 @@ class ApiClient {
     _authInterceptor.cachedToken = null;
   }
 
-  Future<Response> get(String path, {Map<String, dynamic>? query}) =>
-      _dio.get(path, queryParameters: query);
+  Future<Response> get(String path, {Map<String, dynamic>? query, Options? options}) =>
+      _dio.get(path, queryParameters: query, options: options);
 
   Future<Response> post(String path, {dynamic data}) =>
       _dio.post(path, data: data);

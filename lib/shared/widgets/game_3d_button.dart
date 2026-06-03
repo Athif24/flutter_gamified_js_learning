@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/utils/responsive_utils.dart';
-
-// TODO: deduplicate with theme_parser.dart _darken
-Color darken(Color c, double amt) {
-  final h = HSLColor.fromColor(c);
-  return h.withLightness((h.lightness - amt).clamp(0.0, 1.0)).toColor();
-}
+import '../../../core/utils/responsive_utils.dart';
 
 class Game3DButton extends ConsumerStatefulWidget {
   final String? label;

@@ -11,6 +11,7 @@ import '../../data/models/store_model.dart';
 import '../../data/models/reward_pool_model.dart';
 import '../providers/store_provider.dart';
 import '../providers/reward_pool_provider.dart';
+import '../../../../shared/providers/gamification_providers.dart';
 import '../widgets/mystery_box_reveal_overlay.dart';
 import '../widgets/store_skeleton.dart';
 import '../widgets/store_empty_state.dart';
@@ -94,11 +95,9 @@ class _StoreInventoryTabState extends ConsumerState<StoreInventoryTab> {
     try {
       await showOverlay();
 
-      // Refresh after overlay closes
+      // Refresh all gamification providers after overlay closes
       if (mounted) {
-        ref.invalidate(inventoryProvider);
-        ref.invalidate(jewelBalanceProvider);
-        ref.invalidate(jewelHistoryProvider);
+        invalidateGamificationProviders(ref);
       }
     } catch (e) {
       if (mounted) {

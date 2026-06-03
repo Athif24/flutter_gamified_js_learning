@@ -1,5 +1,7 @@
 export 'bloom_theme.dart';
 
+import 'dart:ui' show Brightness, PlatformDispatcher;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,8 +40,15 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    final id    = prefs.getString(_key) ?? 'dark';
-    state = state.copyWith(themeId: id);
+    final stored = prefs.getString(_key);
+    if (stored != null) {
+      state = state.copyWith(themeId: stored);
+    } else {
+      final brightness = PlatformDispatcher.instance.platformBrightness;
+      state = state.copyWith(
+        themeId: brightness == Brightness.dark ? 'dark' : 'light',
+      );
+    }
   }
 
   Future<void> setTheme(String id) async {
