@@ -3,10 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
 import '../../../../core/utils/accessibility.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../data/models/reward_pool_model.dart';
@@ -124,23 +122,24 @@ class _MysteryBoxRevealOverlayState extends State<MysteryBoxRevealOverlay>
         child: Stack(
           children: [
             // Confetti particles (skipped if reduced motion)
-            if (_phase == _RevealPhase.reveal &&
-                widget.result.isGoodReward &&
-                !a11yReduceMotion(context))
-              ...List.generate(
-                20,
-                (i) => _ConfettiParticle(
-                  controller: _confettiController,
-                  index: i,
-                  color: [
-                    widget.t.primary,
-                    widget.t.secondary,
-                    widget.t.accent,
-                    widget.t.success,
-                    widget.t.info,
-                  ][i % 5],
-                ),
-              ),
+                if (_phase == _RevealPhase.reveal &&
+                    widget.result.isGoodReward &&
+                    !a11yReduceMotion(context))
+                  ...List.generate(
+                    20,
+                    (i) => _ConfettiParticle(
+                      controller: _confettiController,
+                      index: i,
+                      isGoodReward: widget.result.isGoodReward,
+                      color: [
+                        widget.t.primary,
+                        widget.t.secondary,
+                        widget.t.accent,
+                        widget.t.success,
+                        widget.t.info,
+                      ][i % 5],
+                    ),
+                  ),
 
             // Main content
             Center(
@@ -268,6 +267,7 @@ class _RewardReveal extends StatefulWidget {
 
 class _RewardRevealState extends State<_RewardReveal> {
   int _displayAmount = 0;
+  bool _counterDone = false;
 
   @override
   void initState() {
@@ -289,6 +289,78 @@ class _RewardRevealState extends State<_RewardReveal> {
       });
       await Future.delayed(Duration(milliseconds: stepDuration));
     }
+    if (mounted) setState(() => _counterDone = true);
+  }
+
+  bool get _isGoodReward => widget.result.isGoodReward;
+
+  Widget _buildRewardIcon() {
+    final size = S.scale(context, _isGoodReward ? 96 : 78);
+    final icon = widget.result.rewardType == 'item' && widget.result.itemIcon != null
+        ? CachedNetworkImage(
+            imageUrl: widget.result.itemIcon!,
+            width: S.scale(context, _isGoodReward ? 60 : 50),
+            height: S.scale(context, _isGoodReward ? 60 : 50),
+            fit: BoxFit.contain,
+            placeholder: (_, __) => ExcludeSemantics(
+              child: Icon(widget.rewardIcon, size: S.scale(context, _isGoodReward ? 46 : 38), color: widget.rewardColor),
+            ),
+            errorWidget: (_, __, ___) => ExcludeSemantics(
+              child: Icon(widget.rewardIcon, size: S.scale(context, _isGoodReward ? 46 : 38), color: widget.rewardColor),
+            ),
+          )
+        : ExcludeSemantics(
+            child: Icon(widget.rewardIcon, size: S.scale(context, _isGoodReward ? 46 : 38), color: widget.rewardColor),
+          );
+
+    final container = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: widget.rewardColor.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: _isGoodReward ? widget.t.textPrimary : widget.rewardColor,
+          width: S.scale(context, _isGoodReward ? 3 : 2),
+        ),
+        boxShadow: _isGoodReward
+            ? [
+                BoxShadow(
+                  color: widget.t.textPrimary,
+                  offset: Offset(S.scale(context, 5), S.scale(context, 5)),
+                  blurRadius: 0,
+                ),
+                BoxShadow(
+                  color: widget.rewardColor.withValues(alpha: 0.35),
+                  blurRadius: S.scale(context, 28),
+                  spreadRadius: S.scale(context, 6),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: widget.rewardColor.withValues(alpha: 0.25),
+                  blurRadius: S.scale(context, 16),
+                ),
+              ],
+      ),
+      child: Center(child: icon),
+    );
+
+    if (_isGoodReward) {
+      return container
+          .animate()
+          .scale(begin: const Offset(0, 0), duration: 800.ms, curve: Curves.elasticOut)
+          .fadeIn(duration: 200.ms)
+          .then(delay: 300.ms)
+          .shimmer(duration: 1400.ms, color: Colors.white.withValues(alpha: 0.6))
+          .then()
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(begin: const Offset(1, 1), end: const Offset(1.04, 1.04), duration: 900.ms, curve: Curves.easeInOut);
+    }
+    return container
+        .animate()
+        .scale(begin: const Offset(0.3, 0.3), duration: 500.ms, curve: Curves.easeOutBack)
+        .fadeIn(duration: 300.ms);
   }
 
   @override
@@ -303,54 +375,7 @@ class _RewardRevealState extends State<_RewardReveal> {
         SizedBox(height: S.scale(context, 24)),
 
         // Reward icon circle
-        Container(
-          width: S.scale(context, 128),
-          height: S.scale(context, 128),
-          decoration: BoxDecoration(
-            color: widget.rewardColor.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: widget.rewardColor.withValues(alpha: 0.3),
-              width: S.scale(context, 2),
-            ),
-          ),
-          child: Center(
-            child:
-                widget.result.rewardType == 'item' &&
-                    widget.result.itemIcon != null
-                ? CachedNetworkImage(
-                    imageUrl: widget.result.itemIcon!,
-                    width: S.scale(context, 80),
-                    height: S.scale(context, 80),
-                    fit: BoxFit.contain,
-                    placeholder: (_, __) => ExcludeSemantics(
-                      child: Icon(
-                        widget.rewardIcon,
-                        size: S.scale(context, 64),
-                        color: widget.rewardColor,
-                      ),
-                    ),
-                    errorWidget: (_, __, ___) => ExcludeSemantics(
-                      child: Icon(
-                        widget.rewardIcon,
-                        size: S.scale(context, 64),
-                        color: widget.rewardColor,
-                      ),
-                    ),
-                  )
-                : ExcludeSemantics(
-                    child: Icon(
-                      widget.rewardIcon,
-                      size: S.scale(context, 64),
-                      color: widget.rewardColor,
-                    ),
-                  ),
-          ),
-        ).animate().scale(
-          delay: 300.ms,
-          duration: 400.ms,
-          curve: Curves.easeOutBack,
-        ),
+        _buildRewardIcon(),
 
         SizedBox(height: S.scale(context, 16)),
 
@@ -381,14 +406,28 @@ class _RewardRevealState extends State<_RewardReveal> {
         SizedBox(height: S.scale(context, 8)),
 
         // Animated counter
-        Text(
-          '+$_displayAmount ${widget.result.rewardLabel}',
-          style: GoogleFonts.nunito(
-            color: widget.t.textSecondary,
-            fontSize: S.scale(context, 18),
-            fontWeight: FontWeight.w800,
-          ),
-        ).animate().fadeIn(delay: 800.ms),
+        if (_isGoodReward && _counterDone)
+          Text(
+            '+$_displayAmount ${widget.result.rewardLabel}',
+            style: GoogleFonts.nunito(
+              color: widget.rewardColor,
+              fontSize: S.scale(context, 22),
+              fontWeight: FontWeight.w800,
+            ),
+          ).animate().scale(
+            begin: const Offset(0.8, 0.8),
+            duration: 300.ms,
+            curve: Curves.easeOutBack,
+          ).fadeIn(duration: 200.ms)
+        else
+          Text(
+            '+$_displayAmount ${widget.result.rewardLabel}',
+            style: GoogleFonts.nunito(
+              color: widget.t.textSecondary,
+              fontSize: S.scale(context, 18),
+              fontWeight: FontWeight.w800,
+            ),
+          ).animate().fadeIn(delay: 800.ms),
 
         SizedBox(height: S.scale(context, 32)),
 
@@ -396,9 +435,6 @@ class _RewardRevealState extends State<_RewardReveal> {
         if (widget.canOpenAgain) ...[
           Bounceable(
             onTap: () {
-              ProviderScope.containerOf(
-                context,
-              ).read(soundProvider).playClick();
               Navigator.of(context).pop();
               widget.onOpenAgain();
             },
@@ -440,9 +476,6 @@ class _RewardRevealState extends State<_RewardReveal> {
         // Button TUTUP
         Bounceable(
               onTap: () {
-                ProviderScope.containerOf(
-                  context,
-                ).read(soundProvider).playClick();
                 widget.onDismiss();
               },
               child: Container(
@@ -492,11 +525,13 @@ class _RewardRevealState extends State<_RewardReveal> {
 class _ConfettiParticle extends StatelessWidget {
   final AnimationController controller;
   final int index;
+  final bool isGoodReward;
   final Color color;
 
   const _ConfettiParticle({
     required this.controller,
     required this.index,
+    required this.isGoodReward,
     required this.color,
   });
 
@@ -504,12 +539,18 @@ class _ConfettiParticle extends StatelessWidget {
   Widget build(BuildContext context) {
     final random = Random(index * 7);
     final startX = random.nextDouble() * MediaQuery.of(context).size.width;
+    final size = isGoodReward
+        ? S.scale(context, 9 + (index % 3) * 3.0)
+        : S.scale(context, 6.0);
+    final isCircle = isGoodReward ? index.isEven : random.nextBool();
 
     return AnimatedBuilder(
       animation: controller,
       builder: (_, __) {
         final progress = controller.value;
-        final endY = MediaQuery.of(context).size.height * 0.8;
+        final endY = isGoodReward
+            ? MediaQuery.of(context).size.height * 0.9
+            : MediaQuery.of(context).size.height * 0.8;
         final currentY = -50 + (endY + 50) * progress;
         final wobble = sin(progress * 4 * pi + index);
         final opacity = (1 - progress).clamp(0.0, 1.0);
@@ -522,13 +563,15 @@ class _ConfettiParticle extends StatelessWidget {
             child: Transform.rotate(
               angle: progress * 4 * pi + index,
               child: Container(
-                width: S.scale(context, 8),
-                height: S.scale(context, 8),
+                width: size,
+                height: size,
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: BorderRadius.circular(
-                    random.nextBool() ? S.scale(context, 4) : 0,
-                  ),
+                  shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+                  borderRadius: isCircle ? null : BorderRadius.circular(S.scale(context, 2)),
+                  border: isGoodReward
+                      ? Border.all(color: color.withValues(alpha: 0.6), width: 1)
+                      : null,
                 ),
               ),
             ),

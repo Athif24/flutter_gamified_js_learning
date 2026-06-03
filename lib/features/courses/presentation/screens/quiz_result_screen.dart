@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
@@ -42,6 +43,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
     with SingleTickerProviderStateMixin {
   int _displayPct = 0;
   bool _hasInvalidated = false;
+  bool _showRingBurst = false;
   late final AnimationController _scoreAnimController;
 
   bool get _isSuperResult =>
@@ -57,10 +59,23 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
       duration: const Duration(milliseconds: 800),
     );
     _scoreAnimController.addListener(_onScoreTick);
+    _scoreAnimController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted && widget.result.passed) {
+        setState(() => _showRingBurst = true);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 350), () {
         if (mounted) _scoreAnimController.forward();
       });
+      if (_isSuperResult) {
+        HapticFeedback.heavyImpact();
+      } else if (widget.result.passed) {
+        HapticFeedback.mediumImpact();
+      } else {
+        HapticFeedback.lightImpact();
+        Future.delayed(const Duration(milliseconds: 150), () => HapticFeedback.lightImpact());
+      }
       if (!_hasInvalidated) {
         _hasInvalidated = true;
         invalidateGamificationProviders(
@@ -86,6 +101,215 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
         _displayPct = (targetPct * eased).round();
       });
     }
+  }
+
+  Widget _buildAnimatedCard(BuildContext context, Widget card) {
+    if (!widget.result.passed) {
+      return card
+          .animate()
+          .fadeIn(duration: 300.ms)
+          .slideY(begin: -0.15, duration: 500.ms, curve: Curves.easeOutBack)
+          .then(delay: 50.ms)
+          .shake(hz: 3, offset: Offset(S.scale(context, 5), 0), duration: 350.ms);
+    } else if (!_isSuperResult) {
+      return card
+          .animate()
+          .fadeIn(duration: 250.ms)
+          .slideY(begin: 0.35, duration: 650.ms, curve: Curves.easeOutBack);
+    } else {
+      return card
+          .animate()
+          .scale(begin: const Offset(0.55, 0.55), duration: 750.ms, curve: Curves.elasticOut)
+          .fadeIn(duration: 200.ms);
+    }
+  }
+
+  Widget _buildCard(BuildContext context) {
+    final card = Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(S.scale(context, 22)),
+      decoration: BoxDecoration(
+        color: widget.result.passed
+            ? (_isSuperResult
+                  ? widget.t.warning.withValues(alpha: 0.15)
+                  : widget.t.success.withValues(alpha: 0.15))
+            : widget.t.error.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(S.scale(context, 24)),
+        border: Border.all(
+          color: widget.result.passed
+              ? (_isSuperResult ? widget.t.warning : widget.t.success)
+              : widget.t.error,
+          width: S.scale(context, 2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: widget.result.passed
+                ? (_isSuperResult
+                      ? widget.t.warning.withValues(alpha: 0.3)
+                      : widget.t.success.withValues(alpha: 0.3))
+                : widget.t.error.withValues(alpha: 0.3),
+            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          if (_isSuperResult)
+            _buildLegendaryBadge(widget.t),
+          if (_isSuperResult)
+            SizedBox(height: S.scale(context, 12)),
+
+          Semantics(
+            label: widget.result.passed ? 'Lulus' : 'Belum lulus',
+            child: Container(
+              width: S.scale(context, 88),
+              height: S.scale(context, 88),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.result.passed
+                    ? (_isSuperResult
+                          ? widget.t.warning.withValues(alpha: 0.2)
+                          : widget.t.success.withValues(alpha: 0.2))
+                    : widget.t.error.withValues(alpha: 0.2),
+                border: Border.all(
+                  color: widget.result.passed
+                      ? (_isSuperResult ? widget.t.warning : widget.t.success)
+                      : widget.t.error,
+                  width: S.scale(context, 3),
+                ),
+              ),
+              child: Icon(
+                widget.result.passed
+                    ? Icons.emoji_events_rounded
+                    : Icons.close_rounded,
+                size: S.scale(context, 44),
+                color: widget.result.passed
+                    ? (_isSuperResult ? widget.t.warning : widget.t.success)
+                    : widget.t.error,
+              ),
+            ),
+          ).animate().scale(
+            begin: const Offset(0.8, 0.8),
+            end: const Offset(1, 1),
+            duration: 700.ms,
+            curve: Curves.elasticOut,
+          ),
+          SizedBox(height: S.scale(context, 12)),
+
+          Text(
+            widget.result.passed ? 'Luar Biasa! 🎉' : 'Belum Lulus 😢',
+            style: GoogleFonts.nunito(
+              color: widget.t.textPrimary,
+              fontSize: S.font(context, 24),
+              fontWeight: FontWeight.w900,
+            ),
+          ).animate().fadeIn(delay: 300.ms),
+          SizedBox(height: S.scale(context, 8)),
+
+          Text(
+            widget.result.passed
+                ? 'Kamu berhasil melewati batas nilai!'
+                : 'Nilai minimum: ${widget.result.passingScore}%. Coba lagi!',
+            style: GoogleFonts.nunito(
+              color: widget.t.textSecondary,
+              fontSize: S.font(context, 13),
+            ),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(delay: 400.ms),
+
+          if (widget.result.passed) ...[
+            SizedBox(height: S.scale(context, 8)),
+            Text(
+              'Lesson selesai! Kamu bisa lanjut ke lesson berikutnya.',
+              style: GoogleFonts.nunito(
+                color: widget.t.success,
+                fontSize: S.font(context, 13),
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ).animate().fadeIn(delay: 500.ms),
+          ],
+
+          SizedBox(height: S.scale(context, 24)),
+
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              ScoreRing(
+                pct: _displayPct,
+                isPassed: widget.result.passed,
+                isSuper: _isSuperResult,
+                t: widget.t,
+                ringBgColor: widget.t.bgSurface2,
+                size: S.isTablet(context) ? S.scale(context, 160) : S.scale(context, 112),
+              )
+              .animate()
+              .fadeIn(delay: 350.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+
+              if (_showRingBurst)
+                SizedBox(
+                  width: S.isTablet(context) ? S.scale(context, 160) : S.scale(context, 112),
+                  height: S.isTablet(context) ? S.scale(context, 160) : S.scale(context, 112),
+                )
+                .animate()
+                .custom(
+                  duration: 550.ms,
+                  builder: (ctx, value, _) => CustomPaint(
+                    painter: _BurstRingPainter(
+                      progress: value,
+                      color: _isSuperResult ? widget.t.warning : widget.t.success,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+          SizedBox(height: S.scale(context, 24)),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              StatBadge(
+                t: widget.t,
+                emoji: '✅',
+                value: '${widget.result.questionResults.where((q) => q.isCorrect).length}/${widget.result.questionResults.length}',
+                label: 'BENAR',
+                color: widget.t.success,
+                variant: StatBadgeVariant.neoBru,
+              ).animate().fadeIn(delay: 600.ms, duration: 300.ms)
+                .slideY(begin: 0.4, delay: 600.ms, duration: 450.ms, curve: Curves.easeOutBack)
+                .scale(begin: const Offset(0.8, 0.8), delay: 600.ms, duration: 450.ms, curve: Curves.easeOutBack),
+              if (widget.result.xpEarned > 0)
+                StatBadge(
+                  t: widget.t,
+                  emoji: '⚡',
+                  value: '+${widget.result.xpEarned}',
+                  label: 'XP',
+                  color: widget.t.warning,
+                  variant: StatBadgeVariant.neoBru,
+                ).animate().fadeIn(delay: 750.ms, duration: 300.ms)
+                  .slideY(begin: 0.4, delay: 750.ms, duration: 450.ms, curve: Curves.easeOutBack)
+                  .scale(begin: const Offset(0.8, 0.8), delay: 750.ms, duration: 450.ms, curve: Curves.easeOutBack),
+              if (widget.result.jewelsEarned > 0)
+                StatBadge(
+                  t: widget.t,
+                  emoji: '💎',
+                  value: '+${widget.result.jewelsEarned}',
+                  label: 'JEWEL',
+                  color: widget.t.info,
+                  variant: StatBadgeVariant.neoBru,
+                ).animate().fadeIn(delay: 900.ms, duration: 300.ms)
+                  .slideY(begin: 0.4, delay: 900.ms, duration: 450.ms, curve: Curves.easeOutBack)
+                  .scale(begin: const Offset(0.8, 0.8), delay: 900.ms, duration: 450.ms, curve: Curves.easeOutBack),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    return _buildAnimatedCard(context, card);
   }
 
   @override
@@ -126,193 +350,7 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
                       children: [
                         SizedBox(height: S.scale(context, 20)),
 
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(S.scale(context, 22)),
-                          decoration: BoxDecoration(
-                            color: widget.result.passed
-                                ? (_isSuperResult
-                                      ? widget.t.warning.withValues(alpha: 0.15)
-                                      : widget.t.success.withValues(
-                                          alpha: 0.15,
-                                        ))
-                                : widget.t.error.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(
-                              S.scale(context, 24),
-                            ),
-                            border: Border.all(
-                              color: widget.result.passed
-                                  ? (_isSuperResult
-                                        ? widget.t.warning
-                                        : widget.t.success)
-                                  : widget.t.error,
-                              width: S.scale(context, 2),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: widget.result.passed
-                                    ? (_isSuperResult
-                                          ? widget.t.warning.withValues(
-                                              alpha: 0.3,
-                                            )
-                                          : widget.t.success.withValues(
-                                              alpha: 0.3,
-                                            ))
-                                    : widget.t.error.withValues(alpha: 0.3),
-                                offset: Offset(
-                                  S.scale(context, 3),
-                                  S.scale(context, 3),
-                                ),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              if (_isSuperResult)
-                                _buildLegendaryBadge(widget.t),
-                              if (_isSuperResult)
-                                SizedBox(height: S.scale(context, 12)),
-
-                              Semantics(
-                                label: widget.result.passed
-                                    ? 'Lulus'
-                                    : 'Belum lulus',
-                                child: Container(
-                                  width: S.scale(context, 88),
-                                  height: S.scale(context, 88),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: widget.result.passed
-                                        ? (_isSuperResult
-                                              ? widget.t.warning.withValues(
-                                                  alpha: 0.2,
-                                                )
-                                              : widget.t.success.withValues(
-                                                  alpha: 0.2,
-                                                ))
-                                        : widget.t.error.withValues(alpha: 0.2),
-                                    border: Border.all(
-                                      color: widget.result.passed
-                                          ? (_isSuperResult
-                                                ? widget.t.warning
-                                                : widget.t.success)
-                                          : widget.t.error,
-                                       width: S.scale(context, 3),
-                                     ),
-                                   ),
-                                   child: Icon(
-                                    widget.result.passed
-                                        ? Icons.emoji_events_rounded
-                                        : Icons.close_rounded,
-                                    size: S.scale(context, 44),
-                                    color: widget.result.passed
-                                        ? (_isSuperResult
-                                              ? widget.t.warning
-                                              : widget.t.success)
-                                        : widget.t.error,
-                                  ),
-                                ),
-                              ).animate().scale(
-                                begin: const Offset(0.8, 0.8),
-                                end: const Offset(1, 1),
-                                duration: 700.ms,
-                                curve: Curves.elasticOut,
-                              ),
-                              SizedBox(height: S.scale(context, 12)),
-
-                              Text(
-                                widget.result.passed
-                                    ? 'Luar Biasa! 🎉'
-                                    : 'Belum Lulus 😢',
-                                style: GoogleFonts.nunito(
-                                  color: widget.t.textPrimary,
-                                  fontSize: S.font(context, 24),
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ).animate().fadeIn(delay: 300.ms),
-                              SizedBox(height: S.scale(context, 8)),
-
-                              Text(
-                                widget.result.passed
-                                    ? 'Kamu berhasil melewati batas nilai!'
-                                    : 'Nilai minimum: ${widget.result.passingScore}%. Coba lagi!',
-                                style: GoogleFonts.nunito(
-                                  color: widget.t.textSecondary,
-                                  fontSize: S.font(context, 13),
-                                ),
-                                textAlign: TextAlign.center,
-                              ).animate().fadeIn(delay: 400.ms),
-
-                              if (widget.result.passed) ...[
-                                SizedBox(height: S.scale(context, 8)),
-                                Text(
-                                  'Lesson selesai! Kamu bisa lanjut ke lesson berikutnya.',
-                                  style: GoogleFonts.nunito(
-                                    color: widget.t.success,
-                                    fontSize: S.font(context, 13),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ).animate().fadeIn(delay: 500.ms),
-                              ],
-
-                              SizedBox(height: S.scale(context, 24)),
-
-                              ScoreRing(
-                                    pct: _displayPct,
-                                    isPassed: widget.result.passed,
-                                    isSuper: _isSuperResult,
-                                    t: widget.t,
-                                    ringBgColor: widget.t.bgSurface2,
-                                    size: S.isTablet(context) ? S.scale(context, 160) : S.scale(context, 112),
-                                  )
-                                  .animate()
-                                  .fadeIn(delay: 350.ms)
-                                  .scale(begin: const Offset(0.8, 0.8)),
-
-                              SizedBox(height: S.scale(context, 24)),
-
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: StatBadge(
-                                      t: widget.t,
-                                      icon: Icons.check_circle_rounded,
-                                      value:
-                                          '${widget.result.questionResults.where((q) => q.isCorrect).length}/${widget.result.questionResults.length}',
-                                      label: 'Benar',
-                                      color: widget.t.success,
-                                      delay: 700,
-                                    ),
-                                  ),
-                                  if (widget.result.xpEarned > 0)
-                                    Expanded(
-                                      child: StatBadge(
-                                        t: widget.t,
-                                        icon: Icons.bolt_rounded,
-                                        value: '+${widget.result.xpEarned}',
-                                        label: 'XP',
-                                        color: widget.t.warning,
-                                        delay: 780,
-                                      ),
-                                    ),
-                                  if (widget.result.jewelsEarned > 0)
-                                    Expanded(
-                                      child: StatBadge(
-                                        t: widget.t,
-                                        icon: Icons.diamond_rounded,
-                                        value: '+${widget.result.jewelsEarned}',
-                                        label: 'Jewel',
-                                        color: widget.t.info,
-                                        delay: 860,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildCard(context),
 
                         SizedBox(height: S.scale(context, 24)),
 
@@ -463,23 +501,64 @@ class _QuizResultScreenState extends ConsumerState<QuizResultScreen>
   Widget _buildLegendaryBadge(BloomTheme t) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: S.scale(context, 12),
-        vertical: S.scale(context, 4),
+        horizontal: S.scale(context, 14),
+        vertical: S.scale(context, 6),
       ),
       decoration: BoxDecoration(
-        color: t.warning.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(S.scale(context, 50)),
+        color: t.warning,
+        borderRadius: BorderRadius.circular(S.scale(context, 6)),
         border: Border.all(color: t.textPrimary, width: S.scale(context, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: t.textPrimary,
+            offset: Offset(S.scale(context, 3), S.scale(context, 3)),
+            blurRadius: 0,
+          ),
+        ],
       ),
-      child: Text(
-        'LEGENDARY SCORE',
-        style: GoogleFonts.nunito(
-          color: t.warning,
-          fontSize: S.font(context, 10),
-          fontWeight: FontWeight.w900,
-          letterSpacing: S.scale(context, 1.8),
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('⚡', style: TextStyle(fontSize: S.font(context, 13))),
+          SizedBox(width: S.scale(context, 6)),
+          Text(
+            'LEGENDARY SCORE',
+            style: GoogleFonts.nunito(
+              color: t.textPrimary,
+              fontSize: S.font(context, 11),
+              fontWeight: FontWeight.w900,
+              letterSpacing: S.scale(context, 1.8),
+            ),
+          ),
+          SizedBox(width: S.scale(context, 6)),
+          Text('⚡', style: TextStyle(fontSize: S.font(context, 13))),
+        ],
       ),
-    ).animate().fadeIn(delay: 160.ms).scale(begin: const Offset(0.8, 0.8));
+    )
+    .animate(onPlay: (c) => c.repeat())
+    .shimmer(duration: 2200.ms, color: Colors.white.withValues(alpha: 0.55), angle: 0.3)
+    .animate() // merge
+    .fadeIn(delay: 160.ms)
+    .scale(begin: const Offset(0.8, 0.8));
   }
+}
+
+class _BurstRingPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  const _BurstRingPainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: (1 - progress) * 0.85)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+    final r = (size.width / 2) * (1 + progress * 0.55);
+    canvas.drawCircle(size.center(Offset.zero), r, paint);
+  }
+
+  @override
+  bool shouldRepaint(_BurstRingPainter oldDelegate) => oldDelegate.progress != progress;
 }

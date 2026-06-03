@@ -6,7 +6,7 @@ import '../../../../../core/services/cloudinary_service.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../shared/widgets/game_3d_button.dart';
 import '../../../../../core/utils/responsive_utils.dart';
-import '../../../../../shared/services/sound_service.dart';
+
 import '../../providers/auth_provider.dart';
 import 'steps/welcome_step.dart';
 import 'steps/profile_step.dart';
@@ -107,7 +107,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ? SizedBox(width: rs(36), height: rs(36))
                           : GestureDetector(
                               onTap: () {
-                                ref.read(soundProvider).playClick();
                                 _prev();
                               },
                               behavior: HitTestBehavior.opaque,
@@ -125,7 +124,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       if (!_isLast)
                         GestureDetector(
                           onTap: () {
-                            ref.read(soundProvider).playClick();
                             _next();
                           },
                           behavior: HitTestBehavior.opaque,

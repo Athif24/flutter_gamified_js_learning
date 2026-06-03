@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/utils/responsive_utils.dart';
-import '../services/sound_service.dart';
 
 // TODO: deduplicate with theme_parser.dart _darken
 Color darken(Color c, double amt) {
@@ -71,7 +70,6 @@ class _Game3DButtonState extends ConsumerState<Game3DButton> {
         onTapUp: widget.onTap != null
             ? (_) {
                 if (mounted) setState(() => _pressed = false);
-                ref.read(soundProvider).playClick();
                 widget.onTap?.call();
               }
             : null,

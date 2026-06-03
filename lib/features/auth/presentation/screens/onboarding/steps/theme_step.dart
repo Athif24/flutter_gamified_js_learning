@@ -3,7 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../shared/themes/theme_provider.dart';
-import '../../../../../../shared/services/sound_service.dart';
+
 import '../../../../../../core/utils/responsive_utils.dart';
 
 class ThemeStep extends ConsumerStatefulWidget {
@@ -51,7 +51,6 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
             t: t,
             isLight: _showLight,
             onToggle: (v) {
-              ref.read(soundProvider).playClick();
               setState(() => _showLight = v);
             },
           ),
@@ -74,7 +73,6 @@ class _ThemeStepState extends ConsumerState<ThemeStep> {
                   theme: theme,
                   selected: selected,
                   onTap: () {
-                    ref.read(soundProvider).playClick();
                     ref.read(themeProvider.notifier).setTheme(theme.id);
                   },
                 );

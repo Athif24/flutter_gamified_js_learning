@@ -3,7 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../shared/themes/theme_provider.dart';
-import '../../../../../shared/services/sound_service.dart';
+
 import '../../../../../core/utils/responsive_utils.dart';
 import 'map_item.dart';
 import 'unit_header.dart';
@@ -95,7 +95,6 @@ class PetaBelajar extends ConsumerWidget {
                           onTap: item.isLocked
                               ? null
                               : () {
-                                  ref.read(soundProvider).playClick();
                                   context.push(
                                     '/lesson/${item.lessonId}?courseId=$courseId',
                                   );

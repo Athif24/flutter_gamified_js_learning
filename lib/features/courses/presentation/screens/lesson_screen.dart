@@ -18,7 +18,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../shared/presentation/providers/fetch_state_providers.dart';
 import '../providers/course_provider.dart';
 import '../../../../core/utils/responsive_utils.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../widgets/prose_mirror_renderer.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
@@ -57,7 +57,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(currentThemeProvider);
-    final sound = ref.watch(soundProvider);
     final lessonAsync = ref.watch(lessonDetailProvider(widget.lessonId));
     final quizAsync = ref.watch(lessonQuizProvider(widget.lessonId));
     final effectiveQuizId = quizAsync.whenOrNull(data: (q) => q?.id);
@@ -86,7 +85,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                         label: 'Kembali',
                         child: Bounceable(
                           onTap: () {
-                            sound.playClick();
                             if (context.canPop()) {
                               context.pop();
                             } else if (widget.courseId != null) {
@@ -277,8 +275,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen>
                                   onTap: _isProcessing || isCompleted
                                       ? null
                                       : () {
-                                          sound.playClick();
-                                          _handleBottomButton(
+                                           _handleBottomButton(
                                             context,
                                             ref,
                                             t,

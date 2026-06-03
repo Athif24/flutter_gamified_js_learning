@@ -10,7 +10,7 @@ import '../../../../../../shared/widgets/main_screen.dart';
 import '../../../../../../core/utils/error_helper.dart';
 import '../../../../../../core/constants/app_strings.dart';
 import '../../../../../../core/utils/responsive_utils.dart';
-import '../../../../../../shared/services/sound_service.dart';
+
 import '../../../../data/models/course_model.dart';
 import '../../../../../achievement/data/models/achievement_model.dart';
 import '../../../providers/course_provider.dart';
@@ -289,7 +289,6 @@ class IntroBodyState extends State<IntroBody> {
                 padding: EdgeInsets.only(top: S.scale(context, 4)),
                 child: GestureDetector(
                   onTap: () {
-                    widget.ref.read(soundProvider).playClick();
                     widget.ref.read(navIndexProvider.notifier).state = 3;
                     context.go('/home');
                   },

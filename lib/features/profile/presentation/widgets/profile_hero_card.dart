@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../data/models/profile_model.dart';
 import 'theme_picker_sheet.dart';
 
@@ -152,7 +152,6 @@ class ProfileHeroCard extends StatelessWidget {
                 label: 'Edit profil',
                 child: Bounceable(
                 onTap: () {
-                  ref.read(soundProvider).playClick();
                   onEditProfile();
                 },
                 hitTestBehavior: HitTestBehavior.opaque,
@@ -241,7 +240,6 @@ class ProfileHeroCard extends StatelessWidget {
             label: 'Pilih tema',
             child: Bounceable(
             onTap: () {
-              ref.read(soundProvider).playClick();
               showThemePicker(context, ref);
             },
             hitTestBehavior: HitTestBehavior.opaque,

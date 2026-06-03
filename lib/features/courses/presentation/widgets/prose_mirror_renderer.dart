@@ -453,7 +453,7 @@ class ProseMirrorRenderer extends StatelessWidget {
               border: Border.all(color: t.primary.withValues(alpha: 0.2)),
             ),
             child: Text(text, style: GoogleFonts.firaCode(
-                color: t.primary, fontSize: S.font(context, 12))),
+                color: t.textPrimary, fontSize: S.font(context, 12))),
           ),
         ));
       } else {

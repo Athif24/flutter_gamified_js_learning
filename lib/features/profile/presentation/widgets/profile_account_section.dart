@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
 
 class ProfileAccountSection extends ConsumerStatefulWidget {
   final BloomTheme t;
@@ -135,7 +134,6 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
                   width: double.infinity,
                   child: Bounceable(
                     onTap: () {
-                      ref.read(soundProvider).playClick();
                       widget.onChangePassword();
                     },
                   child: Container(
@@ -186,7 +184,6 @@ class ProfileAccountSectionState extends ConsumerState<ProfileAccountSection> {
                   label: 'Keluar dari aplikasi',
                   child: Bounceable(
                     onTap: () {
-                      ref.read(soundProvider).playClick();
                       widget.onLogout();
                     },
                     child: Container(

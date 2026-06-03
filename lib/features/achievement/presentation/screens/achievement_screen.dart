@@ -17,7 +17,7 @@ import '../widgets/achievement_skeletons.dart';
 import '../widgets/hero_card.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/badge_collection.dart';
-import '../../../../shared/services/sound_service.dart';
+
 
 class AchievementScreen extends ConsumerStatefulWidget {
   const AchievementScreen({super.key});
@@ -100,7 +100,6 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
                       t: t,
                       title: AppStrings.errLoadAchievementDetail,
                       onRetry: () {
-                        ref.read(soundProvider).playClick();
                         ref.invalidate(xpProvider);
                         ref.invalidate(streakProvider);
                         ref.invalidate(mergedBadgesProvider);

@@ -12,7 +12,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/error_helper.dart';
 import '../../../../core/utils/silent_refresh_mixin.dart';
 import '../../../../core/utils/responsive_utils.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/course_provider.dart';
 import '../../data/models/course_model.dart';
@@ -229,7 +229,6 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                 label: 'Kembali',
                 child: Bounceable(
                   onTap: () {
-                    ref.read(soundProvider).playClick();
                     if (context.canPop()) {
                       context.pop();
                     } else {

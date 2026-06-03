@@ -82,7 +82,6 @@ class _SoundStepState extends ConsumerState<SoundStep> {
                       onTap: () {
                         final s = ref.read(soundProvider);
                         if (s.isMuted) {
-                          s.playClick();
                         }
                         s.setMuted(!s.isMuted);
                       },

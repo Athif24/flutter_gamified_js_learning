@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import '../../../../../../shared/services/sound_service.dart';
+
 import '../../../../../../shared/themes/theme_provider.dart';
 import '../../../../../../core/utils/responsive_utils.dart';
 import '../../../../../../features/profile/presentation/widgets/crop_screen.dart';
@@ -46,7 +46,6 @@ class ProfileStep extends ConsumerWidget {
           SizedBox(height: S.scale(context, 24)),
           GestureDetector(
             onTap: () {
-              ref.read(soundProvider).playClick();
               _pickAvatar(context, ref, t);
             },
             child: Semantics(

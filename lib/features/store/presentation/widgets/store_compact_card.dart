@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../data/models/store_model.dart';
@@ -213,7 +213,6 @@ class StoreCompactCard extends ConsumerWidget {
                   verticalPadding: S.scale(context, 6),
                   onTap: canAfford
                       ? () {
-                          ref.read(soundProvider).playClick();
                           onBuy(item);
                         }
                       : null,

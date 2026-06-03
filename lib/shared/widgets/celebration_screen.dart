@@ -811,7 +811,6 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       label: 'Reward',
       child: Bounceable(
         onTap: () {
-          ref.read(soundProvider).playClick();
           invalidateGamificationProviders(
             ref,
             courseId: widget.courseId,

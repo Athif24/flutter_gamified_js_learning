@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../providers/store_provider.dart';
 
 class StoreTabBtn extends ConsumerWidget {
@@ -29,7 +29,6 @@ class StoreTabBtn extends ConsumerWidget {
     final sel = idx == cur;
     return Bounceable(
       onTap: () {
-        ref.read(soundProvider).playClick();
         ref.read(storeTabProvider.notifier).state = idx;
       },
       child: AnimatedContainer(

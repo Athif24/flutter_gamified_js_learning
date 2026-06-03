@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../shared/providers/gamification_providers.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../courses/presentation/providers/course_provider.dart';
 import '../providers/auth_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../../../core/utils/responsive_utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -227,7 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               keyboardType: TextInputType.emailAddress,
                               style: GoogleFonts.nunito(color: t.textPrimary),
                               decoration: _inputDecoration(
-                                'nama@email.com',
+                                'Masukkan email',
                                 Icons.email_outlined,
                                 t,
                               ),
@@ -258,7 +256,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         size: S.scale(context, 20),
                                       ),
                                       onPressed: () {
-                                        ref.read(soundProvider).playClick();
                                         setState(() => _obscure = !_obscure);
                                       },
                                     ),
@@ -300,7 +297,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            ref.read(soundProvider).playClick();
                             context.push('/register');
                           },
                           child: Text(

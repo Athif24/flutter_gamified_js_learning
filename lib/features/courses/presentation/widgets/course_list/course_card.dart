@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../shared/themes/theme_provider.dart';
-import '../../../../../shared/services/sound_service.dart';
+
 import '../../../../../core/utils/responsive_utils.dart';
 import '../../../../../core/utils/error_helper.dart';
 import '../../../data/models/course_model.dart';
@@ -280,8 +280,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                         : 'Lanjutkan kursus ${course.title}',
                     child: Bounceable(
                       onTap: () {
-                        ref.read(soundProvider).playClick();
-                        context.push('/course/${course.id}');
+                      context.push('/course/${course.id}');
                       },
                       child: Container(
                         width: double.infinity,
@@ -349,8 +348,7 @@ class CourseCardState extends ConsumerState<CourseCard> {
                       onTap: _isEnrolling
                           ? null
                           : () {
-                              ref.read(soundProvider).playClick();
-                              _enroll();
+                               _enroll();
                             },
                       child: Container(
                         width: double.infinity,

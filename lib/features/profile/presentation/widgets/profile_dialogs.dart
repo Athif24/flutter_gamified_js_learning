@@ -12,7 +12,7 @@ import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/services/cloudinary_service.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/providers/gamification_providers.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../../../shared/widgets/main_screen.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../../../courses/presentation/providers/course_provider.dart';
@@ -133,7 +133,6 @@ Future<void> showEditProfile(
                                   label: 'Hapus avatar',
                                   child: GestureDetector(
                                     onTap: () {
-                                      ref.read(soundProvider).playClick();
                                       setState(() {
                                         avatarFile = null;
                                         avatarUrl = null;
@@ -169,7 +168,6 @@ Future<void> showEditProfile(
                           label: 'Upload foto profil',
                           child: Bounceable(
                           onTap: () async {
-                            ref.read(soundProvider).playClick();
                             final result = await AssetPicker.pickAssets(
                               ctx,
                               pickerConfig: AssetPickerConfig(
@@ -552,7 +550,6 @@ Future<void> showChangePassword(
                             label: 'Tutup dialog',
                             child: GestureDetector(
                               onTap: () {
-                                ref.read(soundProvider).playClick();
                                 Navigator.of(ctx).pop();
                               },
                               child: Container(

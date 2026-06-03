@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../data/models/achievement_model.dart';
 import '../utils/date_utils.dart';
 import 'achievement_skeletons.dart';
@@ -182,7 +182,6 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                       count: badges.length,
                       isActive: _activeTab == 'all',
                       onTap: () {
-                        ref.read(soundProvider).playClick();
                         setState(() => _activeTab = 'all');
                       },
                       t: t,
@@ -193,7 +192,6 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                       count: earnedCount,
                       isActive: _activeTab == 'earned',
                       onTap: () {
-                        ref.read(soundProvider).playClick();
                         setState(() => _activeTab = 'earned');
                       },
                       t: t,
@@ -204,7 +202,6 @@ class _BadgeCollectionState extends ConsumerState<BadgeCollection> {
                       count: lockedCount,
                       isActive: _activeTab == 'locked',
                       onTap: () {
-                        ref.read(soundProvider).playClick();
                         setState(() => _activeTab = 'locked');
                       },
                       t: t,

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../shared/themes/theme_provider.dart';
 import '../../../../../core/utils/responsive_utils.dart';
-import '../../../../../shared/services/sound_service.dart';
+
 import '../../../data/models/course_model.dart';
 
 class ReviewDialog extends ConsumerWidget {
@@ -50,7 +50,6 @@ class ReviewDialog extends ConsumerWidget {
                 label: 'Tutup',
                 child: Bounceable(
                   onTap: () {
-                    ref.read(soundProvider).playClick();
                     Navigator.pop(context);
                   },
                   child: Icon(

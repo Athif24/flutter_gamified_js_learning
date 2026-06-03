@@ -3,7 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../../../core/utils/responsive_utils.dart';
 
 void showThemePicker(BuildContext context, WidgetRef ref) {
@@ -98,7 +98,6 @@ class _ThemePickerSheetState extends ConsumerState<_ThemePickerSheet> {
                     theme: themes[i],
                     isActive: themes[i].id == widget.currentThemeId,
                     onTap: () {
-                      ref.read(soundProvider).playClick();
                       ref.read(themeProvider.notifier).setTheme(themes[i].id);
                     },
                   ),
@@ -136,7 +135,6 @@ class _TabBar extends ConsumerWidget {
               label: '☀️  Light',
               selected: isLight,
               onTap: () {
-                ref.read(soundProvider).playClick();
                 onToggle(true);
               },
             ),
@@ -146,7 +144,6 @@ class _TabBar extends ConsumerWidget {
               label: '🌚  Dark',
               selected: !isLight,
               onTap: () {
-                ref.read(soundProvider).playClick();
                 onToggle(false);
               },
             ),

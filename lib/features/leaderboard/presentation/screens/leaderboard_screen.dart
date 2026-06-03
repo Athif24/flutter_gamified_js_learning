@@ -18,7 +18,6 @@ import '../widgets/leaderboard_search_card.dart';
 import '../widgets/leaderboard_table.dart';
 import '../widgets/leaderboard_footer_stats.dart';
 import '../../data/models/leaderboard_model.dart';
-import '../../../../shared/services/sound_service.dart';
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
@@ -96,7 +95,6 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   title: AppStrings.errLoadLeaderboardDetail,
                   message: sanitizeErrorMessage(e),
                   onRetry: () {
-                    ref.read(soundProvider).playClick();
                     ref.invalidate(leaderboardProvider);
                   },
                 ),

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
-import '../../../../shared/services/sound_service.dart';
+
 
 class CropScreen extends ConsumerStatefulWidget {
   final File imageFile;
@@ -52,7 +52,6 @@ class _CropScreenState extends ConsumerState<CropScreen> {
           icon: Icon(Icons.close, color: t.textPrimary),
           tooltip: 'Tutup',
           onPressed: () {
-            ref.read(soundProvider).playClick();
             Navigator.pop(context);
           },
         ),

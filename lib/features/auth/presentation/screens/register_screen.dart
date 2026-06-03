@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/themes/theme_provider.dart';
 import '../../../../shared/widgets/game_3d_button.dart';
 import '../providers/auth_provider.dart';
-import '../../../../shared/services/sound_service.dart';
+
 import '../../../../core/utils/responsive_utils.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -200,7 +200,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               _nameCtrl,
                               t,
                               icon: Icons.person_outline_rounded,
-                              hint: 'Muhammad Athif',
+                              hint: 'Masukkan nama lengkap',
                               validator: (v) => (v == null || v.length < 3)
                                   ? 'Min. 3 karakter'
                                   : null,
@@ -211,7 +211,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               _emailCtrl,
                               t,
                               icon: Icons.email_outlined,
-                              hint: 'nama@email.com',
+                              hint: 'Masukkan email',
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) => (v == null || !v.contains('@'))
                                   ? 'Email tidak valid'
@@ -319,7 +319,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          ref.read(soundProvider).playClick();
                           context.pop();
                         },
                         child: Text(
@@ -412,7 +411,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 size: S.scale(context, 20),
               ),
               onPressed: () {
-                ref.read(soundProvider).playClick();
                 toggle();
               },
             ),

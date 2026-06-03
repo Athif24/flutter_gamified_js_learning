@@ -18,7 +18,6 @@ class VolumeButton extends ConsumerWidget {
       label: muted ? 'Aktifkan suara' : 'Nonaktifkan suara',
       child: GestureDetector(
         onTap: () {
-          sound.playClick();
           _showVolumePopover(context, t);
         },
         child: Container(

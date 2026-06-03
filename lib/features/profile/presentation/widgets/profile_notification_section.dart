@@ -220,7 +220,6 @@ class ProfileNotificationSectionState
                       value: !sound.isMuted,
                       onChanged: (v) {
                         if (sound.isMuted) {
-                          ref.read(soundProvider).playClick();
                         }
                         ref.read(soundProvider).setMuted(!v);
                       },
