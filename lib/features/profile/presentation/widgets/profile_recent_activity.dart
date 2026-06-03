@@ -20,6 +20,8 @@ class ProfileRecentActivity extends StatelessWidget {
     'quiz': {'icon': Icons.code_rounded, 'label': 'Quiz'},
     'lesson': {'icon': Icons.menu_book_rounded, 'label': 'Lesson'},
     'bonus': {'icon': Icons.card_giftcard_rounded, 'label': 'Bonus'},
+    'unit': {'icon': Icons.folder_rounded, 'label': 'Unit Selesai'},
+    'course': {'icon': Icons.school_rounded, 'label': 'Kursus Selesai'},
   };
 
   String _dateLabel(String dateStr) {

@@ -87,6 +87,18 @@ class _XpHistoryListState extends ConsumerState<XpHistoryList> {
       color: t.secondary,
       bg: t.secondary.withValues(alpha: 25/255),
     ),
+    'unit': _SourceConfig(
+      icon: Icons.folder_rounded,
+      label: 'Unit',
+      color: t.info,
+      bg: t.info.withValues(alpha: 25/255),
+    ),
+    'course': _SourceConfig(
+      icon: Icons.school_rounded,
+      label: 'Kursus',
+      color: t.warning,
+      bg: t.warning.withValues(alpha: 25/255),
+    ),
   };
 
   String _formatDateGroup(String dateStr) {
