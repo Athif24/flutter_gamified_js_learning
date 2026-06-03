@@ -36,7 +36,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   List<String> _unitNames = [];
   final _activeUnitName = ValueNotifier('');
   final _isUnitHeaderVisible = ValueNotifier<bool>(true);
-  bool _scrolledToActive = true;
+  bool _scrolledToActive = false;
   bool _tutorialCheckDone = false;
   String? _lastActiveLessonId;
   bool _tutorialSeen = false;
@@ -203,9 +203,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
         ? items[firstActiveLessonIdx].lessonId
         : null;
     if (currentActiveId != null && currentActiveId != _lastActiveLessonId) {
-      final isFirstLoad = _lastActiveLessonId == null;
       _lastActiveLessonId = currentActiveId;
-      if (!isFirstLoad) _scrolledToActive = false;
+      _scrolledToActive = false;
     }
     if (_tutorialCheckDone && !_scrolledToActive) {
       _scrollToActive(items);
